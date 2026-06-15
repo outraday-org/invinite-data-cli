@@ -1,22 +1,22 @@
 {
-  "name": "invinite-api-cli",
+  "name": "invinite-data-cli",
   "version": "0.1.19",
   "type": "module",
-  "description": "CLI for the Invinite API",
-  "homepage": "https://github.com/outraday-org/invinite-api-cli",
+  "description": "CLI for the Invinite Data API",
+  "homepage": "https://github.com/outraday-org/invinite-data-cli",
   "repository": {
     "type": "git",
-    "url": "https://github.com/outraday-org/invinite-api-cli.git"
+    "url": "https://github.com/outraday-org/invinite-data-cli.git"
   },
   "bugs": {
-    "url": "https://github.com/outraday-org/invinite-api-cli/issues"
+    "url": "https://github.com/outraday-org/invinite-data-cli/issues"
   },
   "bin": {
-    "invinite": "./dist/bin/invinite.js"
+    "invd": "./dist/bin/invd.js"
   },
   "scripts": {
     "build": "tsc",
-    "dev": "tsx bin/invinite.ts",
+    "dev": "tsx bin/invd.ts",
     "lint": "eslint src",
     "test": "vitest run",
     "test:watch": "vitest",

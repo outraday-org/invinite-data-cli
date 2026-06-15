@@ -1,26 +1,26 @@
-# invinite-api-cli
+# invinite-data-cli
 
-Command-line interface for the [Invinite API](https://invinite.com/docs/api/overview) — access company data, financial statements, SEC filings, institutional ownership, and more from your terminal.
+Command-line interface for the [Invinite Data API](https://invinite.com/docs/data-api/overview) — access company data, financial statements, SEC filings, institutional ownership, and more from your terminal.
 
 ## Installation
 
 ### From npm
 
 ```bash
-npm install -g invinite-api-cli
+npm install -g invinite-data-cli
 ```
 
 To update to the latest version:
 
 ```bash
-npm update -g invinite-api-cli
+npm update -g invinite-data-cli
 ```
 
 ### From source
 
 ```bash
-git clone https://github.com/outraday-org/invinite-api-cli.git
-cd invinite-api-cli
+git clone https://github.com/outraday-org/invinite-data-cli.git
+cd invinite-data-cli
 npm install
 npm run build
 npm link
@@ -30,22 +30,22 @@ Requires Node.js >= 20.
 
 ## Authentication
 
-The CLI requires an Invinite API key. The key is resolved in the following order:
+The CLI requires an Invinite Data API key. The key is resolved in the following order:
 
-1. **Environment variable** — `INVINITE_API_KEY`
+1. **Environment variable** — `INVINITE_DATA_API_KEY`
 2. **OS keychain** — via the optional `keytar` package
 3. **Stored config** — set with the CLI
 
 ### Set your API key
 
 ```bash
-invinite config set-key
+invd config set-key
 ```
 
 You'll be prompted to enter your key (input is masked). Alternatively, export it as an environment variable:
 
 ```bash
-export INVINITE_API_KEY=your-api-key
+export INVINITE_DATA_API_KEY=your-api-key
 ```
 
 ## AI Plugin
@@ -56,15 +56,15 @@ This repo includes plugins for AI coding tools that enable AI-powered financial 
 
 ```bash
 # Interactive — prompts for runtime and scope
-npx invinite-api-cli@latest plugin install
+npx invinite-data-cli@latest plugin install
 
 # Non-interactive examples
-npx invinite-api-cli@latest plugin install --claude --global
-npx invinite-api-cli@latest plugin install --claude --local
-npx invinite-api-cli@latest plugin install --opencode --global
-npx invinite-api-cli@latest plugin install --codex --global
-npx invinite-api-cli@latest plugin install --copilot --local
-npx invinite-api-cli@latest plugin install --all --global
+npx invinite-data-cli@latest plugin install --claude --global
+npx invinite-data-cli@latest plugin install --claude --local
+npx invinite-data-cli@latest plugin install --opencode --global
+npx invinite-data-cli@latest plugin install --codex --global
+npx invinite-data-cli@latest plugin install --copilot --local
+npx invinite-data-cli@latest plugin install --all --global
 ```
 
 ### Update
@@ -72,30 +72,30 @@ npx invinite-api-cli@latest plugin install --all --global
 To update the plugin to the latest version, re-run the install command:
 
 ```bash
-npx invinite-api-cli@latest plugin install --claude --global
-npx invinite-api-cli@latest plugin install --all --global
+npx invinite-data-cli@latest plugin install --claude --global
+npx invinite-data-cli@latest plugin install --all --global
 ```
 
 ### Uninstall
 
 ```bash
-npx invinite-api-cli@latest plugin uninstall --claude --global
-npx invinite-api-cli@latest plugin uninstall --all --global
+npx invinite-data-cli@latest plugin uninstall --claude --global
+npx invinite-data-cli@latest plugin uninstall --all --global
 ```
 
 ### What gets installed
 
 | Runtime | Skill | Agent | Command |
 |---------|-------|-------|---------|
-| **Claude Code** | `skills/invinite-api-cli/SKILL.md` | `agents/invinite-data.md` | `commands/financial-research.md` |
-| **OpenCode** | `command/invinite-api-cli.md` | `agents/invinite-data.md` | — |
-| **Codex** | `skills/invinite-api-cli/SKILL.md` | — | `skills/invinite-financial-research/SKILL.md` |
-| **Copilot** | `skills/invinite-api-cli/SKILL.md` | — | `skills/invinite-financial-research/SKILL.md` |
+| **Claude Code** | `skills/invinite-data-cli/SKILL.md` | `agents/invinite-data.md` | `commands/financial-research.md` |
+| **OpenCode** | `command/invinite-data-cli.md` | `agents/invinite-data.md` | — |
+| **Codex** | `skills/invinite-data-cli/SKILL.md` | — | `skills/invinite-financial-research/SKILL.md` |
+| **Copilot** | `skills/invinite-data-cli/SKILL.md` | — | `skills/invinite-financial-research/SKILL.md` |
 
 ### Alternative: Claude Code plugin directory
 
 ```bash
-claude --plugin-dir /path/to/invinite-api-cli/claude-plugin
+claude --plugin-dir /path/to/invinite-data-cli/claude-plugin
 ```
 
 ### Usage examples
@@ -145,16 +145,16 @@ Manage CLI configuration.
 
 ```bash
 # Set API key (interactive, masked input)
-invinite config set-key
+invd config set-key
 
 # Set custom API base URL
-invinite config set-url https://custom-api.example.com
+invd config set-url https://custom-api.example.com
 
 # Show current configuration
-invinite config show
+invd config show
 
 # Reset all configuration to defaults
-invinite config reset
+invd config reset
 ```
 
 ---
@@ -164,7 +164,7 @@ invinite config reset
 Check API health status.
 
 ```bash
-invinite health
+invd health
 ```
 
 ---
@@ -178,7 +178,7 @@ Company information, search, and corporate actions.
 List all available companies.
 
 ```bash
-invinite company list
+invd company list
 ```
 
 #### `company search`
@@ -192,8 +192,8 @@ Search companies by ticker or name.
 | `--offset <n>` | Pagination offset | `0` |
 
 ```bash
-invinite company search -q "Apple"
-invinite company search -q MSFT --limit 5
+invd company search -q "Apple"
+invd company search -q MSFT --limit 5
 ```
 
 #### `company details`
@@ -205,7 +205,7 @@ Fetch company details.
 | `-i, --identifier <ticker>` | Ticker symbol or CIK **(required)** |
 
 ```bash
-invinite company details -i AAPL
+invd company details -i AAPL
 ```
 
 #### `company dividends`
@@ -222,7 +222,7 @@ Fetch stock dividends.
 | `--offset <n>` | Pagination offset | `0` |
 
 ```bash
-invinite company dividends -i AAPL --start-date 2023-01-01
+invd company dividends -i AAPL --start-date 2023-01-01
 ```
 
 #### `company fiscal-periods`
@@ -237,7 +237,7 @@ Fetch available fiscal periods.
 | `--offset <n>` | Pagination offset | `0` |
 
 ```bash
-invinite company fiscal-periods -i MSFT
+invd company fiscal-periods -i MSFT
 ```
 
 #### `company splits`
@@ -252,7 +252,7 @@ Fetch stock splits.
 | `--offset <n>` | Pagination offset | `0` |
 
 ```bash
-invinite company splits -i AAPL
+invd company splits -i AAPL
 ```
 
 ---
@@ -280,22 +280,22 @@ All statement commands share these options:
 #### `financials income-statement`
 
 ```bash
-invinite financials income-statement -i AAPL -p annual
-invinite financials income-statement -i AAPL -p quarterly --detailed
-invinite financials income-statement -i AAPL -p annual --presentation
-invinite financials income-statement -i AAPL -p annual --as-reported
+invd financials income-statement -i AAPL -p annual
+invd financials income-statement -i AAPL -p quarterly --detailed
+invd financials income-statement -i AAPL -p annual --presentation
+invd financials income-statement -i AAPL -p annual --as-reported
 ```
 
 #### `financials balance-sheet`
 
 ```bash
-invinite financials balance-sheet -i MSFT -p quarterly --limit 4
+invd financials balance-sheet -i MSFT -p quarterly --limit 4
 ```
 
 #### `financials cash-flow`
 
 ```bash
-invinite financials cash-flow -i GOOGL -p annual
+invd financials cash-flow -i GOOGL -p annual
 ```
 
 #### `financials snapshot`
@@ -313,8 +313,8 @@ Fetch the latest complete financial snapshot. Uses comma-separated identifiers i
 | `--as-reported` | Use as-reported data | — |
 
 ```bash
-invinite financials snapshot -i AAPL,MSFT,GOOGL -p annual
-invinite financials snapshot -i AAPL -p quarterly --calendar-year 2024 --calendar-quarter 3
+invd financials snapshot -i AAPL,MSFT,GOOGL -p annual
+invd financials snapshot -i AAPL -p quarterly --calendar-year 2024 --calendar-quarter 3
 ```
 
 ---
@@ -337,7 +337,7 @@ Fetch financial ratios.
 | `--offset <n>` | Pagination offset | `0` |
 
 ```bash
-invinite metrics ratios -i AAPL -p annual --category profitability
+invd metrics ratios -i AAPL -p annual --category profitability
 ```
 
 #### `metrics cagr`
@@ -353,7 +353,7 @@ Fetch compound annual growth rate metrics.
 | `--offset <n>` | Pagination offset | `0` |
 
 ```bash
-invinite metrics cagr -i AAPL --period-years 5
+invd metrics cagr -i AAPL --period-years 5
 ```
 
 #### `metrics growth`
@@ -370,7 +370,7 @@ Fetch growth metrics.
 | `--offset <n>` | Pagination offset | `0` |
 
 ```bash
-invinite metrics growth -i MSFT -p quarterly --growth-type year_over_year
+invd metrics growth -i MSFT -p quarterly --growth-type year_over_year
 ```
 
 ---
@@ -392,8 +392,8 @@ Segmented financial data.
 | `--offset <n>` | Pagination offset | `0` |
 
 ```bash
-invinite segments list -i AAPL -p annual
-invinite segments list -i AAPL -p annual --detailed
+invd segments list -i AAPL -p annual
+invd segments list -i AAPL -p annual --detailed
 ```
 
 ---
@@ -415,7 +415,7 @@ Fetch SEC filings for a company.
 | `--offset <n>` | Pagination offset | `0` |
 
 ```bash
-invinite filings list -i AAPL --form-type 10-K
+invd filings list -i AAPL --form-type 10-K
 ```
 
 #### `filings search`
@@ -429,7 +429,7 @@ Search SEC filings using natural language.
 | `--accession-number <num>` | Filter by accession number |
 
 ```bash
-invinite filings search -r "revenue recognition policy changes" -i AAPL
+invd filings search -r "revenue recognition policy changes" -i AAPL
 ```
 
 #### `filings sections`
@@ -446,7 +446,7 @@ Fetch SEC filing sections.
 | `--fiscal-quarter <q>` | Filter by fiscal quarter |
 
 ```bash
-invinite filings sections -i AAPL --form-type 10-K --section-id risk_factors
+invd filings sections -i AAPL --form-type 10-K --section-id risk_factors
 ```
 
 #### `filings form-types`
@@ -458,8 +458,8 @@ List available SEC form types.
 | `-i, --identifier <ticker>` | Filter by company (optional) |
 
 ```bash
-invinite filings form-types
-invinite filings form-types -i AAPL
+invd filings form-types
+invd filings form-types -i AAPL
 ```
 
 ---
@@ -480,7 +480,7 @@ Fetch all holdings for an institutional investor.
 | `--offset <n>` | Pagination offset | `0` |
 
 ```bash
-invinite ownership holdings-by-investor --cik 0001067983
+invd ownership holdings-by-investor --cik 0001067983
 ```
 
 #### `ownership holdings-by-company`
@@ -496,7 +496,7 @@ Fetch institutional holders of a company.
 | `--offset <n>` | Pagination offset | `0` |
 
 ```bash
-invinite ownership holdings-by-company -i AAPL --min-value 1000000
+invd ownership holdings-by-company -i AAPL --min-value 1000000
 ```
 
 #### `ownership transactions`
@@ -517,8 +517,8 @@ Fetch institutional ownership transactions.
 | `--offset <n>` | Pagination offset | `0` |
 
 ```bash
-invinite ownership transactions -i AAPL --type new_buy
-invinite ownership transactions --cik 0001067983 --calendar-year 2024
+invd ownership transactions -i AAPL --type new_buy
+invd ownership transactions --cik 0001067983 --calendar-year 2024
 ```
 
 #### `ownership institutions`
@@ -533,8 +533,8 @@ List institutional investors.
 | `--offset <n>` | Pagination offset | `0` |
 
 ```bash
-invinite ownership institutions
-invinite ownership institutions --ciks 0001067983,0001364742
+invd ownership institutions
+invd ownership institutions --ciks 0001067983,0001364742
 ```
 
 ---
@@ -556,8 +556,8 @@ Insider trading data.
 | `--offset <n>` | Pagination offset | `0` |
 
 ```bash
-invinite insider-trades list -i AAPL
-invinite insider-trades list -i TSLA --acquired-disposed D --limit 20
+invd insider-trades list -i AAPL
+invd insider-trades list -i TSLA --acquired-disposed D --limit 20
 ```
 
 ---
@@ -577,7 +577,7 @@ IPO listings.
 | `--offset <n>` | Pagination offset | `0` |
 
 ```bash
-invinite ipos list --start-date 2024-01-01 --end-date 2024-12-31
+invd ipos list --start-date 2024-01-01 --end-date 2024-12-31
 ```
 
 ---
@@ -597,7 +597,7 @@ Fetch market holidays.
 | `--offset <n>` | Pagination offset | `0` |
 
 ```bash
-invinite market holidays
+invd market holidays
 ```
 
 ---
@@ -611,7 +611,7 @@ API metadata and available identifiers.
 List all available standardized financial metrics.
 
 ```bash
-invinite metadata metrics
+invd metadata metrics
 ```
 
 #### `metadata section-ids`
@@ -619,7 +619,7 @@ invinite metadata metrics
 List available section IDs for SEC filings.
 
 ```bash
-invinite metadata section-ids
+invd metadata section-ids
 ```
 
 ---
@@ -633,7 +633,7 @@ Real-time WebSocket streaming.
 Listen to real-time SEC filing notifications. Automatically reconnects on disconnection with exponential backoff.
 
 ```bash
-invinite ws listen
+invd ws listen
 ```
 
 Press `Ctrl+C` to disconnect.
@@ -646,13 +646,13 @@ By default, data is displayed as formatted tables with aligned columns and numbe
 
 ```bash
 # Default table output
-invinite company search -q Apple
+invd company search -q Apple
 
 # Raw JSON output (useful for piping to jq or other tools)
-invinite company search -q Apple --json
+invd company search -q Apple --json
 
 # Pipe to jq
-invinite financials income-statement -i AAPL -p annual --json | jq '.data[0]'
+invd financials income-statement -i AAPL -p annual --json | jq '.data[0]'
 ```
 
 Financial statements with `--presentation` are displayed as indented trees showing the hierarchical structure of line items.
@@ -663,13 +663,13 @@ Results are paginated by default. Use `--limit` and `--offset` to control pagina
 
 ```bash
 # Get first 10 results (default)
-invinite company dividends -i AAPL
+invd company dividends -i AAPL
 
 # Get results 20-30
-invinite company dividends -i AAPL --limit 10 --offset 20
+invd company dividends -i AAPL --limit 10 --offset 20
 
 # Fetch all results automatically
-invinite company dividends -i AAPL --all
+invd company dividends -i AAPL --all
 ```
 
 ## Development

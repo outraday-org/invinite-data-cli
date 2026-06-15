@@ -19,7 +19,7 @@ export function createProgram(): Command {
   const program = new Command();
 
   program
-    .name('invinite')
+    .name('invd')
     .description('CLI for the Invinite financial data API')
     .version('0.1.0')
     .option('--json', 'Output raw JSON (pipe-friendly)')

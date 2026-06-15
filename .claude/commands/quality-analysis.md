@@ -195,7 +195,7 @@ Flag violations of these project conventions:
 - Exit code 0 on success, non-zero on error — never exit 0 after logging an error
 - `--json` flag support for data-output commands (consistent with existing commands)
 - No secrets or API keys printed to stdout (even in debug/verbose mode)
-- Config values read via the project's `conf`/config helpers, not direct `process.env` reads (except for `INVINITE_API_KEY` fallback which is by design)
+- Config values read via the project's `conf`/config helpers, not direct `process.env` reads (except for `INVINITE_DATA_API_KEY` fallback which is by design)
 - Error messages must be user-actionable — no raw stack traces or "undefined" in user output
 
 ---

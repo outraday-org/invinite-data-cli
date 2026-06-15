@@ -7,7 +7,7 @@ describe('config-manager', () => {
   });
 
   it('should have default base URL', () => {
-    expect(getBaseUrl()).toBe('https://api.invinite.com');
+    expect(getBaseUrl()).toBe('https://data.invinite.com');
   });
 
   it('should set and get base URL', () => {
@@ -25,7 +25,7 @@ describe('config-manager', () => {
     setBaseUrl('https://custom.api.com');
     setStoredApiKey('key');
     resetConfig();
-    expect(getBaseUrl()).toBe('https://api.invinite.com');
+    expect(getBaseUrl()).toBe('https://data.invinite.com');
     expect(getStoredApiKey()).toBeUndefined();
   });
 

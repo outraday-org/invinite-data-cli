@@ -6,11 +6,11 @@ interface ConfigSchema {
 }
 
 const config = new Conf<ConfigSchema>({
-  projectName: 'invinite-cli',
+  projectName: 'invinite-data-cli',
   schema: {
     baseUrl: {
       type: 'string',
-      default: 'https://api.invinite.com',
+      default: 'https://data.invinite.com',
     },
     apiKey: {
       type: 'string',

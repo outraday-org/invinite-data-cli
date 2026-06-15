@@ -21,8 +21,8 @@ const RUNTIMES: Record<Runtime, RuntimeConfig> = {
     localDir: '.claude',
     install(sourceDir, targetDir) {
       copyFile(
-        path.join(sourceDir, 'skills/invinite-api-cli/SKILL.md'),
-        path.join(targetDir, 'skills/invinite-api-cli/SKILL.md'),
+        path.join(sourceDir, 'skills/invinite-data-cli/SKILL.md'),
+        path.join(targetDir, 'skills/invinite-data-cli/SKILL.md'),
       );
       copyFile(
         path.join(sourceDir, 'agents/invinite-data.md'),
@@ -40,11 +40,11 @@ const RUNTIMES: Record<Runtime, RuntimeConfig> = {
     localDir: null,
     install(sourceDir, targetDir) {
       const skillContent = fs.readFileSync(
-        path.join(sourceDir, 'skills/invinite-api-cli/SKILL.md'),
+        path.join(sourceDir, 'skills/invinite-data-cli/SKILL.md'),
         'utf-8',
       );
       const transformed = transformForOpenCode(skillContent);
-      writeFile(path.join(targetDir, 'command/invinite-api-cli.md'), transformed);
+      writeFile(path.join(targetDir, 'command/invinite-data-cli.md'), transformed);
 
       const agentContent = fs.readFileSync(
         path.join(sourceDir, 'agents/invinite-data.md'),
@@ -60,11 +60,11 @@ const RUNTIMES: Record<Runtime, RuntimeConfig> = {
     localDir: '.codex',
     install(sourceDir, targetDir) {
       const skillContent = fs.readFileSync(
-        path.join(sourceDir, 'skills/invinite-api-cli/SKILL.md'),
+        path.join(sourceDir, 'skills/invinite-data-cli/SKILL.md'),
         'utf-8',
       );
       writeFile(
-        path.join(targetDir, 'skills/invinite-api-cli/SKILL.md'),
+        path.join(targetDir, 'skills/invinite-data-cli/SKILL.md'),
         transformForCodex(skillContent),
       );
 
@@ -84,11 +84,11 @@ const RUNTIMES: Record<Runtime, RuntimeConfig> = {
     localDir: '.github',
     install(sourceDir, targetDir) {
       const skillContent = fs.readFileSync(
-        path.join(sourceDir, 'skills/invinite-api-cli/SKILL.md'),
+        path.join(sourceDir, 'skills/invinite-data-cli/SKILL.md'),
         'utf-8',
       );
       writeFile(
-        path.join(targetDir, 'skills/invinite-api-cli/SKILL.md'),
+        path.join(targetDir, 'skills/invinite-data-cli/SKILL.md'),
         transformForCopilot(skillContent),
       );
 
@@ -106,20 +106,20 @@ const RUNTIMES: Record<Runtime, RuntimeConfig> = {
 
 const INSTALLED_PATHS: Record<Runtime, string[]> = {
   claude: [
-    'skills/invinite-api-cli/SKILL.md',
+    'skills/invinite-data-cli/SKILL.md',
     'agents/invinite-data.md',
     'commands/financial-research.md',
   ],
   opencode: [
-    'command/invinite-api-cli.md',
+    'command/invinite-data-cli.md',
     'agents/invinite-data.md',
   ],
   codex: [
-    'skills/invinite-api-cli/SKILL.md',
+    'skills/invinite-data-cli/SKILL.md',
     'skills/invinite-financial-research/SKILL.md',
   ],
   copilot: [
-    'skills/invinite-api-cli/SKILL.md',
+    'skills/invinite-data-cli/SKILL.md',
     'skills/invinite-financial-research/SKILL.md',
   ],
 };

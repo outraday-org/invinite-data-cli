@@ -23,7 +23,7 @@ function readDotEnvKey(): string | undefined {
     for (const line of content.split('\n')) {
       const trimmed = line.trim();
       if (trimmed.startsWith('#') || !trimmed) continue;
-      const match = trimmed.match(/^INVINITE_API_KEY\s*=\s*(.+)$/);
+      const match = trimmed.match(/^INVINITE_DATA_API_KEY\s*=\s*(.+)$/);
       if (match) {
         let value = match[1].trim();
         // Strip surrounding quotes
@@ -39,12 +39,12 @@ function readDotEnvKey(): string | undefined {
   return undefined;
 }
 
-const SERVICE = 'invinite-cli';
+const SERVICE = 'invinite-data-cli';
 const ACCOUNT = 'api-key';
 
 export async function getApiKey(): Promise<string> {
   // 1. Environment variable (highest priority)
-  const envKey = process.env.INVINITE_API_KEY;
+  const envKey = process.env.INVINITE_DATA_API_KEY;
   if (envKey) return envKey;
 
   // 2. .env file in current working directory
@@ -62,7 +62,7 @@ export async function getApiKey(): Promise<string> {
   const storedKey = getStoredApiKey();
   if (storedKey) return storedKey;
 
-  throw new Error('No API key configured. Set INVINITE_API_KEY in your environment or .env file, or run: invinite config set-key');
+  throw new Error('No API key configured. Set INVINITE_DATA_API_KEY in your environment or .env file, or run: invd config set-key');
 }
 
 export async function setApiKey(key: string): Promise<void> {

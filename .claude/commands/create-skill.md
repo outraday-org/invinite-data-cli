@@ -232,7 +232,7 @@ The directories themselves are real directories; only the `SKILL.md` inside each
 
 - **add-\***: Skills for adding new components (e.g., `add-command`)
 - **create-\***: Skills for creating new features
-- **explain-\***: Skills that explain existing patterns (e.g., `invinite-api-cli`)
+- **explain-\***: Skills that explain existing patterns (e.g., `invinite-data-cli`)
 - **adjust-\***: Skills for modifying existing features
 
 Choose the appropriate prefix based on the skill's purpose.
