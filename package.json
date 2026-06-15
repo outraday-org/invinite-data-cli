@@ -1,5 +1,5 @@
 {
-  "name": "@outraday-org/invinite-data-cli",
+  "name": "@invinite-org/invinite-data-cli",
   "version": "0.1.19",
   "type": "module",
   "description": "CLI for the Invinite Data API",
