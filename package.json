@@ -1,8 +1,11 @@
 {
-  "name": "invinite-data-cli",
+  "name": "@outraday-org/invinite-data-cli",
   "version": "0.1.19",
   "type": "module",
   "description": "CLI for the Invinite Data API",
+  "publishConfig": {
+    "access": "public"
+  },
   "homepage": "https://github.com/outraday-org/invinite-data-cli",
   "repository": {
     "type": "git",

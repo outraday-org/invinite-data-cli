@@ -1,4 +1,4 @@
-# invinite-data-cli
+# @outraday-org/invinite-data-cli
 
 Command-line interface for the [Invinite Data API](https://invinite.com/docs/data-api/overview) — access company data, financial statements, SEC filings, institutional ownership, and more from your terminal.
 
@@ -7,13 +7,13 @@ Command-line interface for the [Invinite Data API](https://invinite.com/docs/dat
 ### From npm
 
 ```bash
-npm install -g invinite-data-cli
+npm install -g @outraday-org/invinite-data-cli
 ```
 
 To update to the latest version:
 
 ```bash
-npm update -g invinite-data-cli
+npm update -g @outraday-org/invinite-data-cli
 ```
 
 ### From source
@@ -56,15 +56,15 @@ This repo includes plugins for AI coding tools that enable AI-powered financial 
 
 ```bash
 # Interactive — prompts for runtime and scope
-npx invinite-data-cli@latest plugin install
+npx @outraday-org/invinite-data-cli@latest plugin install
 
 # Non-interactive examples
-npx invinite-data-cli@latest plugin install --claude --global
-npx invinite-data-cli@latest plugin install --claude --local
-npx invinite-data-cli@latest plugin install --opencode --global
-npx invinite-data-cli@latest plugin install --codex --global
-npx invinite-data-cli@latest plugin install --copilot --local
-npx invinite-data-cli@latest plugin install --all --global
+npx @outraday-org/invinite-data-cli@latest plugin install --claude --global
+npx @outraday-org/invinite-data-cli@latest plugin install --claude --local
+npx @outraday-org/invinite-data-cli@latest plugin install --opencode --global
+npx @outraday-org/invinite-data-cli@latest plugin install --codex --global
+npx @outraday-org/invinite-data-cli@latest plugin install --copilot --local
+npx @outraday-org/invinite-data-cli@latest plugin install --all --global
 ```
 
 ### Update
@@ -72,15 +72,15 @@ npx invinite-data-cli@latest plugin install --all --global
 To update the plugin to the latest version, re-run the install command:
 
 ```bash
-npx invinite-data-cli@latest plugin install --claude --global
-npx invinite-data-cli@latest plugin install --all --global
+npx @outraday-org/invinite-data-cli@latest plugin install --claude --global
+npx @outraday-org/invinite-data-cli@latest plugin install --all --global
 ```
 
 ### Uninstall
 
 ```bash
-npx invinite-data-cli@latest plugin uninstall --claude --global
-npx invinite-data-cli@latest plugin uninstall --all --global
+npx @outraday-org/invinite-data-cli@latest plugin uninstall --claude --global
+npx @outraday-org/invinite-data-cli@latest plugin uninstall --all --global
 ```
 
 ### What gets installed

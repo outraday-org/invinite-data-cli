@@ -10,7 +10,7 @@ The `invd` CLI provides access to comprehensive financial data from the Invinite
 
 ## Prerequisites
 
-The CLI must be installed (`npm install -g invinite-data-cli`) and authenticated. Authentication is resolved in this order:
+The CLI must be installed (`npm install -g @outraday-org/invinite-data-cli`) and authenticated. Authentication is resolved in this order:
 1. `INVINITE_DATA_API_KEY` environment variable
 2. OS keychain (via optional `keytar`)
 3. Stored config (set via `invd config set-key`)
