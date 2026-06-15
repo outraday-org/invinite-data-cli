@@ -1,0 +1,1 @@
+../../../../.claude/commands/fix-errors.md
