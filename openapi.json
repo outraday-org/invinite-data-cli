@@ -722,7 +722,8 @@
                           },
                           "exchange": {
                             "type": "string",
-                            "description": "Listing exchange"
+                            "nullable": true,
+                            "description": "Listing exchange (null when unknown)"
                           },
                           "currency": {
                             "type": "string",

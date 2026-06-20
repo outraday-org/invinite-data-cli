@@ -48,7 +48,7 @@ export function registerFilingsCommands(program: Command): void {
       output(data, opts, () => {
         for (const c of data.companies) {
           console.log(chalk.bold(`\n${c.ticker} SEC Filings\n`));
-          formatTable(c.filings, ['filing_date', 'form_type', 'fiscal_year', 'fiscal_quarter', 'calendar_year', 'calendar_quarter', 'period_end', 'accession_number', 'html_url', 'pdf_url']);
+          formatTable(c.filings, ['filing_date', 'form_type', 'fiscal_year', 'fiscal_quarter', 'calendar_year', 'calendar_quarter', 'period_end', 'accession_number', 'html_url']);
           printPaginationHint(c.next_url);
         }
       });
