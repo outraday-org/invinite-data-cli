@@ -166,6 +166,12 @@ You are a senior engineer. Follow these steps:
 Rules:
 - Reuse first — extend existing code instead of creating new
 - Minimal diff — smallest change that achieves the goal
+- **Concurrent edits are expected** — other agents (and your sibling
+  teammates) may be editing this repo at the same time. Do not be confused
+  by modified/untracked files you did not create, unexpected diffs, or a
+  working tree that changes under you. Only touch files your own task owns;
+  never revert, stash, or `git checkout`/`git restore`/`git clean` files
+  outside your task (you would destroy another agent's in-flight work).
 - All file paths must be verified against actual codebase, not copied from task
 - Write .plan.md even though you implement it yourself — it's an audit artifact
 - **Clarify before guessing** — if the task is ambiguous, call `AskUserQuestion`
@@ -365,6 +371,10 @@ rm <task-folder>/*.plan.md
 - Within each wave, execute all tasks **in parallel** using concurrent teammates
 - Do NOT implement code yourself — always delegate to teammates
 - Do NOT analyze code yourself — always delegate to teammates
+- **Other agents may be editing the repo concurrently** while this run is in
+  progress. Treat unexpected modified/untracked files and a shifting working
+  tree as normal — do not be confused by them, and never revert or clean
+  files outside the current task's scope
 - Skip tasks that already have an `X-` prefix
 - All reporting must be in English
 - Teammates run with `bypassPermissions` mode for autonomous execution (Runtime A only)
