@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "invinite-data": {
+    "invinite-financial-data": {
       "type": "http",
       "url": "https://mcp.data.invinite.com/t/${user_config.team_id}/mcp"
     }

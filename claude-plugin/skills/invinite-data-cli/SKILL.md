@@ -1,5 +1,5 @@
 ---
-name: invinite-data-cli
+name: invinite-financial-data
 description: Fetch financial data through the Invinite Data API MCP connector or invd CLI. Use whenever the user wants company information, financial statements, SEC filings, institutional ownership, insider trades, IPO data, market holidays, financial metrics, or other stock/company data, including requests mentioning tickers, CIKs, balance sheets, income statements, cash flows, 10-K, 10-Q, ratios, CAGR, growth rates, dividends, stock splits, or institutional holdings.
 allowed-tools: Bash(invd *)
 ---

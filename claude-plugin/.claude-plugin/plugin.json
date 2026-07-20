@@ -1,9 +1,9 @@
 {
-  "name": "invd",
+  "name": "invinite-financial-data",
   "description": "Fetch and analyze financial data using the Invinite Data API — company fundamentals, financial statements, SEC filings, institutional ownership, insider trades, and more.",
   "version": "0.2.0",
   "author": {
-    "name": "Outraday"
+    "name": "Invinite"
   },
   "homepage": "https://github.com/outraday-org/invinite-data-cli",
   "repository": "https://github.com/outraday-org/invinite-data-cli",
