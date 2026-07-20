@@ -14,6 +14,7 @@ import { registerMarketCommands } from './commands/market.js';
 import { registerMetadataCommands } from './commands/metadata.js';
 import { registerWsCommands } from './commands/ws.js';
 import { registerPluginCommands } from './commands/plugin.js';
+import { registerLoginCommands } from './commands/login.js';
 
 export function createProgram(): Command {
   const program = new Command();
@@ -45,6 +46,7 @@ export function createProgram(): Command {
   registerMetadataCommands(program);
   registerWsCommands(program);
   registerPluginCommands(program);
+  registerLoginCommands(program);
 
   return program;
 }

@@ -1,10 +1,18 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { getStoredApiKey, setStoredApiKey } from './config-manager.js';
+import { deleteStoredApiKey, getStoredApiKey, setStoredApiKey } from './config-manager.js';
 
 interface KeytarLike {
+  deletePassword: (service: string, account: string) => Promise<boolean>;
   getPassword: (service: string, account: string) => Promise<string | null>;
   setPassword: (service: string, account: string, password: string) => Promise<void>;
+}
+
+export type ApiKeySource = 'environment' | 'dotenv' | 'keychain' | 'config';
+
+export interface ResolvedApiKey {
+  key: string;
+  source: ApiKeySource;
 }
 
 async function tryKeytar(): Promise<KeytarLike | null> {
@@ -42,27 +50,32 @@ function readDotEnvKey(): string | undefined {
 const SERVICE = 'invinite-data-cli';
 const ACCOUNT = 'api-key';
 
-export async function getApiKey(): Promise<string> {
+export async function resolveApiKey(): Promise<ResolvedApiKey> {
   // 1. Environment variable (highest priority)
   const envKey = process.env.INVINITE_DATA_API_KEY;
-  if (envKey) return envKey;
+  if (envKey) return { key: envKey, source: 'environment' };
 
   // 2. .env file in current working directory
   const dotEnvKey = readDotEnvKey();
-  if (dotEnvKey) return dotEnvKey;
+  if (dotEnvKey) return { key: dotEnvKey, source: 'dotenv' };
 
   // 3. OS keychain via keytar
   const keytar = await tryKeytar();
   if (keytar) {
     const keychainKey = await keytar.getPassword(SERVICE, ACCOUNT);
-    if (keychainKey) return keychainKey;
+    if (keychainKey) return { key: keychainKey, source: 'keychain' };
   }
 
   // 4. Conf fallback
   const storedKey = getStoredApiKey();
-  if (storedKey) return storedKey;
+  if (storedKey) return { key: storedKey, source: 'config' };
 
-  throw new Error('No API key configured. Set INVINITE_DATA_API_KEY in your environment or .env file, or run: invd config set-key');
+  throw new Error('No API key configured. Run: invd login');
+}
+
+export async function getApiKey(): Promise<string> {
+  const resolved = await resolveApiKey();
+  return resolved.key;
 }
 
 export async function setApiKey(key: string): Promise<void> {
@@ -71,5 +84,16 @@ export async function setApiKey(key: string): Promise<void> {
     await keytar.setPassword(SERVICE, ACCOUNT, key);
   } else {
     setStoredApiKey(key);
+  }
+}
+
+export async function clearApiKey(): Promise<void> {
+  const keytar = await tryKeytar();
+  try {
+    if (keytar) {
+      await keytar.deletePassword(SERVICE, ACCOUNT);
+    }
+  } finally {
+    deleteStoredApiKey();
   }
 }

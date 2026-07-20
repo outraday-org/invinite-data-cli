@@ -36,6 +36,10 @@ export function setStoredApiKey(key: string): void {
   config.set('apiKey', key);
 }
 
+export function deleteStoredApiKey(): void {
+  config.delete('apiKey');
+}
+
 export function resetConfig(): void {
   config.clear();
 }

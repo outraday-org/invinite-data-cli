@@ -30,11 +30,33 @@ Requires Node.js >= 20.
 
 ## Authentication
 
-The CLI requires an Invinite Data API key. The key is resolved in the following order:
+The recommended way to authenticate is browser login:
+
+```bash
+invd login
+```
+
+The browser flow creates a revocable, 90-day Data API key and stores it in the
+OS keychain when available (with local CLI config as a fallback). The sign-in
+also appears in the web UI's Data API key settings. If you belong to multiple
+teams, choose one explicitly:
+
+```bash
+invd login --team <teamId>
+```
+
+To revoke the browser sign-in and remove the locally stored credential:
+
+```bash
+invd logout
+```
+
+Manual API keys remain supported. The active key is resolved in the following order:
 
 1. **Environment variable** — `INVINITE_DATA_API_KEY`
-2. **OS keychain** — via the optional `keytar` package
-3. **Stored config** — set with the CLI
+2. **Current directory `.env` file** — `INVINITE_DATA_API_KEY=...`
+3. **OS keychain** — via the optional `keytar` package
+4. **Stored config** — set with the CLI
 
 ### Set your API key
 
@@ -47,6 +69,9 @@ You'll be prompted to enter your key (input is masked). Alternatively, export it
 ```bash
 export INVINITE_DATA_API_KEY=your-api-key
 ```
+
+Because environment and `.env` values take precedence over stored credentials,
+`invd logout` will tell you to remove them manually when either is active.
 
 ## AI Plugin
 
@@ -123,6 +148,8 @@ These options are available on all data commands:
 
 ## Commands
 
+- `login` — Log in through your browser (`--team <teamId>` for multi-team users)
+- `logout` — Revoke the current browser sign-in and clear local credentials
 - [config](#config) — Manage CLI configuration
 - [health](#health) — Check API health
 - [company](#company) — Company information
