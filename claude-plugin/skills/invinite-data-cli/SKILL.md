@@ -1,21 +1,51 @@
 ---
 name: invinite-data-cli
-description: Fetch financial data using the Invinite Data API CLI. Use this skill whenever the user wants to look up company information, financial statements, SEC filings, institutional ownership, insider trades, IPO data, market holidays, financial metrics, or any stock/company-related data. Also use when the user mentions tickers, CIKs, balance sheets, income statements, cash flows, 10-K, 10-Q, ratios, CAGR, growth rates, dividends, stock splits, or institutional holdings — even if they don't mention "Invinite" by name.
+description: Fetch financial data through the Invinite Data API MCP connector or invd CLI. Use whenever the user wants company information, financial statements, SEC filings, institutional ownership, insider trades, IPO data, market holidays, financial metrics, or other stock/company data, including requests mentioning tickers, CIKs, balance sheets, income statements, cash flows, 10-K, 10-Q, ratios, CAGR, growth rates, dividends, stock splits, or institutional holdings.
 allowed-tools: Bash(invd *)
 ---
 
-# Invinite Data API CLI
+# Invinite Data API
 
-The `invd` CLI provides access to comprehensive financial data from the Invinite Data API. Always use `--json` when fetching data for analysis — it returns structured JSON you can pipe to `jq` or parse programmatically.
+Use the connected Invinite Data API MCP tools when available. Fall back to the `invd` CLI when MCP is unavailable. Both transports access the same team-billed Data API.
+
+## Transport selection
+
+1. Prefer MCP tools when an Invinite Data connector is available. Call the direct domain tool matching the request; unlike the Web API MCP server, the Data API MCP server does not use meta-tools such as `call_endpoint`.
+2. Use the CLI examples below when MCP is unavailable or when the user explicitly requests CLI usage. Always pass `--json` for data used in analysis.
+3. Do not mix transports merely to repeat a successful request.
+
+### MCP and CLI mapping
+
+| Data need | MCP tool | CLI command family |
+|---|---|---|
+| Search/details/list | `company_search`, `company_details`, `available_companies` | `invd company ...` |
+| Dividends/periods/splits | `company_dividends`, `company_fiscal_periods`, `company_splits` | `invd company ...` |
+| Standardized statements/snapshots | `standardized_financial_statement`, `standardized_financial_snapshot` | `invd financials ...` |
+| As-reported statements/snapshots | `as_reported_financial_statement`, `as_reported_financial_snapshot` | `invd financials ... --as-reported` |
+| Ratios/growth/CAGR | `financial_ratios`, `financial_growth`, `financial_cagr` | `invd metrics ...` |
+| Segment data | `segmented_financials` | `invd segments ...` |
+| SEC filings/search/sections | `sec_filings`, `sec_filings_search`, `sec_filing_sections` | `invd filings ...` |
+| Filing and metric discovery | `sec_available_form_types`, `list_available_section_ids`, `list_available_metrics` | `invd filings form-types`, `invd metadata ...` |
+| Institutional ownership | `holdings_by_company`, `holdings_by_investor`, `institutional_investors`, `institutional_transactions` | `invd ownership ...` |
+| Insider trades/IPOs/holidays | `insider_trades`, `ipos`, `market_holidays` | `invd insider-trades`, `invd ipos`, `invd market ...` |
+
+The discovery rules below apply to both transports: call `list_available_metrics` before ratios, growth, CAGR, or financial-statement analysis, and call `list_available_section_ids` before requesting filing sections.
 
 ## Prerequisites
 
-The CLI must be installed (`npm install -g @invinite-org/invinite-data-cli`) and authenticated. Authentication is resolved in this order:
-1. `INVINITE_DATA_API_KEY` environment variable
-2. OS keychain (via optional `keytar`)
-3. Stored config (set via `invd config set-key`)
+### MCP
 
-If a command fails with an auth error, tell the user to run `invd config set-key` or set `INVINITE_DATA_API_KEY`.
+Connect `https://mcp.data.invinite.com/t/<teamId>/mcp` through OAuth. The team in the URL controls data billing. Leave OAuth client ID and secret empty so the client uses Dynamic Client Registration and PKCE.
+
+### CLI
+
+Install the CLI with `npm install -g @invinite-org/invinite-data-cli`, then run `invd login` or `invd login --team <teamId>`. Authentication is resolved in this order:
+1. `INVINITE_DATA_API_KEY` environment variable
+2. `.env` file
+3. OS keychain (via optional `keytar`)
+4. Stored config
+
+If an MCP call fails with an auth error, reconnect the connector and complete OAuth. If a CLI call fails with an auth error, run `invd login`; manual `invd config set-key` and `INVINITE_DATA_API_KEY` remain supported fallbacks.
 
 ## Global Options
 
