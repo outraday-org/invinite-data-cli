@@ -77,6 +77,14 @@ Because environment and `.env` values take precedence over stored credentials,
 
 This repo includes plugins for AI coding tools that enable AI-powered financial data retrieval and analysis. Supports **Claude Code**, **OpenCode**, **Codex**, and **Copilot**.
 
+### Choose an integration
+
+- **Standalone skill:** installs the Invinite workflow and CLI reference. It prefers MCP when connected and falls back to the local `invd` CLI.
+- **Standalone MCP connector:** add `https://mcp.data.invinite.com/t/<teamId>/mcp` in Claude's connector settings, leave OAuth client ID/secret empty, and complete browser OAuth. This supplies tools but not the packaged research workflows.
+- **Claude plugin:** bundles the skill, remote MCP connector, data agent, and research commands. During setup, enter the team ID shown in the team-pinned MCP URL in Invinite Data API settings; OAuth still uses Dynamic Client Registration and PKCE.
+
+The team ID controls access, usage, and billing for MCP calls. CLI calls use the team selected by `invd login --team <teamId>` and do not inherit the plugin's connector setting.
+
 ### Quick install
 
 ```bash
@@ -122,6 +130,8 @@ npx @invinite-org/invinite-data-cli@latest plugin uninstall --all --global
 ```bash
 claude --plugin-dir /path/to/invinite-data-cli/claude-plugin
 ```
+
+The Claude plugin also includes `compare-companies`, `analyze-filing`, and `ownership-review`. Its `.mcp.json` connects the team-pinned remote server automatically; use `/mcp` to complete OAuth or inspect connection status in Claude Code. In Claude web/Desktop, install the plugin through your organization's plugin marketplace, enter the team ID when prompted, and connect the bundled connector.
 
 ### Usage examples
 
