@@ -1,5 +1,5 @@
 ---
-description: Fix merge conflicts thoroughly by merging both sides, then push. Never loses work from either branch.
+description: Fix merge conflicts thoroughly by merging both sides, push, then return the local checkout to an up-to-date origin/main. Never loses work from either branch.
 model: opus
 ---
 
@@ -41,6 +41,10 @@ so the PR can be merged in the GitHub UI.
    TypeScript or lint errors introduced by the merge.
 6. **Stage, commit, and push** — stage all resolved files, commit with a clear
    merge message, and `git push` so the PR is ready to merge in GitHub.
+7. **Return to an up-to-date `main`** — after the push, check out
+   `main` and fast-forward it to `origin/main`, so the working copy ends
+   the session in sync with the remote default branch (see "Return to
+   `origin/main`" below).
 
 ## Conflict Resolution Rules
 
@@ -161,6 +165,9 @@ actually broken. After resolving all marked conflicts, check for these:
 - Maximum of 5 parallel subagents at any time.
 - Do not modify code unrelated to the merge — no drive-by refactors.
 - Always push at the end so the PR can be merged from the GitHub UI.
+- **Always end on `main`, fast-forwarded to `origin/main`** — never leave the
+  checkout on the merge branch, and never force that sync with a reset,
+  stash, or clean.
 
 ## Commit & Push
 
@@ -174,3 +181,33 @@ git push
 
 If the push fails because the remote is ahead, pull with `--no-rebase` and
 resolve any new conflicts before pushing again.
+
+## Return to `origin/main`
+
+The command always ends with the local checkout on `main`, fast-forwarded to
+`origin/main` — never left sitting on the merge branch.
+
+Once the push above has succeeded:
+
+```
+git fetch origin
+git checkout main
+git merge --ff-only origin/main
+git status -sb   # expect `## main...origin/main` with no ahead/behind counts
+```
+
+Rules for this step:
+
+- **Fast-forward only.** Never `git reset --hard`, never `git stash`, never
+  `git clean`, never `git checkout -f`. If `--ff-only` fails, local `main` has
+  commits `origin/main` does not — stop, report them
+  (`git log --oneline origin/main..main`), and let the user decide.
+- **Never discard uncommitted work to make the switch succeed.** If
+  `git checkout main` is blocked by local modifications (they may belong to
+  another agent working in the same tree), leave them alone, report the
+  blocking paths, and stop.
+- **This does not merge the PR.** It syncs to whatever `origin/main` is right
+  now. If the PR is still open, the merge-branch commits are *not* in
+  `origin/main` yet — say so explicitly instead of implying the work landed.
+- If the repository's default branch is not `main`, use that branch and its
+  `origin/<default>` counterpart instead.

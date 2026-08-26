@@ -1,6 +1,6 @@
 ---
 name: fix-merge-conflicts
-description: Fix merge conflicts thoroughly by merging both sides, then push. Use when the user wants to invoke /fix-merge-conflicts.
+description: Fix merge conflicts thoroughly by merging both sides, push, then return the local checkout to an up-to-date origin/main. Use when the user wants to invoke /fix-merge-conflicts.
 ---
 
 Read `references/command.md` and follow that workflow in Codex.
