@@ -35,7 +35,7 @@ The discovery rules below apply to both transports: call `list_available_metrics
 
 ### MCP
 
-Connect `https://mcp.data.invinite.com/t/<teamId>/mcp` through OAuth. The team in the URL controls data billing. Leave OAuth client ID and secret empty so the client uses Dynamic Client Registration and PKCE.
+Connect `https://data.invinite.com/t/<teamId>/mcp` through OAuth. The team in the URL controls data billing. Leave OAuth client ID and secret empty so the client uses Dynamic Client Registration and PKCE.
 
 ### CLI
 
