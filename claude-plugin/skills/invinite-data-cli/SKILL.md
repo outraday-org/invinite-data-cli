@@ -33,6 +33,7 @@ Use the connected Invinite Data API MCP tools when available. Fall back to the `
 | Call guidance/KPIs, diff vs prior call | `earnings_call_guidance`, `earnings_call_diff` | `invd earnings extractions\|guidance-history\|diff` |
 | Call documents/press release | `earnings_call_documents`, `earnings_call_press_release` | `invd earnings documents\|press-release` |
 | Search across calls | `earnings_call_search` | `invd earnings search` |
+| Keyword / guidance alerts | `earnings_call_alert_create\|list\|update\|delete\|test\|deliveries` | `invd webhooks …` |
 
 The discovery rules below apply to both transports: call `list_available_metrics` before ratios, growth, CAGR, or financial-statement analysis, and call `list_available_section_ids` before requesting filing sections.
 
@@ -291,11 +292,19 @@ invd earnings search -q "data center demand" -i NVDA --json
 invd ws listen --earnings <event_id> --json
 invd ws listen --earnings 320193 --names
 
+# Keyword alerts on a live call, or across every live call (--all-live needs --keywords)
+invd ws listen --earnings 320193 --keywords tariffs,china --keyword-match stem --json
+invd ws listen --all-live --keywords tariffs --json
+
 # Earnings-call webhook subscriptions (the secret is printed once)
 invd webhooks list --json
 invd webhooks create --url https://hooks.example.com/invinite --events earnings_call.transcript_ready --ciks 320193
+invd webhooks create --url https://hooks.example.com/alerts --events earnings_call.keyword_hit --keywords tariffs   # every company
+invd webhooks update <id> --keywords tariffs,buyback --json
 invd webhooks deliveries <id> --json
 ```
+
+Keyword / guidance alerts (PRO) are webhook subscriptions: `earnings_call.keyword_hit` delivers one POST per mention of a keyword on any live call (speaker, `start_ms`, sentence), `earnings_call.guidance_flash` one per guidance number spoken live. "Alert me when any call mentions 'tariffs'" → `earnings_call_alert_create` with `keywords: ["tariffs"]`, `events: ["earnings_call.keyword_hit"]`, the user's HTTPS endpoint and no `ciks` (every company); later changes go through `earnings_call_alert_update` (keywords, ciks, events, active). CLI: `invd webhooks create --url <url> --events earnings_call.keyword_hit --keywords tariffs`.
 
 ### Health Check
 

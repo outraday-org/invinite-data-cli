@@ -16,7 +16,61 @@ const FATAL_ERRORS = new Set(['forbidden_tier', 'not_live', 'not_found', 'subscr
 /** Retried through the reconnect backoff. */
 const RETRY_ERRORS = new Set(['attach_failed', 'unavailable']);
 
-export type LiveTarget = { event_id: string } | { cik: string };
+/** One call (event ID / CIK), or every live call at once (`scope: "all_live"`, keywords required). */
+export type LiveTarget = { event_id: string } | { cik: string } | { scope: 'all_live' };
+
+export const KEYWORD_MATCH_MODES = ['exact', 'stem'] as const;
+export type KeywordMatch = (typeof KEYWORD_MATCH_MODES)[number];
+
+export const SPEAKER_ROLES = ['executive', 'ir_host', 'analyst', 'operator'] as const;
+export type SpeakerRole = (typeof SPEAKER_ROLES)[number];
+
+const KEYWORD_MAX = 20;
+const KEYWORD_MIN_CHARS = 2;
+const KEYWORD_MAX_CHARS = 64;
+
+/** Keyword alerts of the subscribe frame (`keywords` required for the global scope). */
+export interface KeywordOptions {
+  keywords: string[];
+  keywordMatch?: KeywordMatch;
+  speakerRoles?: SpeakerRole[];
+  /** Global scope only: companies ranked ≤ N by market cap. */
+  minRank?: number;
+}
+
+export interface KeywordHit {
+  cik: string;
+  symbol: string;
+  conference_date: string;
+  keyword: string;
+  seq: number;
+  start_ms: number;
+  end_ms: number;
+  text: string;
+  context_before: string;
+  speaker_label: string | null;
+  speaker_name: string | null;
+  speaker_role: string | null;
+  layer: 'live' | 'final';
+  latency_ms: number;
+}
+
+export interface GuidanceFlash {
+  symbol: string;
+  conference_date: string;
+  seq: number;
+  revision: number;
+  metric: string;
+  metric_normalized: string | null;
+  period_label: string | null;
+  low: number | null;
+  high: number | null;
+  point: number | null;
+  unit: string | null;
+  currency: string | null;
+  source_sentence: string;
+  start_ms: number;
+}
 
 export interface SpeakerAssignment {
   speaker_label: string;
@@ -46,6 +100,8 @@ export interface LiveState {
 export interface LiveOptions {
   partials: boolean;
   names: boolean;
+  /** Global scope: every hit line names its company. */
+  allLive?: boolean;
 }
 
 export interface LiveStep {
@@ -75,8 +131,74 @@ export function parseSinceSeq(value: string | undefined): number {
   return seq;
 }
 
-export function subscribeFrame(target: LiveTarget, sinceSeq: number, partials: boolean) {
-  return { type: 'subscribe', channel: EARNINGS_LIVE_CHANNEL, ...target, since_seq: sinceSeq, partials };
+/** `--keywords`: 1–20 keywords of 2–64 characters (the API's limits), trimmed and de-duplicated. */
+export function parseKeywords(value: string | undefined): string[] {
+  const keywords = [...new Set((value ?? '').split(',').map(k => k.trim()).filter(Boolean))];
+  if (keywords.length === 0) throw new Error('--keywords takes a comma-separated list of 1–20 keywords');
+  if (keywords.length > KEYWORD_MAX) throw new Error(`--keywords takes at most ${KEYWORD_MAX} keywords`);
+  const bad = keywords.filter(k => k.length < KEYWORD_MIN_CHARS || k.length > KEYWORD_MAX_CHARS);
+  if (bad.length) throw new Error(`--keywords: each keyword is ${KEYWORD_MIN_CHARS}–${KEYWORD_MAX_CHARS} characters (${bad.join(', ')})`);
+  return keywords;
+}
+
+/** `--keyword-match`: `exact` (default) or `stem`. */
+export function parseKeywordMatch(value: string | undefined): KeywordMatch | undefined {
+  if (value === undefined) return undefined;
+  if ((KEYWORD_MATCH_MODES as readonly string[]).includes(value)) return value as KeywordMatch;
+  throw new Error(`--keyword-match takes ${KEYWORD_MATCH_MODES.join(' or ')}`);
+}
+
+/** `--speaker-roles`: a comma-separated subset of executive, ir_host, analyst, operator. */
+export function parseSpeakerRoles(value: string | undefined): SpeakerRole[] | undefined {
+  if (value === undefined) return undefined;
+  const roles = [...new Set(value.split(',').map(r => r.trim()).filter(Boolean))];
+  const unknown = roles.filter(r => !(SPEAKER_ROLES as readonly string[]).includes(r));
+  if (roles.length === 0 || unknown.length) {
+    const named = unknown.length ? `Unknown role(s): ${unknown.join(', ')}. ` : '';
+    throw new Error(`${named}--speaker-roles takes a comma-separated list of: ${SPEAKER_ROLES.join(', ')}`);
+  }
+  return roles as SpeakerRole[];
+}
+
+/** `--min-rank`: a positive integer (market-cap rank). */
+export function parseMinRank(value: string | undefined): number | undefined {
+  if (value === undefined) return undefined;
+  const rank = Number(value);
+  if (!Number.isInteger(rank) || rank < 1) throw new Error('--min-rank takes a positive integer');
+  return rank;
+}
+
+export function isAllLive(target: LiveTarget): target is { scope: 'all_live' } {
+  return 'scope' in target;
+}
+
+/** What a global subscription receives (the API defaults to keyword hits only; `ws listen` wants the flashes too). */
+export const ALL_LIVE_EVENTS = ['keyword_hit', 'guidance_flash'] as const;
+
+/**
+ * The subscribe frame. One call: target + `since_seq` + `partials`. Global scope: `scope: "all_live"`
+ * carries no call target, no replay and no partials — only the keyword fields (the API refuses it
+ * without keywords, and so does `ws listen`) and `events` = keyword hits + guidance flashes.
+ */
+export function subscribeFrame(target: LiveTarget, sinceSeq: number, partials: boolean, keywords?: KeywordOptions) {
+  const alerts = keywords
+    ? {
+      keywords: keywords.keywords,
+      ...(keywords.keywordMatch ? { keyword_match: keywords.keywordMatch } : {}),
+      ...(keywords.speakerRoles ? { speaker_roles: keywords.speakerRoles } : {}),
+    }
+    : {};
+  if (isAllLive(target)) {
+    return {
+      type: 'subscribe',
+      channel: EARNINGS_LIVE_CHANNEL,
+      scope: 'all_live',
+      ...alerts,
+      events: [...ALL_LIVE_EVENTS],
+      ...(keywords?.minRank !== undefined ? { min_rank: keywords.minRank } : {}),
+    };
+  }
+  return { type: 'subscribe', channel: EARNINGS_LIVE_CHANNEL, ...target, since_seq: sinceSeq, partials, ...alerts };
 }
 
 export function initialLiveState(sinceSeq: number): LiveState {
@@ -98,6 +220,35 @@ export function formatSegment(segment: LiveSegment, assignments: SpeakerAssignme
   const name = nameFor(assignments, segment.speaker_label, segment.seq)
     ?? (segment.speaker_label === null ? 'Speaker' : `Speaker ${segment.speaker_label}`);
   return `[${formatMs(segment.start_ms)}] ${name}: ${segment.text}`;
+}
+
+/** The speaker of a keyword hit: the name the API resolved, else `Speaker <label>`, with the role. */
+function hitSpeaker(hit: KeywordHit): string {
+  const name = hit.speaker_name ?? (hit.speaker_label === null ? 'Speaker' : `Speaker ${hit.speaker_label}`);
+  return hit.speaker_role ? `${name} (${hit.speaker_role})` : name;
+}
+
+/** One highlighted line per keyword hit: `[m:ss] keyword "x" · speaker: text` (+ the company in the global scope). */
+export function formatKeywordHit(hit: KeywordHit, allLive = false): string {
+  const company = allLive ? `${hit.symbol} ` : '';
+  const layer = hit.layer === 'final' ? ' (final)' : '';
+  return chalk.yellow(`${company}[${formatMs(hit.start_ms)}] keyword "${hit.keyword}"${layer} · ${chalk.bold(hitSpeaker(hit))}: ${hit.text}`);
+}
+
+function guidanceValue(flash: GuidanceFlash): string {
+  const number = flash.low !== null && flash.high !== null
+    ? `${flash.low}–${flash.high}`
+    : String(flash.point ?? flash.low ?? flash.high ?? '?');
+  return [flash.currency, number, flash.unit].filter(Boolean).join(' ');
+}
+
+/** One line per guidance flash: `[m:ss] guidance flash · metric period: value — "sentence"`. */
+export function formatGuidanceFlash(flash: GuidanceFlash, allLive = false): string {
+  const company = allLive ? `${flash.symbol} ` : '';
+  const metric = flash.metric_normalized ?? flash.metric;
+  const period = flash.period_label ? ` ${flash.period_label}` : '';
+  const revision = flash.revision > 1 ? ` (revision ${flash.revision})` : '';
+  return chalk.cyan(`${company}[${formatMs(flash.start_ms)}] guidance flash${revision} · ${chalk.bold(`${metric}${period}: ${guidanceValue(flash)}`)} — "${flash.source_sentence}"`);
 }
 
 export function finalTranscriptHint(eventId: string | null): string {
@@ -133,11 +284,26 @@ function namesLines(revision: number, assignments: SpeakerAssignment[]): string[
 export function liveStep(state: LiveState, frame: Record<string, any>, opts: LiveOptions): LiveStep {
   switch (frame.type) {
     case 'subscribed': {
+      if (opts.allLive || frame.scope === 'all_live') {
+        const keywords = Array.isArray(frame.keywords) ? ` · keywords: ${frame.keywords.join(', ')}` : '';
+        return { state, lines: [chalk.bold(`all live calls${keywords}`)] };
+      }
       const latest = frame.current_seq === null ? 'none yet' : `latest ${frame.current_seq}`;
       return {
         state: { ...state, eventId: frame.event_id },
         lines: [chalk.bold(`${frame.symbol} ${frame.conference_date} · ${frame.state} · from seq ${state.lastSeq + 1} (${latest})`)],
       };
+    }
+    // Alerts never move `lastSeq`: a hit's seq is a segment seq the subscription still replays.
+    case 'keyword_hit':
+      return { state, lines: [formatKeywordHit(frame as KeywordHit, opts.allLive)] };
+    case 'guidance_flash':
+      return { state, lines: [formatGuidanceFlash(frame as GuidanceFlash, opts.allLive)] };
+    case 'warning': {
+      const note = frame.code === 'global_scope_degraded'
+        ? 'global scope degraded: some live calls may be missing from the keyword alerts'
+        : `${frame.code}${frame.message ? `: ${frame.message}` : ''}`;
+      return { state, lines: [chalk.yellow(`warning: ${note}`)] };
     }
     case 'transcript_segment': {
       const assignments = state.names?.assignments ?? [];
@@ -201,7 +367,9 @@ export function liveStep(state: LiveState, frame: Record<string, any>, opts: Liv
   }
 }
 
+const EARNINGS_FRAME_TYPES = new Set(['error', 'unsubscribed', 'warning', 'keyword_hit', 'guidance_flash']);
+
 /** Frames of the earnings channel (the socket also carries `new_filing` broadcasts and pings). */
 export function isEarningsFrame(frame: Record<string, any>): boolean {
-  return frame.type === 'error' || frame.type === 'unsubscribed' || typeof frame.subscription_id === 'string';
+  return EARNINGS_FRAME_TYPES.has(frame.type) || typeof frame.subscription_id === 'string';
 }

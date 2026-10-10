@@ -14,7 +14,7 @@ vi.mock('../../../src/shared/spinner.js', () => ({
 }));
 
 import { Command } from 'commander';
-import { parseEvents, registerWebhooksCommands, WEBHOOK_EVENTS } from '../../../src/commands/webhooks.js';
+import { buildUpdateBody, parseActive, parseEvents, registerWebhooksCommands, WEBHOOK_EVENTS } from '../../../src/commands/webhooks.js';
 import { splitList } from '../../../src/shared/options.js';
 
 const SUBSCRIPTION = {
@@ -97,6 +97,33 @@ describe('webhooks commands', () => {
     expect(call().body).toEqual({ url: SUBSCRIPTION.url, events: ['ping'] });
   });
 
+  it('update → PATCH /:id with only the given fields', async () => {
+    respond(200, { ...SUBSCRIPTION, filters: { ciks: [], keywords: ['tariffs'] } });
+    await run('webhooks', 'update', 'wh_1', '--keywords', 'tariffs');
+    expect(call()).toEqual({
+      url: 'https://api.example.com/v1/earnings-calls/webhooks/wh_1',
+      method: 'PATCH',
+      body: { keywords: ['tariffs'] },
+    });
+    expect(logs.join('\n')).toContain('Webhook updated');
+  });
+
+  it('update sends every field it is given, an empty list clears, --active parses', async () => {
+    respond(200, SUBSCRIPTION);
+    await run('webhooks', 'update', 'wh_1', '--keywords', 'tariffs, china', '--ciks', '', '--events', 'earnings_call.keyword_hit,ping', '--active', 'false');
+    expect(call().body).toEqual({ keywords: ['tariffs', 'china'], ciks: [], events: ['earnings_call.keyword_hit', 'ping'], active: false });
+  });
+
+  it('update without an option is refused before any request', async () => {
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {
+      throw new Error('exit');
+    }) as never);
+    await expect(run('webhooks', 'update', 'wh_1')).rejects.toThrow('exit');
+    expect(fetch).not.toHaveBeenCalled();
+    expect(vi.mocked(console.error).mock.calls.flat().join(' ')).toContain('at least one of --keywords, --ciks, --events, --active');
+    exit.mockRestore();
+  });
+
   it('delete → DELETE /:id (204)', async () => {
     respond(204);
     await run('webhooks', 'delete', 'wh_1');
@@ -137,12 +164,23 @@ describe('webhooks commands', () => {
 describe('parseEvents / splitList', () => {
   it('accepts the documented events, trimmed and de-duplicated', () => {
     expect(parseEvents('ping, ping,earnings_call.ended')).toEqual(['ping', 'earnings_call.ended']);
-    expect(WEBHOOK_EVENTS).toHaveLength(10);
+    expect(WEBHOOK_EVENTS).toHaveLength(11);
+    expect(WEBHOOK_EVENTS).toContain('earnings_call.keyword_hit');
+    expect(WEBHOOK_EVENTS).toContain('earnings_call.guidance_flash');
   });
 
   it('names unknown events', () => {
     expect(() => parseEvents('earnings_call.started,earnings_call.nope')).toThrow('Unknown event(s): earnings_call.nope');
     expect(() => parseEvents(' , ')).toThrow('--events');
+  });
+
+  it('buildUpdateBody / parseActive', () => {
+    expect(buildUpdateBody({ active: 'true' })).toEqual({ active: true });
+    expect(buildUpdateBody({ keywords: '' })).toEqual({ keywords: [] });
+    expect(() => buildUpdateBody({})).toThrow('at least one of');
+    expect(() => buildUpdateBody({ active: 'yes' })).toThrow('--active takes true or false');
+    expect(() => buildUpdateBody({ events: 'earnings_call.nope' })).toThrow('Unknown event(s)');
+    expect(parseActive('false')).toBe(false);
   });
 
   it('splits comma lists', () => {

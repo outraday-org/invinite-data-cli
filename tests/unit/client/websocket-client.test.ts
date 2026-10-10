@@ -97,6 +97,40 @@ describe('connectWebSocket --earnings', () => {
     expect(logs.join('\n')).toContain(`invd earnings transcript --event ${EVENT_ID}`);
   });
 
+  it('sends the keyword fields with the subscribe and prints a hit with its speaker', async () => {
+    const done = connectWebSocket({
+      earnings: { target: { cik: '320193' }, sinceSeq: -1, partials: false, names: false, json: false, keywords: { keywords: ['tariffs'], keywordMatch: 'stem' } },
+    });
+    await vi.waitFor(() => expect(FakeSocket.instances).toHaveLength(1));
+    const socket = FakeSocket.instances[0];
+    socket.emit('open');
+    expect(socket.sent).toEqual([{ type: 'subscribe', channel: 'earnings-calls.live', cik: '320193', since_seq: -1, partials: false, keywords: ['tariffs'], keyword_match: 'stem' }]);
+    socket.frame({ type: 'keyword_hit', subscription_id: 's1', cik: '0000320193', symbol: 'AAPL', conference_date: '2026-10-30T21:00:00.000Z', keyword: 'tariffs', seq: 3, start_ms: 65_000, end_ms: 66_000, text: 'Tariffs hurt.', context_before: '', speaker_label: 'A', speaker_name: 'Tim Cook', speaker_role: 'executive', layer: 'live', latency_ms: 500 });
+    socket.frame({ type: 'warning', code: 'global_scope_degraded' });
+    socket.frame({ type: 'unsubscribed', subscription_id: 's1', reason: 'call_not_live' });
+    await done;
+    const out = logs.join('\n');
+    expect(out).toContain('[1:05] keyword "tariffs"');
+    expect(out).toContain('Tim Cook (executive): Tariffs hurt.');
+    expect(out).toContain('warning: global scope degraded');
+  });
+
+  it('subscribes to the global scope with --all-live', async () => {
+    const done = connectWebSocket({
+      earnings: { target: { scope: 'all_live' }, sinceSeq: -1, partials: false, names: false, json: false, keywords: { keywords: ['tariffs'] } },
+    });
+    await vi.waitFor(() => expect(FakeSocket.instances).toHaveLength(1));
+    const socket = FakeSocket.instances[0];
+    socket.emit('open');
+    expect(socket.sent).toEqual([{
+      type: 'subscribe', channel: 'earnings-calls.live', scope: 'all_live', keywords: ['tariffs'], events: ['keyword_hit', 'guidance_flash'],
+    }]);
+    socket.frame({ type: 'subscribed', subscription_id: 's1', scope: 'all_live', keywords: ['tariffs'] });
+    socket.frame({ type: 'error', code: 'bad_message', message: 'keywords required' });
+    await expect(done).rejects.toThrow('bad_message');
+    expect(logs.join('\n')).toContain('all live calls · keywords: tariffs');
+  });
+
   it('prints NDJSON only under --json', async () => {
     const done = listen(true);
     await vi.waitFor(() => expect(FakeSocket.instances).toHaveLength(1));

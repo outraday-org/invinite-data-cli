@@ -181,7 +181,7 @@ These options are available on all data commands:
 - [market](#market) — Market data
 - [metadata](#metadata) — API metadata
 - [webhooks](#webhooks) — Earnings-call webhook subscriptions
-- [ws](#ws) — WebSocket streaming (`ws listen --earnings` for live call transcripts)
+- [ws](#ws) — WebSocket streaming (`ws listen --earnings` for live call transcripts, `--keywords` / `--all-live` for keyword alerts)
 
 ---
 
@@ -921,12 +921,13 @@ invd metadata section-ids
 
 ### webhooks
 
-Earnings-call webhook subscriptions (PRO): signed, retried `POST`s of the call lifecycle to your HTTPS endpoint. Events: `earnings_call.scheduled`, `.rescheduled`, `.started`, `.ended`, `.transcript_provisional`, `.transcript_ready`, `.transcript_corrected`, `.assets_ready`, `.guidance_flash` (reserved), and `ping`. Deliveries carry `X-Invinite-Signature: t=…,v1=…` (HMAC-SHA256 of `<t>.<raw body>` with the secret) and are retried after 1 min, 5 min, 30 min, 2 h, 6 h, 12 h and 24 h.
+Earnings-call webhook subscriptions (PRO): signed, retried `POST`s of the call lifecycle to your HTTPS endpoint. Events: `earnings_call.scheduled`, `.rescheduled`, `.started`, `.ended`, `.transcript_provisional`, `.transcript_ready`, `.transcript_corrected`, `.assets_ready`, `.keyword_hit` (one delivery per mention of one of the subscription's `--keywords` on a live call, with the speaker, `start_ms` and the sentence), `.guidance_flash` (a guidance number spoken live, before the final transcript), and `ping`. Deliveries carry `X-Invinite-Signature: t=…,v1=…` (HMAC-SHA256 of `<t>.<raw body>` with the secret) and are retried after 1 min, 5 min, 30 min, 2 h, 6 h, 12 h and 24 h.
 
 | Command | Description |
 |---------|-------------|
 | `webhooks list` | Your team's subscriptions (never the secret, only `secret_hint`) |
-| `webhooks create --url <url> --events <list> [--ciks <list>] [--keywords <list>]` | Create one (max 10 per team; `--ciks` max 10, default every company). **Prints the signing secret once** |
+| `webhooks create --url <url> --events <list> [--ciks <list>] [--keywords <list>]` | Create one (max 10 per team; `--ciks` max 10, default every company; `--keywords` max 20 of 2–64 chars, matched on every live call for `.keyword_hit`). **Prints the signing secret once** |
+| `webhooks update <id> [--keywords <list>] [--ciks <list>] [--events <list>] [--active true\|false]` | Change a subscription (`PATCH`; at least one option; an empty `--keywords ""` / `--ciks ""` clears the list; `--active false` pauses it, `true` resumes it and resets the failure counters) |
 | `webhooks delete <id>` | Delete a subscription |
 | `webhooks rotate-secret <id>` | New secret (printed once); the old one stays valid until `previous_secret_expires_at` (5 min) |
 | `webhooks test <id>` | Queue a signed `ping` delivery |
@@ -934,6 +935,9 @@ Earnings-call webhook subscriptions (PRO): signed, retried `POST`s of the call l
 
 ```bash
 invd webhooks create --url https://hooks.example.com/invinite --events earnings_call.transcript_ready,earnings_call.started --ciks 320193
+invd webhooks create --url https://hooks.example.com/alerts --events earnings_call.keyword_hit --keywords tariffs,buyback   # every company
+invd webhooks update <id> --keywords tariffs,china,buyback
+invd webhooks update <id> --active false
 invd webhooks test <id>
 invd webhooks deliveries <id>
 ```
@@ -946,14 +950,19 @@ Real-time WebSocket streaming.
 
 #### `ws listen`
 
-Listen to real-time SEC filing notifications, or with `--earnings` follow one earnings call's live transcript (PRO). Automatically reconnects on disconnection with exponential backoff.
+Listen to real-time SEC filing notifications, or with `--earnings` follow one earnings call's live transcript (PRO), or with `--all-live --keywords` get keyword alerts across every live call. Automatically reconnects on disconnection with exponential backoff.
 
 | Option | Description |
 |--------|-------------|
 | `--earnings <event_id\|cik>` | Follow a live call: event ID (UUID) or CIK |
+| `--all-live` | Keyword alerts across every live call at once (needs `--keywords`; no transcript, replay or partials) |
 | `--since-seq <n>` | Replay the finals after this seq (default `-1` = the whole call so far) |
 | `--partials` | Show interim segments, overwritten in place (terminal only; `--json` emits them) |
 | `--names` | Print each speaker-name snapshot |
+| `--keywords <list>` | Comma-separated keywords (max 20, 2–64 chars each): one highlighted `keyword_hit` line per mention |
+| `--keyword-match exact\|stem` | `exact` (default) matches the word; `stem` also its inflections (`tariff` hits "tariffs") |
+| `--speaker-roles <list>` | Only hits by these speakers: `executive`, `ir_host`, `analyst`, `operator` |
+| `--min-rank <n>` | With `--all-live`: only companies ranked ≤ n by market cap |
 
 ```bash
 invd ws listen
@@ -969,6 +978,14 @@ invd ws listen --earnings 0b9d6f43-6b1e-4c39-9d3a-2f6a3c1e8b11 --partials
 # AAPL 2026-10-30T21:00:00.000Z · capturing · from seq 0 (latest 41)
 # [0:12] Operator: Good afternoon and welcome to the Apple Q4 fiscal year 2026 earnings call.
 # [1:05] Tim Cook: Thank you, everyone, for joining us.
+```
+
+**Keyword and guidance alerts.** With `--keywords` the same subscription also delivers a `keyword_hit` frame for every mention (one highlighted line: `[m:ss] keyword "tariffs" · Tim Cook (executive): …`, the speaker from the API's live naming) and a `guidance_flash` frame for every guidance number spoken live (`[m:ss] guidance flash · Revenue Q1 FY2027: USD 4.1–4.3 billion — "…"`), both before the final transcript. `--all-live --keywords <list>` subscribes to every live call at once (`scope: "all_live"`; each line starts with the symbol; the API refuses it without keywords, and so does the CLI); a `warning` frame (`global_scope_degraded`: some calls may be missing from the alerts) is printed and never fatal. With `--json` both frames are emitted as they arrive.
+
+```bash
+invd ws listen --earnings 320193 --keywords tariffs,china --keyword-match stem --speaker-roles executive
+invd ws listen --all-live --keywords tariffs --min-rank 500
+invd ws listen --all-live --keywords tariffs --json | jq -r 'select(.type=="keyword_hit") | "\(.symbol) \(.speaker_name): \(.text)"'
 ```
 
 Finals are named from the newest speaker-name snapshot (`Speaker A` until a name is known). A `gap` line marks a seq range with no final yet (a late final may still follow on the same subscription, so finals can print slightly out of order); `resume_unavailable` means missed finals cannot be replayed right now — live delivery continues and the API back-fills them once it can. Neither needs a re-subscribe. After a reconnect the listener resumes after the last final it printed; it exits once the final transcript is ready (`invd earnings transcript --event <id>`). With `--json` every frame is one JSON line (NDJSON), e.g. `invd ws listen --earnings 320193 --json | jq -r 'select(.type=="transcript_segment") | .text'`.

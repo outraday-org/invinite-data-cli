@@ -3,9 +3,11 @@ import { getBaseUrl } from '../config/config-manager.js';
 import chalk from 'chalk';
 import {
   initialLiveState,
+  isAllLive,
   isEarningsFrame,
   liveStep,
   subscribeFrame,
+  type KeywordOptions,
   type LiveState,
   type LiveTarget,
 } from './earnings-live.js';
@@ -17,6 +19,8 @@ export interface EarningsListenOptions {
   names: boolean;
   /** NDJSON: every earnings frame as one line, nothing else on stdout. */
   json: boolean;
+  /** Keyword / guidance alerts on the subscription (required with the `all_live` target). */
+  keywords?: KeywordOptions;
 }
 
 /** Close codes of `/v1/ws` that a reconnect cannot fix (bad key, plan, connection limit). */
@@ -37,6 +41,7 @@ export async function connectWebSocket(opts: { earnings?: EarningsListenOptions 
   let shouldReconnect = true;
   let current: WebSocket | null = null;
   let live: LiveState | null = earnings ? initialLiveState(earnings.sinceSeq) : null;
+  const liveOpts = earnings ? { partials: earnings.partials, names: earnings.names, allLive: isAllLive(earnings.target) } : null;
   let partialShown = false;
 
   return new Promise<void>((resolve, reject) => {
@@ -56,9 +61,9 @@ export async function connectWebSocket(opts: { earnings?: EarningsListenOptions 
     }
 
     function handleEarnings(ws: WebSocket, data: Record<string, any>) {
-      if (!earnings || !live || !isEarningsFrame(data)) return;
+      if (!earnings || !live || !liveOpts || !isEarningsFrame(data)) return;
       if (earnings.json) console.log(JSON.stringify(data));
-      const step = liveStep(live, data, earnings);
+      const step = liveStep(live, data, liveOpts);
       live = step.state;
       if (!earnings.json) {
         if (step.lines.length) clearPartial();
@@ -89,9 +94,12 @@ export async function connectWebSocket(opts: { earnings?: EarningsListenOptions 
       ws.addEventListener('open', () => {
         reconnectDelay = 1000;
         if (earnings && live) {
-          status(chalk.green(`Connected; subscribing to ${earnings.partials ? 'live transcript + partials' : 'live transcript'}`));
+          const what = isAllLive(earnings.target)
+            ? 'keyword alerts on every live call'
+            : `${earnings.partials ? 'live transcript + partials' : 'live transcript'}${earnings.keywords ? ' + keyword alerts' : ''}`;
+          status(chalk.green(`Connected; subscribing to ${what}`));
           // A reconnect resumes after the last printed final (the API replays the gap).
-          ws.send(JSON.stringify(subscribeFrame(earnings.target, live.lastSeq, earnings.partials)));
+          ws.send(JSON.stringify(subscribeFrame(earnings.target, live.lastSeq, earnings.partials, earnings.keywords)));
         } else {
           console.log(chalk.green('Connected to filing stream'));
         }

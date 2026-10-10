@@ -20,9 +20,37 @@ export const WEBHOOK_EVENTS = [
   'earnings_call.transcript_ready',
   'earnings_call.transcript_corrected',
   'earnings_call.assets_ready',
+  'earnings_call.keyword_hit',
   'earnings_call.guidance_flash',
   'ping',
 ] as const;
+
+/** `--active` of `webhooks update`: only the two literals. */
+export function parseActive(value: string): boolean {
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  throw new Error('--active takes true or false');
+}
+
+export interface UpdateOptions {
+  keywords?: string;
+  ciks?: string;
+  events?: string;
+  active?: string;
+}
+
+/** The PATCH body of `webhooks update`: only the given fields; at least one is required. */
+export function buildUpdateBody(cmdOpts: UpdateOptions): Record<string, unknown> {
+  const body: Record<string, unknown> = {};
+  if (cmdOpts.keywords !== undefined) body.keywords = splitList(cmdOpts.keywords);
+  if (cmdOpts.ciks !== undefined) body.ciks = splitList(cmdOpts.ciks);
+  if (cmdOpts.events !== undefined) body.events = parseEvents(cmdOpts.events);
+  if (cmdOpts.active !== undefined) body.active = parseActive(cmdOpts.active);
+  if (Object.keys(body).length === 0) {
+    throw new Error('webhooks update needs at least one of --keywords, --ciks, --events, --active');
+  }
+  return body;
+}
 
 const SUBSCRIPTION_COLUMNS = ['id', 'url', 'events', 'ciks', 'active', 'consecutive_failures', 'secret_hint', 'created_at'];
 
@@ -78,7 +106,7 @@ export function registerWebhooksCommands(program: Command): void {
     .requiredOption('--url <url>', 'https endpoint (port 443, public addresses only)')
     .requiredOption('--events <list>', `Comma-separated events: ${WEBHOOK_EVENTS.join(', ')}`)
     .option('--ciks <list>', 'Only these companies, comma-separated CIKs (max 10; default every company)')
-    .option('--keywords <list>', 'Comma-separated keywords (reserved for keyword alerts)')
+    .option('--keywords <list>', 'Comma-separated keywords for earnings_call.keyword_hit (2–64 chars each, max 20)')
     .action(run(async (cmdOpts) => {
       const opts = globalOpts();
       const events = parseEvents(cmdOpts.events);
@@ -98,6 +126,24 @@ export function registerWebhooksCommands(program: Command): void {
         formatKeyValue(subscriptionRow(sub));
         console.log(chalk.yellow('\nSigning secret — shown only this once; store it now:'));
         console.log(secret);
+      });
+    }));
+
+  webhooks
+    .command('update')
+    .description('Change the keywords, companies, events or active flag of a subscription')
+    .argument('<id>', 'Subscription ID')
+    .option('--keywords <list>', 'Comma-separated keywords for earnings_call.keyword_hit (an empty value clears them)')
+    .option('--ciks <list>', 'Only these companies, comma-separated CIKs (max 10; an empty value = every company)')
+    .option('--events <list>', `Comma-separated events: ${WEBHOOK_EVENTS.join(', ')}`)
+    .option('--active <true|false>', 'Pause (false) or resume (true; resets the failure counters) the subscription')
+    .action(run(async (id: string, cmdOpts: UpdateOptions) => {
+      const opts = globalOpts();
+      const body = buildUpdateBody(cmdOpts);
+      const data = await apiRequest<Row>({ method: 'PATCH', path: idPath(id), body });
+      output(data, opts, () => {
+        console.log(chalk.bold('\nWebhook updated\n'));
+        formatKeyValue(subscriptionRow(data));
       });
     }));
 
