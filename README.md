@@ -125,6 +125,8 @@ npx @invinite-org/invinite-data-cli@latest plugin uninstall --all --global
 | **Codex** | `skills/invinite-data-cli/SKILL.md` | — | `skills/invinite-financial-research/SKILL.md`, `skills/invinite-analyze-earnings-call/SKILL.md` |
 | **Copilot** | `skills/invinite-data-cli/SKILL.md` | — | `skills/invinite-financial-research/SKILL.md`, `skills/invinite-analyze-earnings-call/SKILL.md` |
 
+`claude-plugin/` is the single source of these files. The repo-local copies under `.claude/` (the skill, the two commands and the agent) are symlinks into it, and `.codex/`, `.cursor/` and `.agent/` resolve through them — edit the plugin file, never a mirror.
+
 ### Alternative: Claude Code plugin directory
 
 ```bash
