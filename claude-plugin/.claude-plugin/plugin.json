@@ -1,7 +1,7 @@
 {
   "name": "invinite-financial-data",
-  "description": "Fetch and analyze financial data using the Invinite Data API — company fundamentals, financial statements, SEC filings, institutional ownership, insider trades, and more.",
-  "version": "0.3.0",
+  "description": "Fetch and analyze financial data using the Invinite Data API — company fundamentals, financial statements, SEC filings, earnings calls (transcripts, guidance, Q&A, live calls), institutional ownership, insider trades, and more.",
+  "version": "0.4.0",
   "author": {
     "name": "Invinite"
   },

@@ -1,6 +1,6 @@
 ---
 name: financial-research
-description: Perform AI-powered financial research and analysis. Use when the user asks to research companies, compare financials, analyze ownership patterns, review SEC filings, evaluate growth trends, or any multi-faceted financial question. This command orchestrates parallel data fetching and then synthesizes the results into a coherent analysis.
+description: Perform AI-powered financial research and analysis. Use when the user asks to research companies, compare financials, analyze ownership patterns, review SEC filings or earnings calls, evaluate growth trends, or any multi-faceted financial question. This command orchestrates parallel data fetching and then synthesizes the results into a coherent analysis.
 argument-hint: [question or research topic]
 ---
 
@@ -17,6 +17,7 @@ Break the user's request into independent data retrieval tasks. Think about what
 - **Statements**: income statements, balance sheets, cash flows (for trend analysis)
 - **Ownership**: institutional holders, ownership transactions, insider trades
 - **Filings**: SEC filing sections (risk factors, MD&A, business descriptions)
+- **Earnings calls**: call calendar, transcripts, management guidance and KPIs, Q&A with analysts, press releases, the diff vs the prior call
 - **Context**: dividends, stock splits, fiscal periods, segments
 
 Each independent data need becomes a separate subagent task.

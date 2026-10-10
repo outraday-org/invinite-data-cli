@@ -1,0 +1,131 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
+vi.mock('../../../src/config/auth.js', () => ({
+  getApiKey: vi.fn().mockResolvedValue('test-api-key'),
+}));
+
+vi.mock('../../../src/config/config-manager.js', () => ({
+  getBaseUrl: vi.fn().mockReturnValue('https://api.example.com'),
+}));
+
+import { connectWebSocket } from '../../../src/client/websocket-client.js';
+
+const EVENT_ID = '0b9d6f43-6b1e-4c39-9d3a-2f6a3c1e8b11';
+
+class FakeSocket {
+  static instances: FakeSocket[] = [];
+  sent: unknown[] = [];
+  private listeners: Record<string, ((event: any) => void)[]> = {};
+
+  constructor(public url: string) {
+    FakeSocket.instances.push(this);
+  }
+
+  addEventListener(type: string, fn: (event: any) => void) {
+    (this.listeners[type] ??= []).push(fn);
+  }
+
+  send(data: string) {
+    this.sent.push(JSON.parse(data));
+  }
+
+  close() {
+    this.emit('close', { code: 1000, reason: '' });
+  }
+
+  emit(type: string, event: any = {}) {
+    for (const fn of this.listeners[type] ?? []) fn(event);
+  }
+
+  frame(data: unknown) {
+    this.emit('message', { data: JSON.stringify(data) });
+  }
+}
+
+const flush = () => new Promise(resolve => setImmediate(resolve));
+
+describe('connectWebSocket --earnings', () => {
+  let logs: string[];
+
+  beforeEach(() => {
+    FakeSocket.instances = [];
+    vi.stubGlobal('WebSocket', FakeSocket);
+    logs = [];
+    vi.spyOn(console, 'log').mockImplementation((line?: unknown) => {
+      logs.push(String(line));
+    });
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+    // Only the console spies: restoreAllMocks would also strip the vi.mock factories' return values.
+    vi.mocked(console.log).mockRestore();
+    vi.mocked(console.error).mockRestore();
+  });
+
+  const listen = (json = false) => connectWebSocket({
+    earnings: { target: { event_id: EVENT_ID }, sinceSeq: -1, partials: false, names: false, json },
+  });
+
+  it('replays from -1, resubscribes after the last final on reconnect, exits on transcript_ready', async () => {
+    vi.useFakeTimers();
+    const done = listen();
+    await vi.waitFor(() => expect(FakeSocket.instances).toHaveLength(1));
+    const first = FakeSocket.instances[0];
+    expect(first.url).toBe('wss://api.example.com/v1/ws?api_key=test-api-key');
+
+    first.emit('open');
+    expect(first.sent).toEqual([{ type: 'subscribe', channel: 'earnings-calls.live', event_id: EVENT_ID, since_seq: -1, partials: false }]);
+    first.frame({ type: 'subscribed', subscription_id: 's1', event_id: EVENT_ID, cik: '0000320193', symbol: 'AAPL', conference_date: '2026-10-30T21:00:00.000Z', current_seq: 1, state: 'capturing' });
+    first.frame({ type: 'speaker_names', subscription_id: 's1', event_id: EVENT_ID, revision: 1, assignments: [{ speaker_label: 'A', from_seq: 0, to_seq: null, name: 'Tim Cook', role: 'executive', title: null, firm: null, source: 'llm', confidence: 0.9 }] });
+    first.frame({ type: 'transcript_segment', subscription_id: 's1', event_id: EVENT_ID, seq: 0, start_ms: 0, end_ms: 1000, speaker_label: 'A', text: 'Hello.', is_final: true });
+    first.frame({ type: 'transcript_segment', subscription_id: 's1', event_id: EVENT_ID, seq: 1, start_ms: 65_000, end_ms: 66_000, speaker_label: 'A', text: 'Welcome.', is_final: true });
+    first.frame({ type: 'new_filing', filing: { form_type: '8-K' } });
+    expect(logs).toContain('[1:05] Tim Cook: Welcome.');
+    expect(logs.join('\n')).not.toContain('8-K');
+
+    first.emit('close', { code: 1006, reason: '' });
+    await vi.advanceTimersByTimeAsync(1000);
+    const second = FakeSocket.instances[1];
+    second.emit('open');
+    expect(second.sent).toEqual([{ type: 'subscribe', channel: 'earnings-calls.live', event_id: EVENT_ID, since_seq: 1, partials: false }]);
+
+    second.frame({ type: 'transcript_ready', subscription_id: 's2', event_id: EVENT_ID, at: '2026-10-30T22:40:00Z' });
+    await expect(done).resolves.toBeUndefined();
+    expect(logs.join('\n')).toContain(`invd earnings transcript --event ${EVENT_ID}`);
+  });
+
+  it('prints NDJSON only under --json', async () => {
+    const done = listen(true);
+    await vi.waitFor(() => expect(FakeSocket.instances).toHaveLength(1));
+    const socket = FakeSocket.instances[0];
+    socket.emit('open');
+    const segment = { type: 'transcript_segment', subscription_id: 's1', event_id: EVENT_ID, seq: 0, start_ms: 0, end_ms: 1, speaker_label: 'A', text: 'Hi.', is_final: true };
+    socket.frame(segment);
+    socket.frame({ type: 'unsubscribed', subscription_id: 's1', reason: 'call_not_live' });
+    await done;
+    expect(logs).toEqual([
+      JSON.stringify(segment),
+      JSON.stringify({ type: 'unsubscribed', subscription_id: 's1', reason: 'call_not_live' }),
+    ]);
+  });
+
+  it('rejects on a fatal error frame', async () => {
+    const done = listen();
+    await vi.waitFor(() => expect(FakeSocket.instances).toHaveLength(1));
+    FakeSocket.instances[0].emit('open');
+    FakeSocket.instances[0].frame({ type: 'error', code: 'not_live', message: 'This earnings call is not live' });
+    await expect(done).rejects.toThrow('not_live');
+  });
+
+  it('does not reconnect after a permanent close code', async () => {
+    const done = listen();
+    await vi.waitFor(() => expect(FakeSocket.instances).toHaveLength(1));
+    FakeSocket.instances[0].emit('close', { code: 4003, reason: 'Forbidden: Requires PRO plan' });
+    await expect(done).rejects.toThrow('4003');
+    await flush();
+    expect(FakeSocket.instances).toHaveLength(1);
+  });
+});

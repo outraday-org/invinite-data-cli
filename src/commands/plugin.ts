@@ -5,16 +5,16 @@ import path from 'node:path';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 
-type Runtime = 'claude' | 'opencode' | 'codex' | 'copilot';
+export type Runtime = 'claude' | 'opencode' | 'codex' | 'copilot';
 
-interface RuntimeConfig {
+export interface RuntimeConfig {
   label: string;
   globalDir: string;
   localDir: string | null;
   install: (sourceDir: string, targetDir: string) => void;
 }
 
-const RUNTIMES: Record<Runtime, RuntimeConfig> = {
+export const RUNTIMES: Record<Runtime, RuntimeConfig> = {
   claude: {
     label: 'Claude Code',
     globalDir: path.join(os.homedir(), '.claude'),
@@ -31,6 +31,10 @@ const RUNTIMES: Record<Runtime, RuntimeConfig> = {
       copyFile(
         path.join(sourceDir, 'commands/financial-research.md'),
         path.join(targetDir, 'commands/financial-research.md'),
+      );
+      copyFile(
+        path.join(sourceDir, 'commands/analyze-earnings-call.md'),
+        path.join(targetDir, 'commands/analyze-earnings-call.md'),
       );
     },
   },
@@ -52,6 +56,12 @@ const RUNTIMES: Record<Runtime, RuntimeConfig> = {
       );
       const transformedAgent = transformAgentForOpenCode(agentContent);
       writeFile(path.join(targetDir, 'agents/invinite-data.md'), transformedAgent);
+
+      const earningsContent = fs.readFileSync(
+        path.join(sourceDir, 'commands/analyze-earnings-call.md'),
+        'utf-8',
+      );
+      writeFile(path.join(targetDir, 'command/analyze-earnings-call.md'), transformForOpenCode(earningsContent));
     },
   },
   codex: {
@@ -75,6 +85,15 @@ const RUNTIMES: Record<Runtime, RuntimeConfig> = {
       writeFile(
         path.join(targetDir, 'skills/invinite-financial-research/SKILL.md'),
         transformForCodex(cmdContent),
+      );
+
+      const earningsContent = fs.readFileSync(
+        path.join(sourceDir, 'commands/analyze-earnings-call.md'),
+        'utf-8',
+      );
+      writeFile(
+        path.join(targetDir, 'skills/invinite-analyze-earnings-call/SKILL.md'),
+        transformForCodex(earningsContent),
       );
     },
   },
@@ -100,29 +119,51 @@ const RUNTIMES: Record<Runtime, RuntimeConfig> = {
         path.join(targetDir, 'skills/invinite-financial-research/SKILL.md'),
         transformForCopilot(cmdContent),
       );
+
+      const earningsContent = fs.readFileSync(
+        path.join(sourceDir, 'commands/analyze-earnings-call.md'),
+        'utf-8',
+      );
+      writeFile(
+        path.join(targetDir, 'skills/invinite-analyze-earnings-call/SKILL.md'),
+        transformForCopilot(earningsContent),
+      );
     },
   },
 };
 
-const INSTALLED_PATHS: Record<Runtime, string[]> = {
+export const INSTALLED_PATHS: Record<Runtime, string[]> = {
   claude: [
     'skills/invinite-data-cli/SKILL.md',
     'agents/invinite-data.md',
     'commands/financial-research.md',
+    'commands/analyze-earnings-call.md',
   ],
   opencode: [
     'command/invinite-data-cli.md',
     'agents/invinite-data.md',
+    'command/analyze-earnings-call.md',
   ],
   codex: [
     'skills/invinite-data-cli/SKILL.md',
     'skills/invinite-financial-research/SKILL.md',
+    'skills/invinite-analyze-earnings-call/SKILL.md',
   ],
   copilot: [
     'skills/invinite-data-cli/SKILL.md',
     'skills/invinite-financial-research/SKILL.md',
+    'skills/invinite-analyze-earnings-call/SKILL.md',
   ],
 };
+
+/** Removes the runtime's installed files from `targetDir`; returns how many were removed. */
+export function uninstallRuntime(runtime: Runtime, targetDir: string): number {
+  let removed = 0;
+  for (const rel of INSTALLED_PATHS[runtime]) {
+    if (removeFile(path.join(targetDir, rel))) removed++;
+  }
+  return removed;
+}
 
 // --- Frontmatter transformations ---
 
@@ -311,11 +352,7 @@ export function registerPluginCommands(program: Command): void {
         }
 
         const resolvedTarget = scope === 'local' ? path.resolve(process.cwd(), targetDir) : targetDir;
-        const paths = INSTALLED_PATHS[runtime];
-        let removed = 0;
-        for (const rel of paths) {
-          if (removeFile(path.join(resolvedTarget, rel))) removed++;
-        }
+        const removed = uninstallRuntime(runtime, resolvedTarget);
 
         if (removed > 0) {
           console.log(chalk.green(`  ✓ ${config.label}`) + chalk.dim(` — removed ${removed} file(s) from ${resolvedTarget}`));

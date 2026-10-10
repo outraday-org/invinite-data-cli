@@ -18,8 +18,9 @@ export async function fetchAllPages<T>(
     try {
       // nextUrl is absolute, extract path+query
       const url = new URL(nextUrl);
-      const params: Record<string, string> = {};
-      url.searchParams.forEach((v, k) => { params[k] = v; });
+      // Repeated keys (`status=a&status=b`) stay repeated.
+      const params: Record<string, string[]> = {};
+      url.searchParams.forEach((v, k) => { (params[k] ??= []).push(v); });
       const pageData = await apiGet<T>({ path: url.pathname, params, silent: true });
       result = mergeResults(result, pageData);
       nextUrl = extractNextUrl(pageData);

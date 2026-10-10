@@ -120,10 +120,10 @@ npx @invinite-org/invinite-data-cli@latest plugin uninstall --all --global
 
 | Runtime | Skill | Agent | Command |
 |---------|-------|-------|---------|
-| **Claude Code** | `skills/invinite-data-cli/SKILL.md` | `agents/invinite-data.md` | `commands/financial-research.md` |
-| **OpenCode** | `command/invinite-data-cli.md` | `agents/invinite-data.md` | — |
-| **Codex** | `skills/invinite-data-cli/SKILL.md` | — | `skills/invinite-financial-research/SKILL.md` |
-| **Copilot** | `skills/invinite-data-cli/SKILL.md` | — | `skills/invinite-financial-research/SKILL.md` |
+| **Claude Code** | `skills/invinite-data-cli/SKILL.md` | `agents/invinite-data.md` | `commands/financial-research.md`, `commands/analyze-earnings-call.md` |
+| **OpenCode** | `command/invinite-data-cli.md` | `agents/invinite-data.md` | `command/analyze-earnings-call.md` |
+| **Codex** | `skills/invinite-data-cli/SKILL.md` | — | `skills/invinite-financial-research/SKILL.md`, `skills/invinite-analyze-earnings-call/SKILL.md` |
+| **Copilot** | `skills/invinite-data-cli/SKILL.md` | — | `skills/invinite-financial-research/SKILL.md`, `skills/invinite-analyze-earnings-call/SKILL.md` |
 
 ### Alternative: Claude Code plugin directory
 
@@ -141,6 +141,13 @@ Use `/financial-research` for multi-step analysis:
 /financial-research Compare Apple, Microsoft, and Google's profitability and growth over the last 3 years
 /financial-research Who are the largest institutional holders of TSLA and what are recent ownership changes?
 /financial-research Analyze risk factors from NVDA's latest 10-K filing
+```
+
+Use `/analyze-earnings-call` for one call — results vs guidance, raised / lowered guidance, analyst focus and tone change vs the prior call, cited with `[m:ss]` timestamps:
+
+```
+/analyze-earnings-call NVDA
+/analyze-earnings-call AAPL 2026 Q4
 ```
 
 Or ask questions directly — the AI will auto-trigger the skill and delegate to the data agent as needed.
@@ -167,12 +174,14 @@ These options are available on all data commands:
 - [metrics](#metrics) — Financial metrics, ratios, and growth
 - [segments](#segments) — Segmented financials
 - [filings](#filings) — SEC filings
+- [earnings](#earnings) — Earnings calls: calendar, transcripts, Q&A, guidance, audio, slides, documents, search
 - [ownership](#ownership) — Institutional ownership
 - [insider-trades](#insider-trades) — Insider trading data
 - [ipos](#ipos) — IPO listings
 - [market](#market) — Market data
 - [metadata](#metadata) — API metadata
-- [ws](#ws) — WebSocket streaming
+- [webhooks](#webhooks) — Earnings-call webhook subscriptions
+- [ws](#ws) — WebSocket streaming (`ws listen --earnings` for live call transcripts)
 
 ---
 
@@ -501,6 +510,255 @@ invd filings form-types -i AAPL
 
 ---
 
+### earnings
+
+Earnings calls: calendar, transcripts, Q&A, guidance and KPIs, audio, slides, documents, search. The live transcript (`ws listen --earnings`), audio, slides, the live stream and webhooks need the **PRO** plan (calendar, events and `live` need LITE, the other reads STANDARD); a `403` names the plan a route needs.
+
+**Selecting a call.** Commands about one call (marked *selector* below) take either `--event <event_id>` (a UUID from `earnings events` / `earnings calendar`; wins over the rest), or `-i, --identifier <ticker|cik>` with `--year <n>` + `--quarter <n>` (the company's fiscal quarter) or `--date <YYYY-MM-DD>` (the New York call day).
+
+**Saving files.** `--output <file>` saves a transcript, press release, recording or deck (`documents --output <dir>` saves every document); an existing file is only replaced with `--force`. Without `--output` the media commands print **presigned URLs that expire after 15 minutes**.
+
+#### `earnings calendar`
+
+Upcoming and recent calls across companies.
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--from <date>` / `--to <date>` | New York days (at most 92 days) | today / from + 14 days |
+| `--status <list>` | `estimated`, `unconfirmed`, `confirmed`, `postponed`, `cancelled` (comma-separated) | — |
+| `--session <session>` | `bmo`, `amc`, `intraday` | — |
+| `--exchange <exchange>` | Exchange | — |
+| `--event-type <type>` | `earnings_call`, `investor_day`, `conference`, `agm`, `other`, or `all` (every type) | `earnings_call` |
+| `-s, --sort` / `-l, --limit` / `--offset` | Sort, page size (1–500), offset | — |
+
+```bash
+invd earnings calendar --from 2026-10-26 --to 2026-10-30 --status confirmed
+```
+
+#### `earnings events`
+
+A company's calls.
+
+| Option | Description |
+|--------|-------------|
+| `-i, --identifier <ticker>` | Ticker or CIK **(required)** |
+| `--from <date>` / `--to <date>` | Call day range |
+| `--event-type <type>` | `earnings_call`, `investor_day`, `conference`, `agm`, `other`, or `all` (default: every type) |
+| `--observations` | Include the date / time observations per call |
+| `-s, --sort` / `-l, --limit` / `--offset` | Sort, page size (1–200), offset |
+
+```bash
+invd earnings events -i AAPL -s desc -l 4
+```
+
+#### `earnings live`
+
+Calls being captured right now (`live_audio` = a live stream exists).
+
+```bash
+invd earnings live
+```
+
+#### `earnings event`
+
+One call with its date / time observations: `invd earnings event <event_id>`.
+
+```bash
+invd earnings event 0b9d6f43-6b1e-4c39-9d3a-2f6a3c1e8b11
+```
+
+#### `earnings transcript` *(selector)*
+
+| Option | Description |
+|--------|-------------|
+| `--format <format>` | `speakers` (default), `text`, `words`, `sections`, `cleaned` |
+| `--transcript-version <n>` | A published version (`earnings versions`); not `--version`, which prints the CLI version |
+| `--as-of <iso>` | The version current at that instant |
+| `-o, --output <file>` / `--force` | Save the transcript as text |
+
+The header shows where the Q&A begins ("Q&A starts at 41:07") when the call has one; `--json` carries it as `qa_start_ms` (milliseconds, `null` without a Q&A).
+
+```bash
+invd earnings transcript -i AAPL --year 2026 --quarter 4 --output aapl-q4.txt
+```
+
+#### `earnings versions` *(selector)*
+
+Published transcript versions (final, corrected, …).
+
+```bash
+invd earnings versions -i AAPL --date 2026-10-30
+```
+
+#### `earnings transcript-diff` *(selector)*
+
+| Option | Description |
+|--------|-------------|
+| `--from <n>` | Older version **(required)** |
+| `--to <n>` | Newer version (default: the current one) |
+
+```bash
+invd earnings transcript-diff --event <event_id> --from 1
+```
+
+#### `earnings qa` *(selector)*
+
+Question / answer pairs with the analyst and the answering executives (`-l, --limit` 1–200, `--offset`).
+
+```bash
+invd earnings qa -i NVDA --year 2027 --quarter 2
+```
+
+#### `earnings participants` *(selector)*
+
+Speakers of the call (`--evidence` adds the quotes each name was resolved from).
+
+```bash
+invd earnings participants --event <event_id> --evidence
+```
+
+#### `earnings analysts`
+
+Analysts on a company's calls (`-i` **required**, `-l, --limit` 1–100, `--offset`).
+
+```bash
+invd earnings analysts -i MSFT
+```
+
+#### `earnings person`
+
+One person's call appearances: `invd earnings person <person_id>` (`-l, --limit` 1–200, `--offset`).
+
+```bash
+invd earnings person <person_id>
+```
+
+#### `earnings press-release` *(selector)*
+
+| Option | Description |
+|--------|-------------|
+| `--body` | Include the release text |
+| `-o, --output <file>` / `--force` | Save the release text |
+
+```bash
+invd earnings press-release -i AAPL --year 2026 --quarter 4 --body
+```
+
+#### `earnings extractions` *(selector)*
+
+| Option | Description |
+|--------|-------------|
+| `--kind <kind>` | `guidance` (default) or `kpi` |
+| `--review <filter>` | Guidance review filter: `approved`, `auto`, `all` |
+| `-l, --limit` / `--offset` | Page size (1–500), offset |
+
+```bash
+invd earnings extractions --event <event_id> --kind kpi
+```
+
+#### `earnings guidance-history`
+
+A company's guidance for one metric across calls.
+
+| Option | Description |
+|--------|-------------|
+| `-i, --identifier <ticker>` | Ticker or CIK **(required)** |
+| `--metric <metric>` | Normalized metric, e.g. `revenue`, `eps_non_gaap`, `segment:iphone` **(required)** |
+| `--period-kind <kind>` | `quarter`, `fiscal_year`, `half`, `other` |
+| `--basis <basis>` | `gaap`, `non_gaap`, `unknown` |
+| `-l, --limit <n>` | Series entries (1–40) |
+
+```bash
+invd earnings guidance-history -i AAPL --metric revenue --period-kind quarter
+```
+
+#### `earnings diff` *(selector)*
+
+What changed against the prior call: similarity, tone, hedging, new / dropped topics, slide changes (`--vs prior`, the only base).
+
+```bash
+invd earnings diff -i AAPL --year 2026 --quarter 4
+```
+
+#### `earnings metrics` *(selector)*
+
+Call structure metrics (length, Q&A share, question count, …).
+
+```bash
+invd earnings metrics --event <event_id>
+```
+
+#### `earnings prosody` *(selector)*
+
+Speech timing, pitch and energy per speaker (`--section all|prepared|qa`).
+
+```bash
+invd earnings prosody --event <event_id> --section qa
+```
+
+#### `earnings audio` *(selector)*
+
+The recording as a presigned URL, or `-o, --output <file>` (+ `--force`) to save it.
+
+```bash
+invd earnings audio --event <event_id> --output call.mp3
+```
+
+#### `earnings slides` *(selector)*
+
+| Option | Description |
+|--------|-------------|
+| `--markdown` | Include each page's extracted text |
+| `--pages <range>` | Page or range, e.g. `3` or `1-5` |
+| `-o, --output <file>` / `--force` | Save the deck PDF |
+
+```bash
+invd earnings slides -i AAPL --year 2026 --quarter 4 --output deck.pdf
+```
+
+#### `earnings documents` *(selector)*
+
+Investor documents of the call (CFO commentary, data sheets, letters, filings).
+
+| Option | Description |
+|--------|-------------|
+| `--kind <list>` | `cfo_commentary`, `financial_data`, `shareholder_letter`, `fact_sheet`, `company_transcript`, `sec_filing`, `infographic`, `other` |
+| `--body` | Include the extracted text |
+| `-l, --limit` / `--offset` | Page size (1–100), offset |
+| `-o, --output <dir>` / `--force` | Save every document as `<kind>-<document_id>.<ext>` |
+
+With `--output`, a document without a download URL (a link-only `sec_filing`, or a file the API could not fetch — use its `source_url`) is never skipped silently: each gets a warning on stderr, followed by a count (`2 of 3 documents saved; 1 skipped`). The exit code is 0 when at least one document was saved (or the list was empty) and 1 when documents were listed but none could be saved. An interrupted download (Ctrl-C) never leaves a partial file behind.
+
+```bash
+invd earnings documents --event <event_id> --output ./docs
+```
+
+#### `earnings search`
+
+Semantic search over call transcripts and slides.
+
+| Option | Description |
+|--------|-------------|
+| `-q, --query <text>` | Search text **(required)** |
+| `--event <event_id>` / `-i, --identifier <ticker>` | Only this call / company |
+| `--from <date>` / `--to <date>` | Call day range |
+| `--type <type>` | `transcript`, `qa`, `preparedRemarks`, `presentation` |
+| `-l, --limit <n>` | Passages (1–8) |
+
+```bash
+invd earnings search -q "data center demand" -i NVDA
+```
+
+#### `earnings stream` *(selector)*
+
+The live HLS audio URL of a call in progress (PRO; `status` = `available`, `not_started`, `ended` or `disabled`). Play it with `ffplay` or VLC; the URL expires (`expires_at`).
+
+```bash
+invd earnings stream --event <event_id>
+```
+
+---
+
 ### ownership
 
 Institutional ownership data.
@@ -661,19 +919,59 @@ invd metadata section-ids
 
 ---
 
+### webhooks
+
+Earnings-call webhook subscriptions (PRO): signed, retried `POST`s of the call lifecycle to your HTTPS endpoint. Events: `earnings_call.scheduled`, `.rescheduled`, `.started`, `.ended`, `.transcript_provisional`, `.transcript_ready`, `.transcript_corrected`, `.assets_ready`, `.guidance_flash` (reserved), and `ping`. Deliveries carry `X-Invinite-Signature: t=…,v1=…` (HMAC-SHA256 of `<t>.<raw body>` with the secret) and are retried after 1 min, 5 min, 30 min, 2 h, 6 h, 12 h and 24 h.
+
+| Command | Description |
+|---------|-------------|
+| `webhooks list` | Your team's subscriptions (never the secret, only `secret_hint`) |
+| `webhooks create --url <url> --events <list> [--ciks <list>] [--keywords <list>]` | Create one (max 10 per team; `--ciks` max 10, default every company). **Prints the signing secret once** |
+| `webhooks delete <id>` | Delete a subscription |
+| `webhooks rotate-secret <id>` | New secret (printed once); the old one stays valid until `previous_secret_expires_at` (5 min) |
+| `webhooks test <id>` | Queue a signed `ping` delivery |
+| `webhooks deliveries <id>` | The last 100 attempts: `delivery_id`, `event`, `attempt`, `status`, `response_status`, `duration_ms`, `at`, `next_attempt_at` |
+
+```bash
+invd webhooks create --url https://hooks.example.com/invinite --events earnings_call.transcript_ready,earnings_call.started --ciks 320193
+invd webhooks test <id>
+invd webhooks deliveries <id>
+```
+
+---
+
 ### ws
 
 Real-time WebSocket streaming.
 
 #### `ws listen`
 
-Listen to real-time SEC filing notifications. Automatically reconnects on disconnection with exponential backoff.
+Listen to real-time SEC filing notifications, or with `--earnings` follow one earnings call's live transcript (PRO). Automatically reconnects on disconnection with exponential backoff.
+
+| Option | Description |
+|--------|-------------|
+| `--earnings <event_id\|cik>` | Follow a live call: event ID (UUID) or CIK |
+| `--since-seq <n>` | Replay the finals after this seq (default `-1` = the whole call so far) |
+| `--partials` | Show interim segments, overwritten in place (terminal only; `--json` emits them) |
+| `--names` | Print each speaker-name snapshot |
 
 ```bash
 invd ws listen
 ```
 
 Press `Ctrl+C` to disconnect.
+
+**Live transcripts.** Find a call in progress, then follow it:
+
+```bash
+invd earnings live
+invd ws listen --earnings 0b9d6f43-6b1e-4c39-9d3a-2f6a3c1e8b11 --partials
+# AAPL 2026-10-30T21:00:00.000Z · capturing · from seq 0 (latest 41)
+# [0:12] Operator: Good afternoon and welcome to the Apple Q4 fiscal year 2026 earnings call.
+# [1:05] Tim Cook: Thank you, everyone, for joining us.
+```
+
+Finals are named from the newest speaker-name snapshot (`Speaker A` until a name is known). A `gap` line marks a seq range with no final yet (a late final may still follow on the same subscription, so finals can print slightly out of order); `resume_unavailable` means missed finals cannot be replayed right now — live delivery continues and the API back-fills them once it can. Neither needs a re-subscribe. After a reconnect the listener resumes after the last final it printed; it exits once the final transcript is ready (`invd earnings transcript --event <id>`). With `--json` every frame is one JSON line (NDJSON), e.g. `invd ws listen --earnings 320193 --json | jq -r 'select(.type=="transcript_segment") | .text'`.
 
 ---
 

@@ -12,3 +12,9 @@ export const queryOption = new Option('-q, --query <text>', 'Search query').make
 export const cikOption = new Option('--cik <cik>', 'Institution CIK').makeOptionMandatory();
 export const jsonOption = new Option('--json', 'Output raw JSON');
 export const allOption = new Option('--all', 'Auto-paginate through all results');
+
+/** A comma-separated option value → trimmed, de-duplicated, non-empty items. */
+export function splitList(value: string | undefined): string[] {
+  if (!value) return [];
+  return [...new Set(value.split(',').map(item => item.trim()).filter(Boolean))];
+}

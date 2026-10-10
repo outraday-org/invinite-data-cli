@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module';
 import { Command } from 'commander';
 import { setJsonMode } from './shared/spinner.js';
 import { registerConfigCommands } from './commands/config.js';
@@ -10,11 +11,29 @@ import { registerIposCommands } from './commands/ipos.js';
 import { registerOwnershipCommands } from './commands/ownership.js';
 import { registerInsiderTradesCommands } from './commands/insider-trades.js';
 import { registerFilingsCommands } from './commands/filings.js';
+import { registerEarningsCommands } from './commands/earnings.js';
 import { registerMarketCommands } from './commands/market.js';
 import { registerMetadataCommands } from './commands/metadata.js';
+import { registerWebhooksCommands } from './commands/webhooks.js';
 import { registerWsCommands } from './commands/ws.js';
 import { registerPluginCommands } from './commands/plugin.js';
 import { registerLoginCommands } from './commands/login.js';
+
+const PACKAGE_NAME = '@invinite-org/invinite-data-cli';
+
+/** `package.json` sits one level up under tsx (`src/cli.ts`), two in the build (`dist/src/cli.js`). */
+export function packageVersion(): string {
+  const requireJson = createRequire(import.meta.url);
+  for (const candidate of ['../package.json', '../../package.json']) {
+    try {
+      const pkg = requireJson(candidate) as { name?: string; version?: string };
+      if (pkg.name === PACKAGE_NAME && pkg.version) return pkg.version;
+    } catch {
+      // not at this level
+    }
+  }
+  return '0.0.0';
+}
 
 export function createProgram(): Command {
   const program = new Command();
@@ -22,7 +41,7 @@ export function createProgram(): Command {
   program
     .name('invd')
     .description('CLI for the Invinite financial data API')
-    .version('0.1.0')
+    .version(packageVersion())
     .option('--json', 'Output raw JSON (pipe-friendly)')
     .option('--all', 'Auto-paginate through all results')
     .hook('preAction', (thisCommand) => {
@@ -42,8 +61,10 @@ export function createProgram(): Command {
   registerOwnershipCommands(program);
   registerInsiderTradesCommands(program);
   registerFilingsCommands(program);
+  registerEarningsCommands(program);
   registerMarketCommands(program);
   registerMetadataCommands(program);
+  registerWebhooksCommands(program);
   registerWsCommands(program);
   registerPluginCommands(program);
   registerLoginCommands(program);

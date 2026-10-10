@@ -1,6 +1,6 @@
 ---
 name: invinite-data-cli
-description: Fetch financial data through the Invinite Data API MCP connector or invd CLI. Use whenever the user wants company information, financial statements, SEC filings, institutional ownership, insider trades, IPO data, market holidays, financial metrics, or other stock/company data, including requests mentioning tickers, CIKs, balance sheets, income statements, cash flows, 10-K, 10-Q, ratios, CAGR, growth rates, dividends, stock splits, or institutional holdings.
+description: Fetch financial data through the Invinite Data API MCP connector or invd CLI. Use whenever the user wants company information, financial statements, SEC filings, institutional ownership, insider trades, IPO data, market holidays, financial metrics, earnings calls, or other stock/company data, including requests mentioning tickers, CIKs, balance sheets, income statements, cash flows, 10-K, 10-Q, ratios, CAGR, growth rates, dividends, stock splits, institutional holdings, call transcripts, earnings guidance, KPIs, Q&A, analysts, live calls, slides, or press releases.
 allowed-tools: Bash(invd *)
 ---
 
@@ -28,6 +28,11 @@ Use the connected Invinite Data API MCP tools when available. Fall back to the `
 | Filing and metric discovery | `sec_available_form_types`, `list_available_section_ids`, `list_available_metrics` | `invd filings form-types`, `invd metadata ...` |
 | Institutional ownership | `holdings_by_company`, `holdings_by_investor`, `institutional_investors`, `institutional_transactions` | `invd ownership ...` |
 | Insider trades/IPOs/holidays | `insider_trades`, `ipos`, `market_holidays` | `invd insider-trades`, `invd ipos`, `invd market ...` |
+| Earnings call calendar/events/live | `earnings_call_calendar`, `earnings_call_events`, `earnings_call_live` | `invd earnings calendar\|events\|live` |
+| Call transcript/Q&A/participants | `earnings_call_transcript`, `earnings_call_qa`, `earnings_call_participants` | `invd earnings transcript\|qa\|participants` |
+| Call guidance/KPIs, diff vs prior call | `earnings_call_guidance`, `earnings_call_diff` | `invd earnings extractions\|guidance-history\|diff` |
+| Call documents/press release | `earnings_call_documents`, `earnings_call_press_release` | `invd earnings documents\|press-release` |
+| Search across calls | `earnings_call_search` | `invd earnings search` |
 
 The discovery rules below apply to both transports: call `list_available_metrics` before ratios, growth, CAGR, or financial-statement analysis, and call `list_available_section_ids` before requesting filing sections.
 
@@ -227,6 +232,71 @@ invd metadata metrics --json
 invd metadata section-ids --json
 ```
 
+### Earnings Calls
+
+Commands about one call take a selector: `--event <event_id>` (from `events` / `calendar`), or `-i <ticker>` with `--year` + `--quarter` (fiscal) or `--date YYYY-MM-DD` (New York call day).
+
+```bash
+# Calendar across companies, a company's calls, calls being captured right now
+# --event-type: earnings_call (calendar default), investor_day, conference, agm, other, all (events default)
+invd earnings calendar --from 2026-10-20 --to 2026-10-31 --json
+invd earnings calendar --event-type all --json   # investor days, conferences, AGMs too
+invd earnings events -i AAPL -s desc -l 4 --json
+invd earnings live --json
+invd earnings event <event_id> --json
+
+# Transcript (formats: speakers, text, words, sections, cleaned), versions, word diff between versions
+# qa_start_ms = where the Q&A begins (ms into the call, null without one)
+invd earnings transcript -i AAPL --year 2026 --quarter 4 --format speakers --json
+invd earnings versions --event <event_id> --json
+invd earnings transcript-diff --event <event_id> --from 1 --json
+
+# Q&A pairs, speakers, analysts of a company, one person's appearances
+invd earnings qa --event <event_id> --json
+invd earnings participants --event <event_id> --json
+invd earnings analysts -i AAPL --json
+invd earnings person <person_id> --json
+
+# Press release, guidance / KPI extractions, a metric's guidance across calls
+invd earnings press-release --event <event_id> --body --json
+invd earnings extractions --event <event_id> --kind guidance --json
+invd earnings extractions --event <event_id> --kind kpi --json
+invd earnings guidance-history -i AAPL --metric revenue --json
+
+# Derived: diff vs the prior call, call metrics, prosody
+invd earnings diff --event <event_id> --json
+invd earnings metrics --event <event_id> --json
+invd earnings prosody --event <event_id> --section qa --json
+
+# Media (signed URLs expire after 15 min; --output saves the file)
+invd earnings audio --event <event_id> --output call.mp3
+invd earnings slides --event <event_id> --markdown --json
+invd earnings documents --event <event_id> --kind cfo_commentary --json
+invd earnings documents --event <event_id> --output ./docs   # a row without url (link-only sec_filing) is warned on stderr; use its source_url
+invd earnings stream --event <event_id> --json   # live HLS URL of a call in progress (PRO)
+
+# Semantic search over transcripts and slides
+invd earnings search -q "data center demand" -i NVDA --json
+```
+
+- `--transcript-version N` (not `--version`) selects a published transcript version; `--as-of <iso>` the version current at that instant.
+- `extractions --review approved|auto|all` filters guidance by review status; `diff --vs prior` is the only comparison base.
+- Every `*_ms` field is milliseconds from the call's start: cite it as `[m:ss]`.
+- The live transcript (`ws listen --earnings`), audio, slides, the live stream and webhooks need the PRO plan (calendar, events and `live` need LITE, the other reads STANDARD); a `403` names the plan a route needs.
+
+### Live transcripts and webhooks
+
+```bash
+# Follow a live call over the WebSocket (event ID or CIK; NDJSON with --json)
+invd ws listen --earnings <event_id> --json
+invd ws listen --earnings 320193 --names
+
+# Earnings-call webhook subscriptions (the secret is printed once)
+invd webhooks list --json
+invd webhooks create --url https://hooks.example.com/invinite --events earnings_call.transcript_ready --ciks 320193
+invd webhooks deliveries <id> --json
+```
+
 ### Health Check
 
 ```bash
@@ -264,6 +334,15 @@ invd ownership holdings-by-company -i AAPL --min-value 10000000 --json
 invd filings search -r "artificial intelligence strategy" -i MSFT --json
 ```
 
+### Reading an earnings call
+Find the call, then read it from the cheapest source to the most detailed:
+```bash
+invd earnings events -i NVDA -s desc -l 4 --json            # pick the event_id
+invd earnings transcript --event <event_id> --format sections --json
+invd earnings extractions --event <event_id> --kind guidance --json
+invd earnings search -q "gross margin outlook" --event <event_id> --json
+```
+
 ### Reading specific filing sections
 First find section IDs, then fetch the section:
 ```bash
@@ -279,3 +358,5 @@ invd filings sections -i AAPL --form-type 10-K --section-id risk_factors --json
 - For financial statements, `annual` gives the full year, `quarterly` gives each quarter, `ttm` gives trailing twelve months, `ytd` gives year-to-date
 - The `snapshot` command is the most efficient way to get complete financials for one or more companies at once
 - Filing sections return full text — great for detailed analysis of risk factors, MD&A, business descriptions, etc.
+- Following a live call: `invd earnings live --json` lists the calls in progress; `invd ws listen --earnings <event_id>` streams the transcript (PRO) and exits once the final transcript is ready
+- Earnings-call identifiers: `event_id` (UUID) from `invd earnings events` / `calendar` is the most precise selector; ticker + `--year` + `--quarter` uses the company's fiscal quarter
