@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Invinite API",
-    "description": "Invinite financial data API. Each endpoint has a base credit cost; responses add 1 credit per started 1,000 rows beyond the first 1,000. X-Credits-Charged reports the final debit. SEC filing search has a 100-credit base cost.\n\n## Webhooks\n\nPRO teams subscribe with `POST /v1/earnings-calls/webhooks` to the `earnings_call.*` lifecycle events (filtered by CIK); see `x-webhooks` for each `data` object. Every delivery is a `POST` with `Content-Type: application/json`, `X-Invinite-Event`, `X-Invinite-Delivery` and `X-Invinite-Signature: t=<unix seconds>,v1=<hex>` where `v1` = HMAC-SHA256(secret, `<t>.<raw body>`); during a secret rotation the header carries one `v1` per valid secret. Reject a signature older than 5 minutes. Any 2xx within 10 s acknowledges; redirects are not followed. A failed delivery is retried after 1 min, 5 min, 30 min, 2 h, 6 h, 12 h, 24 h (8 attempts in all, the same delivery id each time). A subscription is disabled after 8 consecutive dead-lettered deliveries (a final `ping` with `notice: subscription_disabled` is sent). Deliveries are at-least-once and unordered: dedupe on the delivery id, order by `created_at`.",
+    "description": "Invinite financial data API. Each endpoint has a base credit cost; responses add 1 credit per started 1,000 rows beyond the first 1,000. X-Credits-Charged reports the final debit. SEC filing search has a 100-credit base cost.\n\n## Webhooks\n\nPRO teams subscribe with `POST /v1/earnings-calls/webhooks` to the `earnings_call.*` lifecycle events (filtered by CIK); see `x-webhooks` for each `data` object. Every delivery is a `POST` with `Content-Type: application/json`, `X-Invinite-Event`, `X-Invinite-Delivery` and `X-Invinite-Signature: t=<unix seconds>,v1=<hex>` where `v1` = HMAC-SHA256(secret, `<t>.<raw body>`); during a secret rotation the header carries one `v1` per valid secret. Reject a signature older than 5 minutes. Any 2xx within 10 s acknowledges; redirects are not followed. A failed delivery is retried after 1 min, 5 min, 30 min, 2 h, 6 h, 12 h, 24 h (8 attempts in all, the same delivery id each time). A subscription is disabled after 8 consecutive dead-lettered deliveries (a final `ping` with `notice: subscription_disabled` is sent). Deliveries are at-least-once and unordered: dedupe on the delivery id, order by `created_at`.\n\n## Licensing\n\n| Tier | display | redistribute | rag | train | audio | resell |\n| --- | --- | --- | --- | --- | --- | --- |\n| FREE | ✓ | – | – | – | – | – |\n| LITE | ✓ | – | – | – | – | – |\n| STANDARD | ✓ | – | ✓ | – | – | – |\n| PRO | ✓ | ✓ | ✓ | – | ✓ | – |\n\nInvinite data may be shown and, from PRO, redistributed inside the licensee's own product with attribution (\"Source: Invinite\" on screen or in the API response that carries it). It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.\n\nPolicy version: 2026-10-draft. Draft — pending counsel sign-off.\n\nAudio is served through signed URLs, is subject to per-company takedown, may not be re-hosted, and every delivered file carries a per-team forensic watermark (tasks 32 / 43 / 51): a copy found elsewhere is traced to the team that received it.\n\nSEC data: Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.\n\nEvery `/v1/*` operation carries `x-license`, the minimum use right its data ships with; `GET /status/licensing` serves the same matrix per route.\n\n## Status\n\n[`/status`](/status) reports request health per product family, [`/status/earnings-calls`](/status/earnings-calls) the earnings-call pipeline and [`/status/licensing`](/status/licensing) the licensing matrix per route. The status routes need no API key and are cached for 5 minutes.\n\nMeasured inside the API process per product family and UTC day: availability = non-5xx responses / responses (admission 429 / 503 included), latency = time from request arrival to the response, excluding network and edge time; percentiles are bucket upper bounds (conservative), the current day is partial.\n\nProduct families: Company, Financials, SEC Filings, Insider Trades, Institutional Ownership, IPOs, Market, Metadata, Earnings Calls, WebSocket.\n\nData freshness: the newest ingested record of each data set that carries an ingest timestamp (SEC filings, insider trades, institutional ownership, IPOs, earnings-call transcripts), each read with one indexed MAX() under a 2-second statement timeout; financial statements and market holidays have no ingest timestamp and are listed as `no_timestamp`, a data set the deployment does not measure as `not_measured`, a failed read as `unavailable`.\n\nEarnings-call pipeline SLO targets: first live segment p95 ≤ 30 s after call start, final transcript p95 ≤ 300 s after call end; p95 is published per webcast vendor per day.",
     "version": "1.0.0"
   },
   "components": {
@@ -455,7 +455,7 @@
       },
       "WebSocketSubscribeEarningsCall": {
         "type": "object",
-        "description": "Client frame: subscribe to the live transcript of one earnings call, by event_id or by cik (the call that is live or starts within ±2 h). Requires the PRO plan.",
+        "description": "Client frame: subscribe to the live transcript of one earnings call, by event_id or by cik (the call that is live or starts within ±2 h), or with scope: all_live (no event_id / cik) to every call being captured live — keyword hits only, never segments, one subscription slot. Requires the PRO plan.",
         "required": [
           "type",
           "channel"
@@ -483,6 +483,13 @@
             "pattern": "^\\d{1,10}$",
             "description": "CIK, padded or not"
           },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "all_live"
+            ],
+            "description": "all_live = every live call (keywords required, error keywords_required without); then no event_id / cik"
+          },
           "since_seq": {
             "type": "integer",
             "minimum": -1,
@@ -492,6 +499,54 @@
             "type": "boolean",
             "default": false,
             "description": "Also receive partial (not yet final) segments"
+          },
+          "keywords": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 64
+            },
+            "description": "Keyword alerts: a keyword_hit frame for every FINAL segment that contains one (whole words, case-insensitive, multi-word allowed). Held for this subscription only"
+          },
+          "keyword_match": {
+            "type": "string",
+            "enum": [
+              "exact",
+              "stem"
+            ],
+            "default": "exact",
+            "description": "exact = whole-word match of your spelling (buyback never matches buybacks); stem = also s / es / ed / ing / 's per word (tariff matches tariffs)"
+          },
+          "speaker_roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "executive",
+                "ir_host",
+                "analyst",
+                "operator"
+              ]
+            },
+            "description": "Only hits spoken by one of these roles (from the provisional live speaker names; a hit whose speaker is still unnamed passes)"
+          },
+          "min_rank": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "all_live only: calls of companies ranked ≤ min_rank by market cap"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "keyword_hit",
+                "guidance_flash"
+              ]
+            },
+            "description": "all_live only: what reaches the subscription (default keyword_hit; add guidance_flash to receive the flashes of every live call)"
           }
         }
       },
@@ -517,16 +572,10 @@
       },
       "WebSocketSubscribedEvent": {
         "type": "object",
-        "description": "A subscription is active",
+        "description": "A subscription is active. A per-call subscription carries the call (event_id … state); a scope: all_live subscription carries scope, keywords and live_calls instead",
         "required": [
           "type",
-          "subscription_id",
-          "event_id",
-          "cik",
-          "symbol",
-          "conference_date",
-          "current_seq",
-          "state"
+          "subscription_id"
         ],
         "properties": {
           "type": {
@@ -566,6 +615,266 @@
               "capturing",
               "ended"
             ]
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "all_live"
+            ],
+            "description": "all_live subscriptions only"
+          },
+          "keywords": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "all_live only: the keywords as held"
+          },
+          "live_calls": {
+            "type": "integer",
+            "description": "all_live only: calls being captured live that the subscription follows right now"
+          }
+        }
+      },
+      "WebSocketKeywordHitEvent": {
+        "type": "object",
+        "description": "A subscribed keyword occurred in a FINAL segment (layer live; partials are never evaluated) or, once per subscription at transcript_ready, in the final transcript (layer final; a final hit within ± 5 s of a live hit of the same keyword is not repeated). The only call-level frame of a scope: all_live subscription besides guidance_flash",
+        "required": [
+          "type",
+          "subscription_id",
+          "event_id",
+          "cik",
+          "symbol",
+          "conference_date",
+          "keyword",
+          "seq",
+          "start_ms",
+          "end_ms",
+          "text",
+          "context_before",
+          "speaker_label",
+          "speaker_name",
+          "speaker_role",
+          "layer",
+          "latency_ms"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "keyword_hit"
+            ]
+          },
+          "subscription_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "event_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cik": {
+            "type": "string",
+            "description": "10-digit CIK"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "conference_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "keyword": {
+            "type": "string",
+            "description": "The subscriber's own spelling of the keyword"
+          },
+          "seq": {
+            "type": "integer",
+            "nullable": true,
+            "description": "The live final's seq; null on the final layer"
+          },
+          "start_ms": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Offset from the start of the recording"
+          },
+          "end_ms": {
+            "type": "integer",
+            "nullable": true,
+            "description": "null on the final layer when the cleaned text has no end timing"
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "The segment (live) or turn (final), at most 500 chars"
+          },
+          "context_before": {
+            "type": "string",
+            "nullable": true,
+            "description": "The previous final / turn of the call (≤ 300 chars); a final is often half a sentence"
+          },
+          "speaker_label": {
+            "type": "string",
+            "nullable": true,
+            "description": "Diarization label"
+          },
+          "speaker_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "From the live speaker-name snapshot (null while unnamed) or the final transcript"
+          },
+          "speaker_role": {
+            "type": "string",
+            "nullable": true,
+            "description": "executive | ir_host | analyst | operator; null while unnamed"
+          },
+          "layer": {
+            "type": "string",
+            "enum": [
+              "live",
+              "final"
+            ],
+            "description": "live = a live final; final = the final transcript at transcript_ready (once per subscription)"
+          },
+          "latency_ms": {
+            "type": "integer",
+            "nullable": true,
+            "description": "live only: relay time inside the API process minus the segment's own end time (excludes the client's network); null when the call's clock is unknown"
+          }
+        }
+      },
+      "WebSocketGuidanceFlashEvent": {
+        "type": "object",
+        "description": "A forward-looking guidance number extracted from the live transcript seconds after it was spoken (one frame per metric / period; a restatement repeats it with a higher revision). Sent to every subscription of the call and to all_live subscriptions whose events include guidance_flash. Provisional: the structured guidance of /v1/earnings-calls/extractions replaces it after the call",
+        "required": [
+          "type",
+          "subscription_id",
+          "event_id",
+          "cik",
+          "symbol",
+          "conference_date",
+          "seq",
+          "revision",
+          "metric",
+          "metric_normalized",
+          "period_label",
+          "low",
+          "high",
+          "point",
+          "unit",
+          "currency",
+          "source_sentence",
+          "start_ms"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "guidance_flash"
+            ]
+          },
+          "subscription_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "event_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cik": {
+            "type": "string",
+            "description": "10-digit CIK"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "conference_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "seq": {
+            "type": "integer",
+            "description": "The final that triggered the extraction"
+          },
+          "revision": {
+            "type": "integer",
+            "description": "1 for the first flash of a metric / period; higher when the numbers were restated"
+          },
+          "metric": {
+            "type": "string",
+            "description": "The metric as spoken"
+          },
+          "metric_normalized": {
+            "type": "string",
+            "description": "revenue, eps_gaap, segment:<slug> …"
+          },
+          "period_label": {
+            "type": "string",
+            "description": "Q4 FY2026, FY2026 …"
+          },
+          "low": {
+            "type": "number",
+            "nullable": true,
+            "description": "Lower bound of the range (absolute units)"
+          },
+          "high": {
+            "type": "number",
+            "nullable": true,
+            "description": "Upper bound of the range"
+          },
+          "point": {
+            "type": "number",
+            "nullable": true,
+            "description": "A point value when no range was given"
+          },
+          "unit": {
+            "type": "string",
+            "nullable": true,
+            "description": "USD, percent, shares …"
+          },
+          "currency": {
+            "type": "string",
+            "nullable": true,
+            "description": "ISO 4217 when a currency applies"
+          },
+          "source_sentence": {
+            "type": "string",
+            "description": "The verbatim sentence the numbers come from"
+          },
+          "start_ms": {
+            "type": "integer",
+            "description": "Offset of the sentence from the start of the recording"
+          }
+        }
+      },
+      "WebSocketWarningEvent": {
+        "type": "object",
+        "description": "A subscription is degraded but keeps running: global_scope_degraded = a new live call was not attached because this server already follows its cap of live calls (sent once per subscription while the cap holds)",
+        "required": [
+          "type",
+          "code",
+          "message",
+          "subscription_id"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "warning"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "global_scope_degraded"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },
@@ -848,6 +1157,7 @@
               "subscription_limit",
               "attach_failed",
               "resume_unavailable",
+              "keywords_required",
               "unavailable"
             ]
           },
@@ -886,6 +1196,7 @@
               "earnings_call.transcript_corrected",
               "earnings_call.assets_ready",
               "earnings_call.guidance_flash",
+              "earnings_call.keyword_hit",
               "ping"
             ]
           },
@@ -944,7 +1255,7 @@
         "tags": [
           "Company"
         ],
-        "description": "List all available companies.",
+        "description": "List all available companies. Minimum tier for display: FREE.",
         "security": [
           {
             "bearerAuth": []
@@ -1004,7 +1315,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite"
+        "x-tier": "lite",
+        "x-license": "display"
       }
     },
     "/v1/company/search": {
@@ -1012,7 +1324,7 @@
         "tags": [
           "Company"
         ],
-        "description": "Search companies by ticker or name.",
+        "description": "Search companies by ticker or name. Minimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -1121,7 +1433,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite"
+        "x-tier": "lite",
+        "x-license": "display"
       }
     },
     "/v1/company/details": {
@@ -1129,7 +1442,7 @@
         "tags": [
           "Company"
         ],
-        "description": "Fetch details for a company.",
+        "description": "Fetch details for a company. Minimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -1394,7 +1707,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite"
+        "x-tier": "lite",
+        "x-license": "display"
       }
     },
     "/v1/company/dividends": {
@@ -1402,7 +1716,7 @@
         "tags": [
           "Company"
         ],
-        "description": "Fetch stock dividends for a company.",
+        "description": "Fetch stock dividends for a company. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -1581,7 +1895,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite"
+        "x-tier": "lite",
+        "x-license": "redistribute"
       }
     },
     "/v1/company/fiscal-periods": {
@@ -1589,7 +1904,7 @@
         "tags": [
           "Company"
         ],
-        "description": "Fetch available fiscal periods for a company.",
+        "description": "Fetch available fiscal periods for a company. Minimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -1735,7 +2050,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite"
+        "x-tier": "lite",
+        "x-license": "display"
       }
     },
     "/v1/company/splits": {
@@ -1743,7 +2059,7 @@
         "tags": [
           "Company"
         ],
-        "description": "Fetch stock splits for a company.",
+        "description": "Fetch stock splits for a company. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -1884,7 +2200,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite"
+        "x-tier": "lite",
+        "x-license": "redistribute"
       }
     },
     "/v1/standardized/income-statement": {
@@ -1892,7 +2209,7 @@
         "tags": [
           "Standardized Income Statement"
         ],
-        "description": "Fetch standardized income statement data for a company.",
+        "description": "Fetch standardized income statement data for a company. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -2079,7 +2396,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite"
+        "x-tier": "lite",
+        "x-license": "redistribute"
       }
     },
     "/v1/standardized/income-statement/detailed": {
@@ -2087,7 +2405,7 @@
         "tags": [
           "Standardized Income Statement"
         ],
-        "description": "Fetch detailed income statement data with formula, accession number, and html tag info.",
+        "description": "Fetch detailed income statement data with formula, accession number, and html tag info. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -2428,7 +2746,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "pro"
+        "x-tier": "pro",
+        "x-license": "redistribute"
       }
     },
     "/v1/standardized/income-statement/presentation": {
@@ -2436,7 +2755,7 @@
         "tags": [
           "Standardized Income Statement"
         ],
-        "description": "Fetch income statement data in presentation format (nested tree structure based on parent_id).",
+        "description": "Fetch income statement data in presentation format (nested tree structure based on parent_id). Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -2622,7 +2941,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "pro"
+        "x-tier": "pro",
+        "x-license": "redistribute"
       }
     },
     "/v1/standardized/balance-sheet": {
@@ -2630,7 +2950,7 @@
         "tags": [
           "Standardized Balance Sheet"
         ],
-        "description": "Fetch standardized balance sheet data for a company.",
+        "description": "Fetch standardized balance sheet data for a company. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -2817,7 +3137,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite"
+        "x-tier": "lite",
+        "x-license": "redistribute"
       }
     },
     "/v1/standardized/balance-sheet/detailed": {
@@ -2825,7 +3146,7 @@
         "tags": [
           "Standardized Balance Sheet"
         ],
-        "description": "Fetch detailed balance sheet data with formula, accession number, and html tag info.",
+        "description": "Fetch detailed balance sheet data with formula, accession number, and html tag info. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -3166,7 +3487,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "pro"
+        "x-tier": "pro",
+        "x-license": "redistribute"
       }
     },
     "/v1/standardized/balance-sheet/presentation": {
@@ -3174,7 +3496,7 @@
         "tags": [
           "Standardized Balance Sheet"
         ],
-        "description": "Fetch balance sheet data in presentation format (nested tree structure based on parent_id).",
+        "description": "Fetch balance sheet data in presentation format (nested tree structure based on parent_id). Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -3360,7 +3682,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "pro"
+        "x-tier": "pro",
+        "x-license": "redistribute"
       }
     },
     "/v1/standardized/cash-flow-statement": {
@@ -3368,7 +3691,7 @@
         "tags": [
           "Standardized Cash Flow Statement"
         ],
-        "description": "Fetch standardized cash flow statement data for a company.",
+        "description": "Fetch standardized cash flow statement data for a company. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -3555,7 +3878,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite"
+        "x-tier": "lite",
+        "x-license": "redistribute"
       }
     },
     "/v1/standardized/cash-flow-statement/detailed": {
@@ -3563,7 +3887,7 @@
         "tags": [
           "Standardized Cash Flow Statement"
         ],
-        "description": "Fetch detailed cash flow statement data with formula, accession number, and html tag info.",
+        "description": "Fetch detailed cash flow statement data with formula, accession number, and html tag info. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -3904,7 +4228,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "pro"
+        "x-tier": "pro",
+        "x-license": "redistribute"
       }
     },
     "/v1/standardized/cash-flow-statement/presentation": {
@@ -3912,7 +4237,7 @@
         "tags": [
           "Standardized Cash Flow Statement"
         ],
-        "description": "Fetch cash flow statement data in presentation format (nested tree structure based on parent_id).",
+        "description": "Fetch cash flow statement data in presentation format (nested tree structure based on parent_id). Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -4098,7 +4423,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "pro"
+        "x-tier": "pro",
+        "x-license": "redistribute"
       }
     },
     "/v1/standardized/snapshot": {
@@ -4106,7 +4432,7 @@
         "tags": [
           "Standardized Snapshot"
         ],
-        "description": "Fetch latest complete financial statements snapshot for multiple companies.",
+        "description": "Fetch latest complete financial statements snapshot for multiple companies. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -4308,7 +4634,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite"
+        "x-tier": "lite",
+        "x-license": "redistribute"
       }
     },
     "/v1/standardized/snapshot/detailed": {
@@ -4316,7 +4643,7 @@
         "tags": [
           "Standardized Snapshot"
         ],
-        "description": "Fetch latest complete detailed financial statements snapshot with formula, accession number, and html tag info.",
+        "description": "Fetch latest complete detailed financial statements snapshot with formula, accession number, and html tag info. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -4952,7 +5279,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "pro"
+        "x-tier": "pro",
+        "x-license": "redistribute"
       }
     },
     "/v1/standardized/snapshot/presentation": {
@@ -4960,7 +5288,7 @@
         "tags": [
           "Standardized Snapshot"
         ],
-        "description": "Fetch latest complete financial statements snapshot in presentation format (nested tree structure based on parent_id).",
+        "description": "Fetch latest complete financial statements snapshot in presentation format (nested tree structure based on parent_id). Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -5159,7 +5487,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "pro"
+        "x-tier": "pro",
+        "x-license": "redistribute"
       }
     },
     "/v1/as-reported/income-statement": {
@@ -5167,7 +5496,7 @@
         "tags": [
           "As-Reported Income Statement"
         ],
-        "description": "Fetch as-reported income statement data for a company.",
+        "description": "Fetch as-reported income statement data for a company. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -5341,7 +5670,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "standard"
+        "x-tier": "standard",
+        "x-license": "redistribute"
       }
     },
     "/v1/as-reported/income-statement/detailed": {
@@ -5349,7 +5679,7 @@
         "tags": [
           "As-Reported Income Statement"
         ],
-        "description": "Fetch detailed as-reported income statement data with html_label, formula, accession number, and html tag info.",
+        "description": "Fetch detailed as-reported income statement data with html_label, formula, accession number, and html tag info. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -5667,7 +5997,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "pro"
+        "x-tier": "pro",
+        "x-license": "redistribute"
       }
     },
     "/v1/as-reported/income-statement/presentation": {
@@ -5675,7 +6006,7 @@
         "tags": [
           "As-Reported Income Statement"
         ],
-        "description": "Fetch as-reported income statement data in presentation format (nested tree structure based on parent_path).",
+        "description": "Fetch as-reported income statement data in presentation format (nested tree structure based on parent_path). Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -5847,7 +6178,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "pro"
+        "x-tier": "pro",
+        "x-license": "redistribute"
       }
     },
     "/v1/as-reported/balance-sheet": {
@@ -5855,7 +6187,7 @@
         "tags": [
           "As-Reported Balance Sheet"
         ],
-        "description": "Fetch as-reported balance sheet data for a company.",
+        "description": "Fetch as-reported balance sheet data for a company. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -6029,7 +6361,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "standard"
+        "x-tier": "standard",
+        "x-license": "redistribute"
       }
     },
     "/v1/as-reported/balance-sheet/detailed": {
@@ -6037,7 +6370,7 @@
         "tags": [
           "As-Reported Balance Sheet"
         ],
-        "description": "Fetch detailed as-reported balance sheet data with html_label, formula, accession number, and html tag info.",
+        "description": "Fetch detailed as-reported balance sheet data with html_label, formula, accession number, and html tag info. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -6355,7 +6688,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "pro"
+        "x-tier": "pro",
+        "x-license": "redistribute"
       }
     },
     "/v1/as-reported/balance-sheet/presentation": {
@@ -6363,7 +6697,7 @@
         "tags": [
           "As-Reported Balance Sheet"
         ],
-        "description": "Fetch as-reported balance sheet data in presentation format (nested tree structure based on parent_path).",
+        "description": "Fetch as-reported balance sheet data in presentation format (nested tree structure based on parent_path). Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -6535,7 +6869,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "pro"
+        "x-tier": "pro",
+        "x-license": "redistribute"
       }
     },
     "/v1/as-reported/cash-flow-statement": {
@@ -6543,7 +6878,7 @@
         "tags": [
           "As-Reported Cash Flow Statement"
         ],
-        "description": "Fetch as-reported cash flow statement data for a company.",
+        "description": "Fetch as-reported cash flow statement data for a company. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -6717,7 +7052,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "standard"
+        "x-tier": "standard",
+        "x-license": "redistribute"
       }
     },
     "/v1/as-reported/cash-flow-statement/detailed": {
@@ -6725,7 +7061,7 @@
         "tags": [
           "As-Reported Cash Flow Statement"
         ],
-        "description": "Fetch detailed as-reported cash flow statement data with html_label, formula, accession number, and html tag info.",
+        "description": "Fetch detailed as-reported cash flow statement data with html_label, formula, accession number, and html tag info. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -7043,7 +7379,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "pro"
+        "x-tier": "pro",
+        "x-license": "redistribute"
       }
     },
     "/v1/as-reported/cash-flow-statement/presentation": {
@@ -7051,7 +7388,7 @@
         "tags": [
           "As-Reported Cash Flow Statement"
         ],
-        "description": "Fetch as-reported cash flow statement data in presentation format (nested tree structure based on parent_path).",
+        "description": "Fetch as-reported cash flow statement data in presentation format (nested tree structure based on parent_path). Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -7223,7 +7560,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "pro"
+        "x-tier": "pro",
+        "x-license": "redistribute"
       }
     },
     "/v1/as-reported/snapshot": {
@@ -7231,7 +7569,7 @@
         "tags": [
           "As-Reported Snapshot"
         ],
-        "description": "Fetch latest complete as-reported financial statements snapshot for multiple companies.",
+        "description": "Fetch latest complete as-reported financial statements snapshot for multiple companies. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -7430,7 +7768,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "standard"
+        "x-tier": "standard",
+        "x-license": "redistribute"
       }
     },
     "/v1/as-reported/snapshot/detailed": {
@@ -7438,7 +7777,7 @@
         "tags": [
           "As-Reported Snapshot"
         ],
-        "description": "Fetch latest complete detailed as-reported financial statements snapshot with html_label, formula, accession number, and html tag info.",
+        "description": "Fetch latest complete detailed as-reported financial statements snapshot with html_label, formula, accession number, and html tag info. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -8044,7 +8383,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "pro"
+        "x-tier": "pro",
+        "x-license": "redistribute"
       }
     },
     "/v1/as-reported/snapshot/presentation": {
@@ -8052,7 +8392,7 @@
         "tags": [
           "As-Reported Snapshot"
         ],
-        "description": "Fetch latest complete as-reported financial statements snapshot in presentation format (nested tree structure based on parent_path).",
+        "description": "Fetch latest complete as-reported financial statements snapshot in presentation format (nested tree structure based on parent_path). Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -8251,7 +8591,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "pro"
+        "x-tier": "pro",
+        "x-license": "redistribute"
       }
     },
     "/v1/financial-metrics/ratios": {
@@ -8259,7 +8600,7 @@
         "tags": [
           "Financial Metrics"
         ],
-        "description": "Fetch financial ratios for a company.",
+        "description": "Fetch financial ratios for a company. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -8465,7 +8806,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "standard"
+        "x-tier": "standard",
+        "x-license": "redistribute"
       }
     },
     "/v1/financial-metrics/cagr": {
@@ -8473,7 +8815,7 @@
         "tags": [
           "Financial Metrics"
         ],
-        "description": "Fetch compound annual growth rate (CAGR) metrics for a company.",
+        "description": "Fetch compound annual growth rate (CAGR) metrics for a company. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -8663,7 +9005,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "standard"
+        "x-tier": "standard",
+        "x-license": "redistribute"
       }
     },
     "/v1/financial-metrics/growth": {
@@ -8671,7 +9014,7 @@
         "tags": [
           "Financial Metrics"
         ],
-        "description": "Fetch period-over-period growth metrics for a company.",
+        "description": "Fetch period-over-period growth metrics for a company. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -8875,7 +9218,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "standard"
+        "x-tier": "standard",
+        "x-license": "redistribute"
       }
     },
     "/v1/segmented-financials": {
@@ -8883,7 +9227,7 @@
         "tags": [
           "Segmented Financials"
         ],
-        "description": "Fetch segmented financial data for a company. Returns financial facts broken down by business segments.",
+        "description": "Fetch segmented financial data for a company. Returns financial facts broken down by business segments. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -9108,7 +9452,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "standard"
+        "x-tier": "standard",
+        "x-license": "redistribute"
       }
     },
     "/v1/segmented-financials/detailed": {
@@ -9116,7 +9461,7 @@
         "tags": [
           "Segmented Financials"
         ],
-        "description": "Fetch detailed segmented financial data with additional metadata including axis, member, metric, accession_number, and html_tag_id.",
+        "description": "Fetch detailed segmented financial data with additional metadata including axis, member, metric, accession_number, and html_tag_id. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -9371,7 +9716,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "pro"
+        "x-tier": "pro",
+        "x-license": "redistribute"
       }
     },
     "/v1/ipos": {
@@ -9379,7 +9725,7 @@
         "tags": [
           "IPOs"
         ],
-        "description": "List all IPOs.",
+        "description": "List all IPOs. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -9595,7 +9941,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "standard"
+        "x-tier": "standard",
+        "x-license": "redistribute"
       }
     },
     "/v1/institutional-ownership/holdings-by-investor": {
@@ -9603,7 +9950,7 @@
         "tags": [
           "Institutional Ownership"
         ],
-        "description": "Fetch institutional holdings for a specific institutional investor.",
+        "description": "Fetch institutional holdings for a specific institutional investor. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -9806,7 +10153,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "standard"
+        "x-tier": "standard",
+        "x-license": "redistribute"
       }
     },
     "/v1/institutional-ownership/holdings-by-company": {
@@ -9814,7 +10162,7 @@
         "tags": [
           "Institutional Ownership"
         ],
-        "description": "Fetch institutional holders for a specific company.",
+        "description": "Fetch institutional holders for a specific company. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -10032,7 +10380,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "standard"
+        "x-tier": "standard",
+        "x-license": "redistribute"
       }
     },
     "/v1/institutional-ownership/transactions": {
@@ -10040,7 +10389,7 @@
         "tags": [
           "Institutional Ownership"
         ],
-        "description": "Fetch institutional transaction activity (position changes between periods).",
+        "description": "Fetch institutional transaction activity (position changes between periods). Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -10330,7 +10679,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "standard"
+        "x-tier": "standard",
+        "x-license": "redistribute"
       }
     },
     "/v1/institutional-ownership/institutions": {
@@ -10338,7 +10688,7 @@
         "tags": [
           "Institutional Ownership"
         ],
-        "description": "List institutional investors, optionally filtered by CIKs.",
+        "description": "List institutional investors, optionally filtered by CIKs. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -10479,7 +10829,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "standard"
+        "x-tier": "standard",
+        "x-license": "redistribute"
       }
     },
     "/v1/insider-trades": {
@@ -10487,7 +10838,7 @@
         "tags": [
           "Insider Trades"
         ],
-        "description": "Fetch insider transactions for a specific company.",
+        "description": "Fetch insider transactions for a specific company. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -10728,7 +11079,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "standard"
+        "x-tier": "standard",
+        "x-license": "redistribute"
       }
     },
     "/v1/earnings-calls/calendar": {
@@ -10736,7 +11088,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Upcoming and past earnings calls (event_type=all: every event type) of all covered US companies in a window of New York calendar days (default today + 14 days, at most 92). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served.",
+        "description": "Upcoming and past earnings calls (event_type=all: every event type) of all covered US companies in a window of New York calendar days (default today + 14 days, at most 92). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -11093,7 +11445,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Event history of one US company (ticker or CIK): every event type unless event_type narrows it. An out-of-scope company answers covered: false. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served.",
+        "description": "Event history of one US company (ticker or CIK): every event type unless event_type narrows it. An out-of-scope company answers covered: false. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -11482,7 +11834,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Earnings calls being captured live right now, with the WebSocket channel of their live transcript. A call appears within seconds of its start and disappears when it ends; an empty list means nothing is live. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served.",
+        "description": "Earnings calls being captured live right now, with the WebSocket channel of their live transcript. A call appears within seconds of its start and disappears when it ends; an empty list means nothing is live. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for display: FREE.",
         "security": [
           {
             "bearerAuth": []
@@ -11722,7 +12074,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "A temporary HLS playlist URL of an earnings call's live audio (PRO). The stream is watermarked. The URL works until expires_at (2 hours by default) and is minted fresh on every request: request a new one before it expires. Play it with hls.js, Safari or VLC; the playlist is an EVENT playlist, so seek to 0 for the start of the call. call_t0 is the wall clock of call ms 0: #EXT-X-PROGRAM-DATE-TIME minus call_t0 = the start_ms of the live transcript (WebSocket channel live_channel). status not_started / disabled answer url: null. 403 audio_unavailable when the company's audio is not licensed for delivery. 503 media_unavailable while live streaming is not configured. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served.",
+        "description": "A temporary HLS playlist URL of an earnings call's live audio (PRO). The stream is watermarked. The URL works until expires_at (2 hours by default) and is minted fresh on every request: request a new one before it expires. Play it with hls.js, Safari or VLC; the playlist is an EVENT playlist, so seek to 0 for the start of the call. call_t0 is the wall clock of call ms 0: #EXT-X-PROGRAM-DATE-TIME minus call_t0 = the start_ms of the live transcript (WebSocket channel live_channel). status not_started / disabled answer url: null. 403 audio_unavailable when the company's audio is not licensed for delivery. 503 media_unavailable while live streaming is not configured. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -11900,8 +12252,23 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "One earnings call by event_id, with its date / time observations. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served.",
+        "description": "One earnings call by event_id; `include=observations` adds the date / time observations behind its call time. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for display: FREE.",
         "parameters": [
+          {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "observations"
+                ]
+              }
+            },
+            "in": "query",
+            "name": "include",
+            "required": false,
+            "description": "Extra data (repeatable): `observations` = the date / time observations behind the call time"
+          },
           {
             "schema": {
               "type": "string",
@@ -11951,8 +12318,7 @@
                     "has_slides",
                     "has_press_release",
                     "has_documents",
-                    "webcast_url",
-                    "observations"
+                    "webcast_url"
                   ],
                   "properties": {
                     "event_id": {
@@ -12170,7 +12536,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Transcript of one earnings call in five formats, any published version (version) or the version current at a point in time (as_of). Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Costs 5 credits; format=words is weighted by turn count. A call without a recording may carry the company's own transcript (stt_provider `company_document`): it is untimed (null timings) and has no cleaned layer. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served.",
+        "description": "Transcript of one earnings call in five formats, any published version (version) or the version current at a point in time (as_of). Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Costs 5 credits; format=words is weighted by turn count. A call without a recording may carry the company's own transcript (stt_provider `company_document`): it is untimed (null timings) and has no cleaned layer. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
@@ -12248,7 +12614,7 @@
             "in": "query",
             "name": "version",
             "required": false,
-            "description": "A specific published version (see transcript/versions); default = the current one"
+            "description": "A specific published version (one listed by transcript/versions); default = the current one"
           },
           {
             "schema": {
@@ -12564,7 +12930,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Every published transcript version of one earnings call (live, final, corrected), ascending, without the text. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served.",
+        "description": "Every published transcript version of one earnings call (live, final, corrected), ascending, without the text. A final version replaced by the next final (the pipeline's speaker-naming pass) is not a version here and cannot be requested. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
@@ -12722,7 +13088,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Word-level diff between two transcript versions of one earnings call (over the cleaned text when both versions have it, else the verbatim text), each change anchored to the start of its speaker turn. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Costs 5 credits; computed per request (versions are immutable). A call without a recording may carry the company's own transcript (stt_provider `company_document`): it is untimed (null timings) and has no cleaned layer. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served.",
+        "description": "Word-level diff between two transcript versions of one earnings call (over the cleaned text when both versions have it, else the verbatim text), each change anchored to the start of its speaker turn. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Costs 5 credits; computed per request (versions are immutable). A call without a recording may carry the company's own transcript (stt_provider `company_document`): it is untimed (null timings) and has no cleaned layer. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
@@ -12783,7 +13149,7 @@
             "in": "query",
             "name": "from",
             "required": true,
-            "description": "Older version (see transcript/versions)"
+            "description": "Older version (one listed by transcript/versions)"
           },
           {
             "schema": {
@@ -12933,7 +13299,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Structured Q&A of one earnings call: each analyst question with the analyst's identity and firm, the answering executives and the answer. pairs is [] until the Q&A has been derived. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). A call without a recording may carry the company's own transcript (stt_provider `company_document`): it is untimed (null timings) and has no cleaned layer. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served.",
+        "description": "Structured Q&A of one earnings call: each analyst question with the analyst's identity and firm, the answering executives and the answer. pairs is [] until the Q&A has been derived. include=scores adds each pair's descriptive scores (where the analyst sat in the question order, the question's tone and difficulty, whether the answer addressed it) — descriptive features of the exchange, not a forecast. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). A call without a recording may carry the company's own transcript (stt_provider `company_document`): it is untimed (null timings) and has no cleaned layer. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
@@ -13008,6 +13374,18 @@
             "name": "offset",
             "required": false,
             "description": "Number of Q&A pairs to skip for pagination"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "scores"
+              ]
+            },
+            "in": "query",
+            "name": "include",
+            "required": false,
+            "description": "scores = add each pair's descriptive scores (analyst casting order, question tone, difficulty, evasiveness, non-answer flag with verbatim evidence); null for a pair not scored yet"
           }
         ],
         "security": [
@@ -13151,6 +13529,77 @@
                           "is_follow_up": {
                             "type": "boolean",
                             "description": "A follow-up of the previous question"
+                          },
+                          "scores": {
+                            "type": "object",
+                            "required": [
+                              "analyst_casting_order",
+                              "question_tone",
+                              "difficulty",
+                              "evasiveness",
+                              "non_answer",
+                              "evidence",
+                              "scored_by"
+                            ],
+                            "properties": {
+                              "analyst_casting_order": {
+                                "type": "integer",
+                                "description": "Where the analyst sat in the call's question order (1 = first called on; a follow-up keeps its analyst's order)"
+                              },
+                              "question_tone": {
+                                "type": "number",
+                                "nullable": true,
+                                "description": "Question tone −1..1 from the Loughran-McDonald word lists (positive minus negative words over the question length); null without the lexicon"
+                              },
+                              "difficulty": {
+                                "type": "number",
+                                "nullable": true,
+                                "description": "How hard the question was, 0 (softball) to 1 (pointed, quantified, adversarial); null when the scorer's evidence was rejected"
+                              },
+                              "evasiveness": {
+                                "type": "number",
+                                "nullable": true,
+                                "description": "How far the answer stayed from the question, 0 (direct) to 1 (no substantive content); null when the scorer's evidence was rejected"
+                              },
+                              "non_answer": {
+                                "type": "boolean",
+                                "description": "evasiveness ≥ 0.7 — the answer did not answer the question"
+                              },
+                              "evidence": {
+                                "type": "object",
+                                "required": [
+                                  "difficulty",
+                                  "evasiveness",
+                                  "non_answer"
+                                ],
+                                "description": "Verbatim quotes from the pair's own text behind each score; non_answer names the kind of non-answer (not_addressed, no_guidance_policy, restated_question, deferred, partial) or null",
+                                "properties": {
+                                  "difficulty": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "evasiveness": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "non_answer": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Kind of non-answer, null for an answered question"
+                                  }
+                                }
+                              },
+                              "scored_by": {
+                                "type": "string",
+                                "description": "Scoring model and rubric version (<model>@rubric-v<n>)"
+                              }
+                            },
+                            "nullable": true,
+                            "description": "Only with include=scores: the pair's descriptive scores, or null while the pair is not scored (or its score belongs to an older transcript version)"
                           }
                         }
                       }
@@ -13186,7 +13635,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Speakers of one earnings call (name, title, firm, role, cross-call person_id) and its participation flags vs the prior call (cfo_absent, ceo_no_questions, new_cfo, …). Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). A call without a recording may carry the company's own transcript (stt_provider `company_document`): it is untimed (null timings) and has no cleaned layer. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served.",
+        "description": "Speakers of one earnings call (name, title, firm, role, cross-call person_id) and its participation flags vs the prior call (cfo_absent, ceo_no_questions, new_cfo, …). Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). A call without a recording may carry the company's own transcript (stt_provider `company_document`): it is untimed (null timings) and has no cleaned layer. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
@@ -13421,7 +13870,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Sell-side analysts who asked questions on one US company's earnings calls, with appearance and question counts. An out-of-scope company answers an empty list. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served.",
+        "description": "Sell-side analysts who asked questions on one US company's earnings calls, with appearance and question counts and the mean difficulty of their scored questions (a descriptive feature, not a rating). An out-of-scope company answers an empty list. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
@@ -13494,7 +13943,9 @@
                           "appearances",
                           "questions",
                           "first_seen",
-                          "last_seen"
+                          "last_seen",
+                          "mean_difficulty",
+                          "scored_question_count"
                         ],
                         "properties": {
                           "person_id": {
@@ -13528,6 +13979,15 @@
                             "type": "string",
                             "format": "date-time",
                             "description": "Latest such call"
+                          },
+                          "mean_difficulty": {
+                            "type": "number",
+                            "nullable": true,
+                            "description": "Mean difficulty (0–1) of the analyst's scored questions across every covered call — a descriptive feature of how pointed the questions were, not a rating; null while none is scored"
+                          },
+                          "scored_question_count": {
+                            "type": "integer",
+                            "description": "Questions of the analyst that carry a difficulty score (every covered call)"
                           }
                         }
                       }
@@ -13563,7 +14023,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "One person (executive or analyst) across every served earnings call: identity, appearances and participation flags. A merged duplicate id answers 301 to the canonical id. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served.",
+        "description": "One person (executive or analyst) across every served earnings call: identity, appearances and participation flags. A merged duplicate id answers 301 to the canonical id. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
@@ -13806,7 +14266,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "The results press release of one earnings call (EDGAR 8-K exhibit, wire release or IR page): title, publication time, origin, source URL, trust tier and, with include=body, the issuer's text (display licence only). Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served.",
+        "description": "The results press release of one earnings call (EDGAR 8-K exhibit, wire release or IR page): title, publication time, origin, source URL, trust tier and, with include=body, the issuer's text (display licence only). Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -13997,7 +14457,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Forward guidance (kind=guidance: one consolidated item per metric, period and basis, with verbatim citations) or every reported KPI figure (kind=kpi) of one earnings call. Guidance items are cross-validated between the call and the press release; `cross_validated=false` items come from one source only. `confidence` is calibrated on large-cap spot checks, not a probability. `filing_link` points at the SEC filing that carries the same figure: the results 8-K's press release (`target=press_release`, matched on the text) or, once the 10-Q / 10-K is on EDGAR, its XBRL fact (`target=periodic_filing`, `concept`), which replaces the 8-K link. `match_kind=rounded` means the filing's value rounds to the figure as spoken. The list is empty until the call has been derived. A page can hold fewer than `limit` items while `next_url` is still set: items (and KPI mentions) that only a press release no longer served supports are dropped after paging. Follow `next_url` until it is null. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served.",
+        "description": "Forward guidance (kind=guidance: one consolidated item per metric, period and basis, with verbatim citations) or every reported KPI figure (kind=kpi) of one earnings call. Guidance items are cross-validated between the call and the press release; `cross_validated=false` items come from one source only. `confidence` is calibrated on large-cap spot checks, not a probability. `filing_link` points at the SEC filing that carries the same figure: the results 8-K's press release (`target=press_release`, matched on the text) or, once the 10-Q / 10-K is on EDGAR, its XBRL fact (`target=periodic_filing`, `concept`), which replaces the 8-K link. `match_kind=rounded` means the filing's value rounds to the figure as spoken. The list is empty until the call has been derived. A page can hold fewer than `limit` items while `next_url` is still set: items (and KPI mentions) that only a press release no longer served supports are dropped after paging. Follow `next_url` until it is null. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -14594,7 +15054,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "How a company's guidance for one metric evolved across its earnings calls: one entry per guidance item (a call usually guides several periods), newest call first, with the change versus the prior call's item. metric is matched against the normalized vocabulary: revenue, eps_gaap, eps_non_gaap, operating_margin, operating_income, gross_margin, opex, capex, fcf, tax_rate, share_count, ebitda, net_income, other, plus dynamic segment:<slug> metrics. An unknown metric returns an empty series. Guidance items are cross-validated between the call and the press release; `cross_validated=false` items come from one source only. `confidence` is calibrated on large-cap spot checks, not a probability. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served.",
+        "description": "How a company's guidance for one metric evolved across its earnings calls: one entry per guidance item (a call usually guides several periods), newest call first, with the change versus the prior call's item. metric is matched against the normalized vocabulary: revenue, eps_gaap, eps_non_gaap, operating_margin, operating_income, gross_margin, opex, capex, fcf, tax_rate, share_count, ebitda, net_income, other, plus dynamic segment:<slug> metrics. An unknown metric returns an empty series. Guidance items are cross-validated between the call and the press release; `cross_validated=false` items come from one source only. `confidence` is calibrated on large-cap spot checks, not a probability. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -14851,7 +15311,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "How one earnings call differs from the company's prior call: semantic similarity, new and dropped topics with verbatim evidence, hedging / uncertainty / numeric-specificity levels and their change, tone shift and the slide-deck diff. Levels (hedging, uncertainty, numeric specificity) are the better-supported signal; the literature finds the *change* from the prior call is a weaker predictor. Both are provided; do not over-weight the change. 404 diff_unavailable for a company's first call or a call not derived yet. Select the call by event_id, by identifier alone (latest call with a diff), or by identifier with year+quarter or date. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served.",
+        "description": "How one earnings call differs from the company's prior call: semantic similarity, new and dropped topics with verbatim evidence, hedging / uncertainty / numeric-specificity levels and their change, tone shift and the slide-deck diff. Levels (hedging, uncertainty, numeric specificity) are the better-supported signal; the literature finds the *change* from the prior call is a weaker predictor. Both are provided; do not over-weight the change. 404 diff_unavailable for a company's first call or a call not derived yet. Select the call by event_id, by identifier alone (latest call with a diff), or by identifier with year+quarter or date. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -15202,7 +15662,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Call metadata of one earnings call: length, prepared remarks vs Q&A, release-to-call gap, question and analyst counts, management's share of the Q&A and speaker coverage. 404 metrics_unavailable until the call has been derived. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served.",
+        "description": "Call metadata of one earnings call: length, prepared remarks vs Q&A, release-to-call gap, question and analyst counts, management's share of the Q&A and speaker coverage. 404 metrics_unavailable until the call has been derived. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -15401,7 +15861,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Per-speaker delivery features of one earnings call: speech rate, pauses, fillers, time to answer and, when the audio was analysed, pitch and energy. Prosody features are a volatility and risk signal, not a direction signal. Acoustic fields (`pitch_*`, `energy_*`) are null when `acoustic_available` is false. 404 prosody_unavailable until the call has been derived. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served.",
+        "description": "Per-speaker delivery features of one earnings call: speech rate, pauses, fillers, time to answer and, when the audio was analysed, pitch and energy. Prosody features are a volatility and risk signal, not a direction signal. Acoustic fields (`pitch_*`, `energy_*`) are null when `acoustic_available` is false. 404 prosody_unavailable until the call has been derived. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -15675,12 +16135,304 @@
         "x-license": "display"
       }
     },
+    "/v1/earnings-calls/price-attribution": {
+      "get": {
+        "tags": [
+          "Earnings Calls"
+        ],
+        "description": "Minute-level price moves aligned to what was being said at the time. This is temporal coincidence, not attribution of cause; pre-market bars are sparse. 404 price_attribution_unavailable until the call has been attributed. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for display: FREE.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "query",
+            "name": "event_id",
+            "required": false,
+            "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "identifier",
+            "required": false,
+            "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 2000,
+              "maximum": 2100
+            },
+            "in": "query",
+            "name": "year",
+            "required": false,
+            "description": "Fiscal year of the call (with quarter)"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4
+            },
+            "in": "query",
+            "name": "quarter",
+            "required": false,
+            "description": "Fiscal quarter of the call (with year)"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "query",
+            "name": "date",
+            "required": false,
+            "description": "New York calendar day of the call (YYYY-MM-DD)"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "event",
+                    "anchor_kind",
+                    "anchor_lag_ms",
+                    "lag_kind",
+                    "anchor_uncertainty_s",
+                    "session",
+                    "bar_count",
+                    "end_of_window_return_bps",
+                    "buckets",
+                    "top_minutes"
+                  ],
+                  "properties": {
+                    "event": {
+                      "type": "object",
+                      "required": [
+                        "event_id",
+                        "cik",
+                        "symbol",
+                        "conference_date"
+                      ],
+                      "properties": {
+                        "event_id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Event identifier"
+                        },
+                        "cik": {
+                          "type": "string",
+                          "description": "10-digit CIK"
+                        },
+                        "symbol": {
+                          "type": "string",
+                          "description": "Ticker symbol"
+                        },
+                        "conference_date": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "Scheduled start (ISO 8601 UTC)"
+                        }
+                      }
+                    },
+                    "anchor_kind": {
+                      "type": "string",
+                      "enum": [
+                        "t0_wallclock",
+                        "started_at"
+                      ],
+                      "nullable": true,
+                      "description": "How the recording was anchored to wall-clock time; null until the summary is written"
+                    },
+                    "anchor_lag_ms": {
+                      "type": "number",
+                      "nullable": true,
+                      "description": "Lag applied to the anchor, ms"
+                    },
+                    "lag_kind": {
+                      "type": "string",
+                      "enum": [
+                        "dialin_offset",
+                        "playlist",
+                        "none"
+                      ],
+                      "nullable": true,
+                      "description": "Where the anchor lag came from"
+                    },
+                    "anchor_uncertainty_s": {
+                      "type": "number",
+                      "nullable": true,
+                      "description": "Uncertainty of the anchor, seconds"
+                    },
+                    "session": {
+                      "type": "string",
+                      "enum": [
+                        "pre",
+                        "regular",
+                        "post"
+                      ],
+                      "nullable": true,
+                      "description": "Market session of the call start (New York); pre / post-market bars are thin"
+                    },
+                    "bar_count": {
+                      "type": "integer",
+                      "description": "One-minute bars in the window"
+                    },
+                    "end_of_window_return_bps": {
+                      "type": "number",
+                      "nullable": true,
+                      "description": "Return over the whole window, basis points"
+                    },
+                    "buckets": {
+                      "type": "array",
+                      "description": "One row per minute with a bar, oldest first; minutes without a bar are absent",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "bucket",
+                          "bar_start",
+                          "return_bps",
+                          "cumulative_return_bps",
+                          "utterance_refs"
+                        ],
+                        "properties": {
+                          "bucket": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "The minute (ISO 8601 UTC)"
+                          },
+                          "bar_start": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "Start of the one-minute bar (ISO 8601 UTC)"
+                          },
+                          "return_bps": {
+                            "type": "number",
+                            "description": "The minute's return in basis points"
+                          },
+                          "cumulative_return_bps": {
+                            "type": "number",
+                            "description": "Return since the start of the window, basis points"
+                          },
+                          "utterance_refs": {
+                            "type": "array",
+                            "description": "Up to 5 utterances spoken in that minute",
+                            "items": {
+                              "type": "object",
+                              "required": [
+                                "start_ms",
+                                "speaker_label",
+                                "text"
+                              ],
+                              "properties": {
+                                "start_ms": {
+                                  "type": "integer",
+                                  "description": "Utterance start, ms from the start of the recording"
+                                },
+                                "speaker_label": {
+                                  "type": "string",
+                                  "description": "Transcript speaker label"
+                                },
+                                "text": {
+                                  "type": "string",
+                                  "description": "What was said"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "top_minutes": {
+                      "type": "array",
+                      "description": "Up to 5 minutes with the largest absolute return, largest first",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "bucket",
+                          "return_bps",
+                          "utterance_refs"
+                        ],
+                        "properties": {
+                          "bucket": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "The minute (ISO 8601 UTC)"
+                          },
+                          "return_bps": {
+                            "type": "number",
+                            "description": "The minute's return in basis points"
+                          },
+                          "utterance_refs": {
+                            "type": "array",
+                            "description": "Up to 5 utterances spoken in that minute",
+                            "items": {
+                              "type": "object",
+                              "required": [
+                                "start_ms",
+                                "speaker_label",
+                                "text"
+                              ],
+                              "properties": {
+                                "start_ms": {
+                                  "type": "integer",
+                                  "description": "Utterance start, ms from the start of the recording"
+                                },
+                                "speaker_label": {
+                                  "type": "string",
+                                  "description": "Transcript speaker label"
+                                },
+                                "text": {
+                                  "type": "string",
+                                  "description": "What was said"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        },
+        "x-tier": "standard",
+        "x-license": "display"
+      }
+    },
     "/v1/earnings-calls/audio": {
       "get": {
         "tags": [
           "Earnings Calls"
         ],
-        "description": "The recording of one earnings call as a signed download URL (PRO). 403 audio_unavailable when the company's audio is not licensed for delivery or no recording exists (one answer for both). 503 audio_disabled while audio delivery is switched off. Files are served as short-lived signed URLs (see expires_at), never proxied; request a fresh response after expiry. 503 media_unavailable while media signing is not configured. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served.",
+        "description": "The recording of one earnings call as a signed download URL (PRO). 403 audio_unavailable when the company's audio is not licensed for delivery or no recording exists (one answer for both). 503 audio_disabled while audio delivery is switched off. Files are served as short-lived signed URLs (see expires_at), never proxied; request a fresh response after expiry. 503 media_unavailable while media signing is not configured. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -15854,7 +16606,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "The slide deck of one earnings call (PRO): the deck PDF and each page image as signed URLs, page titles and, with include=markdown, each page's text. 404 slides_unavailable when no deck is available. Files are served as short-lived signed URLs (see expires_at), never proxied; request a fresh response after expiry. 503 media_unavailable while media signing is not configured. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served.",
+        "description": "The slide deck of one earnings call (PRO): the deck PDF and each page image as signed URLs, page titles and, with include=markdown, each page's text. 404 slides_unavailable when no deck is available. Files are served as short-lived signed URLs (see expires_at), never proxied; request a fresh response after expiry. 503 media_unavailable while media signing is not configured. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -16088,7 +16840,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Further investor documents of one earnings call (CFO commentary, financial data sheets, shareholder letters, fact sheets, the company's own transcript, 10-Q / 10-K links, infographics), ordered by kind. Stored files come as signed URLs; link-only rows (sec_filing) have url null and point to EDGAR through source_url. Each document carries its trust_tier. documents is [] for a call without further documents (has_documents tells ahead). Files are served as short-lived signed URLs (see expires_at), never proxied; request a fresh response after expiry. 503 media_unavailable while media signing is not configured. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served.",
+        "description": "Further investor documents of one earnings call (CFO commentary, financial data sheets, shareholder letters, fact sheets, the company's own transcript, 10-Q / 10-K links, infographics), ordered by kind. Stored files come as signed URLs; link-only rows (sec_filing) have url null and point to EDGAR through source_url. Each document carries its trust_tier. documents is [] for a call without further documents (has_documents tells ahead). Files are served as short-lived signed URLs (see expires_at), never proxied; request a fresh response after expiry. 503 media_unavailable while media signing is not configured. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -16404,7 +17156,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "\"Ask this call\": semantic search over earnings-call transcripts and slide text — one call (event_id), one company (identifier) or every call (default: the last 365 days). Returns up to 8 passages with speaker, start_ms and, on plans that include the audio and slides routes (PRO), signed URLs: audio_url opens the recording at the passage (#t=<seconds>), slide.image_url shows the slide. Cite event_id and start_ms. 429 upstream_rate_limited and 503 search_unavailable carry Retry-After; 503 search_disabled while search is switched off. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served.",
+        "description": "\"Ask this call\": semantic search over earnings-call transcripts and slide text — one call (event_id), one company (identifier) or every call (default: the last 365 days). Returns up to 8 passages with speaker, start_ms and, on plans that include the audio and slides routes (PRO), signed URLs: audio_url opens the recording at the passage (#t=<seconds>), slide.image_url shows the slide. Cite event_id and start_ms. 429 upstream_rate_limited and 503 search_unavailable carry Retry-After; 503 search_disabled while search is switched off. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
@@ -16692,7 +17444,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "List the team's webhook subscriptions (secrets are never returned). Earnings-call webhooks (PRO): signed, retried POSTs of the earnings_call.* lifecycle events — see the Webhooks section of the API description and x-webhooks.",
+        "description": "List the team's webhook subscriptions (secrets are never returned). Earnings-call webhooks (PRO): signed, retried POSTs of the earnings_call.* lifecycle events — see the Webhooks section of the API description and x-webhooks. Minimum tier for display: FREE.",
         "security": [
           {
             "bearerAuth": []
@@ -16748,6 +17500,7 @@
                                 "earnings_call.transcript_corrected",
                                 "earnings_call.assets_ready",
                                 "earnings_call.guidance_flash",
+                                "earnings_call.keyword_hit",
                                 "ping"
                               ]
                             }
@@ -16771,7 +17524,7 @@
                                 "items": {
                                   "type": "string"
                                 },
-                                "description": "Keywords for keyword alerts (reserved)"
+                                "description": "Keyword alerts (earnings_call.keyword_hit): whole-word, case-insensitive matches in live final segments and the final transcript"
                               }
                             }
                           },
@@ -16878,7 +17631,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Create a webhook subscription (at most 10 per team). The response carries the signing secret exactly once. The URL must be https on port 443 and resolve to public addresses only (400 invalid_webhook_url names the reason). Earnings-call webhooks (PRO): signed, retried POSTs of the earnings_call.* lifecycle events — see the Webhooks section of the API description and x-webhooks.",
+        "description": "Create a webhook subscription (at most 10 per team). The response carries the signing secret exactly once. The URL must be https on port 443 and resolve to public addresses only (400 invalid_webhook_url names the reason). Earnings-call webhooks (PRO): signed, retried POSTs of the earnings_call.* lifecycle events — see the Webhooks section of the API description and x-webhooks. Minimum tier for display: FREE.",
         "requestBody": {
           "content": {
             "application/json": {
@@ -16918,7 +17671,7 @@
                         "items": {
                           "type": "string"
                         },
-                        "description": "Reserved for keyword alerts"
+                        "description": "Keyword alerts (with earnings_call.keyword_hit in events): whole-word, case-insensitive matches"
                       }
                     }
                   }
@@ -16976,6 +17729,7 @@
                           "earnings_call.transcript_corrected",
                           "earnings_call.assets_ready",
                           "earnings_call.guidance_flash",
+                          "earnings_call.keyword_hit",
                           "ping"
                         ]
                       }
@@ -16999,7 +17753,7 @@
                           "items": {
                             "type": "string"
                           },
-                          "description": "Keywords for keyword alerts (reserved)"
+                          "description": "Keyword alerts (earnings_call.keyword_hit): whole-word, case-insensitive matches in live final segments and the final transcript"
                         }
                       }
                     },
@@ -17130,11 +17884,240 @@
       }
     },
     "/v1/earnings-calls/webhooks/{id}": {
+      "patch": {
+        "tags": [
+          "Earnings Calls"
+        ],
+        "description": "Change a webhook subscription's keywords, companies, events or active flag (at least one field). active: true re-enables a subscription disabled after failed deliveries. Earnings-call webhooks (PRO): signed, retried POSTs of the earnings_call.* lifecycle events — see the Webhooks section of the API description and x-webhooks. Minimum tier for display: FREE.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "minProperties": 1,
+                "description": "Any of the four fields; at least one",
+                "properties": {
+                  "keywords": {
+                    "type": "array",
+                    "maxItems": 20,
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Replaces the keyword list (empty = no keyword alerts)"
+                  },
+                  "ciks": {
+                    "type": "array",
+                    "maxItems": 10,
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Replaces the company filter (empty = every company)"
+                  },
+                  "events": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Replaces the event list"
+                  },
+                  "active": {
+                    "type": "boolean",
+                    "description": "true re-enables a disabled subscription (its failure counter resets); false pauses it (disabled_reason: paused)"
+                  }
+                }
+              }
+            }
+          },
+          "description": "Any of the four fields; at least one"
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "Webhook subscription id (from the create / list response)"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "url",
+                    "events",
+                    "filters",
+                    "active",
+                    "disabled_reason",
+                    "consecutive_failures",
+                    "secret_hint",
+                    "created_at",
+                    "updated_at"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Subscription id"
+                    },
+                    "url": {
+                      "type": "string",
+                      "description": "HTTPS endpoint the deliveries are POSTed to"
+                    },
+                    "events": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "earnings_call.scheduled",
+                          "earnings_call.rescheduled",
+                          "earnings_call.started",
+                          "earnings_call.ended",
+                          "earnings_call.transcript_provisional",
+                          "earnings_call.transcript_ready",
+                          "earnings_call.transcript_corrected",
+                          "earnings_call.assets_ready",
+                          "earnings_call.guidance_flash",
+                          "earnings_call.keyword_hit",
+                          "ping"
+                        ]
+                      }
+                    },
+                    "filters": {
+                      "type": "object",
+                      "required": [
+                        "ciks",
+                        "keywords"
+                      ],
+                      "properties": {
+                        "ciks": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "10-digit CIKs; empty = every company"
+                        },
+                        "keywords": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "Keyword alerts (earnings_call.keyword_hit): whole-word, case-insensitive matches in live final segments and the final transcript"
+                        }
+                      }
+                    },
+                    "active": {
+                      "type": "boolean",
+                      "description": "false once disabled"
+                    },
+                    "disabled_reason": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Why the subscription was disabled"
+                    },
+                    "consecutive_failures": {
+                      "type": "integer",
+                      "description": "Dead-lettered deliveries in a row"
+                    },
+                    "secret_hint": {
+                      "type": "string",
+                      "description": "Last 4 characters of the signing secret"
+                    },
+                    "created_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updated_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "403": {
+            "description": "Forbidden - webhooks require the PRO plan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Type of error"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Detailed error message"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "description": "Forbidden - webhooks require the PRO plan"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "503": {
+            "description": "Service Unavailable - subscriptions or deliveries are temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Type of error"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Detailed error message"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "description": "Service Unavailable - subscriptions or deliveries are temporarily unavailable"
+                }
+              }
+            }
+          }
+        },
+        "x-tier": "pro",
+        "x-license": "display"
+      },
       "delete": {
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Delete a webhook subscription. Earnings-call webhooks (PRO): signed, retried POSTs of the earnings_call.* lifecycle events — see the Webhooks section of the API description and x-webhooks.",
+        "description": "Delete a webhook subscription. Earnings-call webhooks (PRO): signed, retried POSTs of the earnings_call.* lifecycle events — see the Webhooks section of the API description and x-webhooks. Minimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -17227,7 +18210,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Rotate the signing secret. The new secret is returned once; the old one stays valid for 5 minutes (deliveries carry one v1 signature per valid secret). Earnings-call webhooks (PRO): signed, retried POSTs of the earnings_call.* lifecycle events — see the Webhooks section of the API description and x-webhooks.",
+        "description": "Rotate the signing secret. The new secret is returned once; the old one stays valid for 5 minutes (deliveries carry one v1 signature per valid secret). Earnings-call webhooks (PRO): signed, retried POSTs of the earnings_call.* lifecycle events — see the Webhooks section of the API description and x-webhooks. Minimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -17342,7 +18325,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Send a signed `ping` delivery to the subscription. Earnings-call webhooks (PRO): signed, retried POSTs of the earnings_call.* lifecycle events — see the Webhooks section of the API description and x-webhooks.",
+        "description": "Send a signed `ping` delivery to the subscription. Earnings-call webhooks (PRO): signed, retried POSTs of the earnings_call.* lifecycle events — see the Webhooks section of the API description and x-webhooks. Minimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -17483,7 +18466,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "The last 100 delivery attempts of a subscription, newest first, with status and duration (kept 7 days). Earnings-call webhooks (PRO): signed, retried POSTs of the earnings_call.* lifecycle events — see the Webhooks section of the API description and x-webhooks.",
+        "description": "The last 100 delivery attempts of a subscription, newest first, with status and duration (kept 7 days). Earnings-call webhooks (PRO): signed, retried POSTs of the earnings_call.* lifecycle events — see the Webhooks section of the API description and x-webhooks. Minimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -17544,6 +18527,7 @@
                               "earnings_call.transcript_corrected",
                               "earnings_call.assets_ready",
                               "earnings_call.guidance_flash",
+                              "earnings_call.keyword_hit",
                               "ping"
                             ]
                           },
@@ -17661,7 +18645,7 @@
         "tags": [
           "SEC Filings"
         ],
-        "description": "Fetch SEC filings for a company.",
+        "description": "Fetch SEC filings for a company. Minimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -17846,7 +18830,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite"
+        "x-tier": "lite",
+        "x-license": "display"
       }
     },
     "/v1/sec-filings/search": {
@@ -17854,7 +18839,7 @@
         "tags": [
           "SEC Filings"
         ],
-        "description": "Search SEC filings using natural language queries. Returns AI-generated answers with source citations from official SEC documents (10-K, 10-Q, 8-K).",
+        "description": "Search SEC filings using natural language queries. Returns AI-generated answers with source citations from official SEC documents (10-K, 10-Q, 8-K). Minimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
@@ -17962,7 +18947,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "standard"
+        "x-tier": "standard",
+        "x-license": "rag"
       }
     },
     "/v1/sec-filings/sections": {
@@ -17970,7 +18956,7 @@
         "tags": [
           "SEC Filings"
         ],
-        "description": "Fetch SEC filing sections for a company. Returns parsed sections from 10-Q, 10-K, or 8-K filings.",
+        "description": "Fetch SEC filing sections for a company. Returns parsed sections from 10-Q, 10-K, or 8-K filings. Minimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
@@ -18181,7 +19167,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "standard"
+        "x-tier": "standard",
+        "x-license": "rag"
       }
     },
     "/v1/sec-filings/available-form-types": {
@@ -18189,7 +19176,7 @@
         "tags": [
           "SEC Filings"
         ],
-        "description": "List available SEC filing form types present in the filings table. Optionally filter by a company identifier (ticker or CIK).",
+        "description": "List available SEC filing form types present in the filings table. Optionally filter by a company identifier (ticker or CIK). Minimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -18243,7 +19230,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite"
+        "x-tier": "lite",
+        "x-license": "display"
       }
     },
     "/v1/market/market-holidays": {
@@ -18251,7 +19239,7 @@
         "tags": [
           "Market"
         ],
-        "description": "Fetch market holidays.",
+        "description": "Fetch market holidays. Minimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -18360,7 +19348,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite"
+        "x-tier": "lite",
+        "x-license": "display"
       }
     },
     "/v1/metadata/list-available-metrics": {
@@ -18368,7 +19357,7 @@
         "tags": [
           "Metadata"
         ],
-        "description": "List all available standardized metrics (income statement, balance sheet, cash flow statement, ratios, growth, CAGR, and segmented).",
+        "description": "List all available standardized metrics (income statement, balance sheet, cash flow statement, ratios, growth, CAGR, and segmented). Minimum tier for display: FREE.",
         "security": [
           {
             "bearerAuth": []
@@ -18418,7 +19407,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite"
+        "x-tier": "lite",
+        "x-license": "display"
       }
     },
     "/v1/metadata/list-available-section-ids": {
@@ -18426,7 +19416,7 @@
         "tags": [
           "Metadata"
         ],
-        "description": "List all available section IDs for SEC filings, grouped by form type (10-K, 10-Q, 8-K).",
+        "description": "List all available section IDs for SEC filings, grouped by form type (10-K, 10-Q, 8-K). Minimum tier for display: FREE.",
         "security": [
           {
             "bearerAuth": []
@@ -18507,13 +19497,970 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite"
+        "x-tier": "lite",
+        "x-license": "display"
+      }
+    },
+    "/status": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "description": "API request health per product family, data freshness per dataset and the earnings-call pipeline's SLOs. Measured inside the API process per product family and UTC day: availability = non-5xx responses / responses (admission 429 / 503 included), latency = time from request arrival to the response, excluding network and edge time; percentiles are bucket upper bounds (conservative), the current day is partial.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 90,
+              "default": 30
+            },
+            "in": "query",
+            "name": "days",
+            "required": false,
+            "description": "Window in days (1–90)"
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "generated_at",
+                    "window_days",
+                    "measurement",
+                    "api",
+                    "freshness",
+                    "universe",
+                    "earnings_calls"
+                  ],
+                  "properties": {
+                    "generated_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "window_days": {
+                      "type": "integer"
+                    },
+                    "measurement": {
+                      "type": "object",
+                      "required": [
+                        "note"
+                      ],
+                      "properties": {
+                        "note": {
+                          "type": "string",
+                          "description": "How request health is measured"
+                        }
+                      }
+                    },
+                    "api": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "Request health per product family; null while unavailable",
+                      "required": [
+                        "families"
+                      ],
+                      "properties": {
+                        "families": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "required": [
+                              "family",
+                              "last_7d",
+                              "days"
+                            ],
+                            "properties": {
+                              "family": {
+                                "type": "string",
+                                "enum": [
+                                  "company",
+                                  "financials",
+                                  "sec_filings",
+                                  "insider_trades",
+                                  "institutional_ownership",
+                                  "ipos",
+                                  "market",
+                                  "metadata",
+                                  "earnings_calls",
+                                  "websocket"
+                                ],
+                                "description": "Product family"
+                              },
+                              "last_7d": {
+                                "type": "object",
+                                "required": [
+                                  "availability",
+                                  "p95_ms",
+                                  "requests"
+                                ],
+                                "properties": {
+                                  "availability": {
+                                    "type": "number",
+                                    "nullable": true,
+                                    "description": "Call-weighted availability of the 7 newest days"
+                                  },
+                                  "p95_ms": {
+                                    "type": "integer",
+                                    "nullable": true,
+                                    "description": "Worst daily p95 of the 7 newest days (ms)"
+                                  },
+                                  "requests": {
+                                    "type": "integer"
+                                  }
+                                }
+                              },
+                              "days": {
+                                "type": "array",
+                                "description": "Oldest first; days without traffic are omitted",
+                                "items": {
+                                  "type": "object",
+                                  "required": [
+                                    "day",
+                                    "requests",
+                                    "failures",
+                                    "availability",
+                                    "p50_ms",
+                                    "p95_ms"
+                                  ],
+                                  "properties": {
+                                    "day": {
+                                      "type": "string",
+                                      "format": "date",
+                                      "description": "UTC day"
+                                    },
+                                    "requests": {
+                                      "type": "integer",
+                                      "description": "Responses"
+                                    },
+                                    "failures": {
+                                      "type": "integer",
+                                      "description": "5xx responses"
+                                    },
+                                    "availability": {
+                                      "type": "number",
+                                      "nullable": true,
+                                      "description": "Non-5xx responses / responses; null at 0 responses"
+                                    },
+                                    "p50_ms": {
+                                      "type": "integer",
+                                      "nullable": true,
+                                      "description": "Median latency bucket upper bound (ms); null at 0 responses or above 12,800 ms"
+                                    },
+                                    "p95_ms": {
+                                      "type": "integer",
+                                      "nullable": true,
+                                      "description": "p95 latency bucket upper bound (ms); null at 0 responses or above 12,800 ms"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "freshness": {
+                      "type": "array",
+                      "nullable": true,
+                      "description": "Newest ingest per dataset; null while the data DB is unavailable",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "dataset",
+                          "family",
+                          "newest",
+                          "age_hours"
+                        ],
+                        "properties": {
+                          "dataset": {
+                            "type": "string"
+                          },
+                          "family": {
+                            "type": "string",
+                            "enum": [
+                              "company",
+                              "financials",
+                              "sec_filings",
+                              "insider_trades",
+                              "institutional_ownership",
+                              "ipos",
+                              "market",
+                              "metadata",
+                              "earnings_calls",
+                              "websocket"
+                            ],
+                            "description": "Product family"
+                          },
+                          "newest": {
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true
+                          },
+                          "age_hours": {
+                            "type": "number",
+                            "nullable": true,
+                            "description": "Hours since `newest`, one decimal"
+                          },
+                          "reason": {
+                            "type": "string",
+                            "enum": [
+                              "not_measured",
+                              "no_timestamp",
+                              "unavailable"
+                            ],
+                            "description": "Why `newest` is null"
+                          }
+                        }
+                      }
+                    },
+                    "universe": {
+                      "type": "object",
+                      "required": [
+                        "companies",
+                        "earnings_calls"
+                      ],
+                      "description": "Coverage universe",
+                      "properties": {
+                        "companies": {
+                          "type": "integer",
+                          "nullable": true,
+                          "description": "Listed (not delisted) companies; null while the data DB is unavailable"
+                        },
+                        "earnings_calls": {
+                          "type": "object",
+                          "required": [
+                            "scope",
+                            "companies"
+                          ],
+                          "properties": {
+                            "scope": {
+                              "type": "string",
+                              "description": "Earnings-call coverage scope (e.g. top500); unknown without data"
+                            },
+                            "companies": {
+                              "type": "integer",
+                              "description": "Companies in the earnings-call scope"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "earnings_calls": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "Earnings-call pipeline SLOs; null while unavailable or for a test scope",
+                      "required": [
+                        "slo",
+                        "last_7d",
+                        "newest_day"
+                      ],
+                      "properties": {
+                        "slo": {
+                          "type": "object",
+                          "required": [
+                            "first_segment_p95_ms",
+                            "final_p95_s"
+                          ],
+                          "properties": {
+                            "first_segment_p95_ms": {
+                              "type": "integer"
+                            },
+                            "final_p95_s": {
+                              "type": "integer"
+                            }
+                          }
+                        },
+                        "last_7d": {
+                          "type": "object",
+                          "required": [
+                            "first_segment_p95_ms",
+                            "final_latency_p95_s",
+                            "capture_success_rate",
+                            "covered_live_rate"
+                          ],
+                          "properties": {
+                            "first_segment_p95_ms": {
+                              "type": "integer",
+                              "nullable": true,
+                              "description": "Worst daily first-segment p95 (ms)"
+                            },
+                            "final_latency_p95_s": {
+                              "type": "integer",
+                              "nullable": true,
+                              "description": "Worst daily final-transcript p95 (s)"
+                            },
+                            "capture_success_rate": {
+                              "type": "number",
+                              "nullable": true,
+                              "description": "Live captures / calls"
+                            },
+                            "covered_live_rate": {
+                              "type": "number",
+                              "nullable": true,
+                              "description": "Calls covered live / calls"
+                            }
+                          }
+                        },
+                        "newest_day": {
+                          "type": "string",
+                          "format": "date",
+                          "nullable": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailableError"
+          }
+        }
+      }
+    },
+    "/status/earnings-calls": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "description": "Daily earnings-call capture SLOs per webcast vendor and coverage. The body is the earnings pipeline's published `SloStatusPayload` served verbatim — the one camelCase response of this API — plus `windowDays`, `coverageDays` and `summary`. An unknown vendor answers `days: []`.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 90,
+              "default": 30
+            },
+            "in": "query",
+            "name": "days",
+            "required": false,
+            "description": "Window in days (1–90)"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9_]{1,24}$",
+              "default": "all"
+            },
+            "in": "query",
+            "name": "vendor",
+            "required": false,
+            "description": "Webcast vendor; `all` (default) = every vendor's rows including the aggregate `vendor: all`"
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "generatedAt",
+                    "slo",
+                    "vendors",
+                    "days",
+                    "coverage",
+                    "windowDays",
+                    "coverageDays",
+                    "keywordHitDays",
+                    "summary"
+                  ],
+                  "properties": {
+                    "generatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "slo": {
+                      "type": "object",
+                      "required": [
+                        "firstSegmentP95Ms",
+                        "finalP95S"
+                      ],
+                      "properties": {
+                        "firstSegmentP95Ms": {
+                          "type": "integer"
+                        },
+                        "finalP95S": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    "vendors": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "all",
+                          "notified",
+                          "q4events",
+                          "choruscall",
+                          "on24",
+                          "eqs",
+                          "zoom",
+                          "euronext",
+                          "globalmeet",
+                          "viavid",
+                          "openexchange",
+                          "investis",
+                          "x",
+                          "unknown"
+                        ]
+                      }
+                    },
+                    "days": {
+                      "type": "array",
+                      "description": "Oldest first",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "day",
+                          "vendor",
+                          "callsTotal",
+                          "callsLive",
+                          "captureSuccessRate",
+                          "firstSegmentP50Ms",
+                          "firstSegmentP95Ms",
+                          "finalLatencyP50S",
+                          "finalLatencyP95S",
+                          "breaches"
+                        ],
+                        "properties": {
+                          "day": {
+                            "type": "string",
+                            "format": "date"
+                          },
+                          "vendor": {
+                            "type": "string"
+                          },
+                          "callsTotal": {
+                            "type": "integer"
+                          },
+                          "callsLive": {
+                            "type": "integer"
+                          },
+                          "captureSuccessRate": {
+                            "type": "number",
+                            "nullable": true,
+                            "description": "Live captures / calls"
+                          },
+                          "firstSegmentP50Ms": {
+                            "type": "integer",
+                            "nullable": true,
+                            "description": "Median first live segment latency (ms)"
+                          },
+                          "firstSegmentP95Ms": {
+                            "type": "integer",
+                            "nullable": true,
+                            "description": "p95 first live segment latency (ms)"
+                          },
+                          "finalLatencyP50S": {
+                            "type": "integer",
+                            "nullable": true,
+                            "description": "Median final transcript latency (s)"
+                          },
+                          "finalLatencyP95S": {
+                            "type": "integer",
+                            "nullable": true,
+                            "description": "p95 final transcript latency (s)"
+                          },
+                          "breaches": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "first_segment",
+                                "final"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "coverage": {
+                      "type": "object",
+                      "required": [
+                        "scope",
+                        "companies"
+                      ],
+                      "properties": {
+                        "scope": {
+                          "type": "string"
+                        },
+                        "companies": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    "windowDays": {
+                      "type": "integer"
+                    },
+                    "coverageDays": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "day",
+                          "total",
+                          "coveredLive",
+                          "coveredReplay24h",
+                          "notCovered"
+                        ],
+                        "properties": {
+                          "day": {
+                            "type": "string",
+                            "format": "date"
+                          },
+                          "total": {
+                            "type": "integer"
+                          },
+                          "coveredLive": {
+                            "type": "integer"
+                          },
+                          "coveredReplay24h": {
+                            "type": "integer"
+                          },
+                          "notCovered": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    },
+                    "keywordHitDays": {
+                      "type": "array",
+                      "description": "Keyword-hit relay latency per UTC day, oldest first (a day without hits is omitted): relay time inside the API process minus the segment's own end time; excludes the client's network. Measured by this API, not by the pipeline",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "day",
+                          "hits",
+                          "p50Ms",
+                          "p95Ms"
+                        ],
+                        "properties": {
+                          "day": {
+                            "type": "string",
+                            "format": "date",
+                            "description": "UTC day"
+                          },
+                          "hits": {
+                            "type": "integer",
+                            "description": "Live keyword_hit frames relayed"
+                          },
+                          "p50Ms": {
+                            "type": "integer",
+                            "nullable": true,
+                            "description": "Median keyword-hit relay latency bucket upper bound (ms)"
+                          },
+                          "p95Ms": {
+                            "type": "integer",
+                            "nullable": true,
+                            "description": "p95 keyword-hit relay latency bucket upper bound (ms); null above 12,800 ms"
+                          }
+                        }
+                      }
+                    },
+                    "summary": {
+                      "type": "object",
+                      "required": [
+                        "last7d"
+                      ],
+                      "properties": {
+                        "last7d": {
+                          "type": "object",
+                          "required": [
+                            "firstSegmentP95Ms",
+                            "finalLatencyP95S",
+                            "captureSuccessRate",
+                            "coveredLiveRate",
+                            "keywordHitP95Ms"
+                          ],
+                          "properties": {
+                            "firstSegmentP95Ms": {
+                              "type": "integer",
+                              "nullable": true,
+                              "description": "Worst daily first-segment p95 (ms)"
+                            },
+                            "finalLatencyP95S": {
+                              "type": "integer",
+                              "nullable": true,
+                              "description": "Worst daily final-transcript p95 (s)"
+                            },
+                            "captureSuccessRate": {
+                              "type": "number",
+                              "nullable": true,
+                              "description": "Live captures / calls"
+                            },
+                            "coveredLiveRate": {
+                              "type": "number",
+                              "nullable": true,
+                              "description": "Calls covered live / calls"
+                            },
+                            "keywordHitP95Ms": {
+                              "type": "integer",
+                              "nullable": true,
+                              "description": "Worst daily keyword-hit relay p95 of the 7 newest days (ms; measured inside the API process, excludes the client's network)"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailableError"
+          }
+        }
+      }
+    },
+    "/status/licensing": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "description": "The licensing policy: rights per tier, the right and tier of every route by product family, and the coverage universe.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "policy_version",
+                    "counsel_signed_off",
+                    "resale",
+                    "notes",
+                    "rights",
+                    "tiers",
+                    "families",
+                    "universe"
+                  ],
+                  "properties": {
+                    "policy_version": {
+                      "type": "string"
+                    },
+                    "counsel_signed_off": {
+                      "type": "boolean"
+                    },
+                    "resale": {
+                      "type": "string"
+                    },
+                    "notes": {
+                      "type": "object",
+                      "required": [
+                        "display",
+                        "redistribute",
+                        "rag",
+                        "train",
+                        "audio",
+                        "sec_data"
+                      ],
+                      "properties": {
+                        "display": {
+                          "type": "string"
+                        },
+                        "redistribute": {
+                          "type": "string"
+                        },
+                        "rag": {
+                          "type": "string"
+                        },
+                        "train": {
+                          "type": "string"
+                        },
+                        "audio": {
+                          "type": "string"
+                        },
+                        "sec_data": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "rights": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "display",
+                          "redistribute",
+                          "rag",
+                          "train",
+                          "audio",
+                          "resell"
+                        ]
+                      }
+                    },
+                    "tiers": {
+                      "type": "object",
+                      "required": [
+                        "free",
+                        "lite",
+                        "standard",
+                        "pro"
+                      ],
+                      "properties": {
+                        "free": {
+                          "type": "object",
+                          "required": [
+                            "display",
+                            "redistribute",
+                            "rag",
+                            "train",
+                            "audio",
+                            "resell"
+                          ],
+                          "properties": {
+                            "display": {
+                              "type": "boolean"
+                            },
+                            "redistribute": {
+                              "type": "boolean"
+                            },
+                            "rag": {
+                              "type": "boolean"
+                            },
+                            "train": {
+                              "type": "boolean"
+                            },
+                            "audio": {
+                              "type": "boolean"
+                            },
+                            "resell": {
+                              "type": "boolean"
+                            }
+                          }
+                        },
+                        "lite": {
+                          "type": "object",
+                          "required": [
+                            "display",
+                            "redistribute",
+                            "rag",
+                            "train",
+                            "audio",
+                            "resell"
+                          ],
+                          "properties": {
+                            "display": {
+                              "type": "boolean"
+                            },
+                            "redistribute": {
+                              "type": "boolean"
+                            },
+                            "rag": {
+                              "type": "boolean"
+                            },
+                            "train": {
+                              "type": "boolean"
+                            },
+                            "audio": {
+                              "type": "boolean"
+                            },
+                            "resell": {
+                              "type": "boolean"
+                            }
+                          }
+                        },
+                        "standard": {
+                          "type": "object",
+                          "required": [
+                            "display",
+                            "redistribute",
+                            "rag",
+                            "train",
+                            "audio",
+                            "resell"
+                          ],
+                          "properties": {
+                            "display": {
+                              "type": "boolean"
+                            },
+                            "redistribute": {
+                              "type": "boolean"
+                            },
+                            "rag": {
+                              "type": "boolean"
+                            },
+                            "train": {
+                              "type": "boolean"
+                            },
+                            "audio": {
+                              "type": "boolean"
+                            },
+                            "resell": {
+                              "type": "boolean"
+                            }
+                          }
+                        },
+                        "pro": {
+                          "type": "object",
+                          "required": [
+                            "display",
+                            "redistribute",
+                            "rag",
+                            "train",
+                            "audio",
+                            "resell"
+                          ],
+                          "properties": {
+                            "display": {
+                              "type": "boolean"
+                            },
+                            "redistribute": {
+                              "type": "boolean"
+                            },
+                            "rag": {
+                              "type": "boolean"
+                            },
+                            "train": {
+                              "type": "boolean"
+                            },
+                            "audio": {
+                              "type": "boolean"
+                            },
+                            "resell": {
+                              "type": "boolean"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "families": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "family",
+                          "routes"
+                        ],
+                        "properties": {
+                          "family": {
+                            "type": "string",
+                            "enum": [
+                              "company",
+                              "financials",
+                              "sec_filings",
+                              "insider_trades",
+                              "institutional_ownership",
+                              "ipos",
+                              "market",
+                              "metadata",
+                              "earnings_calls",
+                              "websocket"
+                            ],
+                            "description": "Product family"
+                          },
+                          "routes": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "required": [
+                                "route",
+                                "tier",
+                                "license"
+                              ],
+                              "properties": {
+                                "route": {
+                                  "type": "string",
+                                  "description": "Fastify route pattern; `#` = WebSocket channel"
+                                },
+                                "tier": {
+                                  "type": "string",
+                                  "enum": [
+                                    "free",
+                                    "lite",
+                                    "standard",
+                                    "pro"
+                                  ]
+                                },
+                                "license": {
+                                  "type": "string",
+                                  "enum": [
+                                    "display",
+                                    "redistribute",
+                                    "rag",
+                                    "train"
+                                  ]
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "universe": {
+                      "type": "object",
+                      "required": [
+                        "companies",
+                        "earnings_calls"
+                      ],
+                      "description": "Coverage universe",
+                      "properties": {
+                        "companies": {
+                          "type": "integer",
+                          "nullable": true,
+                          "description": "Listed (not delisted) companies; null while the data DB is unavailable"
+                        },
+                        "earnings_calls": {
+                          "type": "object",
+                          "required": [
+                            "scope",
+                            "companies"
+                          ],
+                          "properties": {
+                            "scope": {
+                              "type": "string",
+                              "description": "Earnings-call coverage scope (e.g. top500); unknown without data"
+                            },
+                            "companies": {
+                              "type": "integer",
+                              "description": "Companies in the earnings-call scope"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
       }
     },
     "/v1/ws": {
       "ws": {
         "summary": "WebSocket filings stream and live earnings-call transcripts",
-        "description": "Upgrade to a WebSocket connection to receive real-time SEC filing events. Authenticate with API Key.\n\nLive earnings-call transcripts (channel `earnings-calls.live`, requires the PRO plan; the socket itself needs STANDARD): send a `subscribe` frame with an `event_id` or a `cik` and receive `subscribed`, then `transcript_segment` frames as the call is spoken, `speaker_names` snapshots, the lifecycle frames `call_started` / `call_ended` / `transcript_provisional` / `transcript_ready` / `rescheduled` (after `transcript_ready` or `rescheduled` the subscription ends with `unsubscribed`, whose `reason` names why; it also ends 2 h after `call_ended`, when the call will produce nothing more, or 12 h after the scheduled start). Finals are delivered in `seq` order; a `gap` frame reports a range that did not arrive within 1.5 s (a late final may still follow). To resume after a reconnect, subscribe again with `since_seq` = the last final seq you hold: the missed finals are replayed before live delivery continues (`resume_unavailable` when the call cannot be replayed). An `error` frame (code `unavailable`) reports a server-side failure; the socket always stays open.",
+        "description": "Upgrade to a WebSocket connection to receive real-time SEC filing events. Authenticate with API Key.\n\nLive earnings-call transcripts (channel `earnings-calls.live`, requires the PRO plan; the socket itself needs STANDARD): send a `subscribe` frame with an `event_id` or a `cik` and receive `subscribed`, then `transcript_segment` frames as the call is spoken, `speaker_names` snapshots, the lifecycle frames `call_started` / `call_ended` / `transcript_provisional` / `transcript_ready` / `rescheduled` (after `transcript_ready` or `rescheduled` the subscription ends with `unsubscribed`, whose `reason` names why; it also ends 2 h after `call_ended`, when the call will produce nothing more, or 12 h after the scheduled start). Finals are delivered in `seq` order; a `gap` frame reports a range that did not arrive within 1.5 s (a late final may still follow). To resume after a reconnect, subscribe again with `since_seq` = the last final seq you hold: the missed finals are replayed before live delivery continues (`resume_unavailable` when the call cannot be replayed). An `error` frame (code `unavailable`) reports a server-side failure; the socket always stays open.\n\nKeyword alerts and guidance flashes: a `subscribe` with `keywords` (up to 20; `keyword_match` exact | stem, `speaker_roles` to keep management's words only) also sends a `keyword_hit` frame for every final segment that contains one — with the speaker's provisional name / role, the previous final as context and `latency_ms` (relay time inside the API process minus the segment's own end time; the client's network is excluded). Every subscription of a call receives `guidance_flash` frames: forward-looking numbers extracted seconds after they are spoken. `scope: all_live` with `keywords` (no `event_id` / `cik`; `min_rank` limits the companies; `events` may add `guidance_flash`) follows every call being captured live for one subscription slot and receives keyword hits only, never segments; a `warning` frame (`global_scope_degraded`) says a new call was not attached. At `transcript_ready` an `all_live` subscription also gets the final transcript's hits once (`layer: final`), without those a live hit already covered within ± 5 s. Minimum tier for display: FREE.",
         "tags": [
           "WebSocket"
         ],
@@ -18586,6 +20533,27 @@
             }
           },
           {
+            "name": "keyword_hit",
+            "description": "A subscribed keyword in a final segment (layer live) or in the final transcript at transcript_ready (layer final)",
+            "payload": {
+              "$ref": "#/components/schemas/WebSocketKeywordHitEvent"
+            }
+          },
+          {
+            "name": "guidance_flash",
+            "description": "A guidance number extracted from the live transcript seconds after it was spoken",
+            "payload": {
+              "$ref": "#/components/schemas/WebSocketGuidanceFlashEvent"
+            }
+          },
+          {
+            "name": "warning",
+            "description": "A subscription is degraded but keeps running (global_scope_degraded)",
+            "payload": {
+              "$ref": "#/components/schemas/WebSocketWarningEvent"
+            }
+          },
+          {
             "name": "call_started",
             "description": "A lifecycle phase of the subscribed call",
             "payload": {
@@ -18645,7 +20613,7 @@
         "x-client-messages": [
           {
             "name": "subscribe",
-            "description": "Subscribe to the live transcript of an earnings call (PRO)",
+            "description": "Subscribe to the live transcript of an earnings call (PRO), optionally with keyword alerts, or with scope: all_live to the keyword hits of every live call",
             "payload": {
               "$ref": "#/components/schemas/WebSocketSubscribeEarningsCall"
             }
@@ -18657,7 +20625,8 @@
               "$ref": "#/components/schemas/WebSocketUnsubscribe"
             }
           }
-        ]
+        ],
+        "x-license": "display"
       }
     }
   },
@@ -18675,6 +20644,10 @@
     {
       "name": "Webhooks",
       "description": "Outbound earnings-call lifecycle deliveries (PRO)"
+    },
+    {
+      "name": "Status",
+      "description": "Public status and licensing (no API key)"
     }
   ],
   "x-webhooks": {
@@ -20926,7 +22899,7 @@
     "earnings_call.guidance_flash": {
       "post": {
         "summary": "earnings_call.guidance_flash",
-        "description": "Live guidance flash (reserved)",
+        "description": "A guidance number extracted from the live transcript seconds after it was spoken (once per subscription and flash; a restated number comes again with a higher revision)",
         "tags": [
           "Webhooks"
         ],
@@ -20978,9 +22951,10 @@
                       },
                       "data": {
                         "type": "object",
-                        "description": "Live guidance flash (reserved)",
+                        "description": "A guidance number extracted from the live transcript seconds after it was spoken (once per subscription and flash; a restated number comes again with a higher revision)",
                         "required": [
-                          "event"
+                          "event",
+                          "guidance_flash"
                         ],
                         "properties": {
                           "event": {
@@ -21154,6 +23128,434 @@
                                 "type": "string",
                                 "nullable": true,
                                 "description": "Webcast page of an upcoming dated call; null once published"
+                              }
+                            }
+                          },
+                          "guidance_flash": {
+                            "type": "object",
+                            "required": [
+                              "seq",
+                              "revision",
+                              "metric",
+                              "metric_normalized",
+                              "period_label",
+                              "low",
+                              "high",
+                              "point",
+                              "unit",
+                              "currency",
+                              "source_sentence",
+                              "start_ms"
+                            ],
+                            "properties": {
+                              "seq": {
+                                "type": "integer",
+                                "description": "The final that triggered the extraction"
+                              },
+                              "revision": {
+                                "type": "integer",
+                                "description": "1 for the first flash of a metric / period; higher when the numbers were restated"
+                              },
+                              "metric": {
+                                "type": "string",
+                                "description": "The metric as spoken"
+                              },
+                              "metric_normalized": {
+                                "type": "string",
+                                "description": "revenue, eps_gaap, segment:<slug> …"
+                              },
+                              "period_label": {
+                                "type": "string",
+                                "description": "Q4 FY2026, FY2026 …"
+                              },
+                              "low": {
+                                "type": "number",
+                                "nullable": true,
+                                "description": "Lower bound of the range (absolute units)"
+                              },
+                              "high": {
+                                "type": "number",
+                                "nullable": true,
+                                "description": "Upper bound of the range"
+                              },
+                              "point": {
+                                "type": "number",
+                                "nullable": true,
+                                "description": "A point value when no range was given"
+                              },
+                              "unit": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "USD, percent, shares …"
+                              },
+                              "currency": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "ISO 4217 when a currency applies"
+                              },
+                              "source_sentence": {
+                                "type": "string",
+                                "description": "The verbatim sentence the numbers come from"
+                              },
+                              "start_ms": {
+                                "type": "integer",
+                                "description": "Offset of the sentence from the start of the recording"
+                              }
+                            }
+                          },
+                          "partial": {
+                            "type": "boolean",
+                            "description": "Present (true) only when a detail was still missing 60 s after the event"
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "Acknowledged; anything else is retried"
+          }
+        }
+      }
+    },
+    "earnings_call.keyword_hit": {
+      "post": {
+        "summary": "earnings_call.keyword_hit",
+        "description": "Keyword hits of a subscription with filters.keywords: live hits are batched per call every 5 s (layer live); at transcript_ready the final transcript's hits come once (layer final), without those a live hit already covered within ± 5 s",
+        "tags": [
+          "Webhooks"
+        ],
+        "parameters": [
+          {
+            "name": "X-Invinite-Event",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "earnings_call.keyword_hit"
+              ]
+            }
+          },
+          {
+            "name": "X-Invinite-Delivery",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Invinite-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/WebhookEnvelope"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "event": {
+                        "type": "string",
+                        "enum": [
+                          "earnings_call.keyword_hit"
+                        ]
+                      },
+                      "data": {
+                        "type": "object",
+                        "description": "Keyword hits of a subscription with filters.keywords: live hits are batched per call every 5 s (layer live); at transcript_ready the final transcript's hits come once (layer final), without those a live hit already covered within ± 5 s",
+                        "required": [
+                          "event",
+                          "layer",
+                          "hits"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "object",
+                            "required": [
+                              "event_id",
+                              "source",
+                              "cik",
+                              "symbol",
+                              "company_name",
+                              "exchange",
+                              "event_type",
+                              "fiscal_year",
+                              "fiscal_quarter",
+                              "scheduled_at",
+                              "tz",
+                              "date_status",
+                              "call_time_source",
+                              "call_time_confidence",
+                              "session",
+                              "started_at",
+                              "ended_at",
+                              "results_released_at",
+                              "capture_status",
+                              "reschedule_count",
+                              "has_transcript",
+                              "has_audio",
+                              "has_slides",
+                              "has_press_release",
+                              "has_documents",
+                              "webcast_url"
+                            ],
+                            "properties": {
+                              "event_id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Stable event identifier"
+                              },
+                              "source": {
+                                "type": "string",
+                                "enum": [
+                                  "us"
+                                ],
+                                "description": "Always `us`"
+                              },
+                              "cik": {
+                                "type": "string",
+                                "description": "10-digit CIK"
+                              },
+                              "symbol": {
+                                "type": "string",
+                                "description": "Ticker symbol"
+                              },
+                              "company_name": {
+                                "type": "string",
+                                "description": "Company name"
+                              },
+                              "exchange": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Listing exchange"
+                              },
+                              "event_type": {
+                                "type": "string",
+                                "enum": [
+                                  "earnings_call",
+                                  "investor_day",
+                                  "conference",
+                                  "agm",
+                                  "other"
+                                ],
+                                "description": "Event type"
+                              },
+                              "fiscal_year": {
+                                "type": "integer",
+                                "nullable": true,
+                                "description": "Fiscal year of the reported period"
+                              },
+                              "fiscal_quarter": {
+                                "type": "integer",
+                                "nullable": true,
+                                "description": "Fiscal quarter of the reported period"
+                              },
+                              "scheduled_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "Scheduled start (ISO 8601 UTC). When call_time_source is null only the date is known: read only its calendar date in tz."
+                              },
+                              "tz": {
+                                "type": "string",
+                                "description": "Company timezone (IANA)"
+                              },
+                              "date_status": {
+                                "type": "string",
+                                "enum": [
+                                  "estimated",
+                                  "unconfirmed",
+                                  "confirmed",
+                                  "postponed",
+                                  "cancelled"
+                                ],
+                                "description": "How firm the date is"
+                              },
+                              "call_time_source": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Source of the start time (wire, edgar, ir_feed, human, provisional, vendor, estimate); null = date only"
+                              },
+                              "call_time_confidence": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Confidence of the start time (high, low)"
+                              },
+                              "session": {
+                                "type": "string",
+                                "enum": [
+                                  "bmo",
+                                  "amc",
+                                  "intraday"
+                                ],
+                                "nullable": true,
+                                "description": "Market session"
+                              },
+                              "started_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true,
+                                "description": "When the live call started (first spoken words)"
+                              },
+                              "ended_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true,
+                                "description": "When the call ended"
+                              },
+                              "results_released_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true,
+                                "description": "When the results press release was filed"
+                              },
+                              "capture_status": {
+                                "type": "string",
+                                "description": "Capture state of the call"
+                              },
+                              "reschedule_count": {
+                                "type": "integer",
+                                "description": "How often the call was rescheduled"
+                              },
+                              "has_transcript": {
+                                "type": "boolean",
+                                "description": "A transcript is available"
+                              },
+                              "has_audio": {
+                                "type": "boolean",
+                                "description": "Audio is available"
+                              },
+                              "has_slides": {
+                                "type": "boolean",
+                                "description": "A slide deck is available"
+                              },
+                              "has_press_release": {
+                                "type": "boolean",
+                                "description": "The results press release is available"
+                              },
+                              "has_documents": {
+                                "type": "boolean",
+                                "description": "Further event documents are available"
+                              },
+                              "webcast_url": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Webcast page of an upcoming dated call; null once published"
+                              }
+                            }
+                          },
+                          "layer": {
+                            "type": "string",
+                            "enum": [
+                              "live",
+                              "final"
+                            ]
+                          },
+                          "hits": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                              "type": "object",
+                              "required": [
+                                "cik",
+                                "symbol",
+                                "conference_date",
+                                "keyword",
+                                "seq",
+                                "start_ms",
+                                "end_ms",
+                                "text",
+                                "context_before",
+                                "speaker_label",
+                                "speaker_name",
+                                "speaker_role",
+                                "layer",
+                                "latency_ms"
+                              ],
+                              "properties": {
+                                "cik": {
+                                  "type": "string",
+                                  "description": "10-digit CIK"
+                                },
+                                "symbol": {
+                                  "type": "string"
+                                },
+                                "conference_date": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                },
+                                "keyword": {
+                                  "type": "string",
+                                  "description": "The subscriber's own spelling of the keyword"
+                                },
+                                "seq": {
+                                  "type": "integer",
+                                  "nullable": true,
+                                  "description": "The live final's seq; null on the final layer"
+                                },
+                                "start_ms": {
+                                  "type": "integer",
+                                  "nullable": true,
+                                  "description": "Offset from the start of the recording"
+                                },
+                                "end_ms": {
+                                  "type": "integer",
+                                  "nullable": true,
+                                  "description": "null on the final layer when the cleaned text has no end timing"
+                                },
+                                "text": {
+                                  "type": "string",
+                                  "maxLength": 500,
+                                  "description": "The segment (live) or turn (final), at most 500 chars"
+                                },
+                                "context_before": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "The previous final / turn of the call (≤ 300 chars); a final is often half a sentence"
+                                },
+                                "speaker_label": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "Diarization label"
+                                },
+                                "speaker_name": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "From the live speaker-name snapshot (null while unnamed) or the final transcript"
+                                },
+                                "speaker_role": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "executive | ir_host | analyst | operator; null while unnamed"
+                                },
+                                "layer": {
+                                  "type": "string",
+                                  "enum": [
+                                    "live",
+                                    "final"
+                                  ],
+                                  "description": "live = a live final; final = the final transcript at transcript_ready (once per subscription)"
+                                },
+                                "latency_ms": {
+                                  "type": "integer",
+                                  "nullable": true,
+                                  "description": "live only: relay time inside the API process minus the segment's own end time (excludes the client's network); null when the call's clock is unknown"
+                                }
                               }
                             }
                           },

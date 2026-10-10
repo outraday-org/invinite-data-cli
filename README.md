@@ -176,7 +176,7 @@ These options are available on all data commands:
 - [metrics](#metrics) — Financial metrics, ratios, and growth
 - [segments](#segments) — Segmented financials
 - [filings](#filings) — SEC filings
-- [earnings](#earnings) — Earnings calls: calendar, transcripts, Q&A, guidance, audio, slides, documents, search
+- [earnings](#earnings) — Earnings calls: calendar, transcripts, Q&A, guidance, price moves during the call, audio, slides, documents, search
 - [ownership](#ownership) — Institutional ownership
 - [insider-trades](#insider-trades) — Insider trading data
 - [ipos](#ipos) — IPO listings
@@ -696,6 +696,14 @@ Speech timing, pitch and energy per speaker (`--section all|prepared|qa`).
 
 ```bash
 invd earnings prosody --event <event_id> --section qa
+```
+
+#### `earnings price-attribution` *(selector)*
+
+Minute-level price moves during the call (returns in basis points, no prices or volume) next to what was being said in each minute, plus the largest minutes (`top_minutes`) and how the recording was anchored to wall-clock time (`anchor_kind`, `anchor_lag_ms`, `anchor_uncertainty_s`). This is temporal coincidence, not attribution of cause; pre-market bars are sparse. STANDARD plan, 1 credit; a `404 price_attribution_unavailable` means the call has not been attributed yet.
+
+```bash
+invd earnings price-attribution --event <event_id>
 ```
 
 #### `earnings audio` *(selector)*

@@ -23,12 +23,12 @@ import { ApiError } from '../../../src/shared/errors.js';
 const SUBCOMMANDS = [
   'calendar', 'events', 'live', 'event', 'transcript', 'versions', 'transcript-diff', 'qa',
   'participants', 'analysts', 'person', 'press-release', 'extractions', 'guidance-history',
-  'diff', 'metrics', 'prosody', 'audio', 'slides', 'documents', 'search', 'stream',
+  'diff', 'metrics', 'prosody', 'price-attribution', 'audio', 'slides', 'documents', 'search', 'stream',
 ];
 
 const SELECTOR_COMMANDS = [
   'transcript', 'versions', 'transcript-diff', 'qa', 'participants', 'press-release',
-  'extractions', 'diff', 'metrics', 'prosody', 'audio', 'slides', 'documents', 'stream',
+  'extractions', 'diff', 'metrics', 'prosody', 'price-attribution', 'audio', 'slides', 'documents', 'stream',
 ];
 
 const OUTPUT_COMMANDS = ['transcript', 'press-release', 'audio', 'slides', 'documents'];
@@ -175,6 +175,21 @@ describe('earnings requests', () => {
     expect(Object.fromEntries(url().searchParams)).toEqual({
       identifier: 'AAPL', year: '2026', quarter: '4', version: '2', as_of: '2026-10-31T00:00:00Z',
     });
+  });
+
+  it('price-attribution maps the selector and prints the coincidence note with the top minutes', async () => {
+    (fetch as any).mockResolvedValueOnce(json({
+      event: { symbol: 'AAPL' }, anchor_kind: 't0_wallclock', anchor_lag_ms: 4_000, lag_kind: 'playlist',
+      anchor_uncertainty_s: 2, session: 'post', bar_count: 1, end_of_window_return_bps: -35,
+      buckets: [{ bucket: '2026-10-30T21:05:00Z', bar_start: '2026-10-30T21:05:00Z', return_bps: -35, cumulative_return_bps: -35, utterance_refs: [] }],
+      top_minutes: [{ bucket: '2026-10-30T21:05:00Z', return_bps: -35, utterance_refs: [{ start_ms: 65_000, speaker_label: 'A', text: 'Gross margin will be lower.' }] }],
+    }));
+    await run('price-attribution', '-i', 'AAPL', '--date', '2026-10-30');
+    expect(url().pathname).toBe('/v1/earnings-calls/price-attribution');
+    expect(Object.fromEntries(url().searchParams)).toEqual({ identifier: 'AAPL', date: '2026-10-30' });
+    const printed = logs.join('\n');
+    expect(printed).toContain('not attribution of cause');
+    expect(printed).toContain('[1:05] Gross margin will be lower.');
   });
 
   it('extractions --all follows next_url and concatenates the kpis', async () => {

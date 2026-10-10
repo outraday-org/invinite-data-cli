@@ -42,7 +42,7 @@ Common multi-step patterns:
 - **Ownership analysis**: holdings-by-company + ownership transactions
 - **Filing deep-dive**: metadata section-ids (first) + filings list → then filings sections for full text
 - **Comparative analysis**: metadata metrics (first) + financials snapshot with multiple tickers + metrics ratios for each
-- **Earnings call review**: earnings events (first, for the `event_id`) → then in parallel press-release + extractions `--kind guidance` + extractions `--kind kpi` + qa + diff
+- **Earnings call review**: earnings events (first, for the `event_id`) → then in parallel press-release + extractions `--kind guidance` + extractions `--kind kpi` + qa + diff (+ optionally price-attribution: minute price moves next to what was said — temporal coincidence, not cause)
 - **Guidance tracking**: earnings guidance-history `--metric <metric>` across calls + extractions of the latest call
 
 ## Output format

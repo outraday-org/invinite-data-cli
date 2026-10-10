@@ -14,11 +14,13 @@ Analyze the earnings call requested in `$ARGUMENTS` using Invinite Data. Prefer 
    - guidance: `invd earnings extractions --kind guidance` and KPIs: `invd earnings extractions --kind kpi` (`earnings_call_guidance`)
    - Q&A: `invd earnings qa` (`earnings_call_qa`) and participants: `invd earnings participants` (`earnings_call_participants`)
    - diff vs the prior call: `invd earnings diff` (`earnings_call_diff`)
+   - optional, price moves during the call: `invd earnings price-attribution` (`earnings_call_price_moves`) — minute returns next to what was being said; skip it on a `404 price_attribution_unavailable`
    - only when a claim needs the exact wording: `invd earnings transcript` (`earnings_call_transcript`) or `invd earnings search -q "<topic>" --event <event_id>` (`earnings_call_search`)
 3. **Summarise**:
    - **Results vs guidance** — reported figures from the press release against the guidance given on the prior call (`invd earnings guidance-history -i <TICKER> --metric <metric>` for a metric's series).
    - **Guidance changes** — each item raised, lowered, maintained, introduced or withdrawn (`direction`), with the period and basis (GAAP / non-GAAP).
    - **Analyst focus** — the recurring Q&A themes, who asked (firm), and where management deflected.
    - **Tone change** — the diff's tone shift, hedging / uncertainty changes and new or dropped topics.
+   - **Price moves during the call** (only when fetched) — the largest minutes (`top_minutes`) and what was being said then. Word it as temporal coincidence, never as the cause of the move; pre-market bars are sparse.
 4. **Cite evidence** — every quote or claim carries its `[m:ss]` timestamp (from `start_ms`) and the speaker; separate what was said from your interpretation.
 5. Flag what is missing (no press release, no guidance extracted, prior call not covered) instead of inferring it.

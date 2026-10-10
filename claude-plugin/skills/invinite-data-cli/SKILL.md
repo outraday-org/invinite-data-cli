@@ -32,6 +32,7 @@ Use the connected Invinite Data API MCP tools when available. Fall back to the `
 | Call transcript/Q&A/participants | `earnings_call_transcript`, `earnings_call_qa`, `earnings_call_participants` | `invd earnings transcript\|qa\|participants` |
 | Call guidance/KPIs, diff vs prior call | `earnings_call_guidance`, `earnings_call_diff` | `invd earnings extractions\|guidance-history\|diff` |
 | Call documents/press release | `earnings_call_documents`, `earnings_call_press_release` | `invd earnings documents\|press-release` |
+| Price moves during a call (coincidence, not cause) | `earnings_call_price_moves` | `invd earnings price-attribution` |
 | Search across calls | `earnings_call_search` | `invd earnings search` |
 | Keyword / guidance alerts | `earnings_call_alert_create\|list\|update\|delete\|test\|deliveries` | `invd webhooks …` |
 
@@ -264,10 +265,11 @@ invd earnings extractions --event <event_id> --kind guidance --json
 invd earnings extractions --event <event_id> --kind kpi --json
 invd earnings guidance-history -i AAPL --metric revenue --json
 
-# Derived: diff vs the prior call, call metrics, prosody
+# Derived: diff vs the prior call, call metrics, prosody, price moves during the call
 invd earnings diff --event <event_id> --json
 invd earnings metrics --event <event_id> --json
 invd earnings prosody --event <event_id> --section qa --json
+invd earnings price-attribution --event <event_id> --json   # minute returns (bps) next to what was said; coincidence, not cause
 
 # Media (signed URLs expire after 15 min; --output saves the file)
 invd earnings audio --event <event_id> --output call.mp3
@@ -350,7 +352,9 @@ invd earnings events -i NVDA -s desc -l 4 --json            # pick the event_id
 invd earnings transcript --event <event_id> --format sections --json
 invd earnings extractions --event <event_id> --kind guidance --json
 invd earnings search -q "gross margin outlook" --event <event_id> --json
+invd earnings price-attribution --event <event_id> --json   # optional: price moves during the call
 ```
+`price-attribution` (MCP `earnings_call_price_moves`, STANDARD, 1 credit) lines up minute returns with what was said in that minute: temporal coincidence, not attribution of cause; pre-market bars are sparse, and a `404 price_attribution_unavailable` means the call is not attributed yet.
 
 ### Reading specific filing sections
 First find section IDs, then fetch the section:

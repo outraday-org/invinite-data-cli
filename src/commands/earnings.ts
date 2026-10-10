@@ -549,6 +549,34 @@ export function registerEarningsCommands(program: Command): void {
       });
     }));
 
+  selectorCommand('price-attribution', 'Minute-level price moves during a call next to what was said (coincidence, not cause)')
+    .action(run(async (cmdOpts: SelectorOptions) => {
+      const opts = globalOpts();
+      validateSelector(cmdOpts);
+      const data = await apiGet<Row>({ path: `${BASE}/price-attribution`, params: selectorParams(cmdOpts) });
+      output(data, opts, () => {
+        const { event, buckets, top_minutes: topMinutes, ...summary } = data;
+        console.log(chalk.bold(`\n${eventLine(event)} · price moves during the call\n`));
+        console.log(chalk.dim('Temporal coincidence, not attribution of cause; pre-market bars are sparse.\n'));
+        formatKeyValue(humanizeMs(summary));
+        const columns = ['bucket', 'return_bps', 'cumulative_return_bps', 'said'];
+        const said = (row: Row) => {
+          const text = (row.utterance_refs ?? [])
+            .map((ref: Row) => `[${formatMs(ref.start_ms)}] ${ref.text}`)
+            .join(' ');
+          return text.length > SEARCH_TEXT_MAX ? `${text.slice(0, SEARCH_TEXT_MAX - 1)}…` : text;
+        };
+        if (topMinutes?.length) {
+          console.log(chalk.bold('\nTop minutes\n'));
+          formatTable(topMinutes.map((row: Row) => ({ ...row, said: said(row) })), ['bucket', 'return_bps', 'said']);
+        }
+        if (buckets?.length) {
+          console.log(chalk.bold('\nMinutes\n'));
+          formatTable(buckets.map((row: Row) => ({ ...row, said: said(row) })), columns);
+        }
+      });
+    }));
+
   // ── Media ──────────────────────────────────────────────────────────
 
   selectorCommand('audio', 'Call recording (signed URL, or --output to save it)')
