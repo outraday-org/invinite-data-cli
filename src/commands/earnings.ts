@@ -555,10 +555,16 @@ export function registerEarningsCommands(program: Command): void {
       validateSelector(cmdOpts);
       const data = await apiGet<Row>({ path: `${BASE}/price-attribution`, params: selectorParams(cmdOpts) });
       output(data, opts, () => {
-        const { event, buckets, top_minutes: topMinutes, ...summary } = data;
+        const { event, buckets, top_minutes: topMinutes, live, settled, ...summary } = data;
         console.log(chalk.bold(`\n${eventLine(event)} · price moves during the call\n`));
-        console.log(chalk.dim('Temporal coincidence, not attribution of cause; pre-market bars are sparse.\n'));
-        formatKeyValue(humanizeMs(summary));
+        console.log(chalk.dim('Temporal coincidence, not attribution of cause; pre-market and after-hours bars are sparse.\n'));
+        if (live === true) {
+          console.log(chalk.yellow('LIVE — minute rows so far, not settled; the post-call run replaces them\n'));
+        } else if (settled === false) {
+          console.log(chalk.yellow('Not settled — read before the bars settled; a later run may replace them\n'));
+        }
+        // While live the summary fields are null: print only what is known (bar_count = rows so far).
+        formatKeyValue(humanizeMs(Object.fromEntries(Object.entries(summary).filter(([, value]) => value !== null && value !== undefined))));
         const columns = ['bucket', 'return_bps', 'cumulative_return_bps', 'said'];
         const said = (row: Row) => {
           const text = (row.utterance_refs ?? [])

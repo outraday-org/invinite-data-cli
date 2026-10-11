@@ -61,6 +61,13 @@ describe('ws listen', () => {
     });
   });
 
+  it('--earnings --prices asks for price ticks', async () => {
+    await run('ws', 'listen', '--earnings', EVENT_ID, '--prices');
+    expect(connected()).toEqual({
+      earnings: { target: { event_id: EVENT_ID }, sinceSeq: -1, partials: false, names: false, json: false, prices: true },
+    });
+  });
+
   it('--all-live --keywords subscribes to the global scope', async () => {
     await run('ws', 'listen', '--all-live', '--keywords', 'tariffs', '--min-rank', '500');
     expect(connected()).toMatchObject({
@@ -80,6 +87,8 @@ describe('ws listen', () => {
     expect(() => buildListenOptions({ allLive: true, keywords: 'tariffs', partials: true }, false)).toThrow('need --earnings');
     expect(() => buildListenOptions({ earnings: '320193', keywords: 'tariffs', minRank: '5' }, false)).toThrow('--min-rank needs --all-live');
     expect(() => buildListenOptions({ keywords: 'tariffs' }, false)).toThrow('need --earnings or --all-live');
+    expect(() => buildListenOptions({ allLive: true, keywords: 'tariffs', prices: true }, false)).toThrow('--names and --prices follow one call');
+    expect(() => buildListenOptions({ prices: true }, false)).toThrow('need --earnings or --all-live');
     expect(() => buildListenOptions({ earnings: '320193', keywords: 'a' }, false)).toThrow('2–64 characters');
     expect(() => buildListenOptions({ earnings: '320193', keywords: 'tariffs', keywordMatch: 'fuzzy' }, false)).toThrow('--keyword-match takes exact or stem');
     expect(() => buildListenOptions({ earnings: '320193', keywords: 'tariffs', speakerRoles: 'ceo' }, false)).toThrow('Unknown role(s): ceo');

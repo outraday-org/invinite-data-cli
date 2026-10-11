@@ -17,6 +17,7 @@ export interface ListenOptions {
   sinceSeq?: string;
   partials?: boolean;
   names?: boolean;
+  prices?: boolean;
   keywords?: string;
   keywordMatch?: string;
   speakerRoles?: string;
@@ -26,14 +27,14 @@ export interface ListenOptions {
 /**
  * `ws listen` options → the earnings subscription, or null for the filing stream. Mirrors the
  * API's refusals client-side: the global scope needs keywords, the alert tuning needs keywords,
- * the per-call replay / partials / names need one call.
+ * the per-call replay / partials / names / prices need one call.
  */
 export function buildListenOptions(cmdOpts: ListenOptions, json: boolean): EarningsListenOptions | null {
-  const perCall = ['sinceSeq', 'partials', 'names'] as const;
+  const perCall = ['sinceSeq', 'partials', 'names', 'prices'] as const;
   const alerts = ['keywords', 'keywordMatch', 'speakerRoles', 'minRank'] as const;
   if (!cmdOpts.earnings && !cmdOpts.allLive) {
     if ([...perCall, ...alerts].some(key => cmdOpts[key] !== undefined)) {
-      throw new Error('--since-seq, --partials, --names, --keywords, --keyword-match, --speaker-roles and --min-rank need --earnings or --all-live');
+      throw new Error('--since-seq, --partials, --names, --prices, --keywords, --keyword-match, --speaker-roles and --min-rank need --earnings or --all-live');
     }
     return null;
   }
@@ -43,7 +44,7 @@ export function buildListenOptions(cmdOpts: ListenOptions, json: boolean): Earni
     throw new Error('--keyword-match and --speaker-roles need --keywords');
   }
   if (cmdOpts.allLive && perCall.some(key => cmdOpts[key] !== undefined)) {
-    throw new Error('--since-seq, --partials and --names follow one call; they need --earnings');
+    throw new Error('--since-seq, --partials, --names and --prices follow one call; they need --earnings');
   }
   if (!cmdOpts.allLive && cmdOpts.minRank !== undefined) throw new Error('--min-rank needs --all-live');
 
@@ -61,6 +62,7 @@ export function buildListenOptions(cmdOpts: ListenOptions, json: boolean): Earni
     partials: Boolean(cmdOpts.partials),
     names: Boolean(cmdOpts.names),
     json,
+    ...(cmdOpts.prices ? { prices: true } : {}),
     ...(keywords ? { keywords } : {}),
   };
 }
@@ -78,6 +80,7 @@ export function registerWsCommands(program: Command): void {
     .option('--since-seq <n>', 'Replay finals after this seq (default -1 = the whole call so far)')
     .option('--partials', 'Show interim segments, overwritten in place (terminal only; --json emits them)')
     .option('--names', 'Print each speaker-name snapshot')
+    .option('--prices', 'Price ticks of the call\'s stock (≤ 1/s, one line updated in place; --json emits them). Coincidence, not cause')
     .option('--keywords <list>', 'Comma-separated keywords (max 20, 2–64 chars each): one keyword_hit line per mention')
     .option('--keyword-match <mode>', 'exact (default) or stem (tariff also hits "tariffs")')
     .option('--speaker-roles <list>', 'Only hits by these speakers: executive, ir_host, analyst, operator')

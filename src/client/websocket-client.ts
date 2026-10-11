@@ -19,6 +19,8 @@ export interface EarningsListenOptions {
   names: boolean;
   /** NDJSON: every earnings frame as one line, nothing else on stdout. */
   json: boolean;
+  /** Price ticks of the call (`prices: true`; per-call only). */
+  prices?: boolean;
   /** Keyword / guidance alerts on the subscription (required with the `all_live` target). */
   keywords?: KeywordOptions;
 }
@@ -96,10 +98,10 @@ export async function connectWebSocket(opts: { earnings?: EarningsListenOptions 
         if (earnings && live) {
           const what = isAllLive(earnings.target)
             ? 'keyword alerts on every live call'
-            : `${earnings.partials ? 'live transcript + partials' : 'live transcript'}${earnings.keywords ? ' + keyword alerts' : ''}`;
+            : `${earnings.partials ? 'live transcript + partials' : 'live transcript'}${earnings.keywords ? ' + keyword alerts' : ''}${earnings.prices ? ' + prices' : ''}`;
           status(chalk.green(`Connected; subscribing to ${what}`));
           // A reconnect resumes after the last printed final (the API replays the gap).
-          ws.send(JSON.stringify(subscribeFrame(earnings.target, live.lastSeq, earnings.partials, earnings.keywords)));
+          ws.send(JSON.stringify(subscribeFrame(earnings.target, live.lastSeq, earnings.partials, earnings.keywords, earnings.prices)));
         } else {
           console.log(chalk.green('Connected to filing stream'));
         }

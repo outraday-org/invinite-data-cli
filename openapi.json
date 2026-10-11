@@ -500,6 +500,11 @@
             "default": false,
             "description": "Also receive partial (not yet final) segments"
           },
+          "prices": {
+            "type": "boolean",
+            "default": false,
+            "description": "Also receive price_tick frames of the call's stock (≤ 1 per second while the call is live). Per-call only: with scope: all_live the subscribe is refused (bad_message). GET /v1/earnings-calls/live says live_prices: true when ticks flow"
+          },
           "keywords": {
             "type": "array",
             "maxItems": 20,
@@ -844,6 +849,121 @@
           "start_ms": {
             "type": "integer",
             "description": "Offset of the sentence from the start of the recording"
+          }
+        }
+      },
+      "WebSocketPriceTickEvent": {
+        "type": "object",
+        "description": "One second of the call's stock price while the call is live (≤ 1 per second, only seconds with a trade — hold the last value and draw a missing second as a gap; pre-market and after-hours bars are sparse). Sent only to per-call subscriptions with prices: true. Temporal coincidence, not attribution of cause. The minute rows of /v1/earnings-calls/price-attribution are the backlog for a late join",
+        "required": [
+          "type",
+          "subscription_id",
+          "event_id",
+          "cik",
+          "symbol",
+          "conference_date",
+          "at",
+          "call_ms",
+          "price",
+          "open",
+          "high",
+          "low",
+          "volume",
+          "cumulative_volume",
+          "reference_price",
+          "return_bps",
+          "prev_close",
+          "day_return_bps",
+          "source"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "price_tick"
+            ]
+          },
+          "subscription_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "event_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cik": {
+            "type": "string",
+            "description": "10-digit CIK"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "conference_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start of the one-second bar (ISO 8601 UTC)"
+          },
+          "call_ms": {
+            "type": "integer",
+            "nullable": true,
+            "description": "The bar start on the transcript clock (the start_ms of transcript_segment frames); null before the call's clock is known — then chart it on wall time (at)"
+          },
+          "price": {
+            "type": "number",
+            "description": "Last price of the second, shown while the call is live"
+          },
+          "open": {
+            "type": "number",
+            "description": "First trade of the second"
+          },
+          "high": {
+            "type": "number",
+            "description": "Highest trade of the second"
+          },
+          "low": {
+            "type": "number",
+            "description": "Lowest trade of the second"
+          },
+          "volume": {
+            "type": "number",
+            "description": "Shares traded in the second"
+          },
+          "cumulative_volume": {
+            "type": "number",
+            "nullable": true,
+            "description": "Shares traded so far today; null when unknown"
+          },
+          "reference_price": {
+            "type": "number",
+            "nullable": true,
+            "description": "The call's reference: the last trade before the call start (for a late join, the previous close)"
+          },
+          "return_bps": {
+            "type": "number",
+            "nullable": true,
+            "description": "Return since reference_price, basis points; null without a reference"
+          },
+          "prev_close": {
+            "type": "number",
+            "nullable": true,
+            "description": "Previous session's close"
+          },
+          "day_return_bps": {
+            "type": "number",
+            "nullable": true,
+            "description": "Return since prev_close, basis points; null without it"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "stream",
+              "snapshot"
+            ],
+            "description": "stream = the real-time per-second bar; snapshot = the polled last trade while the stream is down (open = high = low = price)"
           }
         }
       },
@@ -11890,7 +12010,8 @@
                           "has_documents",
                           "webcast_url",
                           "live_channel",
-                          "live_audio"
+                          "live_audio",
+                          "live_prices"
                         ],
                         "properties": {
                           "event_id": {
@@ -12043,6 +12164,10 @@
                           "live_audio": {
                             "type": "boolean",
                             "description": "true = GET /v1/earnings-calls/live/stream (PRO) returns a playable HLS URL of the call's live audio"
+                          },
+                          "live_prices": {
+                            "type": "boolean",
+                            "description": "true = a subscription of live_channel with prices: true receives price_tick frames (the call's stock, ≤ 1 per second; temporal coincidence, not attribution of cause)"
                           }
                         }
                       }
@@ -16140,7 +16265,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Minute-level price moves aligned to what was being said at the time. This is temporal coincidence, not attribution of cause; pre-market bars are sparse. 404 price_attribution_unavailable until the call has been attributed. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for display: FREE.",
+        "description": "Minute-level price moves aligned to what was being said at the time. This is temporal coincidence, not attribution of cause; pre-market bars are sparse. During a live call the minute rows arrive as each minute closes (live: true, settled: false; the summary fields are null); the post-call run replaces them. 404 price_attribution_unavailable until the first minute row exists. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -16208,6 +16333,8 @@
                   "type": "object",
                   "required": [
                     "event",
+                    "live",
+                    "settled",
                     "anchor_kind",
                     "anchor_lag_ms",
                     "lag_kind",
@@ -16247,6 +16374,14 @@
                           "description": "Scheduled start (ISO 8601 UTC)"
                         }
                       }
+                    },
+                    "live": {
+                      "type": "boolean",
+                      "description": "true = the minute rows were written live, as each minute closed during the call; the post-call run replaces them"
+                    },
+                    "settled": {
+                      "type": "boolean",
+                      "description": "true = the post-call run read the bars after the market settled; false while live or before the bars settled"
                     },
                     "anchor_kind": {
                       "type": "string",
@@ -16289,7 +16424,7 @@
                     },
                     "bar_count": {
                       "type": "integer",
-                      "description": "One-minute bars in the window"
+                      "description": "One-minute bars in the window (while live: the minute rows so far)"
                     },
                     "end_of_window_return_bps": {
                       "type": "number",
@@ -20460,7 +20595,7 @@
     "/v1/ws": {
       "ws": {
         "summary": "WebSocket filings stream and live earnings-call transcripts",
-        "description": "Upgrade to a WebSocket connection to receive real-time SEC filing events. Authenticate with API Key.\n\nLive earnings-call transcripts (channel `earnings-calls.live`, requires the PRO plan; the socket itself needs STANDARD): send a `subscribe` frame with an `event_id` or a `cik` and receive `subscribed`, then `transcript_segment` frames as the call is spoken, `speaker_names` snapshots, the lifecycle frames `call_started` / `call_ended` / `transcript_provisional` / `transcript_ready` / `rescheduled` (after `transcript_ready` or `rescheduled` the subscription ends with `unsubscribed`, whose `reason` names why; it also ends 2 h after `call_ended`, when the call will produce nothing more, or 12 h after the scheduled start). Finals are delivered in `seq` order; a `gap` frame reports a range that did not arrive within 1.5 s (a late final may still follow). To resume after a reconnect, subscribe again with `since_seq` = the last final seq you hold: the missed finals are replayed before live delivery continues (`resume_unavailable` when the call cannot be replayed). An `error` frame (code `unavailable`) reports a server-side failure; the socket always stays open.\n\nKeyword alerts and guidance flashes: a `subscribe` with `keywords` (up to 20; `keyword_match` exact | stem, `speaker_roles` to keep management's words only) also sends a `keyword_hit` frame for every final segment that contains one — with the speaker's provisional name / role, the previous final as context and `latency_ms` (relay time inside the API process minus the segment's own end time; the client's network is excluded). Every subscription of a call receives `guidance_flash` frames: forward-looking numbers extracted seconds after they are spoken. `scope: all_live` with `keywords` (no `event_id` / `cik`; `min_rank` limits the companies; `events` may add `guidance_flash`) follows every call being captured live for one subscription slot and receives keyword hits only, never segments; a `warning` frame (`global_scope_degraded`) says a new call was not attached. At `transcript_ready` an `all_live` subscription also gets the final transcript's hits once (`layer: final`), without those a live hit already covered within ± 5 s. Minimum tier for display: FREE.",
+        "description": "Upgrade to a WebSocket connection to receive real-time SEC filing events. Authenticate with API Key.\n\nLive earnings-call transcripts (channel `earnings-calls.live`, requires the PRO plan; the socket itself needs STANDARD): send a `subscribe` frame with an `event_id` or a `cik` and receive `subscribed`, then `transcript_segment` frames as the call is spoken, `speaker_names` snapshots, the lifecycle frames `call_started` / `call_ended` / `transcript_provisional` / `transcript_ready` / `rescheduled` (after `transcript_ready` or `rescheduled` the subscription ends with `unsubscribed`, whose `reason` names why; it also ends 2 h after `call_ended`, when the call will produce nothing more, or 12 h after the scheduled start). Finals are delivered in `seq` order; a `gap` frame reports a range that did not arrive within 1.5 s (a late final may still follow). To resume after a reconnect, subscribe again with `since_seq` = the last final seq you hold: the missed finals are replayed before live delivery continues (`resume_unavailable` when the call cannot be replayed). An `error` frame (code `unavailable`) reports a server-side failure; the socket always stays open.\n\nKeyword alerts and guidance flashes: a `subscribe` with `keywords` (up to 20; `keyword_match` exact | stem, `speaker_roles` to keep management's words only) also sends a `keyword_hit` frame for every final segment that contains one — with the speaker's provisional name / role, the previous final as context and `latency_ms` (relay time inside the API process minus the segment's own end time; the client's network is excluded). Every subscription of a call receives `guidance_flash` frames: forward-looking numbers extracted seconds after they are spoken. `scope: all_live` with `keywords` (no `event_id` / `cik`; `min_rank` limits the companies; `events` may add `guidance_flash`) follows every call being captured live for one subscription slot and receives keyword hits only, never segments; a `warning` frame (`global_scope_degraded`) says a new call was not attached. At `transcript_ready` an `all_live` subscription also gets the final transcript's hits once (`layer: final`), without those a live hit already covered within ± 5 s.\n\nLive price ticks: `prices: true` on a per-call subscription adds `price_tick` frames (≤ 1/s): the second's OHLC, volume, return in bp since the last trade before the call start and since the previous close, and `call_ms` on the transcript clock. Temporal coincidence, not attribution of cause; pre-market and after-hours bars are sparse. `prices` with `scope: all_live` is refused (`bad_message`); `GET /v1/earnings-calls/live` says `live_prices: true` while ticks flow. Minimum tier for display: FREE.",
         "tags": [
           "WebSocket"
         ],
@@ -20544,6 +20679,13 @@
             "description": "A guidance number extracted from the live transcript seconds after it was spoken",
             "payload": {
               "$ref": "#/components/schemas/WebSocketGuidanceFlashEvent"
+            }
+          },
+          {
+            "name": "price_tick",
+            "description": "One second of the call's stock price (prices: true subscriptions only; temporal coincidence, not cause)",
+            "payload": {
+              "$ref": "#/components/schemas/WebSocketPriceTickEvent"
             }
           },
           {

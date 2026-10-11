@@ -32,7 +32,7 @@ Use the connected Invinite Data API MCP tools when available. Fall back to the `
 | Call transcript/Q&A/participants | `earnings_call_transcript`, `earnings_call_qa`, `earnings_call_participants` | `invd earnings transcript\|qa\|participants` |
 | Call guidance/KPIs, diff vs prior call | `earnings_call_guidance`, `earnings_call_diff` | `invd earnings extractions\|guidance-history\|diff` |
 | Call documents/press release | `earnings_call_documents`, `earnings_call_press_release` | `invd earnings documents\|press-release` |
-| Price moves during a call (coincidence, not cause) | `earnings_call_price_moves` | `invd earnings price-attribution` |
+| Price moves during a call (coincidence, not cause; live rows during the call) | `earnings_call_price_moves` | `invd earnings price-attribution` |
 | Search across calls | `earnings_call_search` | `invd earnings search` |
 | Keyword / guidance alerts | `earnings_call_alert_create\|list\|update\|delete\|test\|deliveries` | `invd webhooks …` |
 
@@ -294,6 +294,9 @@ invd earnings search -q "data center demand" -i NVDA --json
 invd ws listen --earnings <event_id> --json
 invd ws listen --earnings 320193 --names
 
+# Live price ticks of the call's stock next to the transcript (≤ 1/s; per-call only, not with --all-live)
+invd ws listen --earnings <event_id> --prices --json | jq 'select(.type=="price_tick")'
+
 # Keyword alerts on a live call, or across every live call (--all-live needs --keywords)
 invd ws listen --earnings 320193 --keywords tariffs,china --keyword-match stem --json
 invd ws listen --all-live --keywords tariffs --json
@@ -305,6 +308,8 @@ invd webhooks create --url https://hooks.example.com/alerts --events earnings_ca
 invd webhooks update <id> --keywords tariffs,buyback --json
 invd webhooks deliveries <id> --json
 ```
+
+`price_tick` frames (`--prices`, PRO) carry `at`, `call_ms` (the transcript clock), `price`, `return_bps` (vs the last trade before the call), `day_return_bps` (vs the previous close) and `source` (`stream` | `snapshot`); only seconds with a trade are sent, so pre-market and after-hours ticks are sparse. Describe a move as temporal coincidence with what was said, never as caused by it. `invd earnings live` says `live_prices: true` when ticks flow; during the call `invd earnings price-attribution` returns the minute rows so far (`live: true`, `settled: false`, summary fields null) until the post-call run replaces them.
 
 Keyword / guidance alerts (PRO) are webhook subscriptions: `earnings_call.keyword_hit` delivers one POST per mention of a keyword on any live call (speaker, `start_ms`, sentence), `earnings_call.guidance_flash` one per guidance number spoken live. "Alert me when any call mentions 'tariffs'" → `earnings_call_alert_create` with `keywords: ["tariffs"]`, `events: ["earnings_call.keyword_hit"]`, the user's HTTPS endpoint and no `ciks` (every company); later changes go through `earnings_call_alert_update` (keywords, ciks, events, active). CLI: `invd webhooks create --url <url> --events earnings_call.keyword_hit --keywords tariffs`.
 

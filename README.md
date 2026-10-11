@@ -183,7 +183,7 @@ These options are available on all data commands:
 - [market](#market) — Market data
 - [metadata](#metadata) — API metadata
 - [webhooks](#webhooks) — Earnings-call webhook subscriptions
-- [ws](#ws) — WebSocket streaming (`ws listen --earnings` for live call transcripts, `--keywords` / `--all-live` for keyword alerts)
+- [ws](#ws) — WebSocket streaming (`ws listen --earnings` for live call transcripts, `--prices` for live price ticks, `--keywords` / `--all-live` for keyword alerts)
 
 ---
 
@@ -555,7 +555,7 @@ invd earnings events -i AAPL -s desc -l 4
 
 #### `earnings live`
 
-Calls being captured right now (`live_audio` = a live stream exists).
+Calls being captured right now (`live_audio` = a live stream exists, `live_prices` = `ws listen --prices` delivers price ticks for the call).
 
 ```bash
 invd earnings live
@@ -700,7 +700,7 @@ invd earnings prosody --event <event_id> --section qa
 
 #### `earnings price-attribution` *(selector)*
 
-Minute-level price moves during the call (returns in basis points, no prices or volume) next to what was being said in each minute, plus the largest minutes (`top_minutes`) and how the recording was anchored to wall-clock time (`anchor_kind`, `anchor_lag_ms`, `anchor_uncertainty_s`). This is temporal coincidence, not attribution of cause; pre-market bars are sparse. STANDARD plan, 1 credit; a `404 price_attribution_unavailable` means the call has not been attributed yet.
+Minute-level price moves during the call (returns in basis points, no prices or volume) next to what was being said in each minute, plus the largest minutes (`top_minutes`) and how the recording was anchored to wall-clock time (`anchor_kind`, `anchor_lag_ms`, `anchor_uncertainty_s`). This is temporal coincidence, not attribution of cause; pre-market and after-hours bars are sparse. STANDARD plan, 1 credit; a `404 price_attribution_unavailable` means the call has not been attributed yet. During a live call the minute rows arrive as each minute closes (`live: true`, `settled: false`, the summary fields null, `top_minutes` empty): the CLI prints `LIVE — minute rows so far, not settled; the post-call run replaces them` and only the known summary fields.
 
 ```bash
 invd earnings price-attribution --event <event_id>
@@ -969,6 +969,7 @@ Listen to real-time SEC filing notifications, or with `--earnings` follow one ea
 | `--since-seq <n>` | Replay the finals after this seq (default `-1` = the whole call so far) |
 | `--partials` | Show interim segments, overwritten in place (terminal only; `--json` emits them) |
 | `--names` | Print each speaker-name snapshot |
+| `--prices` | Price ticks of the call's stock (≤ 1/s), shown as one line updated in place (terminal only; `--json` emits them); per-call only |
 | `--keywords <list>` | Comma-separated keywords (max 20, 2–64 chars each): one highlighted `keyword_hit` line per mention |
 | `--keyword-match exact\|stem` | `exact` (default) matches the word; `stem` also its inflections (`tariff` hits "tariffs") |
 | `--speaker-roles <list>` | Only hits by these speakers: `executive`, `ir_host`, `analyst`, `operator` |
@@ -996,6 +997,12 @@ invd ws listen --earnings 0b9d6f43-6b1e-4c39-9d3a-2f6a3c1e8b11 --partials
 invd ws listen --earnings 320193 --keywords tariffs,china --keyword-match stem --speaker-roles executive
 invd ws listen --all-live --keywords tariffs --min-rank 500
 invd ws listen --all-live --keywords tariffs --json | jq -r 'select(.type=="keyword_hit") | "\(.symbol) \(.speaker_name): \(.text)"'
+```
+
+**Live prices.** With `--prices` the same per-call subscription also delivers a `price_tick` frame (PRO, at most one per second, only for seconds with a trade — pre-market and after-hours seconds are sparse). On a terminal it is one line rewritten in place — `[16:32:05 ET · 12:34] AAPL 336.08  +42.5 bp since call  −127.5 bp on day  (vol 1,240)`: New York time, the call clock of the transcript (`m:ss`, the same clock as the segments' `[m:ss]`), the price, the return since the last trade before the call and the day's return vs the previous close; green / red by the since-call return, dim from the snapshot fallback. The line shows temporal coincidence with what is being said, not attribution of cause. Price ticks follow one call: `--all-live --prices` is refused (as by the API). With `--json` the frames are emitted as they arrive: `invd ws listen --earnings <event_id> --prices --json | jq 'select(.type=="price_tick")'`. The minute rows so far are `invd earnings price-attribution --event <event_id>`.
+
+```bash
+invd ws listen --earnings <event_id> --prices
 ```
 
 Finals are named from the newest speaker-name snapshot (`Speaker A` until a name is known). A `gap` line marks a seq range with no final yet (a late final may still follow on the same subscription, so finals can print slightly out of order); `resume_unavailable` means missed finals cannot be replayed right now — live delivery continues and the API back-fills them once it can. Neither needs a re-subscribe. After a reconnect the listener resumes after the last final it printed; it exits once the final transcript is ready (`invd earnings transcript --event <id>`). With `--json` every frame is one JSON line (NDJSON), e.g. `invd ws listen --earnings 320193 --json | jq -r 'select(.type=="transcript_segment") | .text'`.

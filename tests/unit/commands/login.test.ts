@@ -12,8 +12,13 @@ vi.mock('../../../src/config/auth.js', () => ({
   setApiKey: mockSetApiKey,
 }));
 
+// Never the real `conf` file: test files run in parallel workers, and a base URL written here leaked into
+// config-manager.test.ts's default-URL assertion.
+vi.mock('../../../src/config/config-manager.js', () => ({
+  getBaseUrl: () => 'https://data.example.test',
+}));
+
 import { login, logout, type LoginDependencies } from '../../../src/commands/login.js';
-import { resetConfig, setBaseUrl } from '../../../src/config/config-manager.js';
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -47,13 +52,11 @@ function loginDependencies(
 describe('login commands', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    setBaseUrl('https://data.example.test');
     mockSetApiKey.mockResolvedValue(undefined);
     mockClearApiKey.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
-    resetConfig();
     vi.restoreAllMocks();
   });
 

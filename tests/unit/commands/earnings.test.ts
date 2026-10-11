@@ -192,6 +192,22 @@ describe('earnings requests', () => {
     expect(printed).toContain('[1:05] Gross margin will be lower.');
   });
 
+  it('price-attribution marks live rows and prints only the known summary fields', async () => {
+    (fetch as any).mockResolvedValueOnce(json({
+      event: { symbol: 'AAPL' }, live: true, settled: false, anchor_kind: null, anchor_lag_ms: null, lag_kind: null,
+      anchor_uncertainty_s: null, session: null, bar_count: 1, end_of_window_return_bps: null,
+      buckets: [{ bucket: '2026-10-30T21:05:00Z', bar_start: '2026-10-30T21:05:00Z', return_bps: 12, cumulative_return_bps: 12, utterance_refs: [] }],
+      top_minutes: [],
+    }));
+    await run('price-attribution', '--event', 'e1');
+    const printed = logs.join('\n');
+    expect(printed).toContain('LIVE — minute rows so far, not settled');
+    expect(printed).toContain('bar_count');
+    expect(printed).not.toContain('anchor_kind');
+    expect(printed).not.toContain('Top minutes');
+    expect(printed).toContain('Minutes');
+  });
+
   it('extractions --all follows next_url and concatenates the kpis', async () => {
     (fetch as any)
       .mockResolvedValueOnce(json({ event: {}, kind: 'kpi', kpis: [{ seq: 1 }], next_url: 'https://api.example.com/v1/earnings-calls/extractions?event_id=e1&kind=kpi&offset=1' }))

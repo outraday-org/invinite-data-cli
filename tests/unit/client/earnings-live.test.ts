@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   formatGuidanceFlash,
   formatKeywordHit,
+  formatPriceTick,
   formatSegment,
   initialLiveState,
   isEarningsFrame,
@@ -14,6 +15,7 @@ import {
   parseTarget,
   subscribeFrame,
   type KeywordHit,
+  type PriceTickFrame,
   type SpeakerAssignment,
 } from '../../../src/client/earnings-live.js';
 
@@ -64,6 +66,13 @@ describe('subscribeFrame', () => {
       keywords: ['tariffs'], keyword_match: 'stem', speaker_roles: ['executive'],
     });
     expect(subscribeFrame({ cik: '320193' }, -1, false, { keywords: ['tariffs'] })).not.toHaveProperty('keyword_match');
+  });
+
+  it('asks for price ticks only when prices is set', () => {
+    expect(subscribeFrame({ event_id: EVENT_ID }, -1, false, undefined, true)).toEqual({
+      type: 'subscribe', channel: 'earnings-calls.live', event_id: EVENT_ID, since_seq: -1, partials: false, prices: true,
+    });
+    expect(subscribeFrame({ event_id: EVENT_ID }, -1, false)).not.toHaveProperty('prices');
   });
 
   it('builds the global scope without a call target, replay or partials', () => {
@@ -120,6 +129,29 @@ describe('formatKeywordHit / formatGuidanceFlash', () => {
   });
 });
 
+// 2026-10-30T20:32:05Z = 16:32:05 New York (EDT).
+const TICK: PriceTickFrame = {
+  type: 'price_tick', subscription_id: 's1', event_id: '11111111-1111-4111-8111-111111111111', cik: '0000320193',
+  symbol: 'AAPL', conference_date: '2026-10-30T20:30:00.000Z', at: '2026-10-30T20:32:05.000Z', call_ms: 754_000,
+  price: 336.08, open: 336.0, high: 336.1, low: 335.95, volume: 1240, cumulative_volume: 98_000,
+  reference_price: 334.66, return_bps: 42.5, prev_close: 340.42, day_return_bps: -127.5, source: 'stream',
+};
+
+describe('formatPriceTick', () => {
+  it('prints New York time, the call clock, the price and both returns', () => {
+    const line = formatPriceTick(TICK);
+    expect(line).toContain('[16:32:05 ET · 12:34] ');
+    expect(line).toContain('336.08  +42.5 bp since call  −127.5 bp on day  (vol 1,240)');
+  });
+
+  it('drops the call clock and null returns, and marks the snapshot fallback', () => {
+    const line = formatPriceTick({ ...TICK, call_ms: null, return_bps: null, day_return_bps: null, source: 'snapshot' });
+    expect(line).toContain('[16:32:05 ET] ');
+    expect(line).not.toContain('bp');
+    expect(line).toContain('(snapshot)');
+  });
+});
+
 describe('nameFor / formatSegment', () => {
   it('picks the assignment covering the seq', () => {
     expect(nameFor(ASSIGNMENTS, 'A', 3)).toBe('Operator');
@@ -168,6 +200,14 @@ describe('liveStep', () => {
     const step = liveStep(initialLiveState(2), partial, { partials: true, names: false });
     expect(step.partial).toContain('Good aft');
     expect(step.state.lastSeq).toBe(2);
+  });
+
+  it('rewrites a price tick in place and never moves lastSeq', () => {
+    const step = liveStep(initialLiveState(4), { ...TICK, type: 'price_tick', subscription_id: 's1', event_id: EVENT_ID }, OPTS);
+    expect(step.lines).toEqual([]);
+    expect(step.partial).toContain('336.08');
+    expect(step.state.lastSeq).toBe(4);
+    expect(step.end).toBeUndefined();
   });
 
   it('notes a gap without resubscribing', () => {
@@ -247,5 +287,6 @@ describe('isEarningsFrame', () => {
     expect(isEarningsFrame({ type: 'error', code: 'not_live', message: 'x' })).toBe(true);
     expect(isEarningsFrame({ type: 'warning', code: 'global_scope_degraded' })).toBe(true);
     expect(isEarningsFrame({ ...HIT, type: 'keyword_hit' })).toBe(true);
+    expect(isEarningsFrame({ ...TICK, type: 'price_tick', subscription_id: 's1' })).toBe(true);
   });
 });

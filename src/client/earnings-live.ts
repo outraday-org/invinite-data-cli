@@ -72,6 +72,38 @@ export interface GuidanceFlash {
   start_ms: number;
 }
 
+/**
+ * One second of the call's stock (`price_tick`, `prices: true` subscriptions only; ≤ 1 / s, only seconds with a
+ * trade) — the API's `WebSocketPriceTickEvent`, field for field.
+ */
+export interface PriceTickFrame {
+  type: 'price_tick';
+  subscription_id: string;
+  event_id: string;
+  /** 10-digit CIK. */
+  cik: string;
+  symbol: string;
+  conference_date: string;
+  /** Bar start (ISO, wall time). */
+  at: string;
+  /** Bar start on the transcript clock; null before the call's first audio. */
+  call_ms: number | null;
+  price: number;
+  open: number;
+  high: number;
+  low: number;
+  volume: number;
+  cumulative_volume: number | null;
+  /** The last trade before the call start (a late join: the previous close). */
+  reference_price: number | null;
+  /** vs `reference_price`. */
+  return_bps: number | null;
+  prev_close: number | null;
+  /** vs `prev_close`. */
+  day_return_bps: number | null;
+  source: 'stream' | 'snapshot';
+}
+
 export interface SpeakerAssignment {
   speaker_label: string;
   from_seq: number;
@@ -177,10 +209,10 @@ export const ALL_LIVE_EVENTS = ['keyword_hit', 'guidance_flash'] as const;
 
 /**
  * The subscribe frame. One call: target + `since_seq` + `partials`. Global scope: `scope: "all_live"`
- * carries no call target, no replay and no partials — only the keyword fields (the API refuses it
+ * carries no call target, no replay, no partials and no prices — only the keyword fields (the API refuses it
  * without keywords, and so does `ws listen`) and `events` = keyword hits + guidance flashes.
  */
-export function subscribeFrame(target: LiveTarget, sinceSeq: number, partials: boolean, keywords?: KeywordOptions) {
+export function subscribeFrame(target: LiveTarget, sinceSeq: number, partials: boolean, keywords?: KeywordOptions, prices = false) {
   const alerts = keywords
     ? {
       keywords: keywords.keywords,
@@ -198,7 +230,7 @@ export function subscribeFrame(target: LiveTarget, sinceSeq: number, partials: b
       ...(keywords?.minRank !== undefined ? { min_rank: keywords.minRank } : {}),
     };
   }
-  return { type: 'subscribe', channel: EARNINGS_LIVE_CHANNEL, ...target, since_seq: sinceSeq, partials, ...alerts };
+  return { type: 'subscribe', channel: EARNINGS_LIVE_CHANNEL, ...target, since_seq: sinceSeq, partials, ...alerts, ...(prices ? { prices: true } : {}) };
 }
 
 export function initialLiveState(sinceSeq: number): LiveState {
@@ -251,6 +283,34 @@ export function formatGuidanceFlash(flash: GuidanceFlash, allLive = false): stri
   return chalk.cyan(`${company}[${formatMs(flash.start_ms)}] guidance flash${revision} · ${chalk.bold(`${metric}${period}: ${guidanceValue(flash)}`)} — "${flash.source_sentence}"`);
 }
 
+const NY_TIME = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23',
+});
+
+/** Basis points with an explicit sign (a real minus). */
+function formatBps(bps: number): string {
+  const sign = bps > 0 ? '+' : bps < 0 ? '−' : '';
+  return `${sign}${Math.abs(bps).toFixed(1)} bp`;
+}
+
+/**
+ * One price tick as the in-place line: `[16:32:05 ET · 12:34] AAPL 336.08  +42.5 bp since call  −127.5 bp on day
+ * (vol 1,240)` — green / red by the since-call return, dim from the snapshot fallback.
+ */
+export function formatPriceTick(tick: PriceTickFrame): string {
+  const clock = tick.call_ms === null ? '' : ` · ${formatMs(tick.call_ms)}`;
+  const parts = [
+    `[${NY_TIME.format(new Date(tick.at))} ET${clock}] ${chalk.bold(tick.symbol)} ${tick.price.toFixed(2)}`,
+    ...(tick.return_bps === null ? [] : [`${formatBps(tick.return_bps)} since call`]),
+    ...(tick.day_return_bps === null ? [] : [`${formatBps(tick.day_return_bps)} on day`]),
+    `(vol ${tick.volume.toLocaleString('en-US')})${tick.source === 'snapshot' ? ' (snapshot)' : ''}`,
+  ];
+  const line = parts.join('  ');
+  if (tick.source === 'snapshot') return chalk.dim(line);
+  if (tick.return_bps === null || tick.return_bps === 0) return line;
+  return tick.return_bps > 0 ? chalk.green(line) : chalk.red(line);
+}
+
 export function finalTranscriptHint(eventId: string | null): string {
   return `final transcript: invd earnings transcript --event ${eventId ?? '<event_id>'}`;
 }
@@ -299,6 +359,9 @@ export function liveStep(state: LiveState, frame: Record<string, any>, opts: Liv
       return { state, lines: [formatKeywordHit(frame as KeywordHit, opts.allLive)] };
     case 'guidance_flash':
       return { state, lines: [formatGuidanceFlash(frame as GuidanceFlash, opts.allLive)] };
+    // The in-place line (the partial path): the newest of a tick and a transcript partial owns it.
+    case 'price_tick':
+      return { state, lines: [], partial: formatPriceTick(frame as PriceTickFrame) };
     case 'warning': {
       const note = frame.code === 'global_scope_degraded'
         ? 'global scope degraded: some live calls may be missing from the keyword alerts'
@@ -367,7 +430,7 @@ export function liveStep(state: LiveState, frame: Record<string, any>, opts: Liv
   }
 }
 
-const EARNINGS_FRAME_TYPES = new Set(['error', 'unsubscribed', 'warning', 'keyword_hit', 'guidance_flash']);
+const EARNINGS_FRAME_TYPES = new Set(['error', 'unsubscribed', 'warning', 'keyword_hit', 'guidance_flash', 'price_tick']);
 
 /** Frames of the earnings channel (the socket also carries `new_filing` broadcasts and pings). */
 export function isEarningsFrame(frame: Record<string, any>): boolean {
