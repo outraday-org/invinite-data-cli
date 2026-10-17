@@ -1,6 +1,7 @@
 import { createRequire } from 'node:module';
 import { Command } from 'commander';
 import { setJsonMode } from './shared/spinner.js';
+import { formatCreditUsage, takeCreditUsage } from './client/api-client.js';
 import { registerConfigCommands } from './commands/config.js';
 import { registerHealthCommand } from './commands/health.js';
 import { registerCompanyCommands } from './commands/company.js';
@@ -18,6 +19,7 @@ import { registerWebhooksCommands } from './commands/webhooks.js';
 import { registerWsCommands } from './commands/ws.js';
 import { registerPluginCommands } from './commands/plugin.js';
 import { registerLoginCommands } from './commands/login.js';
+import { registerUsageCommands } from './commands/usage.js';
 
 const PACKAGE_NAME = '@invinite-org/invinite-data-cli';
 
@@ -44,11 +46,18 @@ export function createProgram(): Command {
     .version(packageVersion())
     .option('--json', 'Output raw JSON (pipe-friendly)')
     .option('--all', 'Auto-paginate through all results')
+    .option('--show-cost', 'Print the credits a command cost to stderr (or set INVD_SHOW_COST=1)')
     .hook('preAction', (thisCommand) => {
       const opts = thisCommand.opts();
       if (opts.json) {
         setJsonMode(true);
       }
+    })
+    .hook('postAction', (thisCommand) => {
+      // Always drained, so a long-lived program never carries one command's cost into the next.
+      const usage = takeCreditUsage();
+      if (!usage || !(thisCommand.opts().showCost || process.env.INVD_SHOW_COST === '1')) return;
+      console.error(formatCreditUsage(usage));
     });
 
   registerConfigCommands(program);
@@ -68,6 +77,7 @@ export function createProgram(): Command {
   registerWsCommands(program);
   registerPluginCommands(program);
   registerLoginCommands(program);
+  registerUsageCommands(program);
 
   return program;
 }

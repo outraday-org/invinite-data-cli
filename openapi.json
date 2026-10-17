@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Invinite API",
-    "description": "Invinite financial data API. Each endpoint has a base credit cost; responses add 1 credit per started 1,000 rows beyond the first 1,000. X-Credits-Charged reports the final debit. SEC filing search has a 100-credit base cost.\n\n## Webhooks\n\nPRO teams subscribe with `POST /v1/earnings-calls/webhooks` to the `earnings_call.*` lifecycle events (filtered by CIK); see `x-webhooks` for each `data` object. Every delivery is a `POST` with `Content-Type: application/json`, `X-Invinite-Event`, `X-Invinite-Delivery` and `X-Invinite-Signature: t=<unix seconds>,v1=<hex>` where `v1` = HMAC-SHA256(secret, `<t>.<raw body>`); during a secret rotation the header carries one `v1` per valid secret. Reject a signature older than 5 minutes. Any 2xx within 10 s acknowledges; redirects are not followed. A failed delivery is retried after 1 min, 5 min, 30 min, 2 h, 6 h, 12 h, 24 h (8 attempts in all, the same delivery id each time). A subscription is disabled after 8 consecutive dead-lettered deliveries (a final `ping` with `notice: subscription_disabled` is sent). Deliveries are at-least-once and unordered: dedupe on the delivery id, order by `created_at`.\n\n## Licensing\n\n| Tier | display | redistribute | rag | train | audio | resell |\n| --- | --- | --- | --- | --- | --- | --- |\n| FREE | ✓ | – | – | – | – | – |\n| LITE | ✓ | – | – | – | – | – |\n| STANDARD | ✓ | – | ✓ | – | – | – |\n| PRO | ✓ | ✓ | ✓ | – | ✓ | – |\n\nInvinite data may be shown and, from PRO, redistributed inside the licensee's own product with attribution (\"Source: Invinite\" on screen or in the API response that carries it). It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.\n\nPolicy version: 2026-10-draft. Draft — pending counsel sign-off.\n\nAudio is served through signed URLs, is subject to per-company takedown, may not be re-hosted, and every delivered file carries a per-team forensic watermark (tasks 32 / 43 / 51): a copy found elsewhere is traced to the team that received it.\n\nSEC data: Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.\n\nEvery `/v1/*` operation carries `x-license`, the minimum use right its data ships with; `GET /status/licensing` serves the same matrix per route.\n\n## Status\n\n[`/status`](/status) reports request health per product family, [`/status/earnings-calls`](/status/earnings-calls) the earnings-call pipeline and [`/status/licensing`](/status/licensing) the licensing matrix per route. The status routes need no API key and are cached for 5 minutes.\n\nMeasured inside the API process per product family and UTC day: availability = non-5xx responses / responses (admission 429 / 503 included), latency = time from request arrival to the response, excluding network and edge time; percentiles are bucket upper bounds (conservative), the current day is partial.\n\nProduct families: Company, Financials, SEC Filings, Insider Trades, Institutional Ownership, IPOs, Market, Metadata, Earnings Calls, WebSocket.\n\nData freshness: the newest ingested record of each data set that carries an ingest timestamp (SEC filings, insider trades, institutional ownership, IPOs, earnings-call transcripts), each read with one indexed MAX() under a 2-second statement timeout; financial statements and market holidays have no ingest timestamp and are listed as `no_timestamp`, a data set the deployment does not measure as `not_measured`, a failed read as `unavailable`.\n\nEarnings-call pipeline SLO targets: first live segment p95 ≤ 30 s after call start, final transcript p95 ≤ 300 s after call end; p95 is published per webcast vendor per day.",
+    "description": "Invinite financial data API. Each endpoint has a base credit cost: `x-credits` is the base cost; responses add 1 credit per started 1,000 rows beyond the first 1,000; `X-Credits-Charged` reports the final debit and `X-Credits-Included-Remaining` what is left of the plan's included credits. `GET /v1/account/usage` returns your team's usage by day, endpoint family and key (it costs no credits). SEC filing search has a 100-credit base cost.\n\n## Webhooks\n\nPRO teams subscribe with `POST /v1/earnings-calls/webhooks` to the `earnings_call.*` lifecycle events (filtered by CIK); see `x-webhooks` for each `data` object. Every delivery is a `POST` with `Content-Type: application/json`, `X-Invinite-Event`, `X-Invinite-Delivery` and `X-Invinite-Signature: t=<unix seconds>,v1=<hex>` where `v1` = HMAC-SHA256(secret, `<t>.<raw body>`); during a secret rotation the header carries one `v1` per valid secret. Reject a signature older than 5 minutes. Any 2xx within 10 s acknowledges; redirects are not followed. A failed delivery is retried after 1 min, 5 min, 30 min, 2 h, 6 h, 12 h, 24 h (8 attempts in all, the same delivery id each time). A subscription is disabled after 8 consecutive dead-lettered deliveries (a final `ping` with `notice: subscription_disabled` is sent). Deliveries are at-least-once and unordered: dedupe on the delivery id, order by `created_at`.\n\n## Licensing\n\n| Tier | display | redistribute | rag | train | audio | resell |\n| --- | --- | --- | --- | --- | --- | --- |\n| FREE | ✓ | – | – | – | – | – |\n| LITE | ✓ | – | – | – | – | – |\n| STANDARD | ✓ | – | ✓ | – | – | – |\n| PRO | ✓ | ✓ | ✓ | – | ✓ | – |\n\nInvinite data may be shown and, from PRO, redistributed inside the licensee's own product with attribution (\"Source: Invinite\" on screen or in the API response that carries it). It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.\n\nPolicy version: 2026-10-draft. Draft — pending counsel sign-off.\n\nAudio files are forensically watermarked per customer. Audio is served through signed URLs, is subject to per-company takedown and may not be re-hosted; every delivered file carries a per-team forensic watermark (tasks 32 / 43 / 51): a copy found elsewhere is traced to the team that received it.\n\nSEC data: Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.\n\nEvery `/v1/*` data operation carries `x-license`, the minimum use right its data ships with; `GET /status/licensing` serves the same matrix per route. `/v1/account/usage` serves no licensed data and carries none.\n\n## Status\n\n[`/status`](/status) reports request health per product family, [`/status/earnings-calls`](/status/earnings-calls) the earnings-call pipeline and [`/status/licensing`](/status/licensing) the licensing matrix per route. The status routes need no API key and are cached for 5 minutes.\n\nMeasured inside the API process per product family and UTC day: availability = non-5xx responses / responses (admission 429 / 503 included), latency = time from request arrival to the response, excluding network and edge time; percentiles are bucket upper bounds (conservative), the current day is partial.\n\nProduct families: Company, Financials, SEC Filings, Insider Trades, Institutional Ownership, IPOs, Market, Metadata, Earnings Calls, WebSocket, Account.\n\nData freshness: the newest ingested record of each data set that carries an ingest timestamp (SEC filings, insider trades, institutional ownership, IPOs, earnings-call transcripts), each read with one indexed MAX() under a 2-second statement timeout; financial statements and market holidays have no ingest timestamp and are listed as `no_timestamp`, a data set the deployment does not measure as `not_measured`, a failed read as `unavailable`.\n\nEarnings-call pipeline SLO targets: first live segment p95 ≤ 30 s after call start, final transcript p95 ≤ 300 s after call end; p95 is published per webcast vendor per day.",
     "version": "1.0.0"
   },
   "components": {
@@ -1435,7 +1435,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite",
+        "x-tier": "free",
+        "x-credits": 1,
         "x-license": "display"
       }
     },
@@ -1553,7 +1554,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite",
+        "x-tier": "free",
+        "x-credits": 1,
         "x-license": "display"
       }
     },
@@ -1827,7 +1829,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite",
+        "x-tier": "free",
+        "x-credits": 1,
         "x-license": "display"
       }
     },
@@ -2015,7 +2018,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite",
+        "x-tier": "free",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -2170,7 +2174,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite",
+        "x-tier": "free",
+        "x-credits": 1,
         "x-license": "display"
       }
     },
@@ -2320,7 +2325,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite",
+        "x-tier": "free",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -2516,7 +2522,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite",
+        "x-tier": "free",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -2867,6 +2874,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -3062,6 +3070,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -3257,7 +3266,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite",
+        "x-tier": "free",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -3608,6 +3618,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -3803,6 +3814,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -3998,7 +4010,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite",
+        "x-tier": "free",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -4349,6 +4362,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -4544,6 +4558,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -4754,7 +4769,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite",
+        "x-tier": "free",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -5400,6 +5416,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -5608,6 +5625,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -5791,6 +5809,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -6118,6 +6137,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -6299,6 +6319,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -6482,6 +6503,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -6809,6 +6831,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -6990,6 +7013,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -7173,6 +7197,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -7500,6 +7525,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -7681,6 +7707,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -7889,6 +7916,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -8504,6 +8532,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -8712,6 +8741,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -8927,6 +8957,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -9126,6 +9157,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -9339,6 +9371,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -9573,6 +9606,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -9837,6 +9871,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -10062,6 +10097,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -10274,6 +10310,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -10501,6 +10538,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -10800,6 +10838,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -10950,6 +10989,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -11200,6 +11240,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -11556,7 +11597,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite",
+        "x-tier": "free",
+        "x-credits": 1,
         "x-license": "display"
       }
     },
@@ -11945,7 +11987,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite",
+        "x-tier": "free",
+        "x-credits": 1,
         "x-license": "display"
       }
     },
@@ -12190,7 +12233,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite",
+        "x-tier": "free",
+        "x-credits": 1,
         "x-license": "display"
       }
     },
@@ -12369,6 +12413,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 5,
         "x-license": "display"
       }
     },
@@ -12652,7 +12697,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite",
+        "x-tier": "free",
+        "x-credits": 1,
         "x-license": "display"
       }
     },
@@ -13047,6 +13093,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 5,
         "x-license": "rag"
       }
     },
@@ -13205,6 +13252,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "rag"
       }
     },
@@ -13416,6 +13464,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 5,
         "x-license": "rag"
       }
     },
@@ -13752,6 +13801,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "rag"
       }
     },
@@ -13987,6 +14037,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "rag"
       }
     },
@@ -14140,6 +14191,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "rag"
       }
     },
@@ -14383,6 +14435,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "rag"
       }
     },
@@ -14574,6 +14627,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "display"
       }
     },
@@ -15171,6 +15225,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -15428,6 +15483,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -15779,6 +15835,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "display"
       }
     },
@@ -15978,6 +16035,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "redistribute"
       }
     },
@@ -16257,6 +16315,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "display"
       }
     },
@@ -16559,6 +16618,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "display"
       }
     },
@@ -16567,7 +16627,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "The recording of one earnings call as a signed download URL (PRO). 403 audio_unavailable when the company's audio is not licensed for delivery or no recording exists (one answer for both). 503 audio_disabled while audio delivery is switched off. Files are served as short-lived signed URLs (see expires_at), never proxied; request a fresh response after expiry. 503 media_unavailable while media signing is not configured. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for display: FREE.",
+        "description": "The recording of one earnings call as a signed download URL (PRO). Audio files are forensically watermarked per customer: every team gets its own copy. A team's first request for a call answers 202 { status: \"preparing\", retry_after_seconds } with Retry-After while that copy is prepared (not billed); repeat the request after it. 403 audio_unavailable when the company's audio is not licensed for delivery or no recording exists (one answer for both). 429 audio_quota_exceeded when the team requested too many new audio files today. 503 audio_temporarily_unavailable while audio cannot be prepared. Files are served as short-lived signed URLs (see expires_at), never proxied; request a fresh response after expiry. 503 media_unavailable while media signing is not configured. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -16713,6 +16773,33 @@
               }
             }
           },
+          "202": {
+            "description": "The calling team's watermarked copy is being prepared; repeat the request after Retry-After (not billed)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "The calling team's watermarked copy is being prepared; repeat the request after Retry-After (not billed)",
+                  "required": [
+                    "status",
+                    "retry_after_seconds"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "preparing"
+                      ]
+                    },
+                    "retry_after_seconds": {
+                      "type": "integer",
+                      "description": "Seconds until the copy is usually ready"
+                    }
+                  }
+                }
+              }
+            }
+          },
           "400": {
             "$ref": "#/components/responses/BadRequestError"
           },
@@ -16725,6 +16812,32 @@
           "404": {
             "$ref": "#/components/responses/NotFoundError"
           },
+          "429": {
+            "description": "Too many new audio files for this team (daily quota of new watermarked copies)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "Too many new audio files for this team (daily quota of new watermarked copies)",
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "audio_quota_exceeded",
+                      "description": "Type of error"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Detailed error message"
+                    }
+                  }
+                }
+              }
+            }
+          },
           "500": {
             "$ref": "#/components/responses/InternalServerError"
           },
@@ -16733,7 +16846,9 @@
           }
         },
         "x-tier": "pro",
-        "x-license": "display"
+        "x-credits": 5,
+        "x-license": "display",
+        "x-watermarked": true
       }
     },
     "/v1/earnings-calls/slides": {
@@ -16967,6 +17082,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 5,
         "x-license": "display"
       }
     },
@@ -16975,7 +17091,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Further investor documents of one earnings call (CFO commentary, financial data sheets, shareholder letters, fact sheets, the company's own transcript, 10-Q / 10-K links, infographics), ordered by kind. Stored files come as signed URLs; link-only rows (sec_filing) have url null and point to EDGAR through source_url. Each document carries its trust_tier. documents is [] for a call without further documents (has_documents tells ahead). Files are served as short-lived signed URLs (see expires_at), never proxied; request a fresh response after expiry. 503 media_unavailable while media signing is not configured. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for display: FREE.",
+        "description": "Further investor documents of one earnings call (CFO commentary, financial data sheets, shareholder letters, fact sheets, the company's own transcript, its prepared remarks / call script, 10-Q / 10-K links; infographics are stored as fact sheets), ordered by kind. Stored files come as signed URLs; link-only rows (sec_filing) have url null and point to EDGAR through source_url. Each document carries its trust_tier. documents is [] for a call without further documents (has_documents tells ahead). Files are served as short-lived signed URLs (see expires_at), never proxied; request a fresh response after expiry. 503 media_unavailable while media signing is not configured. Select the call by event_id, or by identifier with year+quarter (fiscal) or date (New York day). Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -17038,7 +17154,7 @@
             "in": "query",
             "name": "kind",
             "required": false,
-            "description": "Only these kinds, comma-separated or repeated: cfo_commentary, financial_data, shareholder_letter, fact_sheet, company_transcript, sec_filing, infographic, other"
+            "description": "Only these kinds, comma-separated or repeated: cfo_commentary, financial_data, shareholder_letter, fact_sheet, company_transcript, prepared_remarks, sec_filing, infographic, other"
           },
           {
             "schema": {
@@ -17158,6 +17274,7 @@
                               "shareholder_letter",
                               "fact_sheet",
                               "company_transcript",
+                              "prepared_remarks",
                               "sec_filing",
                               "infographic",
                               "other"
@@ -17283,6 +17400,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "display"
       }
     },
@@ -17291,7 +17409,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "\"Ask this call\": semantic search over earnings-call transcripts and slide text — one call (event_id), one company (identifier) or every call (default: the last 365 days). Returns up to 8 passages with speaker, start_ms and, on plans that include the audio and slides routes (PRO), signed URLs: audio_url opens the recording at the passage (#t=<seconds>), slide.image_url shows the slide. Cite event_id and start_ms. 429 upstream_rate_limited and 503 search_unavailable carry Retry-After; 503 search_disabled while search is switched off. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for rag: STANDARD.",
+        "description": "\"Ask this call\": semantic search over earnings-call transcripts and slide text — one call (event_id), one company (identifier) or every call (default: the last 365 days). Returns up to 8 passages with speaker, start_ms and, on plans that include the audio and slides routes (PRO), signed URLs: audio_url opens the calling team's own watermarked copy of the recording at the passage (#t=<seconds>) — null while that copy is being prepared (repeat the search a minute later) — and slide.image_url shows the slide. Cite event_id and start_ms. 429 upstream_rate_limited and 503 search_unavailable carry Retry-After; 503 search_disabled while search is switched off. Data is replicated from the capture pipeline with a lag of about a minute. Only US earnings calls captured by Invinite are served. Minimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
@@ -17571,6 +17689,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 10,
         "x-license": "rag"
       }
     },
@@ -17760,6 +17879,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 1,
         "x-license": "display"
       },
       "post": {
@@ -18015,6 +18135,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 1,
         "x-license": "display"
       }
     },
@@ -18246,6 +18367,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 1,
         "x-license": "display"
       },
       "delete": {
@@ -18337,6 +18459,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 1,
         "x-license": "display"
       }
     },
@@ -18452,6 +18575,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 1,
         "x-license": "display"
       }
     },
@@ -18593,6 +18717,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 1,
         "x-license": "display"
       }
     },
@@ -18772,6 +18897,7 @@
           }
         },
         "x-tier": "pro",
+        "x-credits": 1,
         "x-license": "display"
       }
     },
@@ -18965,7 +19091,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite",
+        "x-tier": "free",
+        "x-credits": 1,
         "x-license": "display"
       }
     },
@@ -19083,6 +19210,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 100,
         "x-license": "rag"
       }
     },
@@ -19303,6 +19431,7 @@
           }
         },
         "x-tier": "standard",
+        "x-credits": 1,
         "x-license": "rag"
       }
     },
@@ -19365,7 +19494,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite",
+        "x-tier": "free",
+        "x-credits": 1,
         "x-license": "display"
       }
     },
@@ -19483,7 +19613,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite",
+        "x-tier": "free",
+        "x-credits": 1,
         "x-license": "display"
       }
     },
@@ -19542,7 +19673,8 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite",
+        "x-tier": "free",
+        "x-credits": 1,
         "x-license": "display"
       }
     },
@@ -19632,8 +19764,267 @@
             "$ref": "#/components/responses/InternalServerError"
           }
         },
-        "x-tier": "lite",
+        "x-tier": "free",
+        "x-credits": 1,
         "x-license": "display"
+      }
+    },
+    "/v1/account/usage": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "description": "Your team's Data API usage — credits and requests by day, endpoint family and key — plus the plan allowance and prepaid balance. Costs no credits and is available on every plan; counted, rate-limited like any route. Data is drained every 5 minutes.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "enum": [
+                7,
+                30,
+                90
+              ],
+              "default": 30
+            },
+            "in": "query",
+            "name": "days",
+            "required": false,
+            "description": "Window in UTC days ending today (inclusive): 7, 30 or 90"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "window_days",
+                    "period",
+                    "daily",
+                    "by_family",
+                    "by_key",
+                    "truncated"
+                  ],
+                  "properties": {
+                    "window_days": {
+                      "type": "integer",
+                      "enum": [
+                        7,
+                        30,
+                        90
+                      ],
+                      "description": "The window answered"
+                    },
+                    "period": {
+                      "type": "object",
+                      "description": "The current billing period",
+                      "required": [
+                        "tier",
+                        "included_credits",
+                        "used_credits",
+                        "resets_at",
+                        "prepaid_balance_usd"
+                      ],
+                      "properties": {
+                        "tier": {
+                          "type": "string",
+                          "enum": [
+                            "free",
+                            "lite",
+                            "standard",
+                            "pro",
+                            "prepaid"
+                          ],
+                          "description": "The team's Data API plan"
+                        },
+                        "included_credits": {
+                          "type": "integer",
+                          "description": "Credits the plan includes per period"
+                        },
+                        "used_credits": {
+                          "type": "integer",
+                          "description": "Credits used this period, counted as the quota gate counts them (live)"
+                        },
+                        "resets_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "nullable": true,
+                          "description": "When the included credits reset; null when the period has no reset"
+                        },
+                        "prepaid_balance_usd": {
+                          "type": "number",
+                          "description": "Prepaid credit balance in USD"
+                        }
+                      }
+                    },
+                    "daily": {
+                      "type": "array",
+                      "description": "One row per UTC day of the window, ascending, zero-filled",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "date",
+                          "requests",
+                          "credits",
+                          "errors"
+                        ],
+                        "properties": {
+                          "date": {
+                            "type": "string",
+                            "format": "date",
+                            "description": "UTC day (YYYY-MM-DD)"
+                          },
+                          "requests": {
+                            "type": "integer",
+                            "description": "Requests answered (every status)"
+                          },
+                          "credits": {
+                            "type": "integer",
+                            "description": "Credits billed (2xx responses only)"
+                          },
+                          "errors": {
+                            "type": "object",
+                            "description": "Error responses by status class",
+                            "required": [
+                              "402",
+                              "403",
+                              "429",
+                              "4xx",
+                              "5xx"
+                            ],
+                            "properties": {
+                              "402": {
+                                "type": "integer",
+                                "description": "Payment required"
+                              },
+                              "403": {
+                                "type": "integer",
+                                "description": "Forbidden (plan)"
+                              },
+                              "429": {
+                                "type": "integer",
+                                "description": "Rate limited"
+                              },
+                              "4xx": {
+                                "type": "integer",
+                                "description": "Other client errors"
+                              },
+                              "5xx": {
+                                "type": "integer",
+                                "description": "Server errors"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "by_family": {
+                      "type": "array",
+                      "description": "Usage per endpoint family over the window, most credits first",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "family",
+                          "label",
+                          "requests",
+                          "credits"
+                        ],
+                        "properties": {
+                          "family": {
+                            "type": "string",
+                            "description": "Endpoint family id"
+                          },
+                          "label": {
+                            "type": "string",
+                            "description": "Endpoint family name"
+                          },
+                          "requests": {
+                            "type": "integer",
+                            "description": "Requests answered (every status)"
+                          },
+                          "credits": {
+                            "type": "integer",
+                            "description": "Credits billed (2xx responses only)"
+                          }
+                        }
+                      }
+                    },
+                    "by_key": {
+                      "type": "array",
+                      "description": "Usage per caller over the window. Never names a user or an email.",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "caller",
+                          "label",
+                          "key_hint",
+                          "requests",
+                          "credits"
+                        ],
+                        "properties": {
+                          "caller": {
+                            "type": "string",
+                            "enum": [
+                              "key",
+                              "oauth",
+                              "unknown"
+                            ],
+                            "description": "An API key, a signed-in OAuth user, or a request counted before callers were recorded"
+                          },
+                          "label": {
+                            "type": "string",
+                            "description": "The key's name, or \"Signed-in user\" for OAuth"
+                          },
+                          "key_hint": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "Masked key, null for OAuth"
+                          },
+                          "requests": {
+                            "type": "integer",
+                            "description": "Requests answered (every status)"
+                          },
+                          "credits": {
+                            "type": "integer",
+                            "description": "Credits billed (2xx responses only)"
+                          }
+                        }
+                      }
+                    },
+                    "truncated": {
+                      "type": "boolean",
+                      "description": "A breakdown was capped at its item limit"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailableError"
+          }
+        },
+        "x-tier": "free",
+        "x-credits": 0
       }
     },
     "/status": {
@@ -19723,7 +20114,8 @@
                                   "market",
                                   "metadata",
                                   "earnings_calls",
-                                  "websocket"
+                                  "websocket",
+                                  "account"
                                 ],
                                 "description": "Product family"
                               },
@@ -19828,7 +20220,8 @@
                               "market",
                               "metadata",
                               "earnings_calls",
-                              "websocket"
+                              "websocket",
+                              "account"
                             ],
                             "description": "Product family"
                           },
@@ -20054,6 +20447,8 @@
                           "openexchange",
                           "investis",
                           "x",
+                          "knowledgevision",
+                          "zoom_events",
                           "unknown"
                         ]
                       }
@@ -20507,7 +20902,8 @@
                               "market",
                               "metadata",
                               "earnings_calls",
-                              "websocket"
+                              "websocket",
+                              "account"
                             ],
                             "description": "Product family"
                           },
@@ -20595,7 +20991,7 @@
     "/v1/ws": {
       "ws": {
         "summary": "WebSocket filings stream and live earnings-call transcripts",
-        "description": "Upgrade to a WebSocket connection to receive real-time SEC filing events. Authenticate with API Key.\n\nLive earnings-call transcripts (channel `earnings-calls.live`, requires the PRO plan; the socket itself needs STANDARD): send a `subscribe` frame with an `event_id` or a `cik` and receive `subscribed`, then `transcript_segment` frames as the call is spoken, `speaker_names` snapshots, the lifecycle frames `call_started` / `call_ended` / `transcript_provisional` / `transcript_ready` / `rescheduled` (after `transcript_ready` or `rescheduled` the subscription ends with `unsubscribed`, whose `reason` names why; it also ends 2 h after `call_ended`, when the call will produce nothing more, or 12 h after the scheduled start). Finals are delivered in `seq` order; a `gap` frame reports a range that did not arrive within 1.5 s (a late final may still follow). To resume after a reconnect, subscribe again with `since_seq` = the last final seq you hold: the missed finals are replayed before live delivery continues (`resume_unavailable` when the call cannot be replayed). An `error` frame (code `unavailable`) reports a server-side failure; the socket always stays open.\n\nKeyword alerts and guidance flashes: a `subscribe` with `keywords` (up to 20; `keyword_match` exact | stem, `speaker_roles` to keep management's words only) also sends a `keyword_hit` frame for every final segment that contains one — with the speaker's provisional name / role, the previous final as context and `latency_ms` (relay time inside the API process minus the segment's own end time; the client's network is excluded). Every subscription of a call receives `guidance_flash` frames: forward-looking numbers extracted seconds after they are spoken. `scope: all_live` with `keywords` (no `event_id` / `cik`; `min_rank` limits the companies; `events` may add `guidance_flash`) follows every call being captured live for one subscription slot and receives keyword hits only, never segments; a `warning` frame (`global_scope_degraded`) says a new call was not attached. At `transcript_ready` an `all_live` subscription also gets the final transcript's hits once (`layer: final`), without those a live hit already covered within ± 5 s.\n\nLive price ticks: `prices: true` on a per-call subscription adds `price_tick` frames (≤ 1/s): the second's OHLC, volume, return in bp since the last trade before the call start and since the previous close, and `call_ms` on the transcript clock. Temporal coincidence, not attribution of cause; pre-market and after-hours bars are sparse. `prices` with `scope: all_live` is refused (`bad_message`); `GET /v1/earnings-calls/live` says `live_prices: true` while ticks flow. Minimum tier for display: FREE.",
+        "description": "Upgrade to a WebSocket connection to receive real-time SEC filing events. Authenticate with API Key. WebSocket sessions are unmetered: they cost no credits (hence no `x-credits`).\n\nLive earnings-call transcripts (channel `earnings-calls.live`, requires the PRO plan; the socket itself needs STANDARD): send a `subscribe` frame with an `event_id` or a `cik` and receive `subscribed`, then `transcript_segment` frames as the call is spoken, `speaker_names` snapshots, the lifecycle frames `call_started` / `call_ended` / `transcript_provisional` / `transcript_ready` / `rescheduled` (after `transcript_ready` or `rescheduled` the subscription ends with `unsubscribed`, whose `reason` names why; it also ends 2 h after `call_ended`, when the call will produce nothing more, or 12 h after the scheduled start). Finals are delivered in `seq` order; a `gap` frame reports a range that did not arrive within 1.5 s (a late final may still follow). To resume after a reconnect, subscribe again with `since_seq` = the last final seq you hold: the missed finals are replayed before live delivery continues (`resume_unavailable` when the call cannot be replayed). An `error` frame (code `unavailable`) reports a server-side failure; the socket always stays open.\n\nKeyword alerts and guidance flashes: a `subscribe` with `keywords` (up to 20; `keyword_match` exact | stem, `speaker_roles` to keep management's words only) also sends a `keyword_hit` frame for every final segment that contains one — with the speaker's provisional name / role, the previous final as context and `latency_ms` (relay time inside the API process minus the segment's own end time; the client's network is excluded). Every subscription of a call receives `guidance_flash` frames: forward-looking numbers extracted seconds after they are spoken. `scope: all_live` with `keywords` (no `event_id` / `cik`; `min_rank` limits the companies; `events` may add `guidance_flash`) follows every call being captured live for one subscription slot and receives keyword hits only, never segments; a `warning` frame (`global_scope_degraded`) says a new call was not attached. At `transcript_ready` an `all_live` subscription also gets the final transcript's hits once (`layer: final`), without those a live hit already covered within ± 5 s.\n\nLive price ticks: `prices: true` on a per-call subscription adds `price_tick` frames (≤ 1/s): the second's OHLC, volume, return in bp since the last trade before the call start and since the previous close, and `call_ms` on the transcript clock. Temporal coincidence, not attribution of cause; pre-market and after-hours bars are sparse. `prices` with `scope: all_live` is refused (`bad_message`); `GET /v1/earnings-calls/live` says `live_prices: true` while ticks flow. Minimum tier for display: FREE.",
         "tags": [
           "WebSocket"
         ],

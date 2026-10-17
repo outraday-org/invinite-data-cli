@@ -16,7 +16,7 @@ vi.mock('../../../src/shared/spinner.js', () => ({
   }),
 }));
 
-import { apiGet, apiGetRaw, apiRequest } from '../../../src/client/api-client.js';
+import { apiGet, apiGetRaw, apiRequest, takeCreditUsage } from '../../../src/client/api-client.js';
 import { ApiError } from '../../../src/shared/errors.js';
 
 describe('apiGet', () => {
@@ -214,5 +214,38 @@ describe('apiRequest', () => {
     await apiGet({ path: '/health' });
     const init = (fetch as any).mock.calls[0][1];
     expect(Object.keys(init)).toEqual(['headers']);
+  });
+});
+
+describe('takeCreditUsage', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn());
+    takeCreditUsage();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  const page = (headers: Record<string, string>) => ({
+    ok: true,
+    headers: new Headers(headers),
+    json: () => Promise.resolve({}),
+  });
+
+  it('sums X-Credits-Charged across requests, keeps the last remaining, then resets', async () => {
+    (fetch as any)
+      .mockResolvedValueOnce(page({ 'X-Credits-Charged': '5', 'X-Credits-Included-Remaining': '100' }))
+      .mockResolvedValueOnce(page({ 'X-Credits-Charged': '5', 'X-Credits-Included-Remaining': '95' }));
+    await apiGet({ path: '/v1/a' });
+    await apiGet({ path: '/v1/a', params: { offset: '10' } });
+    expect(takeCreditUsage()).toEqual({ charged: 10, includedRemaining: 95 });
+    expect(takeCreditUsage()).toBeNull();
+  });
+
+  it('records nothing for a response without credit headers', async () => {
+    (fetch as any).mockResolvedValueOnce(page({}));
+    await apiGet({ path: '/health' });
+    expect(takeCreditUsage()).toBeNull();
   });
 });

@@ -164,11 +164,47 @@ These options are available on all data commands:
 |------|-------------|
 | `--json` | Output raw JSON (pipe-friendly) |
 | `--all` | Auto-paginate through all results |
+| `--show-cost` | Print what the command cost to stderr (see [Usage and credits](#usage-and-credits)) |
+
+## Usage and credits
+
+`invd usage` prints the team's plan allowance, prepaid balance and usage by day, endpoint family and key — the
+same answer as the [Data API dashboard](https://invinite.com/data-api/usage). It costs no credits.
+
+```bash
+invd usage              # last 30 days (default)
+invd usage --days 7     # 7, 30 or 90
+invd usage --json       # the API's JSON, unchanged
+```
+
+```
+  Plan       Lite · 250,000 credits included · resets 1 Nov 2026, 00:00 UTC
+  Used       141,220 credits (56 %) · prepaid balance $12.50
+  Daily      ▁▂▂▃▅▃▂▁▁▂▃▅▆▇▅▃▂▂▃▃▄▅▆▅▃▂▂▃▄▅   (credits per day, 2026-10-02 → 2026-10-31 UTC)
+  By family  Financials 98,100 · SEC Filings 30,400 · Earnings Calls 12,720
+  By key     Backtest box (invd_a1b...c2d3) 120,000 · Signed-in user 21,220
+  Errors     403 ×12 · 429 ×3
+  Details    https://invinite.com/data-api/usage
+```
+
+To see what a single command cost, add `--show-cost` (or set `INVD_SHOW_COST=1`). The line goes to **stderr**, so
+piped stdout stays clean:
+
+```bash
+invd --show-cost --json company details -i AAPL > aapl.json
+# credits: 1 · included left: 249999
+```
+
+`included left` is the plan's remaining included credits as the API reports them (absent → `—`, e.g. for the free
+usage route). Keys, plan and prepaid credits are managed at [invinite.com/data-api](https://invinite.com/data-api);
+credit costs per endpoint and plan limits are documented at
+[/docs/data-api/credits-and-limits](https://invinite.com/docs/data-api/credits-and-limits).
 
 ## Commands
 
 - `login` — Log in through your browser (`--team <teamId>` for multi-team users)
 - `logout` — Revoke the current browser sign-in and clear local credentials
+- [usage](#usage-and-credits) — Plan allowance, prepaid balance and usage by day, family and key
 - [config](#config) — Manage CLI configuration
 - [health](#health) — Check API health
 - [company](#company) — Company information

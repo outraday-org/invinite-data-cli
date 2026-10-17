@@ -34,6 +34,36 @@ async function apiErrorFrom(response: Response): Promise<ApiError> {
   );
 }
 
+export interface CreditUsage {
+  /** `X-Credits-Charged`, summed over every request of this invocation (`--all` pages included). */
+  charged: number;
+  /** The last `X-Credits-Included-Remaining` seen; absent on routes that skip the quota decision. */
+  includedRemaining: number | null;
+}
+
+let creditUsage: CreditUsage | null = null;
+
+function recordCredits(response: Response): void {
+  const charged = response.headers?.get('X-Credits-Charged');
+  const remaining = response.headers?.get('X-Credits-Included-Remaining');
+  if (charged == null && remaining == null) return;
+  creditUsage = {
+    charged: (creditUsage?.charged ?? 0) + (Number(charged) || 0),
+    includedRemaining: remaining == null ? creditUsage?.includedRemaining ?? null : Number(remaining),
+  };
+}
+
+/** What this invocation's requests cost so far, then reset; `null` when no response carried a credit header. */
+export function takeCreditUsage(): CreditUsage | null {
+  const usage = creditUsage;
+  creditUsage = null;
+  return usage;
+}
+
+export function formatCreditUsage(usage: CreditUsage): string {
+  return `credits: ${usage.charged} · included left: ${usage.includedRemaining ?? '—'}`;
+}
+
 async function request(
   opts: RequestOptions,
   accept: string,
@@ -51,6 +81,7 @@ async function request(
     ...(init.method ? { method: init.method } : {}),
     ...(init.body !== undefined ? { body: JSON.stringify(init.body) } : {}),
   });
+  recordCredits(response);
   if (!response.ok) {
     throw await apiErrorFrom(response);
   }

@@ -60,6 +60,11 @@ If an MCP call fails with an auth error, reconnect the connector and complete OA
 |------|-------------|
 | `--json` | Output raw JSON (always use this for programmatic access) |
 | `--all` | Auto-paginate through all results |
+| `--show-cost` | Print `credits: <charged> · included left: <remaining>` to stderr after the command (or set `INVD_SHOW_COST=1`); stdout stays clean |
+
+### Usage and credits
+
+Before a large pull (`--all`, many tickers, filing search at 100 credits a call), run `invd usage --json` (free, `--days 7|30|90`): `period` has the plan's `included_credits`, `used_credits`, `resets_at` and `prepaid_balance_usd`; `daily`, `by_family` and `by_key` show where credits went. If the pull would not fit what is left, say so before starting it. For budgeting, add `--show-cost` to a sample call and multiply; the stderr line never mixes into `--json` output. Every operation's credit cost is the `x-credits` field of the OpenAPI spec.
 
 ## Commands Reference
 

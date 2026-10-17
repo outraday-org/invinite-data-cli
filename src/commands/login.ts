@@ -5,7 +5,7 @@ import { spawn } from 'node:child_process';
 import { Command } from 'commander';
 import chalk from 'chalk';
 import { clearApiKey, resolveApiKey, setApiKey, type ResolvedApiKey } from '../config/auth.js';
-import { getBaseUrl } from '../config/config-manager.js';
+import { DASHBOARD_URL, getBaseUrl } from '../config/config-manager.js';
 
 const CALLBACK_TIMEOUT_MS = 5 * 60 * 1000;
 const KEY_LIFETIME_MS = 90 * 24 * 60 * 60 * 1000;
@@ -197,6 +197,7 @@ export async function login(
     console.log(`  Label:      ${data.label}`);
     console.log(`  Expires:    approximately ${approximateExpiry} (90 days)`);
     console.log(chalk.dim('This sign-in is also visible in the web UI under Data API keys.'));
+    console.log(`Manage keys and usage: ${DASHBOARD_URL}`);
     return data;
   } finally {
     clearTimeout(timeout);

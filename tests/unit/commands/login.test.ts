@@ -16,6 +16,7 @@ vi.mock('../../../src/config/auth.js', () => ({
 // config-manager.test.ts's default-URL assertion.
 vi.mock('../../../src/config/config-manager.js', () => ({
   getBaseUrl: () => 'https://data.example.test',
+  DASHBOARD_URL: 'https://app.example.test/data-api',
 }));
 
 import { login, logout, type LoginDependencies } from '../../../src/commands/login.js';

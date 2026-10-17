@@ -5,6 +5,9 @@ interface ConfigSchema {
   apiKey?: string;
 }
 
+/** The Data API dashboard in the Invinite app (keys, usage, plan) — the APP origin, never the API's. */
+export const DASHBOARD_URL = 'https://invinite.com/data-api';
+
 const config = new Conf<ConfigSchema>({
   projectName: 'invinite-data-cli',
   schema: {
