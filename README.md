@@ -80,7 +80,7 @@ This repo includes plugins for AI coding tools that enable AI-powered financial 
 ### Choose an integration
 
 - **Standalone skill:** installs the Invinite workflow and CLI reference. It prefers MCP when connected and falls back to the local `invd` CLI.
-- **Standalone MCP connector:** add `https://data.invinite.com/t/<teamId>/mcp` in Claude's connector settings, leave OAuth client ID/secret empty, and complete browser OAuth. This supplies tools but not the packaged research workflows.
+- **Standalone MCP connector:** add `https://api.data.invinite.com/t/<teamId>/mcp` in Claude's connector settings, leave OAuth client ID/secret empty, and complete browser OAuth. This supplies tools but not the packaged research workflows.
 - **Claude plugin:** bundles the skill, remote MCP connector, data agent, and research commands. During setup, enter the team ID shown in the team-pinned MCP URL on the Data API dashboard's keys page; OAuth still uses Dynamic Client Registration and PKCE.
 
 The team ID controls access, usage, and billing for MCP calls. CLI calls use the team selected by `invd login --team <teamId>` and do not inherit the plugin's connector setting.

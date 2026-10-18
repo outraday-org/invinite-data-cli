@@ -21170,8 +21170,8 @@
   },
   "servers": [
     {
-      "url": "http://localhost:4000",
-      "description": "Development server"
+      "url": "https://api.data.invinite.com",
+      "description": "Production"
     }
   ],
   "tags": [

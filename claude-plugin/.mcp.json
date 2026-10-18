@@ -2,7 +2,7 @@
   "mcpServers": {
     "invinite-financial-data": {
       "type": "http",
-      "url": "https://data.invinite.com/t/${user_config.team_id}/mcp"
+      "url": "https://api.data.invinite.com/t/${user_config.team_id}/mcp"
     }
   }
 }
