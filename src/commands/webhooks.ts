@@ -90,7 +90,7 @@ export function registerWebhooksCommands(program: Command): void {
 
   webhooks
     .command('list')
-    .description("Your team's webhook subscriptions (secrets are never shown)")
+    .description("Your account's webhook subscriptions (secrets are never shown)")
     .action(run(async () => {
       const opts = globalOpts();
       const data = await apiGet<{ data: Row[] }>({ path: BASE });
@@ -102,7 +102,7 @@ export function registerWebhooksCommands(program: Command): void {
 
   webhooks
     .command('create')
-    .description('Create a subscription (max 10 per team); prints the signing secret once')
+    .description('Create a subscription (max 10 per account); prints the signing secret once')
     .requiredOption('--url <url>', 'https endpoint (port 443, public addresses only)')
     .requiredOption('--events <list>', `Comma-separated events: ${WEBHOOK_EVENTS.join(', ')}`)
     .option('--ciks <list>', 'Only these companies, comma-separated CIKs (max 10; default every company)')

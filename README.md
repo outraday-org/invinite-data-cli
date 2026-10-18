@@ -38,12 +38,8 @@ invd login
 
 The browser flow creates a revocable, 90-day Data API key and stores it in the
 OS keychain when available (with local CLI config as a fallback). The sign-in
-also appears on the Data API dashboard's keys page (https://invinite.com/data-api/keys). If you belong to multiple
-teams, choose one explicitly:
-
-```bash
-invd login --team <teamId>
-```
+also appears on the Data API dashboard's keys page (https://invinite.com/data-api/keys). The key belongs to the
+Invinite Data account you sign in with — one account per person, billed for every call made with it.
 
 To revoke the browser sign-in and remove the locally stored credential:
 
@@ -80,10 +76,10 @@ This repo includes plugins for AI coding tools that enable AI-powered financial 
 ### Choose an integration
 
 - **Standalone skill:** installs the Invinite workflow and CLI reference. It prefers MCP when connected and falls back to the local `invd` CLI.
-- **Standalone MCP connector:** add `https://api.data.invinite.com/t/<teamId>/mcp` in Claude's connector settings, leave OAuth client ID/secret empty, and complete browser OAuth. This supplies tools but not the packaged research workflows.
-- **Claude plugin:** bundles the skill, remote MCP connector, data agent, and research commands. During setup, enter the team ID shown in the team-pinned MCP URL on the Data API dashboard's keys page; OAuth still uses Dynamic Client Registration and PKCE.
+- **Standalone MCP connector:** add `https://api.data.invinite.com/mcp` in Claude's connector settings, leave OAuth client ID/secret empty, and complete browser OAuth. This supplies tools but not the packaged research workflows.
+- **Claude plugin:** bundles the skill, remote MCP connector, data agent, and research commands; no setup value is needed. OAuth uses Dynamic Client Registration and PKCE.
 
-The team ID controls access, usage, and billing for MCP calls. CLI calls use the team selected by `invd login --team <teamId>` and do not inherit the plugin's connector setting.
+MCP calls and CLI calls are billed to the Invinite Data account their credential belongs to: the connector's OAuth sign-in, or the key `invd login` stored.
 
 ### Quick install
 
@@ -133,7 +129,7 @@ npx @invinite-org/invinite-data-cli@latest plugin uninstall --all --global
 claude --plugin-dir /path/to/invinite-data-cli/claude-plugin
 ```
 
-The Claude plugin also includes `compare-companies`, `analyze-filing`, and `ownership-review`. Its `.mcp.json` connects the team-pinned remote server automatically; use `/mcp` to complete OAuth or inspect connection status in Claude Code. In Claude web/Desktop, install the plugin through your organization's plugin marketplace, enter the team ID when prompted, and connect the bundled connector.
+The Claude plugin also includes `compare-companies`, `analyze-filing`, and `ownership-review`. Its `.mcp.json` connects the remote server (`https://api.data.invinite.com/mcp`) automatically; use `/mcp` to complete OAuth or inspect connection status in Claude Code. In Claude web/Desktop, install the plugin through your organization's plugin marketplace and connect the bundled connector.
 
 ### Usage examples
 
@@ -168,7 +164,7 @@ These options are available on all data commands:
 
 ## Usage and credits
 
-`invd usage` prints the team's plan allowance, prepaid balance and usage by day, endpoint family and key — the
+`invd usage` prints your account's plan allowance, prepaid balance and usage by day, endpoint family and key — the
 same answer as the [Data API dashboard](https://invinite.com/data-api/usage). It costs no credits.
 
 ```bash
@@ -202,7 +198,7 @@ credit costs per endpoint and plan limits are documented at
 
 ## Commands
 
-- `login` — Log in through your browser (`--team <teamId>` for multi-team users)
+- `login` — Log in through your browser
 - `logout` — Revoke the current browser sign-in and clear local credentials
 - [usage](#usage-and-credits) — Plan allowance, prepaid balance and usage by day, family and key
 - [config](#config) — Manage CLI configuration
@@ -971,8 +967,8 @@ Earnings-call webhook subscriptions (PRO): signed, retried `POST`s of the call l
 
 | Command | Description |
 |---------|-------------|
-| `webhooks list` | Your team's subscriptions (never the secret, only `secret_hint`) |
-| `webhooks create --url <url> --events <list> [--ciks <list>] [--keywords <list>]` | Create one (max 10 per team; `--ciks` max 10, default every company; `--keywords` max 20 of 2–64 chars, matched on every live call for `.keyword_hit`). **Prints the signing secret once** |
+| `webhooks list` | Your account's subscriptions (never the secret, only `secret_hint`) |
+| `webhooks create --url <url> --events <list> [--ciks <list>] [--keywords <list>]` | Create one (max 10 per account; `--ciks` max 10, default every company; `--keywords` max 20 of 2–64 chars, matched on every live call for `.keyword_hit`). **Prints the signing secret once** |
 | `webhooks update <id> [--keywords <list>] [--ciks <list>] [--events <list>] [--active true\|false]` | Change a subscription (`PATCH`; at least one option; an empty `--keywords ""` / `--ciks ""` clears the list; `--active false` pauses it, `true` resumes it and resets the failure counters) |
 | `webhooks delete <id>` | Delete a subscription |
 | `webhooks rotate-secret <id>` | New secret (printed once); the old one stays valid until `previous_secret_expires_at` (5 min) |

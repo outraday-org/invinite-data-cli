@@ -1,19 +1,11 @@
 {
   "name": "invinite-financial-data",
   "description": "Fetch and analyze financial data using the Invinite Data API — company fundamentals, financial statements, SEC filings, earnings calls (transcripts, guidance, Q&A, live calls), institutional ownership, insider trades, and more.",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "author": {
     "name": "Invinite"
   },
   "homepage": "https://github.com/outraday-org/invinite-data-cli",
   "repository": "https://github.com/outraday-org/invinite-data-cli",
-  "license": "ISC",
-  "userConfig": {
-    "team_id": {
-      "type": "string",
-      "title": "Invinite team ID",
-      "description": "Team billed for Data API usage. Copy it from the team-pinned MCP URL on the Data API dashboard's keys page (https://invinite.com/data-api/keys).",
-      "required": true
-    }
-  }
+  "license": "ISC"
 }

@@ -6,7 +6,7 @@ allowed-tools: Bash(invd *)
 
 # Invinite Data API
 
-Use the connected Invinite Data API MCP tools when available. Fall back to the `invd` CLI when MCP is unavailable. Both transports access the same team-billed Data API.
+Use the connected Invinite Data API MCP tools when available. Fall back to the `invd` CLI when MCP is unavailable. Both transports access the same Data API, billed to your Invinite Data account.
 
 ## Transport selection
 
@@ -42,11 +42,11 @@ The discovery rules below apply to both transports: call `list_available_metrics
 
 ### MCP
 
-Connect `https://api.data.invinite.com/t/<teamId>/mcp` through OAuth (the team-pinned URL is shown on the Data API dashboard's keys page, https://invinite.com/data-api/keys). The team in the URL controls data billing. Leave OAuth client ID and secret empty so the client uses Dynamic Client Registration and PKCE.
+Connect `https://api.data.invinite.com/mcp` through OAuth and sign in to your Invinite Data account, which is billed for the calls. Leave OAuth client ID and secret empty so the client uses Dynamic Client Registration and PKCE.
 
 ### CLI
 
-Install the CLI with `npm install -g @invinite-org/invinite-data-cli`, then run `invd login` or `invd login --team <teamId>`. Authentication is resolved in this order:
+Install the CLI with `npm install -g @invinite-org/invinite-data-cli`, then run `invd login`. Authentication is resolved in this order:
 1. `INVINITE_DATA_API_KEY` environment variable
 2. `.env` file
 3. OS keychain (via optional `keytar`)

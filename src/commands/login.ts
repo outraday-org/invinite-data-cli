@@ -14,7 +14,6 @@ const MAX_BIND_ATTEMPTS = 3;
 type ExchangeData = {
   key: string;
   keyHint: string;
-  teamId: string;
   label: string;
 };
 
@@ -91,10 +90,7 @@ async function listenOnRandomPort(server: Server): Promise<number> {
   throw new Error('Could not start the login callback server');
 }
 
-export async function login(
-  options: { team?: string } = {},
-  dependencies: LoginDependencies = defaultDependencies,
-): Promise<ExchangeData> {
+export async function login(dependencies: LoginDependencies = defaultDependencies): Promise<ExchangeData> {
   const state = randomBytes(16).toString('hex');
   let resolveCallback: (value: ExchangeData) => void = () => undefined;
   let rejectCallback: (reason: Error) => void = () => undefined;
@@ -167,7 +163,6 @@ export async function login(
   loginUrl.searchParams.set('port', String(port));
   loginUrl.searchParams.set('state', state);
   loginUrl.searchParams.set('hostname', hostname().slice(0, 64));
-  if (options.team) loginUrl.searchParams.set('team', options.team);
 
   const handleInterrupt = (): void => settleError(new Error('Login cancelled'));
   process.once('SIGINT', handleInterrupt);
@@ -192,7 +187,6 @@ export async function login(
     const data = await callback;
     const approximateExpiry = new Date(Date.now() + KEY_LIFETIME_MS).toLocaleDateString();
     console.log(chalk.green('Logged in successfully.'));
-    console.log(`  Team:       ${data.teamId}`);
     console.log(`  Key hint:   ${data.keyHint}`);
     console.log(`  Label:      ${data.label}`);
     console.log(`  Expires:    approximately ${approximateExpiry} (90 days)`);
@@ -248,11 +242,10 @@ export async function logout(dependencies: Pick<LoginDependencies, 'fetch'> = de
 export function registerLoginCommands(program: Command): void {
   program
     .command('login')
-    .description('Log in through your browser')
-    .option('--team <teamId>', 'Choose a team for the new API key')
-    .action(async (options: { team?: string }) => {
+    .description('Log in through your browser (the key belongs to your Invinite Data account)')
+    .action(async () => {
       try {
-        await login(options);
+        await login();
       } catch (error) {
         console.error(chalk.red(errorMessage(error)));
         process.exitCode = 1;

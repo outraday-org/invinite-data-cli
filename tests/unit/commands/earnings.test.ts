@@ -105,7 +105,7 @@ describe('planHint', () => {
 
   it('stays silent for other errors', () => {
     expect(planHint(new ApiError(503, 'audio_disabled', 'Audio is not enabled'))).toBeUndefined();
-    expect(planHint(new ApiError(403, 'Forbidden', 'Not a member of the requested team'))).toBeUndefined();
+    expect(planHint(new ApiError(403, 'Forbidden', 'This account is blocked'))).toBeUndefined();
   });
 });
 
