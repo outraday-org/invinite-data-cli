@@ -5,8 +5,8 @@ interface ConfigSchema {
   apiKey?: string;
 }
 
-/** The Data API dashboard in the Invinite app (keys, usage, plan) — the APP origin, never the API's. */
-export const DASHBOARD_URL = 'https://invinite.com/data-api';
+/** The Invinite Data app (keys, usage, plan, docs) — the APP origin, never the API's. */
+export const DASHBOARD_URL = 'https://data.invinite.com';
 
 /** The Data API's public origin (REST, `/v1/ws`, MCP). */
 export const DEFAULT_BASE_URL = 'https://api.data.invinite.com';

@@ -52,7 +52,7 @@ Install the CLI with `npm install -g @invinite-org/invinite-data-cli`, then run 
 3. OS keychain (via optional `keytar`)
 4. Stored config
 
-If an MCP call fails with an auth error, reconnect the connector and complete OAuth. If a CLI call fails with an auth error, run `invd login`; manual `invd config set-key` and `INVINITE_DATA_API_KEY` remain supported fallbacks.
+If an MCP call fails with an auth error, reconnect the connector and complete OAuth. If a CLI call fails with an auth error, run `invd login`; manual `invd config set-key` and `INVINITE_DATA_API_KEY` remain supported fallbacks (create a key at https://data.invinite.com/keys).
 
 ## Global Options
 

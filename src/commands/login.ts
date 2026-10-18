@@ -190,7 +190,7 @@ export async function login(dependencies: LoginDependencies = defaultDependencie
     console.log(`  Key hint:   ${data.keyHint}`);
     console.log(`  Label:      ${data.label}`);
     console.log(`  Expires:    approximately ${approximateExpiry} (90 days)`);
-    console.log(chalk.dim('This sign-in is also visible in the web UI under Data API keys.'));
+    console.log(chalk.dim(`This sign-in is also listed on your keys page: ${DASHBOARD_URL}/keys`));
     console.log(`Manage keys and usage: ${DASHBOARD_URL}`);
     return data;
   } finally {

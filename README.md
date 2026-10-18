@@ -38,7 +38,7 @@ invd login
 
 The browser flow creates a revocable, 90-day Data API key and stores it in the
 OS keychain when available (with local CLI config as a fallback). The sign-in
-also appears on the Data API dashboard's keys page (https://invinite.com/data-api/keys). The key belongs to the
+also appears on the Invinite Data app's keys page (https://data.invinite.com/keys). The key belongs to the
 Invinite Data account you sign in with — one account per person, billed for every call made with it.
 
 To revoke the browser sign-in and remove the locally stored credential:
@@ -165,7 +165,7 @@ These options are available on all data commands:
 ## Usage and credits
 
 `invd usage` prints your account's plan allowance, prepaid balance and usage by day, endpoint family and key — the
-same answer as the [Data API dashboard](https://invinite.com/data-api/usage). It costs no credits.
+same answer as the [Invinite Data app](https://data.invinite.com/usage). It costs no credits.
 
 ```bash
 invd usage              # last 30 days (default)
@@ -180,7 +180,7 @@ invd usage --json       # the API's JSON, unchanged
   By family  Financials 98,100 · SEC Filings 30,400 · Earnings Calls 12,720
   By key     Backtest box (invd_a1b...c2d3) 120,000 · Signed-in user 21,220
   Errors     403 ×12 · 429 ×3
-  Details    https://invinite.com/data-api/usage
+  Details    https://data.invinite.com/usage
 ```
 
 To see what a single command cost, add `--show-cost` (or set `INVD_SHOW_COST=1`). The line goes to **stderr**, so
@@ -192,7 +192,7 @@ invd --show-cost --json company details -i AAPL > aapl.json
 ```
 
 `included left` is the plan's included credits left after the command: the API's `X-Credits-Included-Remaining`
-(the allowance before the request) minus what the request was charged (absent → `—`, e.g. for the free usage route). Keys, plan and prepaid credits are managed at [invinite.com/data-api](https://invinite.com/data-api);
+(the allowance before the request) minus what the request was charged (absent → `—`, e.g. for the free usage route). Keys, plan and prepaid credits are managed at [data.invinite.com](https://data.invinite.com);
 credit costs per endpoint and plan limits are documented at
 [/docs/data-api/credits-and-limits](https://invinite.com/docs/data-api/credits-and-limits).
 
