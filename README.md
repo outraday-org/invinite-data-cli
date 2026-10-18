@@ -208,7 +208,7 @@ credit costs per endpoint and plan limits are documented at
 - [metrics](#metrics) — Financial metrics, ratios, and growth
 - [segments](#segments) — Segmented financials
 - [filings](#filings) — SEC filings
-- [earnings](#earnings) — Earnings calls: calendar, transcripts, Q&A, guidance, price moves during the call, audio, slides, documents, search
+- [earnings](#earnings) — Earnings calls: calendar, transcripts, Q&A, guidance, price moves during the call, audio, slides, documents, search; company IR documents and document search
 - [ownership](#ownership) — Institutional ownership
 - [insider-trades](#insider-trades) — Insider trading data
 - [ipos](#ipos) — IPO listings
@@ -546,7 +546,7 @@ invd filings form-types -i AAPL
 
 ### earnings
 
-Earnings calls: calendar, transcripts, Q&A, guidance and KPIs, audio, slides, documents, search. The live transcript (`ws listen --earnings`), audio, slides, the live stream and webhooks need the **PRO** plan (calendar, events and `live` need LITE, the other reads STANDARD); a `403` names the plan a route needs.
+Earnings calls: calendar, transcripts, Q&A, guidance and KPIs, audio, slides, documents, search — plus the companies' IR libraries (`company-documents`, `document`, `document-search`) and non-earnings events (investor days, conferences, AGMs: `--event-type`; the tables show `event_type` / `event_title`). The live transcript (`ws listen --earnings`), audio, slides, the live stream and webhooks need the **PRO** plan (calendar, events and `live` need LITE, the other reads STANDARD); a `403` names the plan a route needs.
 
 **Selecting a call.** Commands about one call (marked *selector* below) take either `--event <event_id>` (a UUID from `earnings events` / `earnings calendar`; wins over the rest), or `-i, --identifier <ticker|cik>` with `--year <n>` + `--quarter <n>` (the company's fiscal quarter) or `--date <YYYY-MM-DD>` (the New York call day).
 
@@ -595,7 +595,7 @@ invd earnings live
 
 #### `earnings event`
 
-One call with its date / time observations: `invd earnings event <event_id>`.
+One call with its date / time observations: `invd earnings event <event_id>` (a non-earnings event is headed by its type and title).
 
 ```bash
 invd earnings event 0b9d6f43-6b1e-4c39-9d3a-2f6a3c1e8b11
@@ -775,6 +775,57 @@ With `--output`, a document without a download URL (a link-only `sec_filing`, or
 invd earnings documents --event <event_id> --output ./docs
 ```
 
+#### `earnings company-documents`
+
+A company's investor-relations library outside its calls' folders — annual reports, proxy statements, ESG / governance documents, investor-day and conference decks, shareholder letters, fact sheets, and link-only webcast replay pages — newest year first. Company-published material, shown as published (STANDARD, 1 credit).
+
+| Option | Description |
+|--------|-------------|
+| `-i, --identifier <ticker>` | Ticker or CIK **(required)** |
+| `--section <list>` | `quarterly_results`, `events_archive`, `presentations_archive`, `annual_reports`, `proxy`, `sec_filings`, `press_releases`, `esg`, `governance`, `faq`, `other` |
+| `--kind <list>` | e.g. `annual_report`, `proxy_statement`, `esg_report`, `investor_day_deck`, `conference_presentation`, `shareholder_letter`, `fact_sheet`, `webcast` |
+| `--year <n>` / `--period <p>` | Year / period (`Q1`–`Q4`, `H1`, `H2`, `FY`) |
+| `--event <event_id>` | Only the documents of this event (investor day, conference, AGM) |
+| `-l, --limit` / `--offset` | Page size (1–100), offset (`--all` follows every page) |
+| `-o, --output <dir>` / `--force` | Save every stored file as `<year>-<kind>-<document_id>.<ext>` (`undated-…` without a year) |
+
+A link-only row (a `webcast` replay page) has no file: `--output` warns on stderr with its `source_url`, like `documents --output`; the exit code is 1 only when documents were listed but none could be saved.
+
+```bash
+invd earnings company-documents -i AAPL --section annual_reports,proxy
+invd earnings company-documents -i AAPL --kind investor_day_deck --output ./ir-docs
+```
+
+#### `earnings document`
+
+One company document by `document_id` (from `company-documents` or `document-search`): metadata and signed URLs (`url` = the file, `pages_url` = its per-page text as JSON; both expire).
+
+| Option | Description |
+|--------|-------------|
+| `--pages` | Print the per-page text (inline up to 2 MB, else read from `pages_url`) |
+| `-o, --output <file>` / `--force` | Save the file (with `--pages`: the text) |
+
+```bash
+invd earnings document <document_id> --pages
+invd earnings document <document_id> --output annual-report.pdf
+```
+
+#### `earnings document-search`
+
+Semantic search over company documents — the calls' documents (CFO commentary, letters, data sheets, company transcripts) and the IR libraries — returning passages from company-published documents with their document, year and page, not verified facts (STANDARD, 10 credits). Open a hit's `url` at `#page=<page>`.
+
+| Option | Description |
+|--------|-------------|
+| `-q, --query <text>` | Search text **(required)** |
+| `-i, --identifier <ticker>` | Only this company |
+| `--kind <list>` / `--section <list>` / `--year <n>` | Kinds, IR sections (IR library only), year |
+| `--table <table>` | `event_documents` (call documents) or `company_documents` (IR library) |
+| `-l, --limit <n>` | Passages (1–20) |
+
+```bash
+invd earnings document-search -q "capital allocation" -i AAPL --table company_documents
+```
+
 #### `earnings search`
 
 Semantic search over call transcripts and slides.
@@ -785,6 +836,7 @@ Semantic search over call transcripts and slides.
 | `--event <event_id>` / `-i, --identifier <ticker>` | Only this call / company |
 | `--from <date>` / `--to <date>` | Call day range |
 | `--type <type>` | `transcript`, `qa`, `preparedRemarks`, `presentation` |
+| `--event-type <type>` | `earnings_call` (default), `investor_day`, `conference`, `agm`, `other`, or `all` |
 | `-l, --limit <n>` | Passages (1–8) |
 
 ```bash

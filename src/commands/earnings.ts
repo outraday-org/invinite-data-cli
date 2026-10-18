@@ -17,7 +17,7 @@ import { selectorOptions, selectorParams, validateSelector, type SelectorOptions
 const BASE = '/v1/earnings-calls';
 
 const EVENT_COLUMNS = [
-  'scheduled_at', 'symbol', 'company_name', 'fiscal_year', 'fiscal_quarter', 'session',
+  'scheduled_at', 'symbol', 'company_name', 'event_type', 'event_title', 'fiscal_year', 'fiscal_quarter', 'session',
   'date_status', 'capture_status', 'has_transcript', 'has_audio', 'has_slides', 'event_id',
 ];
 
@@ -57,7 +57,11 @@ async function paginate<T extends { next_url?: string }>(data: T, key: keyof T, 
 function eventLine(event: Row | null | undefined): string {
   if (!event) return '';
   const day = event.conference_date ?? event.scheduled_at ?? '';
-  return [event.symbol ?? event.cik, event.company_name, day].filter(Boolean).join(' · ');
+  // A non-earnings event (investor day, conference, AGM) by its type and title.
+  const kind = event.event_type && event.event_type !== 'earnings_call'
+    ? [event.event_type.replaceAll('_', ' '), event.event_title].filter(Boolean).join(': ')
+    : undefined;
+  return [event.symbol ?? event.cik, event.company_name, kind, day].filter(Boolean).join(' · ');
 }
 
 function printSaved(saved: Saved): void {
@@ -99,6 +103,30 @@ export function transcriptText(data: unknown, format: string): string {
 export function skippedDocumentWarning(doc: Row): string {
   const source = doc.source_url ? `; source: ${doc.source_url}` : '';
   return `Not saved: ${doc.kind} ${doc.document_id} has no download URL${source}`;
+}
+
+/** `company-documents --output`: `<year | undated>-<kind>-<document_id>.<ext>` (the public shape has no content hash). */
+export function companyDocumentFileName(doc: Row): string {
+  return `${doc.year ?? 'undated'}-${doc.kind}-${doc.document_id}.${extensionFor(doc.content_type)}`;
+}
+
+/** Plain text of a pages JSON (`{ pages: [{ n, title, text }] }`); anything else → empty string. */
+export function pagesText(pagesJson: unknown): string {
+  const pages = (pagesJson as { pages?: unknown } | null | undefined)?.pages;
+  if (!Array.isArray(pages)) return '';
+  return pages
+    .map((page: Row, index) => {
+      const n = typeof page?.n === 'number' ? page.n : index + 1;
+      const title = typeof page?.title === 'string' && page.title.trim() ? ` · ${page.title}` : '';
+      return `## Page ${n}${title}\n\n${typeof page?.text === 'string' ? page.text : ''}`;
+    })
+    .join('\n\n');
+}
+
+/** A table cell of at most `SEARCH_TEXT_MAX` characters. */
+function clip(value: unknown): string {
+  const text = String(value ?? '');
+  return text.length > SEARCH_TEXT_MAX ? `${text.slice(0, SEARCH_TEXT_MAX - 1)}…` : text;
 }
 
 export function registerEarningsCommands(program: Command): void {
@@ -721,6 +749,7 @@ export function registerEarningsCommands(program: Command): void {
     .option('--from <date>', 'First New York call day (YYYY-MM-DD)')
     .option('--to <date>', 'Last New York call day (YYYY-MM-DD)')
     .addOption(new Option('--type <type>', 'Passage type').choices(['transcript', 'qa', 'preparedRemarks', 'presentation']))
+    .addOption(new Option('--event-type <type>', 'Event type (default earnings_call; all = every type)').choices(EVENT_TYPE_FILTERS))
     .option('-l, --limit <n>', 'Max passages (1-8)')
     .action(run(async (cmdOpts) => {
       const opts = globalOpts();
@@ -733,6 +762,7 @@ export function registerEarningsCommands(program: Command): void {
           from: cmdOpts.from,
           to: cmdOpts.to,
           type: cmdOpts.type,
+          event_type: cmdOpts.eventType,
           limit: cmdOpts.limit,
         },
       });
@@ -748,6 +778,151 @@ export function registerEarningsCommands(program: Command): void {
             audio: Boolean(data.hits[i].audio_url),
           };
         }), columns);
+      });
+    }));
+
+  // ── Company documents (IR library) ─────────────────────────────────
+
+  earnings
+    .command('company-documents')
+    .description("A company's IR documents (annual reports, proxy, ESG, investor-day decks, letters, webcast pages)")
+    .requiredOption('-i, --identifier <ticker>', 'Ticker or CIK')
+    .option('--section <list>', 'IR sections, comma-separated (quarterly_results, events_archive, presentations_archive, annual_reports, proxy, sec_filings, press_releases, esg, governance, faq, other)')
+    .option('--kind <list>', 'Kinds, comma-separated (annual_report, proxy_statement, esg_report, investor_day_deck, conference_presentation, shareholder_letter, fact_sheet, webcast, …)')
+    .option('--year <n>', 'Year the document belongs to')
+    .option('--period <period>', 'Period within the year (Q1-Q4, H1, H2, FY)')
+    .option('--event <event_id>', 'Only the documents of this event (investor day, conference, AGM)')
+    .option('-l, --limit <n>', 'Max results (1-100)')
+    .option('--offset <n>', 'Offset')
+    .option('-o, --output <dir>', 'Save every stored file into this directory as <year>-<kind>-<document_id>.<ext>; a link-only row (webcast) is reported on stderr, exit 1 only when none could be saved')
+    .option('--force', 'Overwrite existing files in --output')
+    .action(run(async (cmdOpts) => {
+      const opts = globalOpts();
+      const data = await paginate(await apiGet<{ company: Row; documents: Row[]; next_url?: string }>({
+        path: `${BASE}/company-documents`,
+        params: {
+          identifier: cmdOpts.identifier,
+          section: cmdOpts.section,
+          kind: cmdOpts.kind,
+          year: cmdOpts.year,
+          period: cmdOpts.period,
+          event_id: cmdOpts.event,
+          limit: cmdOpts.limit,
+          offset: cmdOpts.offset,
+        },
+      }), 'documents', opts.all);
+      const saved: Row[] = [];
+      const skipped: Row[] = [];
+      if (cmdOpts.output) {
+        const dir = await ensureDir(cmdOpts.output);
+        for (const doc of data.documents) {
+          if (!doc.url) {
+            // Link-only rows (webcast replay pages) carry no signed URL: say so, never skip silently.
+            skipped.push(doc);
+            console.error(chalk.yellow(skippedDocumentWarning(doc)));
+            continue;
+          }
+          const { path, bytes } = await downloadToFile(doc.url, join(dir, companyDocumentFileName(doc)), {
+            force: cmdOpts.force,
+            spinnerText: `Downloading ${doc.kind}...`,
+          });
+          saved.push({ document_id: doc.document_id, kind: doc.kind, path, bytes });
+        }
+      }
+      output(data, opts, () => {
+        console.log(chalk.bold(`\n${data.company?.symbol ?? cmdOpts.identifier} (${data.company?.cik ?? ''}) IR documents\n`));
+        console.log(chalk.dim('Company-published material, shown as published.\n'));
+        formatTable(data.documents, ['document_id', 'kind', 'section', 'year', 'period', 'title', 'pages']);
+        if (cmdOpts.output) {
+          console.log(chalk.bold('\nSaved\n'));
+          formatTable(saved, ['document_id', 'kind', 'path', 'bytes']);
+        }
+        printPaginationHint(data.next_url);
+      });
+      if (cmdOpts.output) {
+        if (skipped.length) console.error(chalk.yellow(`${saved.length} of ${data.documents.length} documents saved; ${skipped.length} skipped (no download URL)`));
+        if (saved.length === 0 && data.documents.length > 0) {
+          throw new Error(`None of the ${data.documents.length} documents could be downloaded`);
+        }
+      }
+    }));
+
+  earnings
+    .command('document')
+    .description('One company IR document (metadata and signed URLs, or --pages for its text)')
+    .argument('<document_id>', 'Document ID (from company-documents or document-search)')
+    .option('--pages', 'Print the per-page text')
+    .option('-o, --output <file>', 'Save the file (or, with --pages, the text)')
+    .option('--force', 'Overwrite an existing --output file')
+    .action(run(async (documentId: string, cmdOpts) => {
+      const opts = globalOpts();
+      const data = await apiGet<{ company: Row; document: Row }>({
+        path: `${BASE}/company-documents/${encodeURIComponent(documentId)}`,
+        params: { include: cmdOpts.pages ? 'pages' : undefined },
+      });
+      const doc = data.document;
+      let text: string | undefined;
+      if (cmdOpts.pages) {
+        // Inline up to 2 MB; else the signed pages file (a bearer URL: plain GET, no Authorization header).
+        let pagesJson = doc.pages_json;
+        if (pagesJson === undefined && doc.pages_url) {
+          const response = await fetch(doc.pages_url);
+          if (!response.ok) throw new Error(`Fetching the page text failed with status ${response.status}`);
+          pagesJson = await response.json();
+          // `--json` then carries the text too, as with the inline answer.
+          doc.pages_json = pagesJson;
+        }
+        text = pagesText(pagesJson);
+        if (!text) throw new Error('No text extracted for this document yet');
+      }
+      let saved: Saved | undefined;
+      if (cmdOpts.output) {
+        if (text !== undefined) {
+          saved = await writeTextFile(cmdOpts.output, text, { force: cmdOpts.force });
+        } else {
+          if (!doc.url) throw new Error(`No stored file for this document; source: ${doc.source_url}`);
+          saved = await downloadToFile(doc.url, cmdOpts.output, { force: cmdOpts.force, spinnerText: `Downloading ${doc.kind}...` });
+        }
+      }
+      output(data, opts, () => {
+        console.log(chalk.bold(`\n${doc.title ?? doc.kind} · ${data.company?.symbol ?? ''}\n`));
+        // The metadata without the inline text; a saved file prints its path instead of the signed URLs.
+        const hidden = new Set(saved ? ['pages_json', 'url', 'pages_url'] : ['pages_json']);
+        formatKeyValue(Object.fromEntries(Object.entries(doc).filter(([key]) => !hidden.has(key))));
+        if (saved) printSaved(saved);
+        else if (text !== undefined) console.log(`\n${text}`);
+      });
+    }));
+
+  earnings
+    .command('document-search')
+    .description('Semantic search over company documents (call documents and IR libraries): passages with page numbers')
+    .requiredOption('-q, --query <text>', 'Search text')
+    .option('-i, --identifier <ticker>', 'Only this company')
+    .option('--kind <list>', 'Kinds, comma-separated (annual_report, proxy_statement, cfo_commentary, …)')
+    .option('--section <list>', 'IR sections, comma-separated (company documents only)')
+    .option('--year <n>', 'Only documents of this year')
+    .addOption(new Option('--table <table>', 'Only call documents or only IR libraries').choices(['event_documents', 'company_documents']))
+    .option('-l, --limit <n>', 'Max passages (1-20)')
+    .action(run(async (cmdOpts) => {
+      const opts = globalOpts();
+      const data = await apiGet<{ query: string; hits: Row[] }>({
+        path: `${BASE}/documents/search`,
+        params: {
+          q: cmdOpts.query,
+          identifier: cmdOpts.identifier,
+          kind: cmdOpts.kind,
+          section: cmdOpts.section,
+          year: cmdOpts.year,
+          table: cmdOpts.table,
+          limit: cmdOpts.limit,
+        },
+      });
+      output(data, opts, () => {
+        console.log(chalk.bold(`\nDocument search: ${data.query}\n`));
+        console.log(chalk.dim('Passages from company-published documents, not verified facts.\n'));
+        formatTable(data.hits.map(hit => ({ ...hit, title: clip(hit.title), text: clip(hit.text) })),
+          ['score', 'kind', 'year', 'page', 'symbol', 'title', 'text', 'document_id']);
       });
     }));
 

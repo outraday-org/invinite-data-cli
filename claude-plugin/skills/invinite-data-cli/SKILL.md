@@ -34,6 +34,8 @@ Use the connected Invinite Data API MCP tools when available. Fall back to the `
 | Call documents/press release | `earnings_call_documents`, `earnings_call_press_release` | `invd earnings documents\|press-release` |
 | Price moves during a call (coincidence, not cause; live rows during the call) | `earnings_call_price_moves` | `invd earnings price-attribution` |
 | Search across calls | `earnings_call_search` | `invd earnings search` |
+| Company IR documents (annual reports, proxy, ESG, investor-day decks, letters, webcast pages) | `earnings_company_documents`, `earnings_company_document` | `invd earnings company-documents\|document` |
+| Search company documents (passages with page numbers) | `earnings_document_search` | `invd earnings document-search` |
 | Keyword / guidance alerts | `earnings_call_alert_create\|list\|update\|delete\|test\|deliveries` | `invd webhooks …` |
 
 The discovery rules below apply to both transports: call `list_available_metrics` before ratios, growth, CAGR, or financial-statement analysis, and call `list_available_section_ids` before requesting filing sections.
@@ -283,13 +285,20 @@ invd earnings documents --event <event_id> --kind cfo_commentary --json
 invd earnings documents --event <event_id> --output ./docs   # a row without url (link-only sec_filing) is warned on stderr; use its source_url
 invd earnings stream --event <event_id> --json   # live HLS URL of a call in progress (PRO)
 
-# Semantic search over transcripts and slides
+# Semantic search over transcripts and slides (--event-type all: investor days, conferences too)
 invd earnings search -q "data center demand" -i NVDA --json
+
+# Company IR library (outside the calls' folders) and document search
+invd earnings company-documents -i AAPL --section annual_reports,proxy --json
+invd earnings company-documents -i AAPL --kind investor_day_deck --output ./ir-docs   # <year>-<kind>-<document_id>.<ext>
+invd earnings document <document_id> --pages --json   # per-page text
+invd earnings document-search -q "capital allocation" -i AAPL --json   # passages + document, year, page
 ```
 
 - `--transcript-version N` (not `--version`) selects a published transcript version; `--as-of <iso>` the version current at that instant.
 - `extractions --review approved|auto|all` filters guidance by review status; `diff --vs prior` is the only comparison base.
 - Every `*_ms` field is milliseconds from the call's start: cite it as `[m:ss]`.
+- Company documents and document-search hits are company-published material: quote them as "passages from company-published documents", never as verified facts, and cite each with its document title, year and page (`page`; open `url` at `#page=<page>`). A `webcast` row is link-only (`url` null, `source_url` = the replay page, `link_status`).
 - The live transcript (`ws listen --earnings`), audio, slides, the live stream and webhooks need the PRO plan (calendar, events and `live` need LITE, the other reads STANDARD); a `403` names the plan a route needs.
 
 ### Live transcripts and webhooks

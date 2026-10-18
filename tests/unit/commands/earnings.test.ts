@@ -17,13 +17,16 @@ vi.mock('../../../src/shared/spinner.js', () => ({
 }));
 
 import { Command } from 'commander';
-import { planHint, qaStartLine, registerEarningsCommands, transcriptText } from '../../../src/commands/earnings.js';
+import {
+  companyDocumentFileName, pagesText, planHint, qaStartLine, registerEarningsCommands, transcriptText,
+} from '../../../src/commands/earnings.js';
 import { ApiError } from '../../../src/shared/errors.js';
 
 const SUBCOMMANDS = [
   'calendar', 'events', 'live', 'event', 'transcript', 'versions', 'transcript-diff', 'qa',
   'participants', 'analysts', 'person', 'press-release', 'extractions', 'guidance-history',
   'diff', 'metrics', 'prosody', 'price-attribution', 'audio', 'slides', 'documents', 'search', 'stream',
+  'company-documents', 'document', 'document-search',
 ];
 
 const SELECTOR_COMMANDS = [
@@ -31,7 +34,7 @@ const SELECTOR_COMMANDS = [
   'extractions', 'diff', 'metrics', 'prosody', 'price-attribution', 'audio', 'slides', 'documents', 'stream',
 ];
 
-const OUTPUT_COMMANDS = ['transcript', 'press-release', 'audio', 'slides', 'documents'];
+const OUTPUT_COMMANDS = ['transcript', 'press-release', 'audio', 'slides', 'documents', 'company-documents', 'document'];
 
 function earningsGroup(): Command {
   const program = new Command();
@@ -97,6 +100,22 @@ describe('qaStartLine', () => {
   });
 });
 
+describe('company document helpers', () => {
+  it('names a saved file <year>-<kind>-<document_id>.<ext>, undated without a year', () => {
+    expect(companyDocumentFileName({ year: 2025, kind: 'annual_report', document_id: 'd1', content_type: 'application/pdf' }))
+      .toBe('2025-annual_report-d1.pdf');
+    expect(companyDocumentFileName({ year: null, kind: 'fact_sheet', document_id: 'd2', content_type: 'application/pdf' }))
+      .toBe('undated-fact_sheet-d2.pdf');
+  });
+
+  it('renders the pages JSON as text and tolerates anything else', () => {
+    expect(pagesText({ pages: [{ n: 1, title: 'Cover', text: 'Hello' }, { text: 'Two' }] }))
+      .toBe('## Page 1 · Cover\n\nHello\n\n## Page 2\n\nTwo');
+    expect(pagesText(undefined)).toBe('');
+    expect(pagesText({ pages: 'x' })).toBe('');
+  });
+});
+
 describe('planHint', () => {
   it('names the plan of a 403 tier denial', () => {
     const error = new ApiError(403, 'Forbidden', 'This endpoint requires PRO plan. Your current plan is LITE.');
@@ -153,6 +172,76 @@ describe('earnings requests', () => {
     expect(url(0).searchParams.get('event_type')).toBe('all');
     expect(url(1).pathname).toBe('/v1/earnings-calls/events');
     expect(url(1).searchParams.get('event_type')).toBe('all');
+  });
+
+  it('company-documents maps its filters and prints the table without signed URLs', async () => {
+    (fetch as any).mockResolvedValueOnce(json({
+      company: { cik: '0000000001', symbol: 'ACME', name: 'Acme' },
+      documents: [{ document_id: 'd1', kind: 'annual_report', section: 'annual_reports', year: 2025, period: 'FY', title: 'Annual Report', pages: 120, url: 'https://r2.example.com/a.pdf?X-Amz-Signature=secret' }],
+    }));
+    await run('company-documents', '-i', 'ACME', '--section', 'annual_reports,proxy', '--kind', 'annual_report', '--year', '2025', '--event', 'e1', '-l', '20');
+    expect(url().pathname).toBe('/v1/earnings-calls/company-documents');
+    expect(Object.fromEntries(url().searchParams)).toEqual({
+      identifier: 'ACME', section: 'annual_reports,proxy', kind: 'annual_report', year: '2025', event_id: 'e1', limit: '20',
+    });
+    const printed = logs.join('\n');
+    expect(printed).toContain('ACME (0000000001) IR documents');
+    expect(printed).toContain('Annual Report');
+    expect(printed).not.toContain('X-Amz-Signature');
+  });
+
+  it('document --pages prints the inline page text', async () => {
+    (fetch as any).mockResolvedValueOnce(json({
+      company: { symbol: 'ACME' },
+      document: { document_id: 'd1', kind: 'annual_report', title: 'Annual Report', pages_json: { pages: [{ n: 3, title: 'Strategy', text: 'Capital allocation.' }] } },
+    }));
+    await run('document', 'd1', '--pages');
+    expect(url().pathname).toBe('/v1/earnings-calls/company-documents/d1');
+    expect(url().searchParams.get('include')).toBe('pages');
+    expect(fetch).toHaveBeenCalledTimes(1);
+    const printed = logs.join('\n');
+    expect(printed).toContain('## Page 3 · Strategy');
+    expect(printed).toContain('Capital allocation.');
+  });
+
+  it('document --pages reads a large pages file from its signed URL without the API key', async () => {
+    const signed = 'https://r2.example.com/a.pdf.pages.json?X-Amz-Signature=secret';
+    (fetch as any)
+      .mockResolvedValueOnce(json({ company: { symbol: 'ACME' }, document: { document_id: 'd1', kind: 'annual_report', title: null, pages_url: signed } }))
+      .mockResolvedValueOnce(json({ pages: [{ n: 1, text: 'Big file.' }] }));
+    await run('document', 'd1', '--pages');
+    expect((fetch as any).mock.calls[1][0]).toBe(signed);
+    expect((fetch as any).mock.calls[1][1]).toBeUndefined();
+    expect(logs.join('\n')).toContain('Big file.');
+  });
+
+  it('document-search maps its filters and prints the passages with page numbers', async () => {
+    (fetch as any).mockResolvedValueOnce(json({
+      query: 'capital allocation',
+      hits: [{ score: 0.81, kind: 'annual_report', year: 2025, page: 14, symbol: 'ACME', title: 'Annual Report', text: 'Our capital allocation priorities.', document_id: 'd1', url: null }],
+    }));
+    await run('document-search', '-q', 'capital allocation', '-i', 'ACME', '--kind', 'annual_report', '--year', '2025', '--table', 'company_documents', '-l', '5');
+    expect(url().pathname).toBe('/v1/earnings-calls/documents/search');
+    expect(Object.fromEntries(url().searchParams)).toEqual({
+      q: 'capital allocation', identifier: 'ACME', kind: 'annual_report', year: '2025', table: 'company_documents', limit: '5',
+    });
+    const printed = logs.join('\n');
+    expect(printed).toContain('Passages from company-published documents, not verified facts.');
+    expect(printed).toContain('Our capital allocation priorities.');
+  });
+
+  it('search passes --event-type', async () => {
+    (fetch as any).mockResolvedValueOnce(json({ query: 'q', hits: [] }));
+    await run('search', '-q', 'strategy', '--event-type', 'investor_day');
+    expect(url().searchParams.get('event_type')).toBe('investor_day');
+  });
+
+  it('event names a non-earnings event by its type and title', async () => {
+    (fetch as any).mockResolvedValueOnce(json({
+      event_id: 'e1', symbol: 'ACME', company_name: 'Acme', scheduled_at: '2026-03-12T14:00:00Z', event_type: 'investor_day', event_title: 'Investor Day 2026',
+    }));
+    await run('event', 'e1');
+    expect(logs.join('\n')).toContain('ACME · Acme · investor day: Investor Day 2026 · 2026-03-12T14:00:00Z');
   });
 
   it('transcript prints the Q&A start and passes qa_start_ms through in JSON', async () => {
@@ -277,6 +366,22 @@ describe('earnings requests', () => {
       expect(exit).toHaveBeenCalledWith(1);
       expect(errors.join('\n')).toContain('None of the 1 documents could be downloaded');
       exit.mockRestore();
+    });
+
+    it('company-documents --output saves <year>-<kind>-<id> and warns on a link-only row', async () => {
+      (fetch as any)
+        .mockResolvedValueOnce(json({
+          company: { symbol: 'ACME', cik: '1' },
+          documents: [
+            { document_id: 'd1', kind: 'annual_report', year: 2025, content_type: 'application/pdf', url: 'https://r2.example.com/d1' },
+            { document_id: 'd2', kind: 'webcast', year: 2026, content_type: null, url: null, source_url: 'https://ir.example.com/replay' },
+          ],
+        }))
+        .mockResolvedValueOnce({ ok: true, status: 200, body: new Blob(['pdf']).stream() });
+      await run('company-documents', '-i', 'ACME', '--output', dir);
+      expect(await readFile(join(dir, '2025-annual_report-d1.pdf'), 'utf8')).toBe('pdf');
+      expect(errors.join('\n')).toContain('Not saved: webcast d2 has no download URL; source: https://ir.example.com/replay');
+      expect(errors.join('\n')).toContain('1 of 2 documents saved; 1 skipped (no download URL)');
     });
 
     it('exits 0 for an empty list', async () => {
