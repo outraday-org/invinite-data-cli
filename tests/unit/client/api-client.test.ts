@@ -233,13 +233,13 @@ describe('takeCreditUsage', () => {
     json: () => Promise.resolve({}),
   });
 
-  it('sums X-Credits-Charged across requests, keeps the last remaining, then resets', async () => {
+  it('sums X-Credits-Charged across requests, keeps the last remaining net of its own charge, then resets', async () => {
     (fetch as any)
       .mockResolvedValueOnce(page({ 'X-Credits-Charged': '5', 'X-Credits-Included-Remaining': '100' }))
       .mockResolvedValueOnce(page({ 'X-Credits-Charged': '5', 'X-Credits-Included-Remaining': '95' }));
     await apiGet({ path: '/v1/a' });
     await apiGet({ path: '/v1/a', params: { offset: '10' } });
-    expect(takeCreditUsage()).toEqual({ charged: 10, includedRemaining: 95 });
+    expect(takeCreditUsage()).toEqual({ charged: 10, includedRemaining: 90 });
     expect(takeCreditUsage()).toBeNull();
   });
 

@@ -49,7 +49,8 @@ describe('--show-cost', () => {
   it('writes both credit headers to stderr only', async () => {
     respond({ 'X-Credits-Charged': '5', 'X-Credits-Included-Remaining': '99' });
     await run('--show-cost', 'health');
-    expect(err).toEqual(['credits: 5 · included left: 99']);
+    // The header is the allowance BEFORE this request: 99 − 5 charged = 94 left after it.
+    expect(err).toEqual(['credits: 5 · included left: 94']);
     expect(out.join('\n')).not.toContain('credits:');
   });
 

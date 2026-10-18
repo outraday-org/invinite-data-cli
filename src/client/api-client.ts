@@ -37,7 +37,11 @@ async function apiErrorFrom(response: Response): Promise<ApiError> {
 export interface CreditUsage {
   /** `X-Credits-Charged`, summed over every request of this invocation (`--all` pages included). */
   charged: number;
-  /** The last `X-Credits-Included-Remaining` seen; absent on routes that skip the quota decision. */
+  /**
+   * Included credits left AFTER the last metered request: the API's `X-Credits-Included-Remaining` is the allowance
+   * BEFORE that request's own charge, so its `X-Credits-Charged` is subtracted (floored at 0). `null` when no
+   * response carried the header (routes that skip the quota decision, e.g. `/v1/account/usage`).
+   */
   includedRemaining: number | null;
 }
 
@@ -47,9 +51,12 @@ function recordCredits(response: Response): void {
   const charged = response.headers?.get('X-Credits-Charged');
   const remaining = response.headers?.get('X-Credits-Included-Remaining');
   if (charged == null && remaining == null) return;
+  const chargedCredits = Number(charged) || 0;
   creditUsage = {
-    charged: (creditUsage?.charged ?? 0) + (Number(charged) || 0),
-    includedRemaining: remaining == null ? creditUsage?.includedRemaining ?? null : Number(remaining),
+    charged: (creditUsage?.charged ?? 0) + chargedCredits,
+    includedRemaining: remaining == null
+      ? creditUsage?.includedRemaining ?? null
+      : Math.max(0, (Number(remaining) || 0) - chargedCredits),
   };
 }
 

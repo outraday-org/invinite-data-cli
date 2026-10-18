@@ -195,8 +195,8 @@ invd --show-cost --json company details -i AAPL > aapl.json
 # credits: 1 · included left: 249999
 ```
 
-`included left` is the plan's remaining included credits as the API reports them (absent → `—`, e.g. for the free
-usage route). Keys, plan and prepaid credits are managed at [invinite.com/data-api](https://invinite.com/data-api);
+`included left` is the plan's included credits left after the command: the API's `X-Credits-Included-Remaining`
+(the allowance before the request) minus what the request was charged (absent → `—`, e.g. for the free usage route). Keys, plan and prepaid credits are managed at [invinite.com/data-api](https://invinite.com/data-api);
 credit costs per endpoint and plan limits are documented at
 [/docs/data-api/credits-and-limits](https://invinite.com/docs/data-api/credits-and-limits).
 
