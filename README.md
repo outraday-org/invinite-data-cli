@@ -401,7 +401,9 @@ invd financials income-statement -i AAPL -p annual --json | jq '.companies[0]'
 
 Paginated commands take `-l, --limit` and `--offset`, or `--all` to follow every page (`next_url`; per-company commands
 merge each company's pages). A command whose operation does not paginate refuses `--all` by name. Without `--limit`
-the API's own page size applies.
+the API's own page size applies. A page the API refuses with 429 (its admission limit) or 503 is retried up to five
+times after the answer's `Retry-After` (else 1 s, 2 s, 4 s, …, at most 30 s), so a long walk slows down instead of
+losing the pages it already fetched.
 
 ```bash
 # Results 20-30

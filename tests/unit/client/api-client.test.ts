@@ -97,6 +97,17 @@ describe('apiGet', () => {
     });
   });
 
+  it('carries the Retry-After of a refusal on the ApiError, in milliseconds', async () => {
+    (fetch as any).mockResolvedValue({
+      ok: false,
+      status: 429,
+      headers: new Headers({ 'Retry-After': '3' }),
+      json: () => Promise.resolve({ error: 'Too Many Requests', message: 'Request admission limit exceeded.' }),
+    });
+
+    await expect(apiGet({ path: '/v1/company/search' })).rejects.toMatchObject({ statusCode: 429, retryAfterMs: 3_000 });
+  });
+
   it('throws ApiError with the status text when the error body is not JSON', async () => {
     (fetch as any).mockResolvedValue({
       ok: false,

@@ -44,9 +44,32 @@ interface ParamBinding {
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
+/** The value placeholder commander shows after a parameter's flag (a boolean takes none). */
+const VALUE_PLACEHOLDER: Record<ManifestParam['type'], string> = {
+  boolean: '',
+  array: ' <list>',
+  string: ' <value>',
+  integer: ' <value>',
+  number: ' <value>',
+};
+
+/** Where each pagination shape keeps the next page's URL (`none` has none). */
+const NEXT_URL_PATH: Record<ManifestOperation['pagination'], string | undefined> = {
+  none: undefined,
+  top: 'next_url',
+  perCompany: 'companies.0.next_url',
+};
+
+const HTTP_METHOD: Record<Exclude<ManifestOperation['method'], 'get'>, 'POST' | 'PUT' | 'PATCH' | 'DELETE'> = {
+  post: 'POST',
+  put: 'PUT',
+  patch: 'PATCH',
+  delete: 'DELETE',
+};
+
 function paramOption(param: ManifestParam): Option {
   const long = `--${flagName(param.name)}`;
-  const value = param.type === 'boolean' ? '' : param.type === 'array' ? ' <list>' : ' <value>';
+  const value = VALUE_PLACEHOLDER[param.type];
   const notes: string[] = [];
   if (param.type === 'array') {
     notes.push(param.enum ? `comma-separated: ${param.enum.join(', ')}` : 'comma-separated');
@@ -131,8 +154,7 @@ async function requestBody(operation: ManifestOperation, opts: Record<string, un
 }
 
 function nextUrlOf(operation: ManifestOperation, data: unknown): string | undefined {
-  const path = operation.pagination === 'top' ? 'next_url'
-    : operation.pagination === 'perCompany' ? 'companies.0.next_url' : undefined;
+  const path = NEXT_URL_PATH[operation.pagination];
   const found = path ? pick(data, path) : undefined;
   return typeof found === 'string' && found !== '' ? found : undefined;
 }
@@ -188,9 +210,7 @@ function defineOperationCommand(command: Command, operation: ManifestOperation):
       ? await apiGet<unknown>({ path, params, auth: operation.auth })
       : await apiRequest<unknown>({
         auth: operation.auth,
-        method: operation.method === 'post' ? 'POST'
-          : operation.method === 'put' ? 'PUT'
-            : operation.method === 'patch' ? 'PATCH' : 'DELETE',
+        method: HTTP_METHOD[operation.method],
         path,
         params,
         ...(body !== undefined ? { body } : {}),

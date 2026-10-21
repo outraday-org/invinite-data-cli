@@ -181,8 +181,7 @@ export function buildManifest(rawSpec: unknown, specText: string): Manifest {
       if (cli.rowsPath !== undefined) out.rowsPath = cli.rowsPath;
       if (cli.columns) out.columns = cli.columns;
 
-      const authored = cli.allItemsPath === undefined ? undefined
-        : Array.isArray(cli.allItemsPath) ? cli.allItemsPath : [cli.allItemsPath];
+      const authored = typeof cli.allItemsPath === 'string' ? [cli.allItemsPath] : cli.allItemsPath;
       if (cli.pagination === 'perCompany') {
         if (!authored) throw new Error(`${where}: a perCompany operation needs x-cli.allItemsPath`);
         out.allItemsPath = authored;

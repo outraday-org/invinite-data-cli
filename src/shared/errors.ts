@@ -5,10 +5,21 @@ export class ApiError extends Error {
     public statusCode: number,
     public errorType: string,
     message: string,
+    /** The answer's `Retry-After`, in milliseconds (absent when the header was missing or unreadable). */
+    public retryAfterMs?: number,
   ) {
     super(message);
     this.name = 'ApiError';
   }
+}
+
+/** `Retry-After` as delay-seconds or an HTTP date → milliseconds from `now`; `undefined` when unreadable. */
+export function parseRetryAfter(value: string | null | undefined, now = Date.now()): number | undefined {
+  if (!value?.trim()) return undefined;
+  const seconds = Number(value);
+  if (Number.isFinite(seconds)) return Math.max(0, seconds * 1000);
+  const date = Date.parse(value);
+  return Number.isNaN(date) ? undefined : Math.max(0, date - now);
 }
 
 /**

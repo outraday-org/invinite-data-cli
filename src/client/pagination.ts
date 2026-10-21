@@ -1,8 +1,44 @@
 import { apiGet } from './api-client.js';
+import { ApiError } from '../shared/errors.js';
 import { createSpinner } from '../shared/spinner.js';
 import { pick } from '../formatters/flatten.js';
 
 type NextUrlExtractor<T> = (data: T) => string | undefined;
+
+/**
+ * How `--all` waits out a refused page instead of dropping the pages it already holds: a 429 (the API's admission
+ * limit) or 503 is retried up to `retries` times, each after the answer's `Retry-After`, else `baseDelayMs * 2^n`,
+ * never longer than `maxDelayMs`. Any other error, or the last refusal, ends the walk.
+ */
+export const PAGE_RETRY = { retries: 5, baseDelayMs: 1_000, maxDelayMs: 30_000 } as const;
+
+const isRetryable = (error: unknown): error is ApiError =>
+  error instanceof ApiError && (error.statusCode === 429 || error.statusCode === 503);
+
+/** The wait before retry number `retry` (0-based) of a refused page. */
+export function pageRetryDelayMs(error: ApiError, retry: number): number {
+  return Math.min(PAGE_RETRY.maxDelayMs, error.retryAfterMs ?? PAGE_RETRY.baseDelayMs * 2 ** retry);
+}
+
+const sleep = (ms: number) => new Promise<void>(done => setTimeout(done, ms));
+
+async function fetchPage<T>(nextUrl: string, onWait: (seconds: number, retry: number) => void): Promise<T> {
+  // nextUrl is absolute: re-issue its path + query against the configured base URL. Repeated keys
+  // (`status=a&status=b`) stay repeated.
+  const url = new URL(nextUrl);
+  const params: Record<string, string[]> = {};
+  url.searchParams.forEach((v, k) => { (params[k] ??= []).push(v); });
+  for (let retry = 0; ; retry += 1) {
+    try {
+      return await apiGet<T>({ path: url.pathname, params, silent: true });
+    } catch (error) {
+      if (!isRetryable(error) || retry >= PAGE_RETRY.retries) throw error;
+      const delay = pageRetryDelayMs(error, retry);
+      onWait(Math.ceil(delay / 1000), retry + 1);
+      await sleep(delay);
+    }
+  }
+}
 
 export async function fetchAllPages<T>(
   initialData: T,
@@ -14,15 +50,12 @@ export async function fetchAllPages<T>(
   let page = 1;
 
   while (nextUrl) {
-    page++;
+    page += 1;
     const spinner = createSpinner(`Fetching page ${page}...`);
     try {
-      // nextUrl is absolute, extract path+query
-      const url = new URL(nextUrl);
-      // Repeated keys (`status=a&status=b`) stay repeated.
-      const params: Record<string, string[]> = {};
-      url.searchParams.forEach((v, k) => { (params[k] ??= []).push(v); });
-      const pageData = await apiGet<T>({ path: url.pathname, params, silent: true });
+      const pageData = await fetchPage<T>(nextUrl, (seconds, retry) => {
+        spinner.text = `Page ${page} refused (rate limit) — retry ${retry}/${PAGE_RETRY.retries} in ${seconds}s...`;
+      });
       result = mergeResults(result, pageData);
       nextUrl = extractNextUrl(pageData);
       spinner.succeed(`Page ${page} fetched`);

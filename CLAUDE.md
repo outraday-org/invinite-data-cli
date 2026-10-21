@@ -18,7 +18,8 @@ Every plain command — one REST call, printed as a table, a key/value list or J
 - Flags derive from parameter names (`company_name` → `--company-name`, path parameters are flags too, never
   positional); `x-cli.flags` only adds a one-letter alias. Help text is the spec's `summary` / parameter description.
 - `--all` follows `next_url` (`pagination: top`) or `companies[0].next_url` merged per company (`perCompany`), both
-  derived from the response schema — never a per-command merge.
+  derived from the response schema — never a per-command merge. A page refused with 429 / 503 is retried after its
+  `Retry-After` (`PAGE_RETRY` in `src/client/pagination.ts`, bounded) — a long walk meets the API's admission limit.
 - An operation whose spec `security` is empty (`health`, `status …`) sends no key (`auth: false` in the manifest).
 
 ## The hand-written ROSTER
@@ -36,8 +37,8 @@ duplicate name. The spec marks such an operation `x-cli.exclude` naming the hand
   `pnpm skill:commands` (`scripts/build-skill-commands.ts`) from the manifest + the roster; `skill:commands:check` and a
   test cell fail on drift. Edit only inside an `<!-- invd:hand:<command> -->` block (one per roster entry, carried over
   verbatim); the prose around the block is hand-written.
-- `tests/unit/doc-commands.test.ts` resolves every `invd …` line in a fenced block of `README.md` and `SKILL.md`
-  against `createProgram()`: an unknown command, flag or stray positional fails. `invinite`'s docs read this repo only
+- `tests/unit/doc-commands.test.ts` resolves every `invd …` line (fenced, or an inline code span) of `README.md` and
+  the plugin's skill, agent and commands against `createProgram()`: an unknown command, flag or stray positional fails. `invinite`'s docs read this repo only
   through its committed snapshot (`invinite/scripts/snapshot-data-cli-reference.ts`, rerun after a command change).
 
 ## Traps

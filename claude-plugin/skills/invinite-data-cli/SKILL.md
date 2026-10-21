@@ -595,7 +595,7 @@ invd ws listen --all-live --keywords tariffs --json
 Paginated commands (the `--all` ones above) take:
 - `-l, --limit <n>` — max results per page
 - `--offset <n>` — pagination offset
-- `--all` — auto-paginate all results (follows `next_url`; per-company commands merge each company's pages)
+- `--all` — auto-paginate all results (follows `next_url`; per-company commands merge each company's pages; a page refused with 429 / 503 is retried up to 5 times after the API's `Retry-After`)
 - `-s, --sort <dir>` — `asc` or `desc` (where the operation supports it)
 
 ## Common Patterns

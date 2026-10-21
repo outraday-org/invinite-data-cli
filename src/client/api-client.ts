@@ -1,6 +1,6 @@
 import { getApiKey } from '../config/auth.js';
 import { getBaseUrl } from '../config/config-manager.js';
-import { ApiError } from '../shared/errors.js';
+import { ApiError, parseRetryAfter } from '../shared/errors.js';
 import { createSpinner } from '../shared/spinner.js';
 
 export interface RequestOptions {
@@ -27,12 +27,19 @@ function buildUrl(path: string, params?: RequestOptions['params']): string {
   return url.toString();
 }
 
+const stringField = (body: unknown, key: string): string | undefined => {
+  if (typeof body !== 'object' || body === null) return undefined;
+  const value: unknown = Reflect.get(body, key);
+  return typeof value === 'string' && value !== '' ? value : undefined;
+};
+
 async function apiErrorFrom(response: Response): Promise<ApiError> {
-  const body = await response.json().catch(() => null) as any;
+  const body: unknown = await response.json().catch(() => null);
   return new ApiError(
     response.status,
-    body?.error || response.statusText || 'Unknown Error',
-    body?.message || `Request failed with status ${response.status}`,
+    stringField(body, 'error') ?? (response.statusText || 'Unknown Error'),
+    stringField(body, 'message') ?? `Request failed with status ${response.status}`,
+    parseRetryAfter(response.headers?.get('Retry-After')),
   );
 }
 
@@ -50,13 +57,13 @@ export interface CreditUsage {
 let creditUsage: CreditUsage | null = null;
 
 function recordCredits(response: Response): void {
-  const charged = response.headers?.get('X-Credits-Charged');
-  const remaining = response.headers?.get('X-Credits-Included-Remaining');
-  if (charged == null && remaining == null) return;
+  const charged = response.headers?.get('X-Credits-Charged') ?? null;
+  const remaining = response.headers?.get('X-Credits-Included-Remaining') ?? null;
+  if (charged === null && remaining === null) return;
   const chargedCredits = Number(charged) || 0;
   creditUsage = {
     charged: (creditUsage?.charged ?? 0) + chargedCredits,
-    includedRemaining: remaining == null
+    includedRemaining: remaining === null
       ? creditUsage?.includedRemaining ?? null
       : Math.max(0, (Number(remaining) || 0) - chargedCredits),
   };
