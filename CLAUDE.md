@@ -46,3 +46,6 @@ duplicate name. The spec marks such an operation `x-cli.exclude` naming the hand
   would publish it.
 - `src/generated/cli-manifest.json` is copied into `dist/` by `scripts/copy-manifest.mjs` (`tsc` copies no JSON).
 - Breaking command names are allowed pre-release: no alias commands.
+- Publishing is by hand, no CI: the gitignored `.npmrc` reads `${NPM_ACCESS_TOKEN}`, which `export $(cat .env | xargs)`
+  supplies (`~/.npmrc`'s token is stale). `publish:version` bumps PATCH — a breaking command surface sets the version
+  explicitly (`pnpm version X.Y.0 --no-git-tag-version`) and publishes with `pnpm publish --access public`.
