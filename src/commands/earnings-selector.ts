@@ -18,7 +18,7 @@ export function selectorOptions(cmd: Command): Command {
     .option('-i, --identifier <ticker>', 'Ticker or CIK (with --year + --quarter, or --date)')
     .option('--year <n>', 'Fiscal year of the call (with --quarter)')
     .option('--quarter <n>', 'Fiscal quarter of the call (with --year)')
-    .option('--date <date>', 'New York calendar day of the call (YYYY-MM-DD)');
+    .option('--date <date>', 'Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date');
 }
 
 export function selectorParams(opts: SelectorOptions): Record<string, string | undefined> {

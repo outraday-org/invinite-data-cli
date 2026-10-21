@@ -548,7 +548,7 @@ invd filings form-types -i AAPL
 
 Earnings calls: calendar, transcripts, Q&A, guidance and KPIs, audio, slides, documents, search — plus the companies' IR libraries (`company-documents`, `document`, `document-search`) and non-earnings events (investor days, conferences, AGMs: `--event-type`; the tables show `event_type` / `event_title`). The live transcript (`ws listen --earnings`), audio, slides, the live stream and webhooks need the **PRO** plan (calendar, events and `live` need LITE, the other reads STANDARD); a `403` names the plan a route needs.
 
-**Selecting a call.** Commands about one call (marked *selector* below) take either `--event <event_id>` (a UUID from `earnings events` / `earnings calendar`; wins over the rest), or `-i, --identifier <ticker|cik>` with `--year <n>` + `--quarter <n>` (the company's fiscal quarter) or `--date <YYYY-MM-DD>` (the New York call day).
+**Selecting a call.** Commands about one call (marked *selector* below) take either `--event <event_id>` (a UUID from `earnings events` / `earnings calendar`; wins over the rest), or `-i, --identifier <ticker|cik>` with `--year <n>` + `--quarter <n>` (the company's fiscal quarter) or `--date <YYYY-MM-DD>` (the call day: a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date).
 
 **Saving files.** `--output <file>` saves a transcript, press release, recording or deck (`documents --output <dir>` saves every document); an existing file is only replaced with `--force`. Without `--output` the media commands print **presigned URLs that expire after 15 minutes**.
 
@@ -558,7 +558,7 @@ Upcoming and recent calls across companies.
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `--from <date>` / `--to <date>` | New York days (at most 92 days) | today / from + 14 days |
+| `--from <date>` / `--to <date>` | Calendar days in New York time (America/New_York; a call without a confirmed time is listed on its announced date), at most 92 days | today / from + 14 days |
 | `--status <list>` | `estimated`, `unconfirmed`, `confirmed`, `postponed`, `cancelled` (comma-separated) | — |
 | `--session <session>` | `bmo`, `amc`, `intraday` | — |
 | `--exchange <exchange>` | Exchange | — |
