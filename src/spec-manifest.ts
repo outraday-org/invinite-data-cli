@@ -23,6 +23,8 @@ const manifestParamSchema = z.object({
   enum: z.array(z.string()).optional(),
   /** Shown in help, never sent — the API applies its own default. */
   default: z.unknown().optional(),
+  /** The spec's `example`: shown in help and the skill's example line, never sent. */
+  example: z.unknown().optional(),
   description: z.string().optional(),
   /** One-letter short flag (`-q`). */
   alias: z.string().length(1).optional(),
@@ -39,7 +41,14 @@ const manifestOperationSchema = z.object({
   auth: z.boolean(),
   summary: z.string(),
   params: z.array(manifestParamSchema),
-  body: z.object({ required: z.boolean(), contentType: z.literal('application/json') }).strict().optional(),
+  /** The spec's `x-example-params`: the OPTIONAL params an example invocation passes beside the required ones. */
+  exampleParams: z.array(z.string().min(1)).min(1).optional(),
+  body: z.object({
+    required: z.boolean(),
+    contentType: z.literal('application/json'),
+    /** The spec's request-body `example` (the skill's `--body`). */
+    example: z.unknown().optional(),
+  }).strict().optional(),
   view: z.enum(MANIFEST_VIEWS),
   /** Dotted path to the table's rows, or to the ONE object a `keyValue` view shows (absent = the response root). */
   rowsPath: z.string().optional(),
@@ -60,6 +69,10 @@ export const manifestSchema = z.object({
 }).strict();
 
 export type ManifestParam = z.infer<typeof manifestParamSchema>;
+
+/** A param's spec example as its flag takes it: an array comma-joined, anything else as its text. */
+export const exampleValue = (example: unknown): string =>
+  Array.isArray(example) ? example.map(item => String(item)).join(',') : String(example);
 export type ManifestOperation = z.infer<typeof manifestOperationSchema>;
 export type Manifest = z.infer<typeof manifestSchema>;
 

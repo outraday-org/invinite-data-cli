@@ -44,6 +44,7 @@ const parameterSchema = z.object({
   required: z.boolean().optional(),
   description: z.string().optional(),
   schema: schemaSchema.optional(),
+  example: z.unknown().optional(),
 }).passthrough();
 
 const refSchema = z.object({ $ref: z.string() });
@@ -71,6 +72,7 @@ const operationSchema = z.object({
   requestBody: z.object({ required: z.boolean().optional(), content: z.record(z.unknown()) }).passthrough().optional(),
   security: z.array(z.record(z.unknown())).optional(),
   'x-cli': cliSchema.optional(),
+  'x-example-params': z.array(z.string()).optional(),
 }).passthrough();
 
 const specSchema = z.object({
@@ -130,6 +132,7 @@ function manifestParam(parameter: SpecParameter, alias: string | undefined, wher
   }
   if (values) param.enum = values.map(value => String(value));
   if (schema.default !== undefined) param.default = schema.default;
+  if (parameter.example !== undefined) param.example = parameter.example;
   if (parameter.description) param.description = parameter.description;
   if (alias !== undefined) param.alias = alias;
   return param;
@@ -171,12 +174,21 @@ export function buildManifest(rawSpec: unknown, specText: string): Manifest {
         pagination: cli.pagination,
       };
 
+      const exampleParams = operation['x-example-params'];
+      if (exampleParams && exampleParams.length > 0) {
+        const unknown = exampleParams.filter(name => !params.some(param => param.name === name));
+        if (unknown.length > 0) throw new Error(`${where}: x-example-params names no parameter: ${unknown.join(', ')}`);
+        out.exampleParams = exampleParams;
+      }
+
       if (operation.requestBody) {
         const types = Object.keys(operation.requestBody.content);
         if (types.length !== 1 || types[0] !== 'application/json') {
           throw new Error(`${where}: request body ${types.join(', ')} is not application/json`);
         }
         out.body = { required: operation.requestBody.required === true, contentType: 'application/json' };
+        const media = operation.requestBody.content['application/json'];
+        if (typeof media === 'object' && media !== null && 'example' in media) out.body.example = media.example;
       }
       if (cli.rowsPath !== undefined) out.rowsPath = cli.rowsPath;
       if (cli.columns) out.columns = cli.columns;

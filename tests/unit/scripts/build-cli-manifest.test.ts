@@ -106,6 +106,26 @@ describe('buildManifest', () => {
     expect(history).toMatchObject({ pagination: 'perCompany', allItemsPath: ['periods'] });
   });
 
+  it('carries parameter examples, x-example-params and the request-body example; refuses an unknown example param', () => {
+    const spec = fixture();
+    const search = spec.paths['/v1/things/search'].get;
+    spec.paths['/v1/things/search'].get = {
+      ...search,
+      parameters: [{ ...search.parameters[0], example: 'apple' }, ...search.parameters.slice(1)],
+      'x-example-params': ['days'],
+    } as typeof search;
+    const hook = spec.paths['/v1/hooks'].post;
+    hook.requestBody.content['application/json'] = { schema: { type: 'object' }, example: { url: 'https://x.test' } } as never;
+    const manifest = build(spec);
+    const built = manifest.operations.find(operation => operation.operationId === 'thingsSearch');
+    expect(built?.params[0]).toMatchObject({ name: 'query', example: 'apple' });
+    expect(built?.exampleParams).toEqual(['days']);
+    expect(manifest.operations.find(operation => operation.operationId === 'hooksCreate')?.body)
+      .toEqual({ required: true, contentType: 'application/json', example: { url: 'https://x.test' } });
+    spec.paths['/v1/things/search'].get = { ...spec.paths['/v1/things/search'].get, 'x-example-params': ['nope'] } as typeof search;
+    expect(() => build(spec)).toThrow(/GET \/v1\/things\/search: x-example-params names no parameter: nope/);
+  });
+
   it('auth: an operation security list wins over the document one; none at all or [] is public', () => {
     const spec = fixture();
     spec.paths['/v1/things/search'].get = { ...spec.paths['/v1/things/search'].get, security: [{ bearerAuth: [] }] };

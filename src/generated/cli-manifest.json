@@ -1,6 +1,6 @@
 {
   "specVersion": "1.0.0",
-  "specSha256": "67e6d81017208c2aca0351181f4952354655a98e7e0c03d5a52dd74e78e6cfa7",
+  "specSha256": "1ede43bc2f7efe0a60e1891d063c0038638d0d0e1e967199a9c22ae4f4114e32",
   "groups": [
     {
       "name": "company",
@@ -78,6 +78,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         }
@@ -137,6 +138,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -145,6 +147,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "2025-01-01",
           "description": "Filter dividends with ex_dividend_date on or after this date (YYYY-MM-DD)"
         },
         {
@@ -152,6 +155,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "2025-12-31",
           "description": "Filter dividends with ex_dividend_date on or before this date (YYYY-MM-DD)"
         },
         {
@@ -164,6 +168,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for dividends by ex_dividend_date",
           "alias": "s"
         },
@@ -173,6 +178,7 @@
           "required": false,
           "type": "integer",
           "default": 40,
+          "example": 5,
           "description": "Maximum number of dividends to return",
           "alias": "l"
         },
@@ -182,6 +188,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of dividends to skip for pagination"
         }
       ],
@@ -215,6 +222,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -228,6 +236,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for periods by period_end",
           "alias": "s"
         },
@@ -237,6 +246,7 @@
           "required": false,
           "type": "integer",
           "default": 40,
+          "example": 5,
           "description": "Maximum number of periods per company",
           "alias": "l"
         },
@@ -246,6 +256,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of periods to skip for pagination"
         }
       ],
@@ -295,6 +306,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "apple",
           "description": "Search text to match against ticker (prefix) or name (contains)",
           "alias": "q"
         },
@@ -304,6 +316,7 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of companies to return",
           "alias": "l"
         },
@@ -313,6 +326,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Pagination offset"
         }
       ],
@@ -343,6 +357,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -356,6 +371,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for splits by execution_date",
           "alias": "s"
         },
@@ -365,6 +381,7 @@
           "required": false,
           "type": "integer",
           "default": 40,
+          "example": 5,
           "description": "Maximum number of splits to return",
           "alias": "l"
         },
@@ -374,6 +391,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of splits to skip for pagination"
         }
       ],
@@ -403,6 +421,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "MSFT",
           "description": "Company ticker symbol or CIK (US companies only)",
           "alias": "i"
         },
@@ -412,6 +431,7 @@
           "required": false,
           "type": "integer",
           "default": 25,
+          "example": 5,
           "description": "Maximum number of analysts to return",
           "alias": "l"
         },
@@ -421,6 +441,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of analysts to skip for pagination"
         }
       ],
@@ -454,6 +475,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "2026-07-01",
           "description": "First day (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date. Default: today"
         },
         {
@@ -461,6 +483,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "2026-07-31",
           "description": "Last day (YYYY-MM-DD), at most 92 days after `from`: a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date. Default: `from` + 14 days"
         },
         {
@@ -476,6 +499,9 @@
             "postponed",
             "cancelled"
           ],
+          "example": [
+            "confirmed"
+          ],
           "description": "Filter by date status (repeatable). Default: every status except `cancelled`"
         },
         {
@@ -488,6 +514,7 @@
             "amc",
             "intraday"
           ],
+          "example": "amc",
           "description": "Filter by market session"
         },
         {
@@ -495,6 +522,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "NASDAQ",
           "description": "Filter by listing exchange (e.g. NASDAQ, NYSE)"
         },
         {
@@ -503,6 +531,7 @@
           "required": false,
           "type": "string",
           "default": "earnings_call",
+          "example": "earnings_call",
           "description": "Event types as a comma list (e.g. `investor_day,conference`) of earnings_call, investor_day, conference, agm, other; `all` = every event type"
         },
         {
@@ -515,6 +544,7 @@
             "desc"
           ],
           "default": "asc",
+          "example": "desc",
           "description": "Sort direction by scheduled start",
           "alias": "s"
         },
@@ -524,6 +554,7 @@
           "required": false,
           "type": "integer",
           "default": 100,
+          "example": 5,
           "description": "Maximum number of events to return",
           "alias": "l"
         },
@@ -533,6 +564,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of events to skip for pagination"
         }
       ],
@@ -573,6 +605,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c",
           "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors"
         },
         {
@@ -580,6 +613,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "MSFT",
           "description": "Company ticker symbol or CIK (US companies only); alone = the latest call with a diff, else with year+quarter or date",
           "alias": "i"
         },
@@ -588,6 +622,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 2026,
           "description": "Fiscal year of the call (with quarter)"
         },
         {
@@ -595,6 +630,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 4,
           "description": "Fiscal quarter of the call (with year)"
         },
         {
@@ -602,6 +638,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "2026-07-29",
           "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
         },
         {
@@ -616,6 +653,7 @@
             "agm",
             "other"
           ],
+          "example": "earnings_call",
           "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only"
         },
         {
@@ -627,8 +665,12 @@
             "prior"
           ],
           "default": "prior",
+          "example": "prior",
           "description": "Comparison base: the company's prior call"
         }
+      ],
+      "exampleParams": [
+        "event_id"
       ],
       "view": "keyValue",
       "columns": [
@@ -665,6 +707,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "Azure growth",
           "description": "The question or phrase to search for",
           "alias": "q"
         },
@@ -673,6 +716,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "MSFT",
           "description": "Search one company's documents (ticker or CIK, US only)",
           "alias": "i"
         },
@@ -682,6 +726,9 @@
           "required": false,
           "type": "array",
           "items": "string",
+          "example": [
+            "annual_report"
+          ],
           "description": "Only these document kinds, comma-separated or repeated: annual_report, ceo_letter, proxy_statement, proxy_supplement, esg_report, conference_presentation, investor_day_deck, earnings_deck, fact_sheet, financial_data, shareholder_letter, company_transcript, cfo_commentary, governance, press_release, infographic, webcast, other, prepared_remarks, sec_filing"
         },
         {
@@ -690,6 +737,9 @@
           "required": false,
           "type": "array",
           "items": "string",
+          "example": [
+            "annual_reports"
+          ],
           "description": "Only company documents of these IR sections: quarterly_results, events_archive, presentations_archive, annual_reports, proxy, sec_filings, press_releases, esg, governance, faq, other"
         },
         {
@@ -697,6 +747,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 2025,
           "description": "Only documents of this year"
         },
         {
@@ -708,6 +759,7 @@
             "event_documents",
             "company_documents"
           ],
+          "example": "company_documents",
           "description": "event_documents (a call's documents) or company_documents (the company's IR library)"
         },
         {
@@ -716,9 +768,13 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of passages (at most 20)",
           "alias": "l"
         }
+      ],
+      "exampleParams": [
+        "identifier"
       ],
       "view": "table",
       "rowsPath": "hits",
@@ -752,6 +808,9 @@
           "enum": [
             "observations"
           ],
+          "example": [
+            "observations"
+          ],
           "description": "Extra data (repeatable): `observations` = the date / time observations behind the call time"
         },
         {
@@ -759,6 +818,7 @@
           "in": "path",
           "required": true,
           "type": "string",
+          "example": "cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c",
           "description": "Event identifier (event_id of any earnings-calls response)"
         }
       ],
@@ -803,6 +863,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "MSFT",
           "description": "Company ticker symbol or CIK (US companies only)",
           "alias": "i"
         },
@@ -811,6 +872,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "2026-01-01",
           "description": "Only calls on or after this day (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
         },
         {
@@ -818,6 +880,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "2026-09-30",
           "description": "Only calls on or before this day (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
         },
         {
@@ -829,6 +892,9 @@
           "enum": [
             "observations"
           ],
+          "example": [
+            "observations"
+          ],
           "description": "Extra data per event (repeatable): `observations` = the date / time observations"
         },
         {
@@ -837,6 +903,7 @@
           "required": false,
           "type": "string",
           "default": "all",
+          "example": "earnings_call",
           "description": "Only events of these types, a comma list (e.g. `investor_day,conference`) of earnings_call, investor_day, conference, agm, other; `all` (default) = every event type"
         },
         {
@@ -849,6 +916,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction by scheduled start",
           "alias": "s"
         },
@@ -858,6 +926,7 @@
           "required": false,
           "type": "integer",
           "default": 50,
+          "example": 5,
           "description": "Maximum number of events to return",
           "alias": "l"
         },
@@ -867,6 +936,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of events to skip for pagination"
         }
       ],
@@ -907,6 +977,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c",
           "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors"
         },
         {
@@ -914,6 +985,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "MSFT",
           "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date",
           "alias": "i"
         },
@@ -922,6 +994,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 2026,
           "description": "Fiscal year of the call (with quarter)"
         },
         {
@@ -929,6 +1002,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 4,
           "description": "Fiscal quarter of the call (with year)"
         },
         {
@@ -936,6 +1010,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "2026-07-29",
           "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
         },
         {
@@ -950,6 +1025,7 @@
             "agm",
             "other"
           ],
+          "example": "earnings_call",
           "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only"
         },
         {
@@ -962,6 +1038,7 @@
             "kpi"
           ],
           "default": "guidance",
+          "example": "guidance",
           "description": "guidance = consolidated forward guidance; kpi = every reported KPI figure"
         },
         {
@@ -975,6 +1052,7 @@
             "all"
           ],
           "default": "all",
+          "example": "all",
           "description": "Guidance review filter: approved (human-approved only), auto, or all (auto + needs_review + approved)"
         },
         {
@@ -983,6 +1061,7 @@
           "required": false,
           "type": "integer",
           "default": 200,
+          "example": 5,
           "description": "Maximum number of items to return",
           "alias": "l"
         },
@@ -992,8 +1071,12 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of items to skip for pagination"
         }
+      ],
+      "exampleParams": [
+        "event_id"
       ],
       "view": "json",
       "pagination": "top",
@@ -1016,6 +1099,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "MSFT",
           "description": "Company ticker symbol or CIK (US companies only)",
           "alias": "i"
         },
@@ -1024,6 +1108,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "revenue",
           "description": "Normalized metric (e.g. revenue, eps_non_gaap, segment:iphone)"
         },
         {
@@ -1037,6 +1122,7 @@
             "half",
             "other"
           ],
+          "example": "quarter",
           "description": "Only this kind of guided period"
         },
         {
@@ -1049,6 +1135,7 @@
             "non_gaap",
             "unknown"
           ],
+          "example": "gaap",
           "description": "Only this accounting basis"
         },
         {
@@ -1057,6 +1144,7 @@
           "required": false,
           "type": "integer",
           "default": 12,
+          "example": 5,
           "description": "Maximum number of series entries to return",
           "alias": "l"
         }
@@ -1120,6 +1208,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c",
           "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors"
         },
         {
@@ -1127,6 +1216,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "MSFT",
           "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date",
           "alias": "i"
         },
@@ -1135,6 +1225,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 2026,
           "description": "Fiscal year of the call (with quarter)"
         },
         {
@@ -1142,6 +1233,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 4,
           "description": "Fiscal quarter of the call (with year)"
         },
         {
@@ -1149,6 +1241,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "2026-07-29",
           "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
         },
         {
@@ -1163,8 +1256,12 @@
             "agm",
             "other"
           ],
+          "example": "earnings_call",
           "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only"
         }
+      ],
+      "exampleParams": [
+        "event_id"
       ],
       "view": "keyValue",
       "columns": [
@@ -1200,6 +1297,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c",
           "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors"
         },
         {
@@ -1207,6 +1305,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "MSFT",
           "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date",
           "alias": "i"
         },
@@ -1215,6 +1314,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 2026,
           "description": "Fiscal year of the call (with quarter)"
         },
         {
@@ -1222,6 +1322,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 4,
           "description": "Fiscal quarter of the call (with year)"
         },
         {
@@ -1229,6 +1330,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "2026-07-29",
           "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
         },
         {
@@ -1243,6 +1345,7 @@
             "agm",
             "other"
           ],
+          "example": "earnings_call",
           "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only"
         },
         {
@@ -1254,8 +1357,14 @@
           "enum": [
             "evidence"
           ],
+          "example": [
+            "evidence"
+          ],
           "description": "Extra data (repeatable): `evidence` = the quotes each name was resolved from"
         }
+      ],
+      "exampleParams": [
+        "event_id"
       ],
       "view": "table",
       "rowsPath": "participants",
@@ -1286,6 +1395,7 @@
           "required": false,
           "type": "integer",
           "default": 50,
+          "example": 5,
           "description": "Maximum number of appearances to return",
           "alias": "l"
         },
@@ -1295,6 +1405,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of appearances to skip for pagination"
         },
         {
@@ -1302,6 +1413,7 @@
           "in": "path",
           "required": true,
           "type": "string",
+          "example": "9b135e05-d7c2-4d23-9c89-728501ad8e58",
           "description": "Person identifier (person_id of participants / qa / analysts)"
         }
       ],
@@ -1339,6 +1451,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "dd04abe1-f83f-4e92-8ddf-1f8864e7db30",
           "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors"
         },
         {
@@ -1346,6 +1459,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "JPM",
           "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date",
           "alias": "i"
         },
@@ -1354,6 +1468,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 2026,
           "description": "Fiscal year of the call (with quarter)"
         },
         {
@@ -1361,6 +1476,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 3,
           "description": "Fiscal quarter of the call (with year)"
         },
         {
@@ -1368,6 +1484,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "2026-10-13",
           "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
         },
         {
@@ -1382,8 +1499,12 @@
             "agm",
             "other"
           ],
+          "example": "earnings_call",
           "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only"
         }
+      ],
+      "exampleParams": [
+        "event_id"
       ],
       "view": "json",
       "pagination": "none"
@@ -1402,6 +1523,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c",
           "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors"
         },
         {
@@ -1409,6 +1531,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "MSFT",
           "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date",
           "alias": "i"
         },
@@ -1417,6 +1540,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 2026,
           "description": "Fiscal year of the call (with quarter)"
         },
         {
@@ -1424,6 +1548,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 4,
           "description": "Fiscal quarter of the call (with year)"
         },
         {
@@ -1431,6 +1556,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "2026-07-29",
           "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
         },
         {
@@ -1445,6 +1571,7 @@
             "agm",
             "other"
           ],
+          "example": "earnings_call",
           "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only"
         },
         {
@@ -1458,8 +1585,12 @@
             "all"
           ],
           "default": "all",
+          "example": "qa",
           "description": "prepared (remarks), qa, or all (the whole call)"
         }
+      ],
+      "exampleParams": [
+        "event_id"
       ],
       "view": "table",
       "rowsPath": "speakers",
@@ -1494,6 +1625,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c",
           "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors"
         },
         {
@@ -1501,6 +1633,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "MSFT",
           "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date",
           "alias": "i"
         },
@@ -1509,6 +1642,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 2026,
           "description": "Fiscal year of the call (with quarter)"
         },
         {
@@ -1516,6 +1650,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 4,
           "description": "Fiscal quarter of the call (with year)"
         },
         {
@@ -1523,6 +1658,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "2026-07-29",
           "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
         },
         {
@@ -1537,6 +1673,7 @@
             "agm",
             "other"
           ],
+          "example": "earnings_call",
           "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only"
         },
         {
@@ -1545,6 +1682,7 @@
           "required": false,
           "type": "integer",
           "default": 50,
+          "example": 5,
           "description": "Maximum number of Q&A pairs to return",
           "alias": "l"
         },
@@ -1554,6 +1692,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of Q&A pairs to skip for pagination"
         },
         {
@@ -1564,8 +1703,12 @@
           "enum": [
             "scores"
           ],
+          "example": "scores",
           "description": "scores = add each pair's descriptive scores (analyst casting order, question tone, difficulty, evasiveness, non-answer flag with verbatim evidence); null for a pair not scored yet"
         }
+      ],
+      "exampleParams": [
+        "event_id"
       ],
       "view": "table",
       "rowsPath": "pairs",
@@ -1597,6 +1740,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "Azure growth",
           "description": "The question or phrase to search for",
           "alias": "q"
         },
@@ -1605,6 +1749,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c",
           "description": "Search one call"
         },
         {
@@ -1612,6 +1757,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "MSFT",
           "description": "Search one company's calls (ticker or CIK, US only)",
           "alias": "i"
         },
@@ -1620,6 +1766,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "2026-07-01",
           "description": "First call day (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date. An unscoped search defaults to 365 days back"
         },
         {
@@ -1627,6 +1774,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "2026-07-31",
           "description": "Last call day (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
         },
         {
@@ -1640,6 +1788,7 @@
             "preparedRemarks",
             "presentation"
           ],
+          "example": "qa",
           "description": "transcript (all speech), qa, preparedRemarks or presentation (slide text)"
         },
         {
@@ -1648,6 +1797,7 @@
           "required": false,
           "type": "string",
           "default": "earnings_call",
+          "example": "earnings_call",
           "description": "Events searched, as a comma list of earnings_call, investor_day, conference, agm, other; `all` = every event type (default earnings calls)"
         },
         {
@@ -1656,9 +1806,13 @@
           "required": false,
           "type": "integer",
           "default": 5,
+          "example": 5,
           "description": "Maximum number of passages (at most 8)",
           "alias": "l"
         }
+      ],
+      "exampleParams": [
+        "identifier"
       ],
       "view": "table",
       "rowsPath": "hits",
@@ -1688,6 +1842,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c",
           "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors"
         },
         {
@@ -1695,6 +1850,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "MSFT",
           "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date",
           "alias": "i"
         },
@@ -1703,6 +1859,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 2026,
           "description": "Fiscal year of the call (with quarter)"
         },
         {
@@ -1710,6 +1867,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 4,
           "description": "Fiscal quarter of the call (with year)"
         },
         {
@@ -1717,6 +1875,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "2026-07-29",
           "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
         },
         {
@@ -1731,8 +1890,12 @@
             "agm",
             "other"
           ],
+          "example": "earnings_call",
           "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only"
         }
+      ],
+      "exampleParams": [
+        "event_id"
       ],
       "view": "keyValue",
       "columns": [
@@ -1761,6 +1924,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c",
           "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors"
         },
         {
@@ -1768,6 +1932,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "MSFT",
           "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date",
           "alias": "i"
         },
@@ -1776,6 +1941,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 2026,
           "description": "Fiscal year of the call (with quarter)"
         },
         {
@@ -1783,6 +1949,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 4,
           "description": "Fiscal quarter of the call (with year)"
         },
         {
@@ -1790,6 +1957,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "2026-07-29",
           "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
         },
         {
@@ -1804,6 +1972,7 @@
             "agm",
             "other"
           ],
+          "example": "earnings_call",
           "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only"
         },
         {
@@ -1811,6 +1980,7 @@
           "in": "query",
           "required": true,
           "type": "integer",
+          "example": 3,
           "description": "Older version (one listed by transcript/versions)"
         },
         {
@@ -1818,8 +1988,12 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 6,
           "description": "Newer version; default = the current one"
         }
+      ],
+      "exampleParams": [
+        "event_id"
       ],
       "view": "table",
       "rowsPath": "changes",
@@ -1844,6 +2018,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c",
           "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors"
         },
         {
@@ -1851,6 +2026,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "MSFT",
           "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date",
           "alias": "i"
         },
@@ -1859,6 +2035,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 2026,
           "description": "Fiscal year of the call (with quarter)"
         },
         {
@@ -1866,6 +2043,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 4,
           "description": "Fiscal quarter of the call (with year)"
         },
         {
@@ -1873,6 +2051,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "2026-07-29",
           "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
         },
         {
@@ -1887,8 +2066,12 @@
             "agm",
             "other"
           ],
+          "example": "earnings_call",
           "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only"
         }
+      ],
+      "exampleParams": [
+        "event_id"
       ],
       "view": "table",
       "rowsPath": "versions",
@@ -1916,6 +2099,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "AAPL",
           "description": "Optional ticker symbol or CIK. If omitted, returns form types across all filings.",
           "alias": "i"
         }
@@ -1937,6 +2121,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -1945,6 +2130,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "10-K",
           "description": "SEC form type filter (e.g., 10-K, 10-Q, 8-K, 3, 4, 5, 13F-HR). Leave empty to return all form types."
         },
         {
@@ -1957,6 +2143,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for filings by filing_date",
           "alias": "s"
         },
@@ -1966,6 +2153,7 @@
           "required": false,
           "type": "integer",
           "default": 40,
+          "example": 5,
           "description": "Maximum number of filings to return",
           "alias": "l"
         },
@@ -1975,6 +2163,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of filings to skip for pagination"
         }
       ],
@@ -2010,6 +2199,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "What are Apple's main risk factors?",
           "description": "Natural language search request for SEC filing information (e.g., 'What are Apple's main risk factors?')",
           "alias": "r"
         },
@@ -2018,6 +2208,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK to filter search results to a specific company",
           "alias": "i"
         },
@@ -2026,8 +2217,12 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "0000320193-25-000079",
           "description": "Accession number to filter search results to a specific filing"
         }
+      ],
+      "exampleParams": [
+        "identifier"
       ],
       "view": "json",
       "pagination": "none"
@@ -2046,6 +2241,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -2059,6 +2255,7 @@
             "10-K",
             "8-K"
           ],
+          "example": "10-K",
           "description": "SEC form type. Filter requirements vary: 8-K requires accession_number; 10-K requires accession_number or fiscal_year; 10-Q requires accession_number or fiscal_year+fiscal_quarter."
         },
         {
@@ -2066,6 +2263,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "part_i-item_1a",
           "description": "Optional section ID. If not specified, all sections from the filing are returned."
         },
         {
@@ -2073,6 +2271,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "0000320193-25-000079",
           "description": "SEC accession number of the filing"
         },
         {
@@ -2080,6 +2279,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 2025,
           "description": "Fiscal year"
         },
         {
@@ -2087,8 +2287,12 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 4,
           "description": "Fiscal quarter (1-4). Required for 10-Q when using fiscal_year filter."
         }
+      ],
+      "exampleParams": [
+        "fiscal_year"
       ],
       "view": "json",
       "pagination": "none"
@@ -2107,6 +2311,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -2121,6 +2326,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period",
           "alias": "p"
         },
@@ -2134,6 +2340,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for periods by period_end",
           "alias": "s"
         },
@@ -2143,6 +2350,7 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of periods per ticker",
           "alias": "l"
         },
@@ -2152,6 +2360,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of periods to skip for pagination"
         }
       ],
@@ -2175,6 +2384,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -2189,6 +2399,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period",
           "alias": "p"
         },
@@ -2202,6 +2413,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for periods by period_end",
           "alias": "s"
         },
@@ -2211,6 +2423,7 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of periods per ticker",
           "alias": "l"
         },
@@ -2220,6 +2433,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of periods to skip for pagination"
         },
         {
@@ -2232,6 +2446,7 @@
             "false"
           ],
           "default": "false",
+          "example": "true",
           "description": "Include formula in response"
         }
       ],
@@ -2255,6 +2470,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -2269,6 +2485,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period",
           "alias": "p"
         },
@@ -2282,6 +2499,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for periods by period_end",
           "alias": "s"
         },
@@ -2291,6 +2509,7 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of periods per ticker",
           "alias": "l"
         },
@@ -2300,6 +2519,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of periods to skip for pagination"
         }
       ],
@@ -2323,6 +2543,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -2337,6 +2558,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period",
           "alias": "p"
         },
@@ -2350,6 +2572,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for periods by period_end",
           "alias": "s"
         },
@@ -2359,6 +2582,7 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of periods per ticker",
           "alias": "l"
         },
@@ -2368,6 +2592,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of periods to skip for pagination"
         }
       ],
@@ -2391,6 +2616,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -2405,6 +2631,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period",
           "alias": "p"
         },
@@ -2418,6 +2645,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for periods by period_end",
           "alias": "s"
         },
@@ -2427,6 +2655,7 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of periods per ticker",
           "alias": "l"
         },
@@ -2436,6 +2665,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of periods to skip for pagination"
         },
         {
@@ -2448,6 +2678,7 @@
             "false"
           ],
           "default": "false",
+          "example": "true",
           "description": "Include formula in response"
         }
       ],
@@ -2471,6 +2702,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -2485,6 +2717,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period",
           "alias": "p"
         },
@@ -2498,6 +2731,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for periods by period_end",
           "alias": "s"
         },
@@ -2507,6 +2741,7 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of periods per ticker",
           "alias": "l"
         },
@@ -2516,6 +2751,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of periods to skip for pagination"
         }
       ],
@@ -2539,6 +2775,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -2553,6 +2790,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period",
           "alias": "p"
         },
@@ -2566,6 +2804,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for periods by period_end",
           "alias": "s"
         },
@@ -2575,6 +2814,7 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of periods per ticker",
           "alias": "l"
         },
@@ -2584,6 +2824,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of periods to skip for pagination"
         }
       ],
@@ -2607,6 +2848,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -2621,6 +2863,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period",
           "alias": "p"
         },
@@ -2634,6 +2877,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for periods by period_end",
           "alias": "s"
         },
@@ -2643,6 +2887,7 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of periods per ticker",
           "alias": "l"
         },
@@ -2652,6 +2897,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of periods to skip for pagination"
         },
         {
@@ -2664,6 +2910,7 @@
             "false"
           ],
           "default": "false",
+          "example": "true",
           "description": "Include formula in response"
         }
       ],
@@ -2687,6 +2934,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -2701,6 +2949,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period",
           "alias": "p"
         },
@@ -2714,6 +2963,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for periods by period_end",
           "alias": "s"
         },
@@ -2723,6 +2973,7 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of periods per ticker",
           "alias": "l"
         },
@@ -2732,6 +2983,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of periods to skip for pagination"
         }
       ],
@@ -2755,6 +3007,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL,MSFT",
           "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers)",
           "alias": "i"
         },
@@ -2769,6 +3022,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period",
           "alias": "p"
         },
@@ -2777,6 +3031,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 2024,
           "description": "Calendar year. For annual periods, only calendar_year is needed. For non-annual periods, must be provided together with calendar_quarter."
         },
         {
@@ -2784,6 +3039,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 4,
           "description": "Calendar quarter (1-4). For annual periods, should not be provided. For non-annual periods, must be provided together with calendar_year."
         }
       ],
@@ -2804,6 +3060,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL,MSFT",
           "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers)",
           "alias": "i"
         },
@@ -2818,6 +3075,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period",
           "alias": "p"
         },
@@ -2826,6 +3084,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 2024,
           "description": "Calendar year. For annual periods, only calendar_year is needed. For non-annual periods, must be provided together with calendar_quarter."
         },
         {
@@ -2833,6 +3092,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 4,
           "description": "Calendar quarter (1-4). For annual periods, should not be provided. For non-annual periods, must be provided together with calendar_year."
         },
         {
@@ -2845,6 +3105,7 @@
             "false"
           ],
           "default": "false",
+          "example": "true",
           "description": "Include formula in response"
         }
       ],
@@ -2865,6 +3126,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL,MSFT",
           "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers)",
           "alias": "i"
         },
@@ -2879,6 +3141,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period",
           "alias": "p"
         },
@@ -2887,6 +3150,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 2024,
           "description": "Calendar year. For annual periods, only calendar_year is needed. For non-annual periods, must be provided together with calendar_quarter."
         },
         {
@@ -2894,6 +3158,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 4,
           "description": "Calendar quarter (1-4). For annual periods, should not be provided. For non-annual periods, must be provided together with calendar_year."
         }
       ],
@@ -2914,6 +3179,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -2928,6 +3194,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period",
           "alias": "p"
         },
@@ -2941,6 +3208,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for periods by period_end",
           "alias": "s"
         },
@@ -2950,6 +3218,7 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of periods per ticker",
           "alias": "l"
         },
@@ -2959,6 +3228,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of periods to skip for pagination"
         }
       ],
@@ -2982,6 +3252,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -2996,6 +3267,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period",
           "alias": "p"
         },
@@ -3009,6 +3281,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for periods by period_end",
           "alias": "s"
         },
@@ -3018,6 +3291,7 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of periods per ticker",
           "alias": "l"
         },
@@ -3027,6 +3301,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of periods to skip for pagination"
         },
         {
@@ -3039,6 +3314,7 @@
             "false"
           ],
           "default": "false",
+          "example": "true",
           "description": "Include formula in response"
         }
       ],
@@ -3062,6 +3338,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -3076,6 +3353,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period",
           "alias": "p"
         },
@@ -3089,6 +3367,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for periods by period_end",
           "alias": "s"
         },
@@ -3098,6 +3377,7 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of periods per ticker",
           "alias": "l"
         },
@@ -3107,6 +3387,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of periods to skip for pagination"
         }
       ],
@@ -3130,6 +3411,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -3144,6 +3426,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period",
           "alias": "p"
         },
@@ -3157,6 +3440,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for periods by period_end",
           "alias": "s"
         },
@@ -3166,6 +3450,7 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of periods per ticker",
           "alias": "l"
         },
@@ -3175,6 +3460,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of periods to skip for pagination"
         }
       ],
@@ -3198,6 +3484,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -3212,6 +3499,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period",
           "alias": "p"
         },
@@ -3225,6 +3513,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for periods by period_end",
           "alias": "s"
         },
@@ -3234,6 +3523,7 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of periods per ticker",
           "alias": "l"
         },
@@ -3243,6 +3533,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of periods to skip for pagination"
         },
         {
@@ -3255,6 +3546,7 @@
             "false"
           ],
           "default": "false",
+          "example": "true",
           "description": "Include formula in response"
         }
       ],
@@ -3278,6 +3570,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -3292,6 +3585,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period",
           "alias": "p"
         },
@@ -3305,6 +3599,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for periods by period_end",
           "alias": "s"
         },
@@ -3314,6 +3609,7 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of periods per ticker",
           "alias": "l"
         },
@@ -3323,6 +3619,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of periods to skip for pagination"
         }
       ],
@@ -3346,6 +3643,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -3360,6 +3658,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period",
           "alias": "p"
         },
@@ -3373,6 +3672,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for periods by period_end",
           "alias": "s"
         },
@@ -3382,6 +3682,7 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of periods per ticker",
           "alias": "l"
         },
@@ -3391,6 +3692,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of periods to skip for pagination"
         }
       ],
@@ -3414,6 +3716,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -3428,6 +3731,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period",
           "alias": "p"
         },
@@ -3441,6 +3745,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for periods by period_end",
           "alias": "s"
         },
@@ -3450,6 +3755,7 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of periods per ticker",
           "alias": "l"
         },
@@ -3459,6 +3765,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of periods to skip for pagination"
         },
         {
@@ -3471,6 +3778,7 @@
             "false"
           ],
           "default": "false",
+          "example": "true",
           "description": "Include formula in response"
         }
       ],
@@ -3494,6 +3802,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -3508,6 +3817,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period",
           "alias": "p"
         },
@@ -3521,6 +3831,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for periods by period_end",
           "alias": "s"
         },
@@ -3530,6 +3841,7 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of periods per ticker",
           "alias": "l"
         },
@@ -3539,6 +3851,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of periods to skip for pagination"
         }
       ],
@@ -3562,6 +3875,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL,MSFT",
           "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers)",
           "alias": "i"
         },
@@ -3576,6 +3890,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period",
           "alias": "p"
         },
@@ -3584,6 +3899,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 2024,
           "description": "Calendar year. For annual periods, only calendar_year is needed. For non-annual periods, must be provided together with calendar_quarter."
         },
         {
@@ -3591,6 +3907,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 4,
           "description": "Calendar quarter (1-4). For annual periods, should not be provided. For non-annual periods, must be provided together with calendar_year."
         }
       ],
@@ -3611,6 +3928,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL,MSFT",
           "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers)",
           "alias": "i"
         },
@@ -3625,6 +3943,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period",
           "alias": "p"
         },
@@ -3633,6 +3952,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 2024,
           "description": "Calendar year. For annual periods, only calendar_year is needed. For non-annual periods, must be provided together with calendar_quarter."
         },
         {
@@ -3640,6 +3960,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 4,
           "description": "Calendar quarter (1-4). For annual periods, should not be provided. For non-annual periods, must be provided together with calendar_year."
         },
         {
@@ -3652,6 +3973,7 @@
             "false"
           ],
           "default": "false",
+          "example": "true",
           "description": "Include formula in response"
         }
       ],
@@ -3672,6 +3994,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL,MSFT",
           "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers)",
           "alias": "i"
         },
@@ -3686,6 +4009,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period",
           "alias": "p"
         },
@@ -3694,6 +4018,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 2024,
           "description": "Calendar year. For annual periods, only calendar_year is needed. For non-annual periods, must be provided together with calendar_quarter."
         },
         {
@@ -3701,6 +4026,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 4,
           "description": "Calendar quarter (1-4). For annual periods, should not be provided. For non-annual periods, must be provided together with calendar_year."
         }
       ],
@@ -3737,6 +4063,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Company ticker symbol or CIK",
           "alias": "i"
         },
@@ -3745,6 +4072,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "2025-01-01",
           "description": "Filter transactions filed on or after this date (YYYY-MM-DD)"
         },
         {
@@ -3752,6 +4080,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "2025-12-31",
           "description": "Filter transactions filed on or before this date (YYYY-MM-DD)"
         },
         {
@@ -3763,6 +4092,7 @@
             "A",
             "D"
           ],
+          "example": "D",
           "description": "Filter by acquisition (A) or disposition (D)"
         },
         {
@@ -3775,6 +4105,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction by filed_at date",
           "alias": "s"
         },
@@ -3784,6 +4115,7 @@
           "required": false,
           "type": "integer",
           "default": 100,
+          "example": 5,
           "description": "Maximum number of transactions to return",
           "alias": "l"
         },
@@ -3793,6 +4125,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of transactions to skip for pagination"
         }
       ],
@@ -3837,6 +4170,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "2025-01-01",
           "description": "Filter IPOs with listing_date on or after this date (YYYY-MM-DD)"
         },
         {
@@ -3844,6 +4178,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "2025-12-31",
           "description": "Filter IPOs with listing_date on or before this date (YYYY-MM-DD)"
         },
         {
@@ -3856,6 +4191,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for IPOs by listing_date",
           "alias": "s"
         },
@@ -3865,6 +4201,7 @@
           "required": false,
           "type": "integer",
           "default": 100,
+          "example": 5,
           "description": "Maximum number of IPOs to return",
           "alias": "l"
         },
@@ -3874,6 +4211,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of IPOs to skip for pagination"
         }
       ],
@@ -3916,6 +4254,7 @@
             "desc"
           ],
           "default": "asc",
+          "example": "desc",
           "description": "Sort direction for holidays by date",
           "alias": "s"
         },
@@ -3925,6 +4264,7 @@
           "required": false,
           "type": "integer",
           "default": 100,
+          "example": 5,
           "description": "Maximum number of holidays to return",
           "alias": "l"
         },
@@ -3934,6 +4274,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of holidays to skip for pagination"
         }
       ],
@@ -3993,6 +4334,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -4006,6 +4348,7 @@
             "5",
             "10"
           ],
+          "example": "5",
           "description": "CAGR calculation period in years: 3, 5, 10"
         },
         {
@@ -4018,6 +4361,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for periods by period_end: 'asc' (oldest first), 'desc' (newest first)",
           "alias": "s"
         },
@@ -4027,6 +4371,7 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of periods per ticker (1-100)",
           "alias": "l"
         },
@@ -4036,6 +4381,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of periods to skip for pagination"
         }
       ],
@@ -4059,6 +4405,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -4073,6 +4420,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period: 'quarterly' (Q1-Q4), 'annual' (full year), 'ytd' (year-to-date), 'ttm' (trailing twelve months)",
           "alias": "p"
         },
@@ -4085,6 +4433,7 @@
             "year_over_year",
             "quarter_over_quarter"
           ],
+          "example": "year_over_year",
           "description": "Filter by growth type: year_over_year, quarter_over_quarter"
         },
         {
@@ -4097,6 +4446,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for periods by period_end: 'asc' (oldest first), 'desc' (newest first)",
           "alias": "s"
         },
@@ -4106,6 +4456,7 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of periods per ticker (1-100)",
           "alias": "l"
         },
@@ -4115,6 +4466,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of periods to skip for pagination"
         }
       ],
@@ -4138,6 +4490,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -4152,6 +4505,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period: 'quarterly' (Q1-Q4), 'annual' (full year), 'ytd' (year-to-date), 'ttm' (trailing twelve months)",
           "alias": "p"
         },
@@ -4166,6 +4520,7 @@
             "liquidity",
             "solvency"
           ],
+          "example": "profitability",
           "description": "Filter by ratio category: valuation, profitability, liquidity, solvency"
         },
         {
@@ -4178,6 +4533,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for periods by period_end: 'asc' (oldest first), 'desc' (newest first)",
           "alias": "s"
         },
@@ -4187,6 +4543,7 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of periods per ticker (1-100)",
           "alias": "l"
         },
@@ -4196,6 +4553,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of periods to skip for pagination"
         }
       ],
@@ -4219,6 +4577,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Company ticker symbol or CIK",
           "alias": "i"
         },
@@ -4227,6 +4586,7 @@
           "in": "query",
           "required": false,
           "type": "number",
+          "example": 1000000000,
           "description": "Minimum dollar value filter"
         },
         {
@@ -4239,6 +4599,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction by dollar_value",
           "alias": "s"
         },
@@ -4248,6 +4609,7 @@
           "required": false,
           "type": "integer",
           "default": 100,
+          "example": 5,
           "description": "Maximum number of holdings to return",
           "alias": "l"
         },
@@ -4257,6 +4619,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of holdings to skip for pagination"
         }
       ],
@@ -4303,6 +4666,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "1067983",
           "description": "Institution CIK"
         },
         {
@@ -4315,6 +4679,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction by dollar_value",
           "alias": "s"
         },
@@ -4324,6 +4689,7 @@
           "required": false,
           "type": "integer",
           "default": 100,
+          "example": 5,
           "description": "Maximum number of holdings to return",
           "alias": "l"
         },
@@ -4333,6 +4699,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of holdings to skip for pagination"
         }
       ],
@@ -4379,6 +4746,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "1067983,102909",
           "description": "Comma-separated list of CIKs (Central Index Keys)"
         },
         {
@@ -4387,6 +4755,7 @@
           "required": false,
           "type": "integer",
           "default": 100,
+          "example": 5,
           "description": "Maximum number of institutions to return",
           "alias": "l"
         },
@@ -4396,6 +4765,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Pagination offset"
         },
         {
@@ -4408,6 +4778,7 @@
             "desc"
           ],
           "default": "asc",
+          "example": "desc",
           "description": "Sort direction for institutions by name",
           "alias": "s"
         }
@@ -4443,6 +4814,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "1067983",
           "description": "Institution CIK (at least one of cik or identifier required)"
         },
         {
@@ -4450,6 +4822,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "AAPL",
           "description": "Company ticker symbol or CIK (at least one of cik or identifier required)",
           "alias": "i"
         },
@@ -4458,6 +4831,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "2025-01-01",
           "description": "Filter transactions with period_end_new on or after this date (YYYY-MM-DD)"
         },
         {
@@ -4465,6 +4839,7 @@
           "in": "query",
           "required": false,
           "type": "string",
+          "example": "2025-12-31",
           "description": "Filter transactions with period_end_new on or before this date (YYYY-MM-DD)"
         },
         {
@@ -4478,6 +4853,7 @@
             "reduced",
             "sold_out"
           ],
+          "example": "new_buy",
           "description": "Filter by transaction type: new_buy, added, reduced, sold_out"
         },
         {
@@ -4485,6 +4861,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 2025,
           "description": "Filter by calendar year (of new position)"
         },
         {
@@ -4492,6 +4869,7 @@
           "in": "query",
           "required": false,
           "type": "integer",
+          "example": 1,
           "description": "Filter by calendar quarter (of new position)"
         },
         {
@@ -4504,6 +4882,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction by period_end_new: 'asc' (oldest first), 'desc' (newest first)",
           "alias": "s"
         },
@@ -4513,6 +4892,7 @@
           "required": false,
           "type": "integer",
           "default": 100,
+          "example": 5,
           "description": "Maximum number of transactions to return (1-1000)",
           "alias": "l"
         },
@@ -4522,8 +4902,12 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of transactions to skip for pagination"
         }
+      ],
+      "exampleParams": [
+        "cik"
       ],
       "view": "table",
       "rowsPath": "transactions",
@@ -4572,6 +4956,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -4586,6 +4971,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period: 'quarterly' (Q1-Q4), 'annual' (full year), 'ytd' (year-to-date), 'ttm' (trailing twelve months)",
           "alias": "p"
         },
@@ -4603,6 +4989,7 @@
             "seg_selling_and_marketing_expenses_business_segment",
             "seg_general_and_administrative_expenses_business_segment"
           ],
+          "example": "seg_revenue_product",
           "description": "Filter by segment ID: seg_revenue_product, seg_revenue_geographic, seg_revenue_business_segment, seg_cost_of_revenue_business_segment, seg_research_and_development_expenses_business_segment, seg_selling_and_marketing_expenses_business_segment, seg_general_and_administrative_expenses_business_segment"
         },
         {
@@ -4615,6 +5002,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for periods by period_end: 'asc' (oldest first), 'desc' (newest first)",
           "alias": "s"
         },
@@ -4624,6 +5012,7 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of periods per ticker (1-100)",
           "alias": "l"
         },
@@ -4633,6 +5022,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of periods to skip for pagination"
         }
       ],
@@ -4656,6 +5046,7 @@
           "in": "query",
           "required": true,
           "type": "string",
+          "example": "AAPL",
           "description": "Ticker symbol or CIK",
           "alias": "i"
         },
@@ -4670,6 +5061,7 @@
             "ytd",
             "ttm"
           ],
+          "example": "annual",
           "description": "Type of fiscal period: 'quarterly' (Q1-Q4), 'annual' (full year), 'ytd' (year-to-date), 'ttm' (trailing twelve months)",
           "alias": "p"
         },
@@ -4687,6 +5079,7 @@
             "seg_selling_and_marketing_expenses_business_segment",
             "seg_general_and_administrative_expenses_business_segment"
           ],
+          "example": "seg_revenue_product",
           "description": "Filter by segment ID: seg_revenue_product, seg_revenue_geographic, seg_revenue_business_segment, seg_cost_of_revenue_business_segment, seg_research_and_development_expenses_business_segment, seg_selling_and_marketing_expenses_business_segment, seg_general_and_administrative_expenses_business_segment"
         },
         {
@@ -4699,6 +5092,7 @@
             "desc"
           ],
           "default": "desc",
+          "example": "desc",
           "description": "Sort direction for periods by period_end: 'asc' (oldest first), 'desc' (newest first)",
           "alias": "s"
         },
@@ -4708,6 +5102,7 @@
           "required": false,
           "type": "integer",
           "default": 10,
+          "example": 5,
           "description": "Maximum number of periods per ticker (1-100)",
           "alias": "l"
         },
@@ -4717,6 +5112,7 @@
           "required": false,
           "type": "integer",
           "default": 0,
+          "example": 0,
           "description": "Number of periods to skip for pagination"
         }
       ],
@@ -4778,6 +5174,7 @@
             "90"
           ],
           "default": 30,
+          "example": 30,
           "description": "Window in UTC days ending today (inclusive): 7, 30 or 90"
         }
       ],
@@ -4804,7 +5201,20 @@
       "params": [],
       "body": {
         "required": true,
-        "contentType": "application/json"
+        "contentType": "application/json",
+        "example": {
+          "url": "https://hooks.example.com/invinite",
+          "events": [
+            "earnings_call.transcript_ready",
+            "earnings_call.ended"
+          ],
+          "filters": {
+            "ciks": [
+              "0000789019",
+              "0000320193"
+            ]
+          }
+        }
       },
       "view": "keyValue",
       "columns": [
@@ -4835,6 +5245,7 @@
           "in": "path",
           "required": true,
           "type": "string",
+          "example": "js7a2c9xq4m8v1k6t3w5r0n2b8gnd4fh",
           "description": "Webhook subscription id (from the create / list response)"
         }
       ],
@@ -4855,6 +5266,7 @@
           "in": "path",
           "required": true,
           "type": "string",
+          "example": "js7a2c9xq4m8v1k6t3w5r0n2b8gnd4fh",
           "description": "Webhook subscription id (from the create / list response)"
         }
       ],
@@ -4910,6 +5322,7 @@
           "in": "path",
           "required": true,
           "type": "string",
+          "example": "js7a2c9xq4m8v1k6t3w5r0n2b8gnd4fh",
           "description": "Webhook subscription id (from the create / list response)"
         }
       ],
@@ -4934,6 +5347,7 @@
           "in": "path",
           "required": true,
           "type": "string",
+          "example": "js7a2c9xq4m8v1k6t3w5r0n2b8gnd4fh",
           "description": "Webhook subscription id (from the create / list response)"
         }
       ],
@@ -4958,12 +5372,19 @@
           "in": "path",
           "required": true,
           "type": "string",
+          "example": "js7a2c9xq4m8v1k6t3w5r0n2b8gnd4fh",
           "description": "Webhook subscription id (from the create / list response)"
         }
       ],
       "body": {
         "required": false,
-        "contentType": "application/json"
+        "contentType": "application/json",
+        "example": {
+          "events": [
+            "earnings_call.transcript_ready"
+          ],
+          "active": true
+        }
       },
       "view": "keyValue",
       "columns": [

@@ -6,7 +6,8 @@
  *   pnpm skill:commands          rewrite the block
  *   pnpm skill:commands:check    the drift gate
  *
- * One example per generated command (required flags with a placeholder, `--json`), its summary as a `#` comment.
+ * One example per generated command (its required flags and the spec's `x-example-params`, valued with the spec's
+ * examples — a placeholder only where the spec has none — and `--json`), its summary as a `#` comment.
  * A rostered command keeps a hand-written block between `<!-- invd:hand:<command> -->` and
  * `<!-- /invd:hand:<command> -->`, carried over verbatim; a missing one is seeded, a stale one fails by name.
  * The prose around the block stays hand-written.
@@ -16,7 +17,7 @@ import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { HAND_WRITTEN_COMMANDS } from '../src/hand-written-commands.js';
-import { parseManifest, type Manifest, type ManifestOperation, type ManifestParam } from '../src/spec-manifest.js';
+import { exampleValue, parseManifest, type Manifest, type ManifestOperation, type ManifestParam } from '../src/spec-manifest.js';
 import { flagName } from '../src/spec-flags.js';
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -36,15 +37,26 @@ export interface RosterEntry {
 /** The first spelling a flag is shown with: its one-letter alias, else the long flag. */
 const flagSpelling = (param: ManifestParam) => (param.alias ? `-${param.alias}` : `--${flagName(param.name)}`);
 
-/** A required flag's example value: the enum's first value, else `<name>`. */
-const placeholder = (param: ManifestParam) => (param.enum?.[0] ?? `<${param.name}>`);
+/** A word the shell reads as itself; anything else is quoted (double quotes unless the text needs single ones). */
+export const shellWord = (text: string): string => {
+  if (/^[\w.,:/@+=-]+$/.test(text)) return text;
+  if (!/["$`\\!]/.test(text)) return `"${text}"`;
+  return `'${text.replace(/'/g, "'\\''")}'`;
+};
+
+/** A flag's example value: the spec's example, else the enum's first value, else `<name>`. */
+const placeholder = (param: ManifestParam) =>
+  param.example !== undefined ? shellWord(exampleValue(param.example)) : (param.enum?.[0] ?? `<${param.name}>`);
 
 export function exampleLine(operation: ManifestOperation): string {
-  const required = operation.params
-    .filter(param => param.required)
+  const shown = new Set(operation.exampleParams ?? []);
+  const flags = operation.params
+    .filter(param => param.required || shown.has(param.name))
     .map(param => (param.type === 'boolean' ? flagSpelling(param) : `${flagSpelling(param)} ${placeholder(param)}`));
-  const body = operation.body?.required ? ["--body '<json>'"] : [];
-  return ['invd', operation.group, operation.action, ...required, ...body, '--json'].filter(Boolean).join(' ');
+  const body = operation.body && (operation.body.required || operation.body.example !== undefined)
+    ? [`--body ${operation.body.example === undefined ? "'<json>'" : shellWord(JSON.stringify(operation.body.example))}`]
+    : [];
+  return ['invd', operation.group, operation.action, ...flags, ...body, '--json'].filter(Boolean).join(' ');
 }
 
 export function commentLine(operation: ManifestOperation): string {

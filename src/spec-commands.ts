@@ -11,7 +11,7 @@ import { splitList } from './shared/options.js';
 import { output } from './shared/output.js';
 import { setJsonMode } from './shared/spinner.js';
 import { flagName } from './spec-flags.js';
-import type { Manifest, ManifestOperation, ManifestParam } from './spec-manifest.js';
+import { exampleValue, type Manifest, type ManifestOperation, type ManifestParam } from './spec-manifest.js';
 
 /**
  * Registers every manifest operation as `invd <group> <action>` (`action: ""` → `invd <group>`): one flag per
@@ -75,6 +75,7 @@ function paramOption(param: ManifestParam): Option {
     notes.push(param.enum ? `comma-separated: ${param.enum.join(', ')}` : 'comma-separated');
   }
   if (param.default !== undefined) notes.push(`default: ${JSON.stringify(param.default)}`);
+  if (param.example !== undefined) notes.push(`e.g. ${exampleValue(param.example)}`);
   const description = [param.description ?? '', notes.length ? `(${notes.join('; ')})` : '']
     .filter(Boolean).join(' ');
   const option = new Option(`${param.alias ? `-${param.alias}, ` : ''}${long}${value}`, description);

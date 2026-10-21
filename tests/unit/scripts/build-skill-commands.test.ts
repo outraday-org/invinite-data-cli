@@ -8,6 +8,7 @@ import {
   extractHandBlocks,
   renderCommandBlock,
   renderSkill,
+  shellWord,
 } from '../../../scripts/build-skill-commands.js';
 import { loadManifest } from '../../../src/cli.js';
 import { HAND_WRITTEN_COMMANDS } from '../../../src/hand-written-commands.js';
@@ -57,6 +58,25 @@ describe('build-skill-commands', () => {
     }))).toBe('invd things get -i <identifier> -p quarterly --person-id <person_id> --json');
     expect(exampleLine(op({ action: '', body: { required: true, contentType: 'application/json' } })))
       .toBe("invd things --body '<json>' --json");
+  });
+
+  it('values a flag with the spec example, adds the x-example-params flags and the body example, quoting for the shell', () => {
+    expect(exampleLine(op({
+      params: [
+        { name: 'identifier', in: 'query', required: true, type: 'string', alias: 'i', example: 'AAPL' },
+        { name: 'request', in: 'query', required: true, type: 'string', example: "What are Apple's risks?" },
+        { name: 'event_id', in: 'query', required: false, type: 'string', example: 'cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c' },
+        { name: 'include', in: 'query', required: false, type: 'array', items: 'string', example: ['body', 'pages'] },
+        { name: 'limit', in: 'query', required: false, type: 'integer', example: 5 },
+      ],
+      exampleParams: ['event_id', 'include'],
+      body: { required: false, contentType: 'application/json', example: { active: true } },
+    }))).toBe(
+      'invd things get -i AAPL --request "What are Apple\'s risks?" --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c'
+        + ` --include body,pages --body '{"active":true}' --json`,
+    );
+    expect(shellWord('it costs $5')).toBe("'it costs $5'");
+    expect(shellWord("it's $5")).toBe("'it'\\''s $5'");
   });
 
   it('carries a hand block over verbatim and refuses one for a command off the roster', () => {

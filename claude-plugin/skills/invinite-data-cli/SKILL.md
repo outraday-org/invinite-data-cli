@@ -157,22 +157,22 @@ Company search, details, fiscal periods, dividends and splits
 
 ```bash
 # Company details
-invd company details -i <identifier> --json
+invd company details -i AAPL --json
 
 # Company dividends (optional: --start-date, --end-date, --sort, --limit, --offset, --all)
-invd company dividends -i <identifier> --json
+invd company dividends -i AAPL --json
 
 # Company fiscal periods (optional: --sort, --limit, --offset, --all)
-invd company fiscal-periods -i <identifier> --json
+invd company fiscal-periods -i AAPL --json
 
 # List available companies
 invd company list --json
 
 # Search companies (optional: --limit, --offset, --all)
-invd company search -q <query> --json
+invd company search -q apple --json
 
 # Stock splits (optional: --sort, --limit, --offset, --all)
-invd company splits -i <identifier> --json
+invd company splits -i AAPL --json
 ```
 
 ### config
@@ -192,61 +192,61 @@ Earnings calls: calendar, transcripts, Q&A, extractions, media, search and webho
 
 ```bash
 # Analysts of a company (optional: --limit, --offset, --all)
-invd earnings analysts -i <identifier> --json
+invd earnings analysts -i MSFT --json
 
 # Earnings call calendar (optional: --from, --to, --status, --session, --exchange, --event-type, --sort, --limit, --offset, --all)
 invd earnings calendar --json
 
 # Call-over-call diff (optional: --event-id, --identifier, --year, --quarter, --date, --event-type, --vs)
-invd earnings diff --json
+invd earnings diff --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
 
 # Search investor documents (optional: --identifier, --kind, --section, --year, --table, --limit)
-invd earnings document-search -q <q> --json
+invd earnings document-search -q "Azure growth" -i MSFT --json
 
 # Earnings call by ID (optional: --include)
-invd earnings event --event-id <event_id> --json
+invd earnings event --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
 
 # Event history of a company (optional: --from, --to, --include, --event-type, --sort, --limit, --offset, --all)
-invd earnings events -i <identifier> --json
+invd earnings events -i MSFT --json
 
 # Guidance and KPI extractions (optional: --event-id, --identifier, --year, --quarter, --date, --event-type, --kind, --review, --limit, --offset, --all)
-invd earnings extractions --json
+invd earnings extractions --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
 
 # Guidance history (optional: --period-kind, --basis, --limit)
-invd earnings guidance-history -i <identifier> --metric <metric> --json
+invd earnings guidance-history -i MSFT --metric revenue --json
 
 # Live earnings calls
 invd earnings live --json
 
 # Earnings call metrics (optional: --event-id, --identifier, --year, --quarter, --date, --event-type)
-invd earnings metrics --json
+invd earnings metrics --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
 
 # Earnings call participants (optional: --event-id, --identifier, --year, --quarter, --date, --event-type, --include)
-invd earnings participants --json
+invd earnings participants --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
 
 # Person across earnings calls (optional: --limit, --offset, --all)
-invd earnings person --person-id <person_id> --json
+invd earnings person --person-id 9b135e05-d7c2-4d23-9c89-728501ad8e58 --json
 
 # Price moves during a call (optional: --event-id, --identifier, --year, --quarter, --date, --event-type)
-invd earnings price-attribution --json
+invd earnings price-attribution --event-id dd04abe1-f83f-4e92-8ddf-1f8864e7db30 --json
 
 # Speaker prosody (optional: --event-id, --identifier, --year, --quarter, --date, --event-type, --section)
-invd earnings prosody --json
+invd earnings prosody --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
 
 # Earnings call Q&A (optional: --event-id, --identifier, --year, --quarter, --date, --event-type, --limit, --offset, --include, --all)
-invd earnings qa --json
+invd earnings qa --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
 
 # Search earnings calls (optional: --event-id, --identifier, --from, --to, --type, --event-type, --limit)
-invd earnings search -q <q> --json
+invd earnings search -q "Azure growth" -i MSFT --json
 
 # Live audio stream URL (optional: --event-id, --identifier, --year, --quarter, --date, --event-type)
-invd earnings stream --json
+invd earnings stream --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
 
 # Transcript version diff (optional: --event-id, --identifier, --year, --quarter, --date, --event-type, --to)
-invd earnings transcript-diff --from <from> --json
+invd earnings transcript-diff --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --from 3 --json
 
 # Transcript versions (optional: --event-id, --identifier, --year, --quarter, --date, --event-type)
-invd earnings versions --json
+invd earnings versions --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
 ```
 
 <!-- invd:hand:earnings transcript -->
@@ -315,13 +315,13 @@ SEC filings, their parsed sections and natural-language filing search
 invd filings form-types --json
 
 # SEC filings (optional: --form-type, --sort, --limit, --offset, --all)
-invd filings list -i <identifier> --json
+invd filings list -i AAPL --json
 
 # Search SEC filings (optional: --identifier, --accession-number)
-invd filings search -r <request> --json
+invd filings search -r "What are Apple's main risk factors?" -i AAPL --json
 
 # SEC filing sections (optional: --section-id, --accession-number, --fiscal-year, --fiscal-quarter)
-invd filings sections -i <identifier> --form-type 10-Q --json
+invd filings sections -i AAPL --form-type 10-K --fiscal-year 2025 --json
 ```
 
 ### financials
@@ -330,76 +330,76 @@ Financial statements (standardized & as-reported)
 
 ```bash
 # As-reported balance sheet (optional: --sort, --limit, --offset, --all)
-invd financials as-reported-balance-sheet -i <identifier> -p quarterly --json
+invd financials as-reported-balance-sheet -i AAPL -p annual --json
 
 # As-reported balance sheet (detailed) (optional: --sort, --limit, --offset, --with-formula, --all)
-invd financials as-reported-balance-sheet-detailed -i <identifier> -p quarterly --json
+invd financials as-reported-balance-sheet-detailed -i AAPL -p annual --json
 
 # As-reported balance sheet (presentation) (optional: --sort, --limit, --offset, --all)
-invd financials as-reported-balance-sheet-presentation -i <identifier> -p quarterly --json
+invd financials as-reported-balance-sheet-presentation -i AAPL -p annual --json
 
 # As-reported cash flow statement (optional: --sort, --limit, --offset, --all)
-invd financials as-reported-cash-flow -i <identifier> -p quarterly --json
+invd financials as-reported-cash-flow -i AAPL -p annual --json
 
 # As-reported cash flow statement (detailed) (optional: --sort, --limit, --offset, --with-formula, --all)
-invd financials as-reported-cash-flow-detailed -i <identifier> -p quarterly --json
+invd financials as-reported-cash-flow-detailed -i AAPL -p annual --json
 
 # As-reported cash flow statement (presentation) (optional: --sort, --limit, --offset, --all)
-invd financials as-reported-cash-flow-presentation -i <identifier> -p quarterly --json
+invd financials as-reported-cash-flow-presentation -i AAPL -p annual --json
 
 # As-reported income statement (optional: --sort, --limit, --offset, --all)
-invd financials as-reported-income-statement -i <identifier> -p quarterly --json
+invd financials as-reported-income-statement -i AAPL -p annual --json
 
 # As-reported income statement (detailed) (optional: --sort, --limit, --offset, --with-formula, --all)
-invd financials as-reported-income-statement-detailed -i <identifier> -p quarterly --json
+invd financials as-reported-income-statement-detailed -i AAPL -p annual --json
 
 # As-reported income statement (presentation) (optional: --sort, --limit, --offset, --all)
-invd financials as-reported-income-statement-presentation -i <identifier> -p quarterly --json
+invd financials as-reported-income-statement-presentation -i AAPL -p annual --json
 
 # As-reported snapshot (optional: --calendar-year, --calendar-quarter)
-invd financials as-reported-snapshot -i <identifiers> -p quarterly --json
+invd financials as-reported-snapshot -i AAPL,MSFT -p annual --json
 
 # As-reported snapshot (detailed) (optional: --calendar-year, --calendar-quarter, --with-formula)
-invd financials as-reported-snapshot-detailed -i <identifiers> -p quarterly --json
+invd financials as-reported-snapshot-detailed -i AAPL,MSFT -p annual --json
 
 # As-reported snapshot (presentation) (optional: --calendar-year, --calendar-quarter)
-invd financials as-reported-snapshot-presentation -i <identifiers> -p quarterly --json
+invd financials as-reported-snapshot-presentation -i AAPL,MSFT -p annual --json
 
 # Standardized balance sheet (optional: --sort, --limit, --offset, --all)
-invd financials balance-sheet -i <identifier> -p quarterly --json
+invd financials balance-sheet -i AAPL -p annual --json
 
 # Standardized balance sheet (detailed) (optional: --sort, --limit, --offset, --with-formula, --all)
-invd financials balance-sheet-detailed -i <identifier> -p quarterly --json
+invd financials balance-sheet-detailed -i AAPL -p annual --json
 
 # Standardized balance sheet (presentation) (optional: --sort, --limit, --offset, --all)
-invd financials balance-sheet-presentation -i <identifier> -p quarterly --json
+invd financials balance-sheet-presentation -i AAPL -p annual --json
 
 # Standardized cash flow statement (optional: --sort, --limit, --offset, --all)
-invd financials cash-flow -i <identifier> -p quarterly --json
+invd financials cash-flow -i AAPL -p annual --json
 
 # Standardized cash flow statement (detailed) (optional: --sort, --limit, --offset, --with-formula, --all)
-invd financials cash-flow-detailed -i <identifier> -p quarterly --json
+invd financials cash-flow-detailed -i AAPL -p annual --json
 
 # Standardized cash flow statement (presentation) (optional: --sort, --limit, --offset, --all)
-invd financials cash-flow-presentation -i <identifier> -p quarterly --json
+invd financials cash-flow-presentation -i AAPL -p annual --json
 
 # Standardized income statement (optional: --sort, --limit, --offset, --all)
-invd financials income-statement -i <identifier> -p quarterly --json
+invd financials income-statement -i AAPL -p annual --json
 
 # Standardized income statement (detailed) (optional: --sort, --limit, --offset, --with-formula, --all)
-invd financials income-statement-detailed -i <identifier> -p quarterly --json
+invd financials income-statement-detailed -i AAPL -p annual --json
 
 # Standardized income statement (presentation) (optional: --sort, --limit, --offset, --all)
-invd financials income-statement-presentation -i <identifier> -p quarterly --json
+invd financials income-statement-presentation -i AAPL -p annual --json
 
 # Standardized snapshot (optional: --calendar-year, --calendar-quarter)
-invd financials snapshot -i <identifiers> -p quarterly --json
+invd financials snapshot -i AAPL,MSFT -p annual --json
 
 # Standardized snapshot (detailed) (optional: --calendar-year, --calendar-quarter, --with-formula)
-invd financials snapshot-detailed -i <identifiers> -p quarterly --json
+invd financials snapshot-detailed -i AAPL,MSFT -p annual --json
 
 # Standardized snapshot (presentation) (optional: --calendar-year, --calendar-quarter)
-invd financials snapshot-presentation -i <identifiers> -p quarterly --json
+invd financials snapshot-presentation -i AAPL,MSFT -p annual --json
 ```
 
 ### health
@@ -417,7 +417,7 @@ Insider transactions of a company
 
 ```bash
 # Insider trades (optional: --start-date, --end-date, --acquired-disposed, --sort, --limit, --offset, --all)
-invd insider-trades list -i <identifier> --json
+invd insider-trades list -i AAPL --json
 ```
 
 ### ipos
@@ -472,13 +472,13 @@ Ratios, growth and CAGR derived from the statements
 
 ```bash
 # CAGR metrics (optional: --period-years, --sort, --limit, --offset, --all)
-invd metrics cagr -i <identifier> --json
+invd metrics cagr -i AAPL --json
 
 # Growth metrics (optional: --growth-type, --sort, --limit, --offset, --all)
-invd metrics growth -i <identifier> -p quarterly --json
+invd metrics growth -i AAPL -p annual --json
 
 # Financial ratios (optional: --category, --sort, --limit, --offset, --all)
-invd metrics ratios -i <identifier> -p quarterly --json
+invd metrics ratios -i AAPL -p annual --json
 ```
 
 ### ownership
@@ -487,16 +487,16 @@ invd metrics ratios -i <identifier> -p quarterly --json
 
 ```bash
 # Holdings by company (optional: --min-value, --sort, --limit, --offset, --all)
-invd ownership holdings-by-company -i <identifier> --json
+invd ownership holdings-by-company -i AAPL --json
 
 # Holdings by investor (optional: --sort, --limit, --offset, --all)
-invd ownership holdings-by-investor --cik <cik> --json
+invd ownership holdings-by-investor --cik 1067983 --json
 
 # List institutional investors (optional: --ciks, --limit, --offset, --sort, --all)
 invd ownership institutions --json
 
 # Institutional transactions (optional: --cik, --identifier, --start-date, --end-date, --type, --calendar-year, --calendar-quarter, --sort, --limit, --offset, --all)
-invd ownership transactions --json
+invd ownership transactions --cik 1067983 --json
 ```
 
 ### plugin
@@ -514,10 +514,10 @@ Financial facts broken down by business and geographic segment
 
 ```bash
 # Segmented financials (optional: --segment-id, --sort, --limit, --offset, --all)
-invd segments list -i <identifier> -p quarterly --json
+invd segments list -i AAPL -p annual --json
 
 # Segmented financials (detailed) (optional: --segment-id, --sort, --limit, --offset, --all)
-invd segments list-detailed -i <identifier> -p quarterly --json
+invd segments list-detailed -i AAPL -p annual --json
 ```
 
 ### status
@@ -547,25 +547,25 @@ Earnings-call webhook subscriptions (PRO): signed POSTs of the call lifecycle
 
 ```bash
 # Create a webhook (optional: --body-file)
-invd webhooks create --body '<json>' --json
+invd webhooks create --body '{"url":"https://hooks.example.com/invinite","events":["earnings_call.transcript_ready","earnings_call.ended"],"filters":{"ciks":["0000789019","0000320193"]}}' --json
 
 # Delete a webhook
-invd webhooks delete --id <id> --json
+invd webhooks delete --id js7a2c9xq4m8v1k6t3w5r0n2b8gnd4fh --json
 
 # Webhook delivery attempts
-invd webhooks deliveries --id <id> --json
+invd webhooks deliveries --id js7a2c9xq4m8v1k6t3w5r0n2b8gnd4fh --json
 
 # List webhooks
 invd webhooks list --json
 
 # Rotate a webhook signing secret
-invd webhooks rotate-secret --id <id> --json
+invd webhooks rotate-secret --id js7a2c9xq4m8v1k6t3w5r0n2b8gnd4fh --json
 
 # Send a test delivery
-invd webhooks test --id <id> --json
+invd webhooks test --id js7a2c9xq4m8v1k6t3w5r0n2b8gnd4fh --json
 
 # Update a webhook (optional: --body, --body-file)
-invd webhooks update --id <id> --json
+invd webhooks update --id js7a2c9xq4m8v1k6t3w5r0n2b8gnd4fh --body '{"events":["earnings_call.transcript_ready"],"active":true}' --json
 ```
 
 ### ws

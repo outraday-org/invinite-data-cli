@@ -36,7 +36,9 @@ duplicate name. The spec marks such an operation `x-cli.exclude` naming the hand
 - `claude-plugin/skills/invinite-data-cli/SKILL.md`'s `<!-- invd:commands:start -->` … `end` block is written by
   `pnpm skill:commands` (`scripts/build-skill-commands.ts`) from the manifest + the roster; `skill:commands:check` and a
   test cell fail on drift. Edit only inside an `<!-- invd:hand:<command> -->` block (one per roster entry, carried over
-  verbatim); the prose around the block is hand-written.
+  verbatim); the prose around the block is hand-written. Each example line passes the required flags plus the spec's
+  `x-example-params`, valued with the spec's parameter `example`s (`manifest param.example`, `exampleParams`,
+  `body.example`; also shown in `--help` as `e.g. …`) — a `<name>` placeholder only where the spec has no example.
 - `tests/unit/doc-commands.test.ts` resolves every `invd …` line (fenced, or an inline code span) of `README.md` and
   the plugin's skill, agent and commands against `createProgram()`: an unknown command, flag or stray positional fails. `invinite`'s docs read this repo only
   through its committed snapshot (`invinite/scripts/snapshot-data-cli-reference.ts`, rerun after a command change).
