@@ -8,14 +8,14 @@ argument-hint: <ticker> [fiscal year + quarter, e.g. 2026 Q3]
 
 Analyze the earnings call requested in `$ARGUMENTS` using Invinite Data. Prefer the MCP tools (`earnings_call_*`) when connected; otherwise use the `invd earnings` commands below with `--json`.
 
-1. **Find the call.** Without a quarter, take the latest call that already happened: `invd earnings events -i <TICKER> --to <today> -s desc -l 1 --json` (MCP `earnings_call_events`). With a quarter, select it directly with `-i <TICKER> --year <YYYY> --quarter <Q>`. Use the call's `event_id` for every later step (`--event <event_id>`). If the call has no transcript yet, say so and stop.
-2. **Fetch in parallel** (all with `--event <event_id> --json`):
+1. **Find the call.** Without a quarter, take the latest call that already happened: `invd earnings events -i <TICKER> --to <today> -s desc -l 1 --json` (MCP `earnings_call_events`). With a quarter, select it directly with `-i <TICKER> --year <YYYY> --quarter <Q>`. Use the call's `event_id` for every later step (`--event-id <event_id>`). If the call has no transcript yet, say so and stop.
+2. **Fetch in parallel** (all with `--event-id <event_id> --json`):
    - press release: `invd earnings press-release` (`earnings_call_press_release`)
    - guidance: `invd earnings extractions --kind guidance` and KPIs: `invd earnings extractions --kind kpi` (`earnings_call_guidance`)
    - Q&A: `invd earnings qa` (`earnings_call_qa`) and participants: `invd earnings participants` (`earnings_call_participants`)
    - diff vs the prior call: `invd earnings diff` (`earnings_call_diff`)
    - optional, price moves during the call: `invd earnings price-attribution` (`earnings_call_price_moves`) — minute returns next to what was being said; skip it on a `404 price_attribution_unavailable`
-   - only when a claim needs the exact wording: `invd earnings transcript` (`earnings_call_transcript`) or `invd earnings search -q "<topic>" --event <event_id>` (`earnings_call_search`)
+   - only when a claim needs the exact wording: `invd earnings transcript` (`earnings_call_transcript`) or `invd earnings search -q "<topic>" --event-id <event_id>` (`earnings_call_search`)
    - when the call has documents (`has_documents`): `invd earnings documents` (`earnings_call_documents`) — CFO commentary, shareholder letter, data sheets; for context beyond the call (annual report, investor-day deck) `invd earnings document-search -q "<topic>" -i <TICKER>` (`earnings_document_search`)
 3. **Summarise**:
    - **Results vs guidance** — reported figures from the press release against the guidance given on the prior call (`invd earnings guidance-history -i <TICKER> --metric <metric>` for a metric's series).

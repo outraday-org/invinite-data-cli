@@ -30,6 +30,16 @@ an entry that is also a manifest operation. A rostered `group action` may share 
 (`earnings`): the roster registers first and the dispatcher attaches to the existing group; commander refuses a
 duplicate name. The spec marks such an operation `x-cli.exclude` naming the hand-written command.
 
+## The skill's command block and the docs' spellings are generated / gated
+
+- `claude-plugin/skills/invinite-data-cli/SKILL.md`'s `<!-- invd:commands:start -->` … `end` block is written by
+  `pnpm skill:commands` (`scripts/build-skill-commands.ts`) from the manifest + the roster; `skill:commands:check` and a
+  test cell fail on drift. Edit only inside an `<!-- invd:hand:<command> -->` block (one per roster entry, carried over
+  verbatim); the prose around the block is hand-written.
+- `tests/unit/doc-commands.test.ts` resolves every `invd …` line in a fenced block of `README.md` and `SKILL.md`
+  against `createProgram()`: an unknown command, flag or stray positional fails. `invinite`'s docs read this repo only
+  through its committed snapshot (`invinite/scripts/snapshot-data-cli-reference.ts`, rerun after a command change).
+
 ## Traps
 
 - `pnpm build` wipes `dist/` first — `tsc` never deletes the output of a removed source file, and `files: ["dist"]`

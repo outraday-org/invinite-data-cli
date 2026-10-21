@@ -198,24 +198,45 @@ credit costs per endpoint and plan limits are documented at
 
 ## Commands
 
-- `login` — Log in through your browser
-- `logout` — Revoke the current browser sign-in and clear local credentials
-- [usage](#usage-and-credits) — Plan allowance, prepaid balance and usage by day, family and key
-- [config](#config) — Manage CLI configuration
-- [health](#health) — Check API health
-- [company](#company) — Company information
-- [financials](#financials) — Financial statements
-- [metrics](#metrics) — Financial metrics, ratios, and growth
-- [segments](#segments) — Segmented financials
-- [filings](#filings) — SEC filings
-- [earnings](#earnings) — Earnings calls: calendar, transcripts, Q&A, guidance, price moves during the call, audio, slides, documents, search; company IR documents and document search
-- [ownership](#ownership) — Institutional ownership
-- [insider-trades](#insider-trades) — Insider trading data
-- [ipos](#ipos) — IPO listings
-- [market](#market) — Market data
-- [metadata](#metadata) — API metadata
-- [webhooks](#webhooks) — Earnings-call webhook subscriptions
-- [ws](#ws) — WebSocket streaming (`ws listen --earnings` for live call transcripts, `--prices` for live price ticks, `--keywords` / `--all-live` for keyword alerts)
+Every data command is generated from the Data API's OpenAPI document: one command per operation, named by the
+route's `x-cli` (`invd <group> <action>`), its flags the operation's parameters spelled with dashes
+(`fiscal_period_type` → `-p, --fiscal-period-type`, `event_id` → `--event-id`; path parameters are flags too), its help
+text the spec's summary and parameter descriptions. List them with `invd --help` and `invd <group> --help`; the
+[plugin skill](claude-plugin/skills/invinite-data-cli/SKILL.md#commands-reference) carries one generated example per
+command. A handful of commands are hand-written because they do more than one call — `login`, `logout`, `config`,
+`plugin`, `ws` and the earnings downloads / text renders below (`src/hand-written-commands.ts`).
+
+| Group | What it covers |
+|-------|----------------|
+| `company` | Search, details, list, dividends, fiscal periods, splits |
+| `financials` | Standardized and as-reported statements and snapshots — one command per variant: `income-statement`, `income-statement-detailed`, `income-statement-presentation`, `as-reported-income-statement…`; the same for `balance-sheet`, `cash-flow`, `snapshot` |
+| `metrics` | Ratios, growth, CAGR |
+| `segments` | `list`, `list-detailed` |
+| `filings` | List, natural-language search, sections, form types |
+| `earnings` | Calendar, events, live calls, transcripts, Q&A, participants, analysts, guidance and KPI extractions, diff, metrics, prosody, price moves during the call, media, documents, search, company IR documents |
+| `ownership` | 13F holdings by company / investor, institutions, transactions |
+| `insider-trades`, `ipos`, `market`, `metadata` | Insider transactions, IPOs, market holidays, available metric and filing-section ids |
+| `webhooks` | Earnings-call webhook subscriptions (PRO) |
+| `usage`, `health`, `status` | Your account's usage (free), API liveness and status (no key) |
+
+```bash
+invd company search -q Apple --json
+invd company details -i AAPL --json
+invd financials income-statement -i AAPL -p annual --json
+invd financials balance-sheet-detailed -i MSFT -p quarterly --limit 4 --with-formula true --json
+invd financials as-reported-cash-flow -i GOOGL -p annual --json
+invd financials snapshot -i AAPL,MSFT,GOOGL -p annual --json
+invd metrics ratios -i AAPL -p annual --category profitability --json
+invd segments list-detailed -i AAPL -p annual --json
+invd filings sections -i AAPL --form-type 10-K --section-id risk_factors --json
+invd ownership holdings-by-company -i AAPL --min-value 1000000 --json
+invd insider-trades list -i TSLA --acquired-disposed D --limit 20 --json
+invd earnings events -i AAPL -s desc -l 4 --json
+invd earnings event --event-id <event_id> --include observations --json
+invd earnings participants --event-id <event_id> --include evidence --json
+invd earnings person --person-id <person_id> --json
+invd earnings price-attribution --event-id <event_id> --json
+```
 
 ---
 
@@ -239,801 +260,68 @@ invd config reset
 
 ---
 
-### health
-
-Check API health status.
-
-```bash
-invd health
-```
-
----
-
-### company
-
-Company information, search, and corporate actions.
-
-#### `company list`
-
-List all available companies.
-
-```bash
-invd company list
-```
-
-#### `company search`
-
-Search companies by ticker or name.
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `-q, --query <text>` | Search query **(required)** | — |
-| `-l, --limit <n>` | Maximum results | `10` |
-| `--offset <n>` | Pagination offset | `0` |
-
-```bash
-invd company search -q "Apple"
-invd company search -q MSFT --limit 5
-```
-
-#### `company details`
-
-Fetch company details.
-
-| Option | Description |
-|--------|-------------|
-| `-i, --identifier <ticker>` | Ticker symbol or CIK **(required)** |
-
-```bash
-invd company details -i AAPL
-```
-
-#### `company dividends`
-
-Fetch stock dividends.
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `-i, --identifier <ticker>` | Ticker symbol or CIK **(required)** | — |
-| `--start-date <date>` | Start date (YYYY-MM-DD) | — |
-| `--end-date <date>` | End date (YYYY-MM-DD) | — |
-| `-s, --sort <dir>` | Sort direction (`asc` / `desc`) | `desc` |
-| `-l, --limit <n>` | Maximum results | `40` |
-| `--offset <n>` | Pagination offset | `0` |
-
-```bash
-invd company dividends -i AAPL --start-date 2023-01-01
-```
-
-#### `company fiscal-periods`
-
-Fetch available fiscal periods.
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `-i, --identifier <ticker>` | Ticker symbol or CIK **(required)** | — |
-| `-s, --sort <dir>` | Sort direction (`asc` / `desc`) | `desc` |
-| `-l, --limit <n>` | Maximum results | `40` |
-| `--offset <n>` | Pagination offset | `0` |
-
-```bash
-invd company fiscal-periods -i MSFT
-```
-
-#### `company splits`
-
-Fetch stock splits.
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `-i, --identifier <ticker>` | Ticker symbol or CIK **(required)** | — |
-| `-s, --sort <dir>` | Sort direction (`asc` / `desc`) | `desc` |
-| `-l, --limit <n>` | Maximum results | `40` |
-| `--offset <n>` | Pagination offset | `0` |
-
-```bash
-invd company splits -i AAPL
-```
-
----
-
-### financials
-
-Financial statements — standardized and as-reported.
-
-All statement commands share these options:
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `-i, --identifier <ticker>` | Ticker symbol or CIK **(required)** | — |
-| `-p, --period <type>` | Fiscal period: `quarterly`, `annual`, `ytd`, `ttm` **(required)** | — |
-| `-s, --sort <dir>` | Sort direction (`asc` / `desc`) | `desc` |
-| `-l, --limit <n>` | Maximum results | `10` |
-| `--offset <n>` | Pagination offset | `0` |
-| `--detailed` | Include formula, accession number, HTML tag info | — |
-| `--presentation` | Return nested tree structure | — |
-| `--as-reported` | Use as-reported data instead of standardized | — |
-| `--with-formula` | Include formula info (only with `--detailed`) | — |
-
-> `--detailed` and `--presentation` are mutually exclusive.
-
-#### `financials income-statement`
-
-```bash
-invd financials income-statement -i AAPL -p annual
-invd financials income-statement -i AAPL -p quarterly --detailed
-invd financials income-statement -i AAPL -p annual --presentation
-invd financials income-statement -i AAPL -p annual --as-reported
-```
-
-#### `financials balance-sheet`
-
-```bash
-invd financials balance-sheet -i MSFT -p quarterly --limit 4
-```
-
-#### `financials cash-flow`
-
-```bash
-invd financials cash-flow -i GOOGL -p annual
-```
-
-#### `financials snapshot`
-
-Fetch the latest complete financial snapshot. Uses comma-separated identifiers instead of a single identifier.
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `-i, --identifiers <tickers>` | Comma-separated ticker symbols or CIKs **(required)** | — |
-| `-p, --period <type>` | Fiscal period **(required)** | — |
-| `--calendar-year <year>` | Filter by calendar year | — |
-| `--calendar-quarter <q>` | Filter by calendar quarter | — |
-| `--detailed` | Include detailed info | — |
-| `--presentation` | Return nested tree structure | — |
-| `--as-reported` | Use as-reported data | — |
-
-```bash
-invd financials snapshot -i AAPL,MSFT,GOOGL -p annual
-invd financials snapshot -i AAPL -p quarterly --calendar-year 2024 --calendar-quarter 3
-```
-
----
-
-### metrics
-
-Financial metrics, ratios, and growth rates.
-
-#### `metrics ratios`
-
-Fetch financial ratios.
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `-i, --identifier <ticker>` | Ticker symbol or CIK **(required)** | — |
-| `-p, --period <type>` | Fiscal period **(required)** | — |
-| `--category <cat>` | Filter: `valuation`, `profitability`, `liquidity`, `solvency` | — |
-| `-s, --sort <dir>` | Sort direction | `desc` |
-| `-l, --limit <n>` | Maximum results | `10` |
-| `--offset <n>` | Pagination offset | `0` |
-
-```bash
-invd metrics ratios -i AAPL -p annual --category profitability
-```
-
-#### `metrics cagr`
-
-Fetch compound annual growth rate metrics.
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `-i, --identifier <ticker>` | Ticker symbol or CIK **(required)** | — |
-| `--period-years <years>` | CAGR period: `3`, `5`, `10` | — |
-| `-s, --sort <dir>` | Sort direction | `desc` |
-| `-l, --limit <n>` | Maximum results | `10` |
-| `--offset <n>` | Pagination offset | `0` |
-
-```bash
-invd metrics cagr -i AAPL --period-years 5
-```
-
-#### `metrics growth`
-
-Fetch growth metrics.
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `-i, --identifier <ticker>` | Ticker symbol or CIK **(required)** | — |
-| `-p, --period <type>` | Fiscal period **(required)** | — |
-| `--growth-type <type>` | `year_over_year` or `quarter_over_quarter` | — |
-| `-s, --sort <dir>` | Sort direction | `desc` |
-| `-l, --limit <n>` | Maximum results | `10` |
-| `--offset <n>` | Pagination offset | `0` |
-
-```bash
-invd metrics growth -i MSFT -p quarterly --growth-type year_over_year
-```
-
----
-
-### segments
-
-Segmented financial data.
-
-#### `segments list`
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `-i, --identifier <ticker>` | Ticker symbol or CIK **(required)** | — |
-| `-p, --period <type>` | Fiscal period **(required)** | — |
-| `--segment-id <id>` | Filter by segment ID | — |
-| `--detailed` | Include detailed breakdown | — |
-| `-s, --sort <dir>` | Sort direction | `desc` |
-| `-l, --limit <n>` | Maximum results | `10` |
-| `--offset <n>` | Pagination offset | `0` |
-
-```bash
-invd segments list -i AAPL -p annual
-invd segments list -i AAPL -p annual --detailed
-```
-
----
-
-### filings
-
-SEC filings data.
-
-#### `filings list`
-
-Fetch SEC filings for a company.
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `-i, --identifier <ticker>` | Ticker symbol or CIK **(required)** | — |
-| `--form-type <type>` | Filter by form type (e.g., `10-K`, `10-Q`, `8-K`) | — |
-| `-s, --sort <dir>` | Sort direction | `desc` |
-| `-l, --limit <n>` | Maximum results | `40` |
-| `--offset <n>` | Pagination offset | `0` |
-
-```bash
-invd filings list -i AAPL --form-type 10-K
-```
-
-#### `filings search`
-
-Search SEC filings using natural language.
-
-| Option | Description |
-|--------|-------------|
-| `-r, --request <text>` | Search query **(required)** |
-| `-i, --identifier <ticker>` | Filter by company |
-| `--accession-number <num>` | Filter by accession number |
-
-```bash
-invd filings search -r "revenue recognition policy changes" -i AAPL
-```
-
-#### `filings sections`
-
-Fetch SEC filing sections.
-
-| Option | Description |
-|--------|-------------|
-| `-i, --identifier <ticker>` | Ticker symbol or CIK **(required)** |
-| `--form-type <type>` | Form type: `10-Q`, `10-K`, `8-K` **(required)** |
-| `--section-id <id>` | Filter by section ID |
-| `--accession-number <num>` | Filter by accession number |
-| `--fiscal-year <year>` | Filter by fiscal year |
-| `--fiscal-quarter <q>` | Filter by fiscal quarter |
-
-```bash
-invd filings sections -i AAPL --form-type 10-K --section-id risk_factors
-```
-
-#### `filings form-types`
-
-List available SEC form types.
-
-| Option | Description |
-|--------|-------------|
-| `-i, --identifier <ticker>` | Filter by company (optional) |
-
-```bash
-invd filings form-types
-invd filings form-types -i AAPL
-```
-
----
-
 ### earnings
 
-Earnings calls: calendar, transcripts, Q&A, guidance and KPIs, audio, slides, documents, search — plus the companies' IR libraries (`company-documents`, `document`, `document-search`) and non-earnings events (investor days, conferences, AGMs: `--event-type`; the tables show `event_type` / `event_title`). The live transcript (`ws listen --earnings`), audio, slides, the live stream and webhooks need the **PRO** plan (calendar, events and `live` need LITE, the other reads STANDARD); a `403` names the plan a route needs.
+Earnings calls and the companies' IR libraries, including non-earnings events (investor days, conferences, AGMs:
+`--event-type`). The live transcript (`ws listen --earnings`), audio, slides, the live stream and webhooks need the
+**PRO** plan (calendar, events and `live` need LITE, the other reads STANDARD); a `403` names the plan a route needs.
 
-**Selecting a call.** Commands about one call (marked *selector* below) take either `--event <event_id>` (a UUID from `earnings events` / `earnings calendar`; wins over the rest), or `-i, --identifier <ticker|cik>` with `--year <n>` + `--quarter <n>` (the company's fiscal quarter) or `--date <YYYY-MM-DD>` (the call day: a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date).
+**Selecting a call.** Commands about one call take either `--event-id <event_id>` (a UUID from `earnings events` /
+`earnings calendar`; wins over the rest), or `-i, --identifier <ticker|cik>` with `--year <n>` + `--quarter <n>` (the
+company's fiscal quarter) or `--date <YYYY-MM-DD>` (the call day: a calendar day in New York time (America/New_York); a
+call without a confirmed time is listed on its announced date). An incomplete selector is refused by the API (`400`).
 
-**Saving files.** `--output <file>` saves a transcript, press release, recording or deck (`documents --output <dir>` saves every document); an existing file is only replaced with `--force`. Without `--output` the media commands print **presigned URLs that expire after 15 minutes**.
+The seven hand-written earnings commands download or render what one call returns:
 
-#### `earnings calendar`
+| Command | What it adds |
+|---------|--------------|
+| `earnings transcript` | `--format speakers\|text\|words\|sections\|cleaned`; `--transcript-version <n>` (not `--version`, which prints the CLI version) / `--as-of <iso>`; `-o, --output <file>` saves it as text. The header shows where the Q&A begins; `--json` carries it as `qa_start_ms` |
+| `earnings press-release` | `--body` includes the release text; `-o` saves it |
+| `earnings audio` | The recording as a presigned URL, or `-o` to save it |
+| `earnings slides` | `--markdown` (each page's text), `--pages <range>`, `-o` saves the deck PDF |
+| `earnings documents` | `--kind <list>`, `--body`; `-o <dir>` saves every document as `<kind>-<document_id>.<ext>` |
+| `earnings company-documents` | `-i` (required), `--section`, `--kind`, `--year`, `--period`, `--event-id`; `-o <dir>` saves every stored file as `<year>-<kind>-<document_id>.<ext>` |
+| `earnings document` | `--document-id` (from `company-documents` / `document-search`): metadata and signed URLs, `--pages` the per-page text, `-o` the file |
 
-Upcoming and recent calls across companies.
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--from <date>` / `--to <date>` | Calendar days in New York time (America/New_York; a call without a confirmed time is listed on its announced date), at most 92 days | today / from + 14 days |
-| `--status <list>` | `estimated`, `unconfirmed`, `confirmed`, `postponed`, `cancelled` (comma-separated) | — |
-| `--session <session>` | `bmo`, `amc`, `intraday` | — |
-| `--exchange <exchange>` | Exchange | — |
-| `--event-type <type>` | `earnings_call`, `investor_day`, `conference`, `agm`, `other`, or `all` (every type) | `earnings_call` |
-| `-s, --sort` / `-l, --limit` / `--offset` | Sort, page size (1–500), offset | — |
-
-```bash
-invd earnings calendar --from 2026-10-26 --to 2026-10-30 --status confirmed
-```
-
-#### `earnings events`
-
-A company's calls.
-
-| Option | Description |
-|--------|-------------|
-| `-i, --identifier <ticker>` | Ticker or CIK **(required)** |
-| `--from <date>` / `--to <date>` | Call day range |
-| `--event-type <type>` | `earnings_call`, `investor_day`, `conference`, `agm`, `other`, or `all` (default: every type) |
-| `--observations` | Include the date / time observations per call |
-| `-s, --sort` / `-l, --limit` / `--offset` | Sort, page size (1–200), offset |
-
-```bash
-invd earnings events -i AAPL -s desc -l 4
-```
-
-#### `earnings live`
-
-Calls being captured right now (`live_audio` = a live stream exists, `live_prices` = `ws listen --prices` delivers price ticks for the call).
-
-```bash
-invd earnings live
-```
-
-#### `earnings event`
-
-One call with its date / time observations: `invd earnings event <event_id>` (a non-earnings event is headed by its type and title).
-
-```bash
-invd earnings event 0b9d6f43-6b1e-4c39-9d3a-2f6a3c1e8b11
-```
-
-#### `earnings transcript` *(selector)*
-
-| Option | Description |
-|--------|-------------|
-| `--format <format>` | `speakers` (default), `text`, `words`, `sections`, `cleaned` |
-| `--transcript-version <n>` | A published version (`earnings versions`); not `--version`, which prints the CLI version |
-| `--as-of <iso>` | The version current at that instant |
-| `-o, --output <file>` / `--force` | Save the transcript as text |
-
-The header shows where the Q&A begins ("Q&A starts at 41:07") when the call has one; `--json` carries it as `qa_start_ms` (milliseconds, `null` without a Q&A).
+**Saving files.** An existing `--output` file is only replaced with `--force`; without `--output` the media commands
+print **presigned URLs that expire after 15 minutes**. With `documents` / `company-documents --output`, a row without a
+download URL (a link-only `sec_filing` or `webcast`, or a file the API could not fetch — use its `source_url`) is never
+skipped silently: each gets a warning on stderr, followed by a count (`2 of 3 documents saved; 1 skipped`). The exit
+code is 0 when at least one document was saved (or the list was empty) and 1 when documents were listed but none could
+be saved. An interrupted download (Ctrl-C) never leaves a partial file behind.
 
 ```bash
 invd earnings transcript -i AAPL --year 2026 --quarter 4 --output aapl-q4.txt
-```
-
-#### `earnings versions` *(selector)*
-
-Published transcript versions (final, corrected, …).
-
-```bash
-invd earnings versions -i AAPL --date 2026-10-30
-```
-
-#### `earnings transcript-diff` *(selector)*
-
-| Option | Description |
-|--------|-------------|
-| `--from <n>` | Older version **(required)** |
-| `--to <n>` | Newer version (default: the current one) |
-
-```bash
-invd earnings transcript-diff --event <event_id> --from 1
-```
-
-#### `earnings qa` *(selector)*
-
-Question / answer pairs with the analyst and the answering executives (`-l, --limit` 1–200, `--offset`).
-
-```bash
-invd earnings qa -i NVDA --year 2027 --quarter 2
-```
-
-#### `earnings participants` *(selector)*
-
-Speakers of the call (`--evidence` adds the quotes each name was resolved from).
-
-```bash
-invd earnings participants --event <event_id> --evidence
-```
-
-#### `earnings analysts`
-
-Analysts on a company's calls (`-i` **required**, `-l, --limit` 1–100, `--offset`).
-
-```bash
-invd earnings analysts -i MSFT
-```
-
-#### `earnings person`
-
-One person's call appearances: `invd earnings person <person_id>` (`-l, --limit` 1–200, `--offset`).
-
-```bash
-invd earnings person <person_id>
-```
-
-#### `earnings press-release` *(selector)*
-
-| Option | Description |
-|--------|-------------|
-| `--body` | Include the release text |
-| `-o, --output <file>` / `--force` | Save the release text |
-
-```bash
 invd earnings press-release -i AAPL --year 2026 --quarter 4 --body
-```
-
-#### `earnings extractions` *(selector)*
-
-| Option | Description |
-|--------|-------------|
-| `--kind <kind>` | `guidance` (default) or `kpi` |
-| `--review <filter>` | Guidance review filter: `approved`, `auto`, `all` |
-| `-l, --limit` / `--offset` | Page size (1–500), offset |
-
-```bash
-invd earnings extractions --event <event_id> --kind kpi
-```
-
-#### `earnings guidance-history`
-
-A company's guidance for one metric across calls.
-
-| Option | Description |
-|--------|-------------|
-| `-i, --identifier <ticker>` | Ticker or CIK **(required)** |
-| `--metric <metric>` | Normalized metric, e.g. `revenue`, `eps_non_gaap`, `segment:iphone` **(required)** |
-| `--period-kind <kind>` | `quarter`, `fiscal_year`, `half`, `other` |
-| `--basis <basis>` | `gaap`, `non_gaap`, `unknown` |
-| `-l, --limit <n>` | Series entries (1–40) |
-
-```bash
-invd earnings guidance-history -i AAPL --metric revenue --period-kind quarter
-```
-
-#### `earnings diff` *(selector)*
-
-What changed against the prior call: similarity, tone, hedging, new / dropped topics, slide changes (`--vs prior`, the only base).
-
-```bash
-invd earnings diff -i AAPL --year 2026 --quarter 4
-```
-
-#### `earnings metrics` *(selector)*
-
-Call structure metrics (length, Q&A share, question count, …).
-
-```bash
-invd earnings metrics --event <event_id>
-```
-
-#### `earnings prosody` *(selector)*
-
-Speech timing, pitch and energy per speaker (`--section all|prepared|qa`).
-
-```bash
-invd earnings prosody --event <event_id> --section qa
-```
-
-#### `earnings price-attribution` *(selector)*
-
-Minute-level price moves during the call (returns in basis points, no prices or volume) next to what was being said in each minute, plus the largest minutes (`top_minutes`) and how the recording was anchored to wall-clock time (`anchor_kind`, `anchor_lag_ms`, `anchor_uncertainty_s`). This is temporal coincidence, not attribution of cause; pre-market and after-hours bars are sparse. STANDARD plan, 1 credit; a `404 price_attribution_unavailable` means the call has not been attributed yet. During a live call the minute rows arrive as each minute closes (`live: true`, `settled: false`, the summary fields null, `top_minutes` empty): the CLI prints `LIVE — minute rows so far, not settled; the post-call run replaces them` and only the known summary fields.
-
-```bash
-invd earnings price-attribution --event <event_id>
-```
-
-#### `earnings audio` *(selector)*
-
-The recording as a presigned URL, or `-o, --output <file>` (+ `--force`) to save it.
-
-```bash
-invd earnings audio --event <event_id> --output call.mp3
-```
-
-#### `earnings slides` *(selector)*
-
-| Option | Description |
-|--------|-------------|
-| `--markdown` | Include each page's extracted text |
-| `--pages <range>` | Page or range, e.g. `3` or `1-5` |
-| `-o, --output <file>` / `--force` | Save the deck PDF |
-
-```bash
+invd earnings audio --event-id <event_id> --output call.mp3
 invd earnings slides -i AAPL --year 2026 --quarter 4 --output deck.pdf
-```
-
-#### `earnings documents` *(selector)*
-
-Investor documents of the call (CFO commentary, data sheets, letters, filings).
-
-| Option | Description |
-|--------|-------------|
-| `--kind <list>` | `cfo_commentary`, `financial_data`, `shareholder_letter`, `fact_sheet`, `company_transcript`, `sec_filing`, `infographic`, `other` |
-| `--body` | Include the extracted text |
-| `-l, --limit` / `--offset` | Page size (1–100), offset |
-| `-o, --output <dir>` / `--force` | Save every document as `<kind>-<document_id>.<ext>` |
-
-With `--output`, a document without a download URL (a link-only `sec_filing`, or a file the API could not fetch — use its `source_url`) is never skipped silently: each gets a warning on stderr, followed by a count (`2 of 3 documents saved; 1 skipped`). The exit code is 0 when at least one document was saved (or the list was empty) and 1 when documents were listed but none could be saved. An interrupted download (Ctrl-C) never leaves a partial file behind.
-
-```bash
-invd earnings documents --event <event_id> --output ./docs
-```
-
-#### `earnings company-documents`
-
-A company's investor-relations library outside its calls' folders — annual reports, proxy statements, ESG / governance documents, investor-day and conference decks, shareholder letters, fact sheets, and link-only webcast replay pages — newest year first. Company-published material, shown as published (STANDARD, 1 credit).
-
-| Option | Description |
-|--------|-------------|
-| `-i, --identifier <ticker>` | Ticker or CIK **(required)** |
-| `--section <list>` | `quarterly_results`, `events_archive`, `presentations_archive`, `annual_reports`, `proxy`, `sec_filings`, `press_releases`, `esg`, `governance`, `faq`, `other` |
-| `--kind <list>` | e.g. `annual_report`, `proxy_statement`, `esg_report`, `investor_day_deck`, `conference_presentation`, `shareholder_letter`, `fact_sheet`, `webcast` |
-| `--year <n>` / `--period <p>` | Year / period (`Q1`–`Q4`, `H1`, `H2`, `FY`) |
-| `--event <event_id>` | Only the documents of this event (investor day, conference, AGM) |
-| `-l, --limit` / `--offset` | Page size (1–100), offset (`--all` follows every page) |
-| `-o, --output <dir>` / `--force` | Save every stored file as `<year>-<kind>-<document_id>.<ext>` (`undated-…` without a year) |
-
-A link-only row (a `webcast` replay page) has no file: `--output` warns on stderr with its `source_url`, like `documents --output`; the exit code is 1 only when documents were listed but none could be saved.
-
-```bash
-invd earnings company-documents -i AAPL --section annual_reports,proxy
+invd earnings documents --event-id <event_id> --output ./docs
 invd earnings company-documents -i AAPL --kind investor_day_deck --output ./ir-docs
+invd earnings document --document-id <document_id> --pages
 ```
 
-#### `earnings document`
-
-One company document by `document_id` (from `company-documents` or `document-search`): metadata and signed URLs (`url` = the file, `pages_url` = its per-page text as JSON; both expire).
-
-| Option | Description |
-|--------|-------------|
-| `--pages` | Print the per-page text (inline up to 2 MB, else read from `pages_url`) |
-| `-o, --output <file>` / `--force` | Save the file (with `--pages`: the text) |
-
-```bash
-invd earnings document <document_id> --pages
-invd earnings document <document_id> --output annual-report.pdf
-```
-
-#### `earnings document-search`
-
-Semantic search over company documents — the calls' documents (CFO commentary, letters, data sheets, company transcripts) and the IR libraries — returning passages from company-published documents with their document, year and page, not verified facts (STANDARD, 10 credits). Open a hit's `url` at `#page=<page>`.
-
-| Option | Description |
-|--------|-------------|
-| `-q, --query <text>` | Search text **(required)** |
-| `-i, --identifier <ticker>` | Only this company |
-| `--kind <list>` / `--section <list>` / `--year <n>` | Kinds, IR sections (IR library only), year |
-| `--table <table>` | `event_documents` (call documents) or `company_documents` (IR library) |
-| `-l, --limit <n>` | Passages (1–20) |
-
-```bash
-invd earnings document-search -q "capital allocation" -i AAPL --table company_documents
-```
-
-#### `earnings search`
-
-Semantic search over call transcripts and slides.
-
-| Option | Description |
-|--------|-------------|
-| `-q, --query <text>` | Search text **(required)** |
-| `--event <event_id>` / `-i, --identifier <ticker>` | Only this call / company |
-| `--from <date>` / `--to <date>` | Call day range |
-| `--type <type>` | `transcript`, `qa`, `preparedRemarks`, `presentation` |
-| `--event-type <type>` | `earnings_call` (default), `investor_day`, `conference`, `agm`, `other`, or `all` |
-| `-l, --limit <n>` | Passages (1–8) |
-
-```bash
-invd earnings search -q "data center demand" -i NVDA
-```
-
-#### `earnings stream` *(selector)*
-
-The live HLS audio URL of a call in progress (PRO; `status` = `available`, `not_started`, `ended` or `disabled`). Play it with `ffplay` or VLC; the URL expires (`expires_at`).
-
-```bash
-invd earnings stream --event <event_id>
-```
-
----
-
-### ownership
-
-Institutional ownership data.
-
-#### `ownership holdings-by-investor`
-
-Fetch all holdings for an institutional investor.
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--cik <cik>` | Institution CIK **(required)** | — |
-| `-s, --sort <dir>` | Sort direction | `desc` |
-| `-l, --limit <n>` | Maximum results | `100` |
-| `--offset <n>` | Pagination offset | `0` |
-
-```bash
-invd ownership holdings-by-investor --cik 0001067983
-```
-
-#### `ownership holdings-by-company`
-
-Fetch institutional holders of a company.
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `-i, --identifier <ticker>` | Ticker symbol or CIK **(required)** | — |
-| `--min-value <n>` | Minimum holding value filter | — |
-| `-s, --sort <dir>` | Sort direction | `desc` |
-| `-l, --limit <n>` | Maximum results | `100` |
-| `--offset <n>` | Pagination offset | `0` |
-
-```bash
-invd ownership holdings-by-company -i AAPL --min-value 1000000
-```
-
-#### `ownership transactions`
-
-Fetch institutional ownership transactions.
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--cik <cik>` | Institution CIK | — |
-| `-i, --identifier <ticker>` | Ticker symbol or CIK | — |
-| `--start-date <date>` | Start date (YYYY-MM-DD) | — |
-| `--end-date <date>` | End date (YYYY-MM-DD) | — |
-| `--type <type>` | Transaction type: `new_buy`, `added`, `reduced`, `sold_out` | — |
-| `--calendar-year <year>` | Filter by calendar year | — |
-| `--calendar-quarter <q>` | Filter by calendar quarter | — |
-| `-s, --sort <dir>` | Sort direction | `desc` |
-| `-l, --limit <n>` | Maximum results | `100` |
-| `--offset <n>` | Pagination offset | `0` |
-
-```bash
-invd ownership transactions -i AAPL --type new_buy
-invd ownership transactions --cik 0001067983 --calendar-year 2024
-```
-
-#### `ownership institutions`
-
-List institutional investors.
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--ciks <ciks>` | Comma-separated institution CIKs | — |
-| `-s, --sort <dir>` | Sort direction | `asc` |
-| `-l, --limit <n>` | Maximum results | `100` |
-| `--offset <n>` | Pagination offset | `0` |
-
-```bash
-invd ownership institutions
-invd ownership institutions --ciks 0001067983,0001364742
-```
-
----
-
-### insider-trades
-
-Insider trading data.
-
-#### `insider-trades list`
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `-i, --identifier <ticker>` | Ticker symbol or CIK **(required)** | — |
-| `--start-date <date>` | Start date (YYYY-MM-DD) | — |
-| `--end-date <date>` | End date (YYYY-MM-DD) | — |
-| `--acquired-disposed <ad>` | `A` (acquisition) or `D` (disposition) | — |
-| `-s, --sort <dir>` | Sort direction | `desc` |
-| `-l, --limit <n>` | Maximum results | `100` |
-| `--offset <n>` | Pagination offset | `0` |
-
-```bash
-invd insider-trades list -i AAPL
-invd insider-trades list -i TSLA --acquired-disposed D --limit 20
-```
-
----
-
-### ipos
-
-IPO listings.
-
-#### `ipos list`
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--start-date <date>` | Start date (YYYY-MM-DD) | — |
-| `--end-date <date>` | End date (YYYY-MM-DD) | — |
-| `-s, --sort <dir>` | Sort direction | `desc` |
-| `-l, --limit <n>` | Maximum results | `100` |
-| `--offset <n>` | Pagination offset | `0` |
-
-```bash
-invd ipos list --start-date 2024-01-01 --end-date 2024-12-31
-```
-
----
-
-### market
-
-Market data.
-
-#### `market holidays`
-
-Fetch market holidays.
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `-s, --sort <dir>` | Sort direction | `asc` |
-| `-l, --limit <n>` | Maximum results | `100` |
-| `--offset <n>` | Pagination offset | `0` |
-
-```bash
-invd market holidays
-```
-
----
-
-### metadata
-
-API metadata and available identifiers.
-
-#### `metadata metrics`
-
-List all available standardized financial metrics.
-
-```bash
-invd metadata metrics
-```
-
-#### `metadata section-ids`
-
-List available section IDs for SEC filings.
-
-```bash
-invd metadata section-ids
-```
+Company documents and document-search hits are company-published material, shown as published: quote them as passages
+from company-published documents, not verified facts. Price attribution (`earnings price-attribution`) is temporal
+coincidence, not attribution of cause.
 
 ---
 
 ### webhooks
 
-Earnings-call webhook subscriptions (PRO): signed, retried `POST`s of the call lifecycle to your HTTPS endpoint. Events: `earnings_call.scheduled`, `.rescheduled`, `.started`, `.ended`, `.transcript_provisional`, `.transcript_ready`, `.transcript_corrected`, `.assets_ready`, `.keyword_hit` (one delivery per mention of one of the subscription's `--keywords` on a live call, with the speaker, `start_ms` and the sentence), `.guidance_flash` (a guidance number spoken live, before the final transcript), and `ping`. Deliveries carry `X-Invinite-Signature: t=…,v1=…` (HMAC-SHA256 of `<t>.<raw body>` with the secret) and are retried after 1 min, 5 min, 30 min, 2 h, 6 h, 12 h and 24 h.
+Earnings-call webhook subscriptions (PRO): signed, retried `POST`s of the call lifecycle to your HTTPS endpoint. Events: `earnings_call.scheduled`, `.rescheduled`, `.started`, `.ended`, `.transcript_provisional`, `.transcript_ready`, `.transcript_corrected`, `.assets_ready`, `.keyword_hit` (one delivery per mention of one of the subscription's keywords on a live call, with the speaker, `start_ms` and the sentence), `.guidance_flash` (a guidance number spoken live, before the final transcript), and `ping`. Deliveries carry `X-Invinite-Signature: t=…,v1=…` (HMAC-SHA256 of `<t>.<raw body>` with the secret) and are retried after 1 min, 5 min, 30 min, 2 h, 6 h, 12 h and 24 h.
 
-| Command | Description |
-|---------|-------------|
-| `webhooks list` | Your account's subscriptions (never the secret, only `secret_hint`) |
-| `webhooks create --url <url> --events <list> [--ciks <list>] [--keywords <list>]` | Create one (max 10 per account; `--ciks` max 10, default every company; `--keywords` max 20 of 2–64 chars, matched on every live call for `.keyword_hit`). **Prints the signing secret once** |
-| `webhooks update <id> [--keywords <list>] [--ciks <list>] [--events <list>] [--active true\|false]` | Change a subscription (`PATCH`; at least one option; an empty `--keywords ""` / `--ciks ""` clears the list; `--active false` pauses it, `true` resumes it and resets the failure counters) |
-| `webhooks delete <id>` | Delete a subscription |
-| `webhooks rotate-secret <id>` | New secret (printed once); the old one stays valid until `previous_secret_expires_at` (5 min) |
-| `webhooks test <id>` | Queue a signed `ping` delivery |
-| `webhooks deliveries <id>` | The last 100 attempts: `delivery_id`, `event`, `attempt`, `status`, `response_status`, `duration_ms`, `at`, `next_attempt_at` |
+`webhooks create` and `webhooks update` take the request body as `--body '<json>'` or `--body-file <path>` (`-` reads
+stdin); the other commands take the subscription as `--id`. `create` **prints the signing secret once**; `rotate-secret`
+prints a new one (the old one stays valid for 5 minutes); `test` queues a signed `ping`; `deliveries` lists the last
+100 attempts.
 
 ```bash
-invd webhooks create --url https://hooks.example.com/invinite --events earnings_call.transcript_ready,earnings_call.started --ciks 320193
-invd webhooks create --url https://hooks.example.com/alerts --events earnings_call.keyword_hit --keywords tariffs,buyback   # every company
-invd webhooks update <id> --keywords tariffs,china,buyback
-invd webhooks update <id> --active false
-invd webhooks test <id>
-invd webhooks deliveries <id>
+invd webhooks create --body '{"url":"https://hooks.example.com/invinite","events":["earnings_call.transcript_ready","earnings_call.started"],"filters":{"ciks":["320193"]}}'
+invd webhooks create --body '{"url":"https://hooks.example.com/alerts","events":["earnings_call.keyword_hit"],"filters":{"keywords":["tariffs","buyback"]}}'   # every company
+invd webhooks update --id <id> --body '{"keywords":["tariffs","china","buyback"]}'
+invd webhooks update --id <id> --body '{"active":false}'
+invd webhooks test --id <id>
+invd webhooks deliveries --id <id>
 ```
 
 ---
@@ -1083,19 +371,20 @@ invd ws listen --all-live --keywords tariffs --min-rank 500
 invd ws listen --all-live --keywords tariffs --json | jq -r 'select(.type=="keyword_hit") | "\(.symbol) \(.speaker_name): \(.text)"'
 ```
 
-**Live prices.** With `--prices` the same per-call subscription also delivers a `price_tick` frame (PRO, at most one per second, only for seconds with a trade — pre-market and after-hours seconds are sparse). On a terminal it is one line rewritten in place — `[16:32:05 ET · 12:34] AAPL 336.08  +42.5 bp since call  −127.5 bp on day  (vol 1,240)`: New York time, the call clock of the transcript (`m:ss`, the same clock as the segments' `[m:ss]`), the price, the return since the last trade before the call and the day's return vs the previous close; green / red by the since-call return, dim from the snapshot fallback. The line shows temporal coincidence with what is being said, not attribution of cause. Price ticks follow one call: `--all-live --prices` is refused (as by the API). With `--json` the frames are emitted as they arrive: `invd ws listen --earnings <event_id> --prices --json | jq 'select(.type=="price_tick")'`. The minute rows so far are `invd earnings price-attribution --event <event_id>`.
+**Live prices.** With `--prices` the same per-call subscription also delivers a `price_tick` frame (PRO, at most one per second, only for seconds with a trade — pre-market and after-hours seconds are sparse). On a terminal it is one line rewritten in place — `[16:32:05 ET · 12:34] AAPL 336.08  +42.5 bp since call  −127.5 bp on day  (vol 1,240)`: New York time, the call clock of the transcript (`m:ss`, the same clock as the segments' `[m:ss]`), the price, the return since the last trade before the call and the day's return vs the previous close; green / red by the since-call return, dim from the snapshot fallback. The line shows temporal coincidence with what is being said, not attribution of cause. Price ticks follow one call: `--all-live --prices` is refused (as by the API). With `--json` the frames are emitted as they arrive: `invd ws listen --earnings <event_id> --prices --json | jq 'select(.type=="price_tick")'`. The minute rows so far are `invd earnings price-attribution --event-id <event_id>`.
 
 ```bash
 invd ws listen --earnings <event_id> --prices
 ```
 
-Finals are named from the newest speaker-name snapshot (`Speaker A` until a name is known). A `gap` line marks a seq range with no final yet (a late final may still follow on the same subscription, so finals can print slightly out of order); `resume_unavailable` means missed finals cannot be replayed right now — live delivery continues and the API back-fills them once it can. Neither needs a re-subscribe. After a reconnect the listener resumes after the last final it printed; it exits once the final transcript is ready (`invd earnings transcript --event <id>`). With `--json` every frame is one JSON line (NDJSON), e.g. `invd ws listen --earnings 320193 --json | jq -r 'select(.type=="transcript_segment") | .text'`.
+Finals are named from the newest speaker-name snapshot (`Speaker A` until a name is known). A `gap` line marks a seq range with no final yet (a late final may still follow on the same subscription, so finals can print slightly out of order); `resume_unavailable` means missed finals cannot be replayed right now — live delivery continues and the API back-fills them once it can. Neither needs a re-subscribe. After a reconnect the listener resumes after the last final it printed; it exits once the final transcript is ready (`invd earnings transcript --event-id <id>`). With `--json` every frame is one JSON line (NDJSON), e.g. `invd ws listen --earnings 320193 --json | jq -r 'select(.type=="transcript_segment") | .text'`.
 
 ---
 
 ## Output Formats
 
-By default, data is displayed as formatted tables with aligned columns and number formatting.
+Each data command prints a table, a key/value list or JSON according to its operation; `--json` prints the API's raw
+response.
 
 ```bash
 # Default table output
@@ -1105,20 +394,17 @@ invd company search -q Apple
 invd company search -q Apple --json
 
 # Pipe to jq
-invd financials income-statement -i AAPL -p annual --json | jq '.data[0]'
+invd financials income-statement -i AAPL -p annual --json | jq '.companies[0]'
 ```
-
-Financial statements with `--presentation` are displayed as indented trees showing the hierarchical structure of line items.
 
 ## Pagination
 
-Results are paginated by default. Use `--limit` and `--offset` to control pagination manually, or use `--all` to automatically fetch all pages:
+Paginated commands take `-l, --limit` and `--offset`, or `--all` to follow every page (`next_url`; per-company commands
+merge each company's pages). A command whose operation does not paginate refuses `--all` by name. Without `--limit`
+the API's own page size applies.
 
 ```bash
-# Get first 10 results (default)
-invd company dividends -i AAPL
-
-# Get results 20-30
+# Results 20-30
 invd company dividends -i AAPL --limit 10 --offset 20
 
 # Fetch all results automatically
