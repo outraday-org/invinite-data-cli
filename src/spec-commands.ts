@@ -6,7 +6,7 @@ import { fetchAllCompanyPages, fetchAllTopPages } from './client/pagination.js';
 import { flattenRows, pick } from './formatters/flatten.js';
 import { formatJson } from './formatters/json-formatter.js';
 import { formatKeyValue, formatTable, printPaginationHint } from './formatters/table-formatter.js';
-import { withErrorHandling } from './shared/errors.js';
+import { apiErrorHint, withErrorHandling } from './shared/errors.js';
 import { splitList } from './shared/options.js';
 import { output } from './shared/output.js';
 import { setJsonMode } from './shared/spinner.js';
@@ -16,19 +16,15 @@ import type { Manifest, ManifestOperation, ManifestParam } from './spec-manifest
 /**
  * Registers every manifest operation as `invd <group> <action>` (`action: ""` → `invd <group>`): one flag per
  * parameter (path parameters included, never positional), values validated before any request, the request through
- * `apiGet` / `apiRequest`, `--all` by the operation's pagination, and the operation's view as the human output.
- * Groups in `skipGroups` are left to their hand-written commands.
+ * `apiGet` / `apiRequest` (keyless where the spec says so), `--all` by the operation's pagination, and the operation's
+ * view as the human output. A group a hand-written command already registered (`earnings`, whose download commands
+ * are rostered in `src/hand-written-commands.ts`) gets the generated actions attached; commander refuses a duplicate.
  */
-export function registerSpecCommands(
-  program: Command,
-  manifest: Manifest,
-  options: { skipGroups?: Iterable<string> } = {},
-): void {
-  const skip = new Set(options.skipGroups ?? []);
+export function registerSpecCommands(program: Command, manifest: Manifest): void {
   for (const group of manifest.groups) {
-    if (skip.has(group.name)) continue;
     const operations = manifest.operations.filter(operation => operation.group === group.name);
-    const groupCommand = program.command(group.name).description(group.description);
+    const groupCommand = (program.commands.find(command => command.name() === group.name) ?? program.command(group.name))
+      .description(group.description);
     for (const operation of operations) {
       const command = operation.action === ''
         ? groupCommand
@@ -189,8 +185,9 @@ function defineOperationCommand(command: Command, operation: ManifestOperation):
     }
 
     let data: unknown = operation.method === 'get'
-      ? await apiGet<unknown>({ path, params })
+      ? await apiGet<unknown>({ path, params, auth: operation.auth })
       : await apiRequest<unknown>({
+        auth: operation.auth,
         method: operation.method === 'post' ? 'POST'
           : operation.method === 'put' ? 'PUT'
             : operation.method === 'patch' ? 'PATCH' : 'DELETE',
@@ -212,5 +209,5 @@ function defineOperationCommand(command: Command, operation: ManifestOperation):
       return;
     }
     output(data, { json }, () => renderView(operation, data));
-  }));
+  }, apiErrorHint));
 }

@@ -4,27 +4,23 @@ import chalk from 'chalk';
 import { apiGet } from '../client/api-client.js';
 import { downloadToFile, ensureDir, extensionFor, writeTextFile } from '../client/download.js';
 import { fetchAllPages } from '../client/pagination.js';
-import { ApiError, withErrorHandling } from '../shared/errors.js';
+import { apiErrorHint, withErrorHandling } from '../shared/errors.js';
 import { output } from '../shared/output.js';
-import { splitList } from '../shared/options.js';
 import { setJsonMode } from '../shared/spinner.js';
 import { formatJson } from '../formatters/json-formatter.js';
 import { formatKeyValue, formatTable, printPaginationHint } from '../formatters/table-formatter.js';
-import { flattenRows } from '../formatters/flatten.js';
 import { formatMs } from '../formatters/time.js';
-import { selectorOptions, selectorParams, validateSelector, type SelectorOptions } from './earnings-selector.js';
+
+/**
+ * The hand-written `invd earnings` commands: each writes a file or renders text, so none is one REST call plus one
+ * view (`src/hand-written-commands.ts` rosters them). Every other `earnings` action is generated from the manifest
+ * and attached to the same group (`src/spec-commands.ts`).
+ */
 
 const BASE = '/v1/earnings-calls';
 
-const EVENT_COLUMNS = [
-  'scheduled_at', 'symbol', 'company_name', 'event_type', 'event_title', 'fiscal_year', 'fiscal_quarter', 'session',
-  'date_status', 'capture_status', 'has_transcript', 'has_audio', 'has_slides', 'event_id',
-];
-
-const SEARCH_TEXT_MAX = 120;
-
-/** IDA's `event_type` filter values (`EVENT_TYPE_FILTERS`): one stored type, or `all`. */
-const EVENT_TYPE_FILTERS = ['earnings_call', 'investor_day', 'conference', 'agm', 'other', 'all'];
+/** IDA's `event_type` values (the spec's enum on the selector operations). */
+const EVENT_TYPES = ['earnings_call', 'investor_day', 'conference', 'agm', 'other'];
 
 type Row = Record<string, any>;
 
@@ -33,25 +29,49 @@ interface Saved {
   bytes: number;
 }
 
-/** One dim line after a 403 whose message names the plan the route needs. */
-export function planHint(error: ApiError): string | undefined {
-  if (error.statusCode !== 403) return undefined;
-  const tier = /requires (?:the )?(\w+) plan/i.exec(error.message)?.[1];
-  return tier ? `This route needs the ${tier} plan; see invd earnings --help` : undefined;
+interface SelectorOptions {
+  eventId?: string;
+  identifier?: string;
+  year?: string;
+  quarter?: string;
+  date?: string;
+  eventType?: string;
 }
 
-const run = (fn: (...args: any[]) => Promise<void>) => withErrorHandling(fn, planHint);
+/**
+ * The event selector, as the generated commands spell it (the spec's query parameters): `--event-id`, or `-i` with
+ * `--year` + `--quarter` or `--date`. An incomplete selector is the API's own 400.
+ */
+function selectorOptions(cmd: Command): Command {
+  return cmd
+    .option('--event-id <event_id>', 'Event ID (wins over the other selectors)')
+    .option('-i, --identifier <ticker>', 'Ticker or CIK (with --year + --quarter, or --date)')
+    .option('--year <n>', 'Fiscal year of the call (with --quarter)')
+    .option('--quarter <n>', 'Fiscal quarter of the call (with --year)')
+    .option('--date <date>', 'Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date')
+    .addOption(new Option('--event-type <type>', 'Event type of the selected call').choices(EVENT_TYPES));
+}
 
-/** `--all`: follows `next_url` and concatenates the page arrays under `key`. */
-async function paginate<T extends { next_url?: string }>(data: T, key: keyof T, all?: boolean): Promise<T> {
-  if (!all || !data.next_url) return data;
-  return fetchAllPages(data,
-    d => d.next_url,
-    (acc, page) => ({
-      ...page,
-      [key]: [...((acc[key] as unknown[] | undefined) ?? []), ...((page[key] as unknown[] | undefined) ?? [])],
-    }) as T,
-  );
+function selectorParams(opts: SelectorOptions): Record<string, string | undefined> {
+  return {
+    event_id: opts.eventId,
+    identifier: opts.identifier,
+    year: opts.year,
+    quarter: opts.quarter,
+    date: opts.date,
+    event_type: opts.eventType,
+  };
+}
+
+const run = (fn: (...args: any[]) => Promise<void>) => withErrorHandling(fn, apiErrorHint);
+
+/** `--all`: follows `next_url` and concatenates the `documents` pages. */
+async function allDocuments<T extends { documents: Row[]; next_url?: string }>(data: T, all: boolean | undefined): Promise<T> {
+  if (!all) return data;
+  return fetchAllPages(data, page => page.next_url, (accumulated, page) => ({
+    ...page,
+    documents: [...accumulated.documents, ...page.documents],
+  }));
 }
 
 function eventLine(event: Row | null | undefined): string {
@@ -66,12 +86,6 @@ function eventLine(event: Row | null | undefined): string {
 
 function printSaved(saved: Saved): void {
   console.log(chalk.green(`Saved ${saved.path} (${saved.bytes.toLocaleString('en-US')} bytes)`));
-}
-
-/** `*_ms` numbers → `m:ss` for key / value output. */
-function humanizeMs(row: Row): Row {
-  return Object.fromEntries(Object.entries(row).map(([key, value]) =>
-    [key, key.endsWith('_ms') && typeof value === 'number' ? formatMs(value) : value]));
 }
 
 function speakerName(turn: Row): string {
@@ -123,16 +137,8 @@ export function pagesText(pagesJson: unknown): string {
     .join('\n\n');
 }
 
-/** A table cell of at most `SEARCH_TEXT_MAX` characters. */
-function clip(value: unknown): string {
-  const text = String(value ?? '');
-  return text.length > SEARCH_TEXT_MAX ? `${text.slice(0, SEARCH_TEXT_MAX - 1)}…` : text;
-}
-
 export function registerEarningsCommands(program: Command): void {
-  const earnings = program
-    .command('earnings')
-    .description('Earnings calls: calendar, transcripts, audio, slides, guidance, Q&A, search');
+  const earnings = program.commands.find(command => command.name() === 'earnings') ?? program.command('earnings');
 
   const globalOpts = () => {
     const opts = program.opts();
@@ -142,108 +148,6 @@ export function registerEarningsCommands(program: Command): void {
 
   const selectorCommand = (name: string, description: string) =>
     selectorOptions(earnings.command(name).description(description));
-
-  // ── Calendar / events ──────────────────────────────────────────────
-
-  earnings
-    .command('calendar')
-    .description('Upcoming and recent earnings calls across companies')
-    .option('--from <date>', 'First day (YYYY-MM-DD, default today): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date')
-    .option('--to <date>', 'Last day (YYYY-MM-DD, default from + 14 days, at most 92): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date')
-    .option('--status <list>', 'Date statuses, comma-separated (estimated, unconfirmed, confirmed, postponed, cancelled)')
-    .addOption(new Option('--session <session>', 'Session').choices(['bmo', 'amc', 'intraday']))
-    .option('--exchange <exchange>', 'Exchange')
-    .addOption(new Option('--event-type <type>', 'Event type (default earnings_call; all = every type)').choices(EVENT_TYPE_FILTERS))
-    .addOption(new Option('-s, --sort <dir>', 'Sort direction').choices(['asc', 'desc']))
-    .option('-l, --limit <n>', 'Max results (1-500)')
-    .option('--offset <n>', 'Offset')
-    .action(run(async (cmdOpts) => {
-      const opts = globalOpts();
-      const data = await paginate(await apiGet<{ from: string; to: string; events: Row[]; next_url?: string }>({
-        path: `${BASE}/calendar`,
-        params: {
-          from: cmdOpts.from,
-          to: cmdOpts.to,
-          // IDA's `status` is an array parameter: one `status=` per value, never one comma string.
-          status: splitList(cmdOpts.status),
-          session: cmdOpts.session,
-          exchange: cmdOpts.exchange,
-          event_type: cmdOpts.eventType,
-          sort: cmdOpts.sort,
-          limit: cmdOpts.limit,
-          offset: cmdOpts.offset,
-        },
-      }), 'events', opts.all);
-      output(data, opts, () => {
-        console.log(chalk.bold(`\nEarnings calendar ${data.from} … ${data.to}\n`));
-        formatTable(data.events, EVENT_COLUMNS);
-        printPaginationHint(data.next_url);
-      });
-    }));
-
-  earnings
-    .command('events')
-    .description("A company's earnings calls")
-    .requiredOption('-i, --identifier <ticker>', 'Ticker or CIK')
-    .option('--from <date>', 'Calls on or after this day (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date')
-    .option('--to <date>', 'Calls on or before this day (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date')
-    .addOption(new Option('--event-type <type>', 'Event type (default all)').choices(EVENT_TYPE_FILTERS))
-    .option('--observations', 'Include the date / time observations per call')
-    .addOption(new Option('-s, --sort <dir>', 'Sort direction').choices(['asc', 'desc']))
-    .option('-l, --limit <n>', 'Max results (1-200)')
-    .option('--offset <n>', 'Offset')
-    .action(run(async (cmdOpts) => {
-      const opts = globalOpts();
-      const data = await paginate(await apiGet<{ symbol: string; cik: string; covered: boolean; events: Row[]; next_url?: string }>({
-        path: `${BASE}/events`,
-        params: {
-          identifier: cmdOpts.identifier,
-          from: cmdOpts.from,
-          to: cmdOpts.to,
-          event_type: cmdOpts.eventType,
-          include: cmdOpts.observations ? 'observations' : undefined,
-          sort: cmdOpts.sort,
-          limit: cmdOpts.limit,
-          offset: cmdOpts.offset,
-        },
-      }), 'events', opts.all);
-      output(data, opts, () => {
-        console.log(chalk.bold(`\n${data.symbol} (${data.cik}) Earnings Calls\n`));
-        if (!data.covered) console.log(chalk.yellow('Not covered by the earnings-calls pipeline.\n'));
-        formatTable(data.events, EVENT_COLUMNS);
-        printPaginationHint(data.next_url);
-      });
-    }));
-
-  earnings
-    .command('live')
-    .description('Calls being captured right now')
-    .action(run(async () => {
-      const opts = globalOpts();
-      const data = await apiGet<{ as_of: string; events: Row[] }>({ path: `${BASE}/live` });
-      output(data, opts, () => {
-        console.log(chalk.bold(`\nLive earnings calls (as of ${data.as_of})\n`));
-        formatTable(data.events, [...EVENT_COLUMNS, 'live_audio']);
-      });
-    }));
-
-  earnings
-    .command('event')
-    .description('One earnings call with its date / time observations')
-    .argument('<event_id>', 'Event ID')
-    .action(run(async (eventId: string) => {
-      const opts = globalOpts();
-      const data = await apiGet<Row>({ path: `${BASE}/event/${encodeURIComponent(eventId)}` });
-      output(data, opts, () => {
-        const { observations, ...event } = data;
-        console.log(chalk.bold(`\n${eventLine(event)}\n`));
-        formatKeyValue(event);
-        if (observations?.length) {
-          console.log(chalk.bold('\nObservations\n'));
-          formatTable(observations, ['observed_source', 'observed_at', 'starts_at', 'tz', 'status_hint', 'announcement_kind']);
-        }
-      });
-    }));
 
   // ── Transcript ─────────────────────────────────────────────────────
 
@@ -256,7 +160,6 @@ export function registerEarningsCommands(program: Command): void {
     .option('--force', 'Overwrite an existing --output file')
     .action(run(async (cmdOpts: SelectorOptions & Row) => {
       const opts = globalOpts();
-      validateSelector(cmdOpts);
       const data = await apiGet<Row>({
         path: `${BASE}/transcript`,
         params: { ...selectorParams(cmdOpts), format: cmdOpts.format, version: cmdOpts.transcriptVersion, as_of: cmdOpts.asOf },
@@ -280,147 +183,12 @@ export function registerEarningsCommands(program: Command): void {
       });
     }));
 
-  selectorCommand('versions', 'Published transcript versions of a call')
-    .action(run(async (cmdOpts: SelectorOptions) => {
-      const opts = globalOpts();
-      validateSelector(cmdOpts);
-      const data = await apiGet<{ event_id: string; current_version: number; versions: Row[] }>({
-        path: `${BASE}/transcript/versions`,
-        params: selectorParams(cmdOpts),
-      });
-      output(data, opts, () => {
-        console.log(chalk.bold(`\nTranscript versions (current: ${data.current_version})\n`));
-        formatTable(data.versions, ['version', 'version_kind', 'published_at', 'word_count', 'change_note', 'corrected_by']);
-      });
-    }));
-
-  selectorCommand('transcript-diff', 'Word diff between two transcript versions')
-    .requiredOption('--from <n>', 'Older version')
-    .option('--to <n>', 'Newer version (default: the current one)')
-    .action(run(async (cmdOpts: SelectorOptions & Row) => {
-      const opts = globalOpts();
-      validateSelector(cmdOpts);
-      const data = await apiGet<{ from: number; to: number; changes: Row[]; truncated: boolean; stats: Row }>({
-        path: `${BASE}/transcript/diff`,
-        params: { ...selectorParams(cmdOpts), from: cmdOpts.from, to: cmdOpts.to },
-      });
-      output(data, opts, () => {
-        console.log(chalk.bold(`\nTranscript diff v${data.from} → v${data.to}\n`));
-        formatTable(data.changes.map(c => ({ ...c, at_ms: formatMs(c.at_ms) })), ['op', 'at_ms', 'text']);
-        console.log(`\n+${data.stats.added_words} / -${data.stats.removed_words} words${data.truncated ? chalk.yellow(' (truncated)') : ''}`);
-      });
-    }));
-
-  selectorCommand('qa', 'Q&A pairs of a call')
-    .option('-l, --limit <n>', 'Max pairs (1-200)')
-    .option('--offset <n>', 'Offset')
-    .action(run(async (cmdOpts: SelectorOptions & Row) => {
-      const opts = globalOpts();
-      validateSelector(cmdOpts);
-      const data = await paginate(await apiGet<{ event_id: string; pairs: Row[]; next_url?: string }>({
-        path: `${BASE}/qa`,
-        params: { ...selectorParams(cmdOpts), limit: cmdOpts.limit, offset: cmdOpts.offset },
-      }), 'pairs', opts.all);
-      output(data, opts, () => {
-        if (data.pairs.length === 0) console.log(chalk.yellow('No results.'));
-        for (const pair of data.pairs) {
-          const analyst = pair.analyst ?? {};
-          const firm = analyst.firm ? ` (${analyst.firm})` : '';
-          const followUp = pair.is_follow_up ? chalk.dim(' follow-up') : '';
-          console.log(chalk.bold(`\n#${pair.seq} ${speakerName(analyst)}${firm}`) + followUp + chalk.dim(` [${formatMs(pair.question_start_ms)}]`));
-          console.log(`  Q: ${pair.question}`);
-          const answeredBy = (pair.answers ?? []).map(speakerName).join(', ');
-          console.log(`    A${answeredBy ? ` (${answeredBy})` : ''}: ${pair.answer}`);
-        }
-        printPaginationHint(data.next_url);
-      });
-    }));
-
-  selectorCommand('participants', 'Speakers of a call')
-    .option('--evidence', 'Include the quotes each name was resolved from')
-    .action(run(async (cmdOpts: SelectorOptions & Row) => {
-      const opts = globalOpts();
-      validateSelector(cmdOpts);
-      const data = await apiGet<{ participants: Row[]; participation_events: Row[] }>({
-        path: `${BASE}/participants`,
-        params: { ...selectorParams(cmdOpts), include: cmdOpts.evidence ? 'evidence' : undefined },
-      });
-      output(data, opts, () => {
-        console.log(chalk.bold('\nParticipants\n'));
-        formatTable(data.participants, ['speaker_label', 'name', 'title', 'firm', 'role', 'confidence', 'resolved_by']);
-        if (cmdOpts.evidence) {
-          for (const p of data.participants.filter(p => p.evidence?.length)) {
-            console.log(chalk.bold(`\n${speakerName(p)}`));
-            for (const e of p.evidence) console.log(`  [${formatMs(e.start_ms)}] "${e.quote}"`);
-          }
-        }
-        if (data.participation_events?.length) {
-          console.log(chalk.bold('\nParticipation flags\n'));
-          formatTable(data.participation_events, ['kind', 'person_id', 'event_id']);
-        }
-      });
-    }));
-
-  // ── People ─────────────────────────────────────────────────────────
-
-  earnings
-    .command('analysts')
-    .description("Analysts on a company's calls")
-    .requiredOption('-i, --identifier <ticker>', 'Ticker or CIK')
-    .option('-l, --limit <n>', 'Max results (1-100)')
-    .option('--offset <n>', 'Offset')
-    .action(run(async (cmdOpts) => {
-      const opts = globalOpts();
-      const data = await paginate(await apiGet<{ symbol: string; cik: string; analysts: Row[]; next_url?: string }>({
-        path: `${BASE}/analysts`,
-        params: { identifier: cmdOpts.identifier, limit: cmdOpts.limit, offset: cmdOpts.offset },
-      }), 'analysts', opts.all);
-      output(data, opts, () => {
-        console.log(chalk.bold(`\n${data.symbol} (${data.cik}) Analysts\n`));
-        formatTable(data.analysts, ['name', 'firm', 'appearances', 'questions', 'first_seen', 'last_seen', 'person_id']);
-        printPaginationHint(data.next_url);
-      });
-    }));
-
-  earnings
-    .command('person')
-    .description("One person's call appearances")
-    .argument('<person_id>', 'Person ID')
-    .option('-l, --limit <n>', 'Max appearances (1-200)')
-    .option('--offset <n>', 'Offset')
-    .action(run(async (personId: string, cmdOpts) => {
-      const opts = globalOpts();
-      const data = await paginate(await apiGet<Row & { appearances: Row[]; next_url?: string }>({
-        path: `${BASE}/people/${encodeURIComponent(personId)}`,
-        params: { limit: cmdOpts.limit, offset: cmdOpts.offset },
-      }), 'appearances', opts.all);
-      output(data, opts, () => {
-        console.log(chalk.bold(`\n${data.name ?? data.person_id}\n`));
-        formatKeyValue({
-          kind: data.kind,
-          current_firm: data.current_firm,
-          current_title: data.current_title,
-          appearance_count: data.appearance_count,
-          aliases: data.aliases,
-        });
-        console.log(chalk.bold('\nAppearances\n'));
-        formatTable(data.appearances, [
-          'scheduled_at', 'symbol', 'company_name', 'fiscal_year', 'fiscal_quarter',
-          'role', 'title', 'firm', 'word_count', 'question_count', 'event_id',
-        ]);
-        printPaginationHint(data.next_url);
-      });
-    }));
-
-  // ── Press release / extractions / guidance ─────────────────────────
-
   selectorCommand('press-release', 'Results press release of a call')
     .option('--body', 'Include the release text')
     .option('-o, --output <file>', 'Save the release text to a file')
     .option('--force', 'Overwrite an existing --output file')
     .action(run(async (cmdOpts: SelectorOptions & Row) => {
       const opts = globalOpts();
-      validateSelector(cmdOpts);
       const data = await apiGet<Row>({
         path: `${BASE}/press-release`,
         params: { ...selectorParams(cmdOpts), include: cmdOpts.body || cmdOpts.output ? 'body' : undefined },
@@ -448,169 +216,6 @@ export function registerEarningsCommands(program: Command): void {
       });
     }));
 
-  selectorCommand('extractions', 'Guidance or KPI extractions of a call')
-    .addOption(new Option('--kind <kind>', 'guidance (default) or kpi').choices(['guidance', 'kpi']))
-    .addOption(new Option('--review <filter>', 'Guidance review filter').choices(['approved', 'auto', 'all']))
-    .option('-l, --limit <n>', 'Max items (1-500)')
-    .option('--offset <n>', 'Offset')
-    .action(run(async (cmdOpts: SelectorOptions & Row) => {
-      const opts = globalOpts();
-      validateSelector(cmdOpts);
-      const first = await apiGet<{ event: Row; kind: 'guidance' | 'kpi'; guidance?: Row[]; kpis?: Row[]; next_url?: string }>({
-        path: `${BASE}/extractions`,
-        params: {
-          ...selectorParams(cmdOpts),
-          kind: cmdOpts.kind,
-          review: cmdOpts.review,
-          limit: cmdOpts.limit,
-          offset: cmdOpts.offset,
-        },
-      });
-      const data = await paginate(first, first.kind === 'kpi' ? 'kpis' : 'guidance', opts.all);
-      output(data, opts, () => {
-        console.log(chalk.bold(`\n${eventLine(data.event)} · ${data.kind === 'kpi' ? 'KPIs' : 'Guidance'}\n`));
-        if (data.kind === 'kpi') {
-          const columns = ['metric_normalized', 'value_text', 'period_label', 'speaker.name', 'origin', 'filing_link.form', 'filing_link.matched_value'];
-          formatTable(flattenRows(data.kpis ?? [], columns), columns);
-        } else {
-          formatTable(data.guidance ?? [], [
-            'metric_normalized', 'period_label', 'low', 'high', 'midpoint', 'unit',
-            'basis', 'direction', 'confidence', 'review_status',
-          ]);
-        }
-        printPaginationHint(data.next_url);
-      });
-    }));
-
-  earnings
-    .command('guidance-history')
-    .description("A company's guidance for one metric across calls")
-    .requiredOption('-i, --identifier <ticker>', 'Ticker or CIK')
-    .requiredOption('--metric <metric>', 'Normalized metric (e.g. revenue, eps_non_gaap, segment:iphone)')
-    .addOption(new Option('--period-kind <kind>', 'Period kind').choices(['quarter', 'fiscal_year', 'half', 'other']))
-    .addOption(new Option('--basis <basis>', 'Basis').choices(['gaap', 'non_gaap', 'unknown']))
-    .option('-l, --limit <n>', 'Max series entries (1-40)')
-    .action(run(async (cmdOpts) => {
-      const opts = globalOpts();
-      const data = await apiGet<{ symbol: string; cik: string; metric_normalized: string; series: Row[] }>({
-        path: `${BASE}/guidance/history`,
-        params: {
-          identifier: cmdOpts.identifier,
-          metric: cmdOpts.metric,
-          period_kind: cmdOpts.periodKind,
-          basis: cmdOpts.basis,
-          limit: cmdOpts.limit,
-        },
-      });
-      output(data, opts, () => {
-        console.log(chalk.bold(`\n${data.symbol} (${data.cik}) ${data.metric_normalized} guidance history\n`));
-        const columns = ['conference_date', 'period_label', 'low', 'high', 'midpoint', 'direction', 'change_vs_prior.midpoint_delta'];
-        formatTable(flattenRows(data.series, columns), columns);
-      });
-    }));
-
-  // ── Derived ────────────────────────────────────────────────────────
-
-  selectorCommand('diff', 'What changed against the prior call')
-    .addOption(new Option('--vs <base>', 'Comparison base').choices(['prior']))
-    .action(run(async (cmdOpts: SelectorOptions & Row) => {
-      const opts = globalOpts();
-      validateSelector(cmdOpts);
-      const data = await apiGet<Row>({
-        path: `${BASE}/diff`,
-        params: { ...selectorParams(cmdOpts), vs: cmdOpts.vs },
-      });
-      output(data, opts, () => {
-        console.log(chalk.bold(`\n${eventLine(data.event)} vs ${data.prior_event?.conference_date ?? 'prior call'}\n`));
-        formatKeyValue({
-          prior_event_id: data.prior_event?.event_id,
-          similarity: data.similarity,
-          tone_shift: data.tone_shift,
-          hedging_level: data.hedging?.level,
-          hedging_change: data.hedging?.change,
-          uncertainty_level: data.uncertainty?.level,
-          uncertainty_change: data.uncertainty?.change,
-          numeric_specificity_level: data.numeric_specificity?.level,
-          numeric_specificity_change: data.numeric_specificity?.change,
-          slide_page_delta: data.slide_diff?.page_delta,
-          slide_new_titles: data.slide_diff?.new_titles,
-          slide_dropped_titles: data.slide_diff?.dropped_titles,
-        });
-        for (const [label, topics] of [['New topics', data.new_topics], ['Dropped topics', data.dropped_topics]] as const) {
-          if (!topics?.length) continue;
-          console.log(chalk.bold(`\n${label}\n`));
-          formatTable(topics.map((t: Row) => ({ ...t, start_ms: formatMs(t.start_ms) })), ['topic', 'start_ms', 'evidence']);
-        }
-        if (data.summary) console.log(`\n${data.summary}`);
-      });
-    }));
-
-  selectorCommand('metrics', 'Call structure metrics (length, Q&A share, questions, …)')
-    .action(run(async (cmdOpts: SelectorOptions) => {
-      const opts = globalOpts();
-      validateSelector(cmdOpts);
-      const data = await apiGet<Row>({ path: `${BASE}/metrics`, params: selectorParams(cmdOpts) });
-      output(data, opts, () => {
-        const { event, ...metrics } = data;
-        console.log(chalk.bold(`\n${eventLine(event)} · metrics\n`));
-        formatKeyValue(humanizeMs(metrics));
-      });
-    }));
-
-  selectorCommand('prosody', 'Speech timing / pitch / energy per speaker')
-    .addOption(new Option('--section <section>', 'Section').choices(['all', 'prepared', 'qa']))
-    .action(run(async (cmdOpts: SelectorOptions & Row) => {
-      const opts = globalOpts();
-      validateSelector(cmdOpts);
-      const data = await apiGet<{ event: Row; section: string; speakers: Row[] }>({
-        path: `${BASE}/prosody`,
-        params: { ...selectorParams(cmdOpts), section: cmdOpts.section },
-      });
-      output(data, opts, () => {
-        console.log(chalk.bold(`\n${eventLine(data.event)} · prosody (${data.section})\n`));
-        const columns = [
-          'speaker.name', 'speaker.role', 'section', 'speech_rate_wpm', 'pause_count', 'pause_mean_ms',
-          'filler_rate', 'time_to_answer_mean_ms', 'pitch_mean_hz', 'energy_mean_db', 'spoken_ms',
-          'word_count', 'acoustic_available',
-        ];
-        formatTable(flattenRows(data.speakers, columns).map(row => ({ ...row, spoken_ms: formatMs(row.spoken_ms as number) })), columns);
-      });
-    }));
-
-  selectorCommand('price-attribution', 'Minute-level price moves during a call next to what was said (coincidence, not cause)')
-    .action(run(async (cmdOpts: SelectorOptions) => {
-      const opts = globalOpts();
-      validateSelector(cmdOpts);
-      const data = await apiGet<Row>({ path: `${BASE}/price-attribution`, params: selectorParams(cmdOpts) });
-      output(data, opts, () => {
-        const { event, buckets, top_minutes: topMinutes, live, settled, ...summary } = data;
-        console.log(chalk.bold(`\n${eventLine(event)} · price moves during the call\n`));
-        console.log(chalk.dim('Temporal coincidence, not attribution of cause; pre-market and after-hours bars are sparse.\n'));
-        if (live === true) {
-          console.log(chalk.yellow('LIVE — minute rows so far, not settled; the post-call run replaces them\n'));
-        } else if (settled === false) {
-          console.log(chalk.yellow('Not settled — read before the bars settled; a later run may replace them\n'));
-        }
-        // While live the summary fields are null: print only what is known (bar_count = rows so far).
-        formatKeyValue(humanizeMs(Object.fromEntries(Object.entries(summary).filter(([, value]) => value !== null && value !== undefined))));
-        const columns = ['bucket', 'return_bps', 'cumulative_return_bps', 'said'];
-        const said = (row: Row) => {
-          const text = (row.utterance_refs ?? [])
-            .map((ref: Row) => `[${formatMs(ref.start_ms)}] ${ref.text}`)
-            .join(' ');
-          return text.length > SEARCH_TEXT_MAX ? `${text.slice(0, SEARCH_TEXT_MAX - 1)}…` : text;
-        };
-        if (topMinutes?.length) {
-          console.log(chalk.bold('\nTop minutes\n'));
-          formatTable(topMinutes.map((row: Row) => ({ ...row, said: said(row) })), ['bucket', 'return_bps', 'said']);
-        }
-        if (buckets?.length) {
-          console.log(chalk.bold('\nMinutes\n'));
-          formatTable(buckets.map((row: Row) => ({ ...row, said: said(row) })), columns);
-        }
-      });
-    }));
-
   // ── Media ──────────────────────────────────────────────────────────
 
   selectorCommand('audio', 'Call recording (signed URL, or --output to save it)')
@@ -618,7 +223,6 @@ export function registerEarningsCommands(program: Command): void {
     .option('--force', 'Overwrite an existing --output file')
     .action(run(async (cmdOpts: SelectorOptions & Row) => {
       const opts = globalOpts();
-      validateSelector(cmdOpts);
       const data = await apiGet<Row>({ path: `${BASE}/audio`, params: selectorParams(cmdOpts) });
       const saved = cmdOpts.output
         ? await downloadToFile(data.url, cmdOpts.output, { force: cmdOpts.force, spinnerText: 'Downloading audio...' })
@@ -643,7 +247,6 @@ export function registerEarningsCommands(program: Command): void {
     .option('--force', 'Overwrite an existing --output file')
     .action(run(async (cmdOpts: SelectorOptions & Row) => {
       const opts = globalOpts();
-      validateSelector(cmdOpts);
       const data = await apiGet<{ event: Row; deck: Row | null; slides: Row[] }>({
         path: `${BASE}/slides`,
         params: { ...selectorParams(cmdOpts), include: cmdOpts.markdown ? 'markdown' : undefined, pages: cmdOpts.pages },
@@ -684,8 +287,7 @@ export function registerEarningsCommands(program: Command): void {
     .option('--force', 'Overwrite existing files in --output')
     .action(run(async (cmdOpts: SelectorOptions & Row) => {
       const opts = globalOpts();
-      validateSelector(cmdOpts);
-      const data = await paginate(await apiGet<{ event: Row; documents: Row[]; next_url?: string }>({
+      const data = await allDocuments(await apiGet<{ event: Row; documents: Row[]; next_url?: string }>({
         path: `${BASE}/documents`,
         params: {
           ...selectorParams(cmdOpts),
@@ -694,7 +296,7 @@ export function registerEarningsCommands(program: Command): void {
           limit: cmdOpts.limit,
           offset: cmdOpts.offset,
         },
-      }), 'documents', opts.all);
+      }), opts.all);
       const saved: Row[] = [];
       const skipped: Row[] = [];
       if (cmdOpts.output) {
@@ -738,49 +340,6 @@ export function registerEarningsCommands(program: Command): void {
       }
     }));
 
-  // ── Search / live stream ───────────────────────────────────────────
-
-  earnings
-    .command('search')
-    .description('Semantic search over call transcripts and slides')
-    .requiredOption('-q, --query <text>', 'Search text')
-    .option('--event <event_id>', 'Only this call')
-    .option('-i, --identifier <ticker>', 'Only this company')
-    .option('--from <date>', 'First call day (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date')
-    .option('--to <date>', 'Last call day (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date')
-    .addOption(new Option('--type <type>', 'Passage type').choices(['transcript', 'qa', 'preparedRemarks', 'presentation']))
-    .addOption(new Option('--event-type <type>', 'Event type (default earnings_call; all = every type)').choices(EVENT_TYPE_FILTERS))
-    .option('-l, --limit <n>', 'Max passages (1-8)')
-    .action(run(async (cmdOpts) => {
-      const opts = globalOpts();
-      const data = await apiGet<{ query: string; hits: Row[] }>({
-        path: `${BASE}/search`,
-        params: {
-          q: cmdOpts.query,
-          event_id: cmdOpts.event,
-          identifier: cmdOpts.identifier,
-          from: cmdOpts.from,
-          to: cmdOpts.to,
-          type: cmdOpts.type,
-          event_type: cmdOpts.eventType,
-          limit: cmdOpts.limit,
-        },
-      });
-      output(data, opts, () => {
-        console.log(chalk.bold(`\nSearch: ${data.query}\n`));
-        const columns = ['score', 'type', 'symbol', 'conference_date', 'speaker.name', 'start_ms', 'text', 'audio'];
-        formatTable(flattenRows(data.hits, columns).map((row, i) => {
-          const text = String(row.text ?? '');
-          return {
-            ...row,
-            start_ms: formatMs(row.start_ms as number),
-            text: text.length > SEARCH_TEXT_MAX ? `${text.slice(0, SEARCH_TEXT_MAX - 1)}…` : text,
-            audio: Boolean(data.hits[i].audio_url),
-          };
-        }), columns);
-      });
-    }));
-
   // ── Company documents (IR library) ─────────────────────────────────
 
   earnings
@@ -791,14 +350,14 @@ export function registerEarningsCommands(program: Command): void {
     .option('--kind <list>', 'Kinds, comma-separated (annual_report, proxy_statement, esg_report, investor_day_deck, conference_presentation, shareholder_letter, fact_sheet, webcast, …)')
     .option('--year <n>', 'Year the document belongs to')
     .option('--period <period>', 'Period within the year (Q1-Q4, H1, H2, FY)')
-    .option('--event <event_id>', 'Only the documents of this event (investor day, conference, AGM)')
+    .option('--event-id <event_id>', 'Only the documents of this event (investor day, conference, AGM)')
     .option('-l, --limit <n>', 'Max results (1-100)')
     .option('--offset <n>', 'Offset')
     .option('-o, --output <dir>', 'Save every stored file into this directory as <year>-<kind>-<document_id>.<ext>; a link-only row (webcast) is reported on stderr, exit 1 only when none could be saved')
     .option('--force', 'Overwrite existing files in --output')
     .action(run(async (cmdOpts) => {
       const opts = globalOpts();
-      const data = await paginate(await apiGet<{ company: Row; documents: Row[]; next_url?: string }>({
+      const data = await allDocuments(await apiGet<{ company: Row; documents: Row[]; next_url?: string }>({
         path: `${BASE}/company-documents`,
         params: {
           identifier: cmdOpts.identifier,
@@ -806,11 +365,11 @@ export function registerEarningsCommands(program: Command): void {
           kind: cmdOpts.kind,
           year: cmdOpts.year,
           period: cmdOpts.period,
-          event_id: cmdOpts.event,
+          event_id: cmdOpts.eventId,
           limit: cmdOpts.limit,
           offset: cmdOpts.offset,
         },
-      }), 'documents', opts.all);
+      }), opts.all);
       const saved: Row[] = [];
       const skipped: Row[] = [];
       if (cmdOpts.output) {
@@ -850,14 +409,14 @@ export function registerEarningsCommands(program: Command): void {
   earnings
     .command('document')
     .description('One company IR document (metadata and signed URLs, or --pages for its text)')
-    .argument('<document_id>', 'Document ID (from company-documents or document-search)')
+    .requiredOption('--document-id <document_id>', 'Document ID (from company-documents or document-search)')
     .option('--pages', 'Print the per-page text')
     .option('-o, --output <file>', 'Save the file (or, with --pages, the text)')
     .option('--force', 'Overwrite an existing --output file')
-    .action(run(async (documentId: string, cmdOpts) => {
+    .action(run(async (cmdOpts) => {
       const opts = globalOpts();
       const data = await apiGet<{ company: Row; document: Row }>({
-        path: `${BASE}/company-documents/${encodeURIComponent(documentId)}`,
+        path: `${BASE}/company-documents/${encodeURIComponent(cmdOpts.documentId)}`,
         params: { include: cmdOpts.pages ? 'pages' : undefined },
       });
       const doc = data.document;
@@ -894,53 +453,4 @@ export function registerEarningsCommands(program: Command): void {
       });
     }));
 
-  earnings
-    .command('document-search')
-    .description('Semantic search over company documents (call documents and IR libraries): passages with page numbers')
-    .requiredOption('-q, --query <text>', 'Search text')
-    .option('-i, --identifier <ticker>', 'Only this company')
-    .option('--kind <list>', 'Kinds, comma-separated (annual_report, proxy_statement, cfo_commentary, …)')
-    .option('--section <list>', 'IR sections, comma-separated (company documents only)')
-    .option('--year <n>', 'Only documents of this year')
-    .addOption(new Option('--table <table>', 'Only call documents or only IR libraries').choices(['event_documents', 'company_documents']))
-    .option('-l, --limit <n>', 'Max passages (1-20)')
-    .action(run(async (cmdOpts) => {
-      const opts = globalOpts();
-      const data = await apiGet<{ query: string; hits: Row[] }>({
-        path: `${BASE}/documents/search`,
-        params: {
-          q: cmdOpts.query,
-          identifier: cmdOpts.identifier,
-          kind: cmdOpts.kind,
-          section: cmdOpts.section,
-          year: cmdOpts.year,
-          table: cmdOpts.table,
-          limit: cmdOpts.limit,
-        },
-      });
-      output(data, opts, () => {
-        console.log(chalk.bold(`\nDocument search: ${data.query}\n`));
-        console.log(chalk.dim('Passages from company-published documents, not verified facts.\n'));
-        formatTable(data.hits.map(hit => ({ ...hit, title: clip(hit.title), text: clip(hit.text) })),
-          ['score', 'kind', 'year', 'page', 'symbol', 'title', 'text', 'document_id']);
-      });
-    }));
-
-  selectorCommand('stream', 'Live audio stream URL of a call in progress (HLS)')
-    .action(run(async (cmdOpts: SelectorOptions) => {
-      const opts = globalOpts();
-      validateSelector(cmdOpts);
-      const data = await apiGet<Row>({ path: `${BASE}/live/stream`, params: selectorParams(cmdOpts) });
-      output(data, opts, () => {
-        console.log(chalk.bold(`\n${eventLine(data.event)} · live stream\n`));
-        formatKeyValue({
-          status: data.status,
-          url: data.url,
-          expires_at: data.expires_at,
-          call_t0: data.call_t0,
-          segment_seconds: data.segment_seconds,
-        });
-        if (data.url) console.log(chalk.dim(`\nPlay with: ffplay "${data.url}"  or  vlc "${data.url}"`));
-      });
-    }));
 }

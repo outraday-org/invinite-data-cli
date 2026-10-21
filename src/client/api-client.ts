@@ -8,6 +8,8 @@ export interface RequestOptions {
   /** An array value is sent as a repeated parameter (`status=a&status=b`). */
   params?: Record<string, string | string[] | undefined>;
   silent?: boolean;
+  /** `false` for a public operation: no API key is resolved or sent (default `true`). */
+  auth?: boolean;
 }
 
 function buildUrl(path: string, params?: RequestOptions['params']): string {
@@ -76,12 +78,9 @@ async function request(
   accept: string,
   init: { method?: string; body?: unknown } = {},
 ): Promise<Response> {
-  const apiKey = await getApiKey();
   const url = buildUrl(opts.path, opts.params);
-  const headers: Record<string, string> = {
-    'Authorization': `Bearer ${apiKey}`,
-    'Accept': accept,
-  };
+  const headers: Record<string, string> = { 'Accept': accept };
+  if (opts.auth !== false) headers['Authorization'] = `Bearer ${await getApiKey()}`;
   if (init.body !== undefined) headers['Content-Type'] = 'application/json';
   const response = await fetch(url, {
     headers,
@@ -93,11 +92,6 @@ async function request(
     throw await apiErrorFrom(response);
   }
   return response;
-}
-
-/** Same auth / URL building as `apiGet`, without the JSON parse; a non-2xx throws `ApiError`. */
-export async function apiGetRaw(opts: RequestOptions & { accept?: string }): Promise<Response> {
-  return request(opts, opts.accept ?? '*/*');
 }
 
 export async function apiGet<T = unknown>(opts: RequestOptions): Promise<T> {

@@ -106,6 +106,17 @@ describe('buildManifest', () => {
     expect(history).toMatchObject({ pagination: 'perCompany', allItemsPath: ['periods'] });
   });
 
+  it('auth: an operation security list wins over the document one; none at all or [] is public', () => {
+    const spec = fixture();
+    spec.paths['/v1/things/search'].get = { ...spec.paths['/v1/things/search'].get, security: [{ bearerAuth: [] }] };
+    spec.paths['/v1/things/{thing_id}'].get = { ...spec.paths['/v1/things/{thing_id}'].get, security: [] };
+    const auth = (manifestSpec: unknown) => Object.fromEntries(build(manifestSpec).operations
+      .map(operation => [operation.operationId, operation.auth]));
+    expect(auth(spec)).toMatchObject({ thingsSearch: true, thingsGet: false, thingsHistory: false });
+    expect(auth({ ...spec, security: [{ bearerAuth: [] }] }))
+      .toMatchObject({ thingsSearch: true, thingsGet: false, thingsHistory: true });
+  });
+
   it('omits excluded and non-HTTP operations, sorts, and describes each group once', () => {
     const manifest = build(fixture());
     expect(manifest.operations.map(operation => `${operation.group} ${operation.action}`))

@@ -70,6 +70,7 @@
       "action": "details",
       "method": "get",
       "path": "/v1/company/details",
+      "auth": true,
       "summary": "Company details",
       "params": [
         {
@@ -128,6 +129,7 @@
       "action": "dividends",
       "method": "get",
       "path": "/v1/company/dividends",
+      "auth": true,
       "summary": "Company dividends",
       "params": [
         {
@@ -205,6 +207,7 @@
       "action": "fiscal-periods",
       "method": "get",
       "path": "/v1/company/fiscal-periods",
+      "auth": true,
       "summary": "Company fiscal periods",
       "params": [
         {
@@ -266,6 +269,7 @@
       "action": "list",
       "method": "get",
       "path": "/v1/company/available-companies",
+      "auth": true,
       "summary": "List available companies",
       "params": [],
       "view": "table",
@@ -283,6 +287,7 @@
       "action": "search",
       "method": "get",
       "path": "/v1/company/search",
+      "auth": true,
       "summary": "Search companies",
       "params": [
         {
@@ -330,6 +335,7 @@
       "action": "splits",
       "method": "get",
       "path": "/v1/company/splits",
+      "auth": true,
       "summary": "Stock splits",
       "params": [
         {
@@ -389,6 +395,7 @@
       "action": "analysts",
       "method": "get",
       "path": "/v1/earnings-calls/analysts",
+      "auth": true,
       "summary": "Analysts of a company",
       "params": [
         {
@@ -439,6 +446,7 @@
       "action": "calendar",
       "method": "get",
       "path": "/v1/earnings-calls/calendar",
+      "auth": true,
       "summary": "Earnings call calendar",
       "params": [
         {
@@ -557,6 +565,7 @@
       "action": "diff",
       "method": "get",
       "path": "/v1/earnings-calls/diff",
+      "auth": true,
       "summary": "Call-over-call diff",
       "params": [
         {
@@ -648,6 +657,7 @@
       "action": "document-search",
       "method": "get",
       "path": "/v1/earnings-calls/documents/search",
+      "auth": true,
       "summary": "Search investor documents",
       "params": [
         {
@@ -730,6 +740,7 @@
       "action": "event",
       "method": "get",
       "path": "/v1/earnings-calls/event/{event_id}",
+      "auth": true,
       "summary": "Earnings call by ID",
       "params": [
         {
@@ -784,6 +795,7 @@
       "action": "events",
       "method": "get",
       "path": "/v1/earnings-calls/events",
+      "auth": true,
       "summary": "Event history of a company",
       "params": [
         {
@@ -887,6 +899,7 @@
       "action": "extractions",
       "method": "get",
       "path": "/v1/earnings-calls/extractions",
+      "auth": true,
       "summary": "Guidance and KPI extractions",
       "params": [
         {
@@ -995,6 +1008,7 @@
       "action": "guidance-history",
       "method": "get",
       "path": "/v1/earnings-calls/guidance/history",
+      "auth": true,
       "summary": "Guidance history",
       "params": [
         {
@@ -1067,6 +1081,7 @@
       "action": "live",
       "method": "get",
       "path": "/v1/earnings-calls/live",
+      "auth": true,
       "summary": "Live earnings calls",
       "params": [],
       "view": "table",
@@ -1097,6 +1112,7 @@
       "action": "metrics",
       "method": "get",
       "path": "/v1/earnings-calls/metrics",
+      "auth": true,
       "summary": "Earnings call metrics",
       "params": [
         {
@@ -1176,6 +1192,7 @@
       "action": "participants",
       "method": "get",
       "path": "/v1/earnings-calls/participants",
+      "auth": true,
       "summary": "Earnings call participants",
       "params": [
         {
@@ -1260,6 +1277,7 @@
       "action": "person",
       "method": "get",
       "path": "/v1/earnings-calls/people/{person_id}",
+      "auth": true,
       "summary": "Person across earnings calls",
       "params": [
         {
@@ -1313,6 +1331,7 @@
       "action": "price-attribution",
       "method": "get",
       "path": "/v1/earnings-calls/price-attribution",
+      "auth": true,
       "summary": "Price moves during a call",
       "params": [
         {
@@ -1375,6 +1394,7 @@
       "action": "prosody",
       "method": "get",
       "path": "/v1/earnings-calls/prosody",
+      "auth": true,
       "summary": "Speaker prosody",
       "params": [
         {
@@ -1466,6 +1486,7 @@
       "action": "qa",
       "method": "get",
       "path": "/v1/earnings-calls/qa",
+      "auth": true,
       "summary": "Earnings call Q&A",
       "params": [
         {
@@ -1568,6 +1589,7 @@
       "action": "search",
       "method": "get",
       "path": "/v1/earnings-calls/search",
+      "auth": true,
       "summary": "Search earnings calls",
       "params": [
         {
@@ -1658,6 +1680,7 @@
       "action": "stream",
       "method": "get",
       "path": "/v1/earnings-calls/live/stream",
+      "auth": true,
       "summary": "Live audio stream URL",
       "params": [
         {
@@ -1730,6 +1753,7 @@
       "action": "transcript-diff",
       "method": "get",
       "path": "/v1/earnings-calls/transcript/diff",
+      "auth": true,
       "summary": "Transcript version diff",
       "params": [
         {
@@ -1812,6 +1836,7 @@
       "action": "versions",
       "method": "get",
       "path": "/v1/earnings-calls/transcript/versions",
+      "auth": true,
       "summary": "Transcript versions",
       "params": [
         {
@@ -1883,6 +1908,7 @@
       "action": "form-types",
       "method": "get",
       "path": "/v1/sec-filings/available-form-types",
+      "auth": true,
       "summary": "Available SEC form types",
       "params": [
         {
@@ -1903,6 +1929,7 @@
       "action": "list",
       "method": "get",
       "path": "/v1/sec-filings/filings",
+      "auth": true,
       "summary": "SEC filings",
       "params": [
         {
@@ -1975,6 +2002,7 @@
       "action": "search",
       "method": "get",
       "path": "/v1/sec-filings/search",
+      "auth": true,
       "summary": "Search SEC filings",
       "params": [
         {
@@ -2010,6 +2038,7 @@
       "action": "sections",
       "method": "get",
       "path": "/v1/sec-filings/sections",
+      "auth": true,
       "summary": "SEC filing sections",
       "params": [
         {
@@ -2070,6 +2099,7 @@
       "action": "as-reported-balance-sheet",
       "method": "get",
       "path": "/v1/as-reported/balance-sheet",
+      "auth": true,
       "summary": "As-reported balance sheet",
       "params": [
         {
@@ -2137,6 +2167,7 @@
       "action": "as-reported-balance-sheet-detailed",
       "method": "get",
       "path": "/v1/as-reported/balance-sheet/detailed",
+      "auth": true,
       "summary": "As-reported balance sheet (detailed)",
       "params": [
         {
@@ -2216,6 +2247,7 @@
       "action": "as-reported-balance-sheet-presentation",
       "method": "get",
       "path": "/v1/as-reported/balance-sheet/presentation",
+      "auth": true,
       "summary": "As-reported balance sheet (presentation)",
       "params": [
         {
@@ -2283,6 +2315,7 @@
       "action": "as-reported-cash-flow",
       "method": "get",
       "path": "/v1/as-reported/cash-flow-statement",
+      "auth": true,
       "summary": "As-reported cash flow statement",
       "params": [
         {
@@ -2350,6 +2383,7 @@
       "action": "as-reported-cash-flow-detailed",
       "method": "get",
       "path": "/v1/as-reported/cash-flow-statement/detailed",
+      "auth": true,
       "summary": "As-reported cash flow statement (detailed)",
       "params": [
         {
@@ -2429,6 +2463,7 @@
       "action": "as-reported-cash-flow-presentation",
       "method": "get",
       "path": "/v1/as-reported/cash-flow-statement/presentation",
+      "auth": true,
       "summary": "As-reported cash flow statement (presentation)",
       "params": [
         {
@@ -2496,6 +2531,7 @@
       "action": "as-reported-income-statement",
       "method": "get",
       "path": "/v1/as-reported/income-statement",
+      "auth": true,
       "summary": "As-reported income statement",
       "params": [
         {
@@ -2563,6 +2599,7 @@
       "action": "as-reported-income-statement-detailed",
       "method": "get",
       "path": "/v1/as-reported/income-statement/detailed",
+      "auth": true,
       "summary": "As-reported income statement (detailed)",
       "params": [
         {
@@ -2642,6 +2679,7 @@
       "action": "as-reported-income-statement-presentation",
       "method": "get",
       "path": "/v1/as-reported/income-statement/presentation",
+      "auth": true,
       "summary": "As-reported income statement (presentation)",
       "params": [
         {
@@ -2709,6 +2747,7 @@
       "action": "as-reported-snapshot",
       "method": "get",
       "path": "/v1/as-reported/snapshot",
+      "auth": true,
       "summary": "As-reported snapshot",
       "params": [
         {
@@ -2757,6 +2796,7 @@
       "action": "as-reported-snapshot-detailed",
       "method": "get",
       "path": "/v1/as-reported/snapshot/detailed",
+      "auth": true,
       "summary": "As-reported snapshot (detailed)",
       "params": [
         {
@@ -2817,6 +2857,7 @@
       "action": "as-reported-snapshot-presentation",
       "method": "get",
       "path": "/v1/as-reported/snapshot/presentation",
+      "auth": true,
       "summary": "As-reported snapshot (presentation)",
       "params": [
         {
@@ -2865,6 +2906,7 @@
       "action": "balance-sheet",
       "method": "get",
       "path": "/v1/standardized/balance-sheet",
+      "auth": true,
       "summary": "Standardized balance sheet",
       "params": [
         {
@@ -2932,6 +2974,7 @@
       "action": "balance-sheet-detailed",
       "method": "get",
       "path": "/v1/standardized/balance-sheet/detailed",
+      "auth": true,
       "summary": "Standardized balance sheet (detailed)",
       "params": [
         {
@@ -3011,6 +3054,7 @@
       "action": "balance-sheet-presentation",
       "method": "get",
       "path": "/v1/standardized/balance-sheet/presentation",
+      "auth": true,
       "summary": "Standardized balance sheet (presentation)",
       "params": [
         {
@@ -3078,6 +3122,7 @@
       "action": "cash-flow",
       "method": "get",
       "path": "/v1/standardized/cash-flow-statement",
+      "auth": true,
       "summary": "Standardized cash flow statement",
       "params": [
         {
@@ -3145,6 +3190,7 @@
       "action": "cash-flow-detailed",
       "method": "get",
       "path": "/v1/standardized/cash-flow-statement/detailed",
+      "auth": true,
       "summary": "Standardized cash flow statement (detailed)",
       "params": [
         {
@@ -3224,6 +3270,7 @@
       "action": "cash-flow-presentation",
       "method": "get",
       "path": "/v1/standardized/cash-flow-statement/presentation",
+      "auth": true,
       "summary": "Standardized cash flow statement (presentation)",
       "params": [
         {
@@ -3291,6 +3338,7 @@
       "action": "income-statement",
       "method": "get",
       "path": "/v1/standardized/income-statement",
+      "auth": true,
       "summary": "Standardized income statement",
       "params": [
         {
@@ -3358,6 +3406,7 @@
       "action": "income-statement-detailed",
       "method": "get",
       "path": "/v1/standardized/income-statement/detailed",
+      "auth": true,
       "summary": "Standardized income statement (detailed)",
       "params": [
         {
@@ -3437,6 +3486,7 @@
       "action": "income-statement-presentation",
       "method": "get",
       "path": "/v1/standardized/income-statement/presentation",
+      "auth": true,
       "summary": "Standardized income statement (presentation)",
       "params": [
         {
@@ -3504,6 +3554,7 @@
       "action": "snapshot",
       "method": "get",
       "path": "/v1/standardized/snapshot",
+      "auth": true,
       "summary": "Standardized snapshot",
       "params": [
         {
@@ -3552,6 +3603,7 @@
       "action": "snapshot-detailed",
       "method": "get",
       "path": "/v1/standardized/snapshot/detailed",
+      "auth": true,
       "summary": "Standardized snapshot (detailed)",
       "params": [
         {
@@ -3612,6 +3664,7 @@
       "action": "snapshot-presentation",
       "method": "get",
       "path": "/v1/standardized/snapshot/presentation",
+      "auth": true,
       "summary": "Standardized snapshot (presentation)",
       "params": [
         {
@@ -3660,6 +3713,7 @@
       "action": "",
       "method": "get",
       "path": "/health",
+      "auth": false,
       "summary": "Health check",
       "params": [],
       "view": "keyValue",
@@ -3675,6 +3729,7 @@
       "action": "list",
       "method": "get",
       "path": "/v1/insider-trades",
+      "auth": true,
       "summary": "Insider trades",
       "params": [
         {
@@ -3774,6 +3829,7 @@
       "action": "list",
       "method": "get",
       "path": "/v1/ipos",
+      "auth": true,
       "summary": "List IPOs",
       "params": [
         {
@@ -3847,6 +3903,7 @@
       "action": "holidays",
       "method": "get",
       "path": "/v1/market/market-holidays",
+      "auth": true,
       "summary": "Market holidays",
       "params": [
         {
@@ -3899,6 +3956,7 @@
       "action": "metrics",
       "method": "get",
       "path": "/v1/metadata/list-available-metrics",
+      "auth": true,
       "summary": "Available metrics",
       "params": [],
       "view": "table",
@@ -3915,6 +3973,7 @@
       "action": "section-ids",
       "method": "get",
       "path": "/v1/metadata/list-available-section-ids",
+      "auth": true,
       "summary": "Available SEC section IDs",
       "params": [],
       "view": "json",
@@ -3926,6 +3985,7 @@
       "action": "cagr",
       "method": "get",
       "path": "/v1/financial-metrics/cagr",
+      "auth": true,
       "summary": "CAGR metrics",
       "params": [
         {
@@ -3991,6 +4051,7 @@
       "action": "growth",
       "method": "get",
       "path": "/v1/financial-metrics/growth",
+      "auth": true,
       "summary": "Growth metrics",
       "params": [
         {
@@ -4069,6 +4130,7 @@
       "action": "ratios",
       "method": "get",
       "path": "/v1/financial-metrics/ratios",
+      "auth": true,
       "summary": "Financial ratios",
       "params": [
         {
@@ -4149,6 +4211,7 @@
       "action": "holdings-by-company",
       "method": "get",
       "path": "/v1/institutional-ownership/holdings-by-company",
+      "auth": true,
       "summary": "Holdings by company",
       "params": [
         {
@@ -4232,6 +4295,7 @@
       "action": "holdings-by-investor",
       "method": "get",
       "path": "/v1/institutional-ownership/holdings-by-investor",
+      "auth": true,
       "summary": "Holdings by investor",
       "params": [
         {
@@ -4307,6 +4371,7 @@
       "action": "institutions",
       "method": "get",
       "path": "/v1/institutional-ownership/institutions",
+      "auth": true,
       "summary": "List institutional investors",
       "params": [
         {
@@ -4370,6 +4435,7 @@
       "action": "transactions",
       "method": "get",
       "path": "/v1/institutional-ownership/transactions",
+      "auth": true,
       "summary": "Institutional transactions",
       "params": [
         {
@@ -4498,6 +4564,7 @@
       "action": "list",
       "method": "get",
       "path": "/v1/segmented-financials",
+      "auth": true,
       "summary": "Segmented financials",
       "params": [
         {
@@ -4581,6 +4648,7 @@
       "action": "list-detailed",
       "method": "get",
       "path": "/v1/segmented-financials/detailed",
+      "auth": true,
       "summary": "Segmented financials (detailed)",
       "params": [
         {
@@ -4664,6 +4732,7 @@
       "action": "licensing",
       "method": "get",
       "path": "/status/licensing",
+      "auth": false,
       "summary": "Licensing policy",
       "params": [],
       "view": "json",
@@ -4675,6 +4744,7 @@
       "action": "show",
       "method": "get",
       "path": "/status",
+      "auth": false,
       "summary": "Service status",
       "params": [],
       "view": "table",
@@ -4694,6 +4764,7 @@
       "action": "",
       "method": "get",
       "path": "/v1/account/usage",
+      "auth": true,
       "summary": "Account usage",
       "params": [
         {
@@ -4728,6 +4799,7 @@
       "action": "create",
       "method": "post",
       "path": "/v1/earnings-calls/webhooks",
+      "auth": true,
       "summary": "Create a webhook",
       "params": [],
       "body": {
@@ -4755,6 +4827,7 @@
       "action": "delete",
       "method": "delete",
       "path": "/v1/earnings-calls/webhooks/{id}",
+      "auth": true,
       "summary": "Delete a webhook",
       "params": [
         {
@@ -4774,6 +4847,7 @@
       "action": "deliveries",
       "method": "get",
       "path": "/v1/earnings-calls/webhooks/{id}/deliveries",
+      "auth": true,
       "summary": "Webhook delivery attempts",
       "params": [
         {
@@ -4804,6 +4878,7 @@
       "action": "list",
       "method": "get",
       "path": "/v1/earnings-calls/webhooks",
+      "auth": true,
       "summary": "List webhooks",
       "params": [],
       "view": "table",
@@ -4827,6 +4902,7 @@
       "action": "rotate-secret",
       "method": "post",
       "path": "/v1/earnings-calls/webhooks/{id}/rotate-secret",
+      "auth": true,
       "summary": "Rotate a webhook signing secret",
       "params": [
         {
@@ -4850,6 +4926,7 @@
       "action": "test",
       "method": "post",
       "path": "/v1/earnings-calls/webhooks/{id}/test",
+      "auth": true,
       "summary": "Send a test delivery",
       "params": [
         {
@@ -4873,6 +4950,7 @@
       "action": "update",
       "method": "patch",
       "path": "/v1/earnings-calls/webhooks/{id}",
+      "auth": true,
       "summary": "Update a webhook",
       "params": [
         {

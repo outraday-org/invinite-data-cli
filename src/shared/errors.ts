@@ -11,6 +11,17 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * One dim line after an `ApiError` a person can act on: a 401 points at `invd login`, a 403 whose message names the
+ * plan a route needs ("requires the PRO plan") names that plan.
+ */
+export function apiErrorHint(error: ApiError): string | undefined {
+  if (error.statusCode === 401) return 'Run: invd login';
+  if (error.statusCode !== 403) return undefined;
+  const tier = /requires (?:the )?(\w+) plan/i.exec(error.message)?.[1];
+  return tier ? `This route needs the ${tier} plan` : undefined;
+}
+
 /** `hint` may add one dim line after an `ApiError` (e.g. which plan a route needs). */
 export function withErrorHandling(
   fn: (...args: any[]) => Promise<void>,

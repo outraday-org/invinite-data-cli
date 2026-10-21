@@ -35,6 +35,8 @@ const manifestOperationSchema = z.object({
   action: z.string(),
   method: z.enum(MANIFEST_METHODS),
   path: z.string().startsWith('/'),
+  /** `false` = the operation needs no API key (`security: []` or none in the spec): no key is resolved or sent. */
+  auth: z.boolean(),
   summary: z.string(),
   params: z.array(manifestParamSchema),
   body: z.object({ required: z.boolean(), contentType: z.literal('application/json') }).strict().optional(),

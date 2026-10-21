@@ -3,23 +3,10 @@ import { Command } from 'commander';
 import { setJsonMode } from './shared/spinner.js';
 import { formatCreditUsage, takeCreditUsage } from './client/api-client.js';
 import { registerConfigCommands } from './commands/config.js';
-import { registerHealthCommand } from './commands/health.js';
-import { registerCompanyCommands } from './commands/company.js';
-import { registerFinancialsCommands } from './commands/financials.js';
-import { registerMetricsCommands } from './commands/metrics.js';
-import { registerSegmentsCommands } from './commands/segments.js';
-import { registerIposCommands } from './commands/ipos.js';
-import { registerOwnershipCommands } from './commands/ownership.js';
-import { registerInsiderTradesCommands } from './commands/insider-trades.js';
-import { registerFilingsCommands } from './commands/filings.js';
 import { registerEarningsCommands } from './commands/earnings.js';
-import { registerMarketCommands } from './commands/market.js';
-import { registerMetadataCommands } from './commands/metadata.js';
-import { registerWebhooksCommands } from './commands/webhooks.js';
-import { registerWsCommands } from './commands/ws.js';
-import { registerPluginCommands } from './commands/plugin.js';
 import { registerLoginCommands } from './commands/login.js';
-import { registerUsageCommands } from './commands/usage.js';
+import { registerPluginCommands } from './commands/plugin.js';
+import { registerWsCommands } from './commands/ws.js';
 import { registerSpecCommands } from './spec-commands.js';
 import { parseManifest, type Manifest } from './spec-manifest.js';
 
@@ -60,6 +47,8 @@ export function createProgram(): Command {
     .option('--json', 'Output raw JSON (pipe-friendly)')
     .option('--all', 'Auto-paginate through all results')
     .option('--show-cost', 'Print the credits a command cost to stderr (or set INVD_SHOW_COST=1)')
+    // Inherited by every group, so rostered and generated commands list alphabetically together.
+    .configureHelp({ sortSubcommands: true })
     .hook('preAction', (thisCommand) => {
       const opts = thisCommand.opts();
       if (opts.json) {
@@ -73,27 +62,14 @@ export function createProgram(): Command {
       console.error(formatCreditUsage(usage));
     });
 
-  registerConfigCommands(program);
-  registerHealthCommand(program);
-  registerCompanyCommands(program);
-  registerFinancialsCommands(program);
-  registerMetricsCommands(program);
-  registerSegmentsCommands(program);
-  registerIposCommands(program);
-  registerOwnershipCommands(program);
-  registerInsiderTradesCommands(program);
-  registerFilingsCommands(program);
-  registerEarningsCommands(program);
-  registerMarketCommands(program);
-  registerMetadataCommands(program);
-  registerWebhooksCommands(program);
-  registerWsCommands(program);
-  registerPluginCommands(program);
+  // The hand-written roster (`src/hand-written-commands.ts`) first, then every manifest operation; a generated
+  // `earnings` action attaches to the group `registerEarningsCommands` created.
   registerLoginCommands(program);
-  registerUsageCommands(program);
-
-  // Generated from the spec — only for groups no hand-written file above registered.
-  registerSpecCommands(program, loadManifest(), { skipGroups: program.commands.map(command => command.name()) });
+  registerConfigCommands(program);
+  registerPluginCommands(program);
+  registerWsCommands(program);
+  registerEarningsCommands(program);
+  registerSpecCommands(program, loadManifest());
 
   return program;
 }

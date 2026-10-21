@@ -18,7 +18,7 @@
     "invd": "./dist/bin/invd.js"
   },
   "scripts": {
-    "build": "tsc && node scripts/copy-manifest.mjs",
+    "build": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\" && tsc && node scripts/copy-manifest.mjs",
     "dev": "tsx bin/invd.ts",
     "lint": "eslint src",
     "test": "vitest run",

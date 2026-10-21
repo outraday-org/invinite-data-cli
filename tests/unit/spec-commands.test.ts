@@ -24,6 +24,7 @@ import { flagName } from '../../src/spec-flags.js';
 const op = (overrides: Partial<ManifestOperation> & Pick<ManifestOperation, 'group' | 'action' | 'path'>): ManifestOperation => ({
   operationId: `${overrides.group}-${overrides.action}`,
   method: 'get',
+  auth: true,
   summary: `${overrides.group} ${overrides.action}`,
   params: [],
   view: 'json',
@@ -94,7 +95,7 @@ const MANIFEST: Manifest = {
       columns: ['id', 'url'],
     }),
     op({ group: 'hooks', action: 'delete', method: 'delete', path: '/v1/hooks/{id}', params: [{ name: 'id', in: 'path', required: true, type: 'string' }] }),
-    op({ group: 'ping', action: '', path: '/ping', view: 'keyValue', columns: ['status'] }),
+    op({ group: 'ping', action: '', path: '/ping', auth: false, view: 'keyValue', columns: ['status'] }),
   ],
 };
 
@@ -298,12 +299,41 @@ describe('registerSpecCommands', () => {
     expect(process.exit).toHaveBeenCalledWith(1);
   });
 
-  it('skips groups a hand-written file owns', () => {
+  it('sends no API key for a public operation (auth: false)', async () => {
+    const { getApiKey } = await import('../../src/config/auth.js');
+    vi.mocked(getApiKey).mockClear();
+    respond({ status: 'ok' });
+    await run('ping');
+    expect(requestInit()?.headers).not.toHaveProperty('Authorization');
+    expect(getApiKey).not.toHaveBeenCalled();
+    respond({ things: [] });
+    await run('things', 'search', '-q', 'x');
+    expect(requestInit(1)?.headers).toHaveProperty('Authorization', 'Bearer test-api-key');
+  });
+
+  it('adds the plan line to a 403 tier denial and points a 401 at invd login', async () => {
+    respond({ error: 'Forbidden', message: 'This route requires the PRO plan' }, { status: 403 });
+    await run('things', 'get', '--thing-id', 't1');
+    expect(err.join('\n')).toContain('This route needs the PRO plan');
+    err.length = 0;
+    respond({ error: 'Unauthorized', message: 'Invalid API key' }, { status: 401 });
+    await run('things', 'get', '--thing-id', 't1');
+    expect(err.join('\n')).toContain('Run: invd login');
+  });
+
+  it('attaches generated actions to a group a hand-written command registered, with the spec description', () => {
     const root = new Command();
-    root.command('things');
-    registerSpecCommands(root, MANIFEST, { skipGroups: root.commands.map(command => command.name()) });
+    root.command('things').description('hand-written').command('export');
+    registerSpecCommands(root, MANIFEST);
     expect(root.commands.map(command => command.name())).toEqual(['things', 'hooks', 'ping']);
-    expect(root.commands[0].commands).toEqual([]);
+    expect(root.commands[0].description()).toBe('Things');
+    expect(root.commands[0].commands.map(command => command.name())).toEqual(['export', 'search', 'history', 'get', 'extract']);
+  });
+
+  it('refuses a hand-written action that is also a manifest operation', () => {
+    const root = new Command();
+    root.command('things').command('search');
+    expect(() => registerSpecCommands(root, MANIFEST)).toThrow(/search/);
   });
 });
 
@@ -339,13 +369,43 @@ describe('the real manifest', () => {
     }
   });
 
-  it('createProgram registers the generated groups no hand-written file owns (status), and they run', async () => {
+  it('createProgram registers every manifest group once, the generated earnings actions beside the rostered ones', async () => {
     const program = createProgram();
-    expect(program.commands.filter(command => command.name() === 'status')).toHaveLength(1);
-    expect(program.commands.find(command => command.name() === 'status')?.commands.map(c => c.name()).sort())
-      .toEqual(['licensing', 'show']);
     const names = program.commands.map(command => command.name());
     expect(new Set(names).size).toBe(names.length);
+    for (const group of loadManifest().groups) expect(names, group.name).toContain(group.name);
+    const earnings = program.commands.find(command => command.name() === 'earnings');
+    expect(earnings?.description()).toBe(loadManifest().groups.find(group => group.name === 'earnings')?.description);
+    expect(earnings?.commands.map(command => command.name())).toEqual(expect.arrayContaining(['transcript', 'calendar', 'qa']));
+  });
+
+  it('health and status run without an API key', async () => {
+    const { getApiKey } = await import('../../src/config/auth.js');
+    vi.mocked(getApiKey).mockClear();
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    respond({ status: 'ok', timestamp: 't' });
+    respond({ status: 'operational', services: [] });
+    respond({ families: [] });
+    await createProgram().exitOverride().parseAsync(['node', 'invd', 'health']);
+    await createProgram().exitOverride().parseAsync(['node', 'invd', 'status', 'show']);
+    await createProgram().exitOverride().parseAsync(['node', 'invd', 'status', 'licensing']);
+    expect([0, 1, 2].map(call => requestedUrl(call))).toEqual([
+      'https://api.example.com/health', 'https://api.example.com/status', 'https://api.example.com/status/licensing',
+    ]);
+    expect(getApiKey).not.toHaveBeenCalled();
+  });
+
+  it('a generated earnings command sends an array repeated and accepts --event-type all', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    respond({ from: 'a', to: 'b', events: [] });
+    await createProgram().exitOverride().parseAsync([
+      'node', 'invd', 'earnings', 'calendar', '--status', 'confirmed,estimated', '--event-type', 'all', '-l', '5',
+    ]);
+    const url = new URL(requestedUrl());
+    expect(url.pathname).toBe('/v1/earnings-calls/calendar');
+    expect(url.searchParams.getAll('status')).toEqual(['confirmed', 'estimated']);
+    expect(url.searchParams.get('event_type')).toBe('all');
+    expect(url.searchParams.get('limit')).toBe('5');
   });
 
   it('--show-cost still prints for a generated command', async () => {

@@ -69,6 +69,7 @@ const operationSchema = z.object({
   tags: z.array(z.string()).optional(),
   parameters: z.array(z.union([refSchema, parameterSchema])).optional(),
   requestBody: z.object({ required: z.boolean().optional(), content: z.record(z.unknown()) }).passthrough().optional(),
+  security: z.array(z.record(z.unknown())).optional(),
   'x-cli': cliSchema.optional(),
 }).passthrough();
 
@@ -76,6 +77,7 @@ const specSchema = z.object({
   info: z.object({ version: z.string() }).passthrough(),
   tags: z.array(z.object({ name: z.string(), description: z.string().optional() }).passthrough()).optional(),
   components: z.object({ parameters: z.record(parameterSchema).optional() }).passthrough().optional(),
+  security: z.array(z.record(z.unknown())).optional(),
   paths: z.record(z.record(z.unknown())),
 }).passthrough();
 
@@ -161,6 +163,8 @@ export function buildManifest(rawSpec: unknown, specText: string): Manifest {
         action: cli.action,
         method,
         path,
+        // The operation's own `security` wins over the document's; none at all = public.
+        auth: (operation.security ?? spec.security ?? []).length > 0,
         summary: operation.summary ?? '',
         params,
         view,

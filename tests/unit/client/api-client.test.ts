@@ -16,7 +16,7 @@ vi.mock('../../../src/shared/spinner.js', () => ({
   }),
 }));
 
-import { apiGet, apiGetRaw, apiRequest, takeCreditUsage } from '../../../src/client/api-client.js';
+import { apiGet, apiRequest, takeCreditUsage } from '../../../src/client/api-client.js';
 import { ApiError } from '../../../src/shared/errors.js';
 
 describe('apiGet', () => {
@@ -96,48 +96,6 @@ describe('apiGet', () => {
       errorType: 'Unauthorized',
     });
   });
-});
-
-describe('apiGetRaw', () => {
-  beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn());
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
-  });
-
-  it('returns the response unparsed and keeps the auth header', async () => {
-    const response = { ok: true, status: 200, json: vi.fn() };
-    (fetch as any).mockResolvedValue(response);
-
-    const result = await apiGetRaw({ path: '/v1/earnings-calls/audio', params: { event_id: 'e1' }, accept: 'audio/mpeg' });
-    expect(result).toBe(response);
-    expect(response.json).not.toHaveBeenCalled();
-    expect(fetch).toHaveBeenCalledWith(
-      'https://api.example.com/v1/earnings-calls/audio?event_id=e1',
-      expect.objectContaining({
-        headers: expect.objectContaining({
-          'Authorization': 'Bearer test-api-key',
-          'Accept': 'audio/mpeg',
-        }),
-      }),
-    );
-  });
-
-  it('throws ApiError from a JSON error body', async () => {
-    (fetch as any).mockResolvedValue({
-      ok: false,
-      status: 503,
-      json: () => Promise.resolve({ error: 'audio_disabled', message: 'Audio delivery is not enabled' }),
-    });
-
-    await expect(apiGetRaw({ path: '/v1/earnings-calls/audio' })).rejects.toMatchObject({
-      statusCode: 503,
-      errorType: 'audio_disabled',
-      message: 'Audio delivery is not enabled',
-    });
-  });
 
   it('throws ApiError with the status text when the error body is not JSON', async () => {
     (fetch as any).mockResolvedValue({
@@ -147,8 +105,17 @@ describe('apiGetRaw', () => {
       json: () => Promise.reject(new SyntaxError('Unexpected token <')),
     });
 
-    await expect(apiGetRaw({ path: '/v1/earnings-calls/audio' })).rejects.toBeInstanceOf(ApiError);
-    await expect(apiGetRaw({ path: '/v1/earnings-calls/audio' })).rejects.toMatchObject({ statusCode: 502, errorType: 'Bad Gateway' });
+    await expect(apiGet({ path: '/health' })).rejects.toMatchObject({ statusCode: 502, errorType: 'Bad Gateway' });
+  });
+
+  it('sends no Authorization header and resolves no key with auth: false', async () => {
+    const { getApiKey } = await import('../../../src/config/auth.js');
+    vi.mocked(getApiKey).mockClear();
+    (fetch as any).mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({}) });
+
+    await apiGet({ path: '/status', auth: false });
+    expect((fetch as any).mock.calls[0][1].headers).toEqual({ 'Accept': 'application/json' });
+    expect(getApiKey).not.toHaveBeenCalled();
   });
 });
 
