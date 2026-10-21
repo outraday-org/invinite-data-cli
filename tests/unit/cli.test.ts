@@ -14,7 +14,8 @@ vi.mock('../../src/shared/spinner.js', () => ({
   setJsonMode: vi.fn(),
 }));
 
-import { createProgram } from '../../src/cli.js';
+import { readFileSync } from 'node:fs';
+import { createProgram, loadManifest } from '../../src/cli.js';
 
 function respond(headers: Record<string, string>) {
   (fetch as any).mockResolvedValueOnce({
@@ -65,5 +66,15 @@ describe('--show-cost', () => {
     respond({ 'X-Credits-Charged': '5', 'X-Credits-Included-Remaining': '99' });
     await run('health');
     expect(err).toEqual([]);
+  });
+});
+
+describe('loadManifest', () => {
+  it('reads src/generated/cli-manifest.json next to src/cli.ts (dist/src/generated/ in the build)', () => {
+    const file = JSON.parse(readFileSync(new URL('../../src/generated/cli-manifest.json', import.meta.url), 'utf8'));
+    const manifest = loadManifest();
+    expect(manifest.specSha256).toBe(file.specSha256);
+    expect(manifest.operations).toHaveLength(file.operations.length);
+    expect(loadManifest()).toBe(manifest);
   });
 });

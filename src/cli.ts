@@ -20,6 +20,8 @@ import { registerWsCommands } from './commands/ws.js';
 import { registerPluginCommands } from './commands/plugin.js';
 import { registerLoginCommands } from './commands/login.js';
 import { registerUsageCommands } from './commands/usage.js';
+import { registerSpecCommands } from './spec-commands.js';
+import { parseManifest, type Manifest } from './spec-manifest.js';
 
 const PACKAGE_NAME = '@invinite-org/invinite-data-cli';
 
@@ -35,6 +37,17 @@ export function packageVersion(): string {
     }
   }
   return '0.0.0';
+}
+
+let manifest: Manifest | undefined;
+
+/**
+ * The committed command manifest, parsed once. Resolved next to this file: `src/generated/` under tsx,
+ * `dist/src/generated/` in the build (`scripts/copy-manifest.mjs` puts it there — `tsc` copies no JSON).
+ */
+export function loadManifest(): Manifest {
+  manifest ??= parseManifest(createRequire(import.meta.url)('./generated/cli-manifest.json'));
+  return manifest;
 }
 
 export function createProgram(): Command {
@@ -78,6 +91,9 @@ export function createProgram(): Command {
   registerPluginCommands(program);
   registerLoginCommands(program);
   registerUsageCommands(program);
+
+  // Generated from the spec — only for groups no hand-written file above registered.
+  registerSpecCommands(program, loadManifest(), { skipGroups: program.commands.map(command => command.name()) });
 
   return program;
 }

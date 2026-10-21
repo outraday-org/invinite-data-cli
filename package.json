@@ -18,13 +18,15 @@
     "invd": "./dist/bin/invd.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/copy-manifest.mjs",
     "dev": "tsx bin/invd.ts",
     "lint": "eslint src",
     "test": "vitest run",
     "test:watch": "vitest",
     "prepublishOnly": "pnpm run build",
-    "publish:version": "pnpm version patch && export $(cat .env | xargs) && pnpm publish --access public"
+    "publish:version": "pnpm version patch && export $(cat .env | xargs) && pnpm publish --access public",
+    "cli:manifest": "tsx scripts/build-cli-manifest.ts",
+    "cli:manifest:check": "tsx scripts/build-cli-manifest.ts --check"
   },
   "files": [
     "dist",

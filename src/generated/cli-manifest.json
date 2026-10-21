@@ -1,0 +1,4905 @@
+{
+  "specVersion": "1.0.0",
+  "specSha256": "67e6d81017208c2aca0351181f4952354655a98e7e0c03d5a52dd74e78e6cfa7",
+  "groups": [
+    {
+      "name": "company",
+      "description": "Company search, details, fiscal periods, dividends and splits"
+    },
+    {
+      "name": "earnings",
+      "description": "Earnings calls: calendar, transcripts, Q&A, extractions, media, search and webhook subscriptions"
+    },
+    {
+      "name": "filings",
+      "description": "SEC filings, their parsed sections and natural-language filing search"
+    },
+    {
+      "name": "financials",
+      "description": "Financial statements (standardized & as-reported)"
+    },
+    {
+      "name": "health",
+      "description": "Liveness of the API (no API key)"
+    },
+    {
+      "name": "insider-trades",
+      "description": "Insider transactions of a company"
+    },
+    {
+      "name": "ipos",
+      "description": "Initial public offerings"
+    },
+    {
+      "name": "market",
+      "description": "Market calendar"
+    },
+    {
+      "name": "metadata",
+      "description": "The metrics and filing section ids the API serves"
+    },
+    {
+      "name": "metrics",
+      "description": "Ratios, growth and CAGR derived from the statements"
+    },
+    {
+      "name": "ownership",
+      "description": "13F holdings, holders and position changes of institutional investors"
+    },
+    {
+      "name": "segments",
+      "description": "Financial facts broken down by business and geographic segment"
+    },
+    {
+      "name": "status",
+      "description": "Public status and licensing (no API key)"
+    },
+    {
+      "name": "usage",
+      "description": "Your data account's own usage (costs no credits)"
+    },
+    {
+      "name": "webhooks",
+      "description": "Earnings-call webhook subscriptions (PRO): signed POSTs of the call lifecycle"
+    }
+  ],
+  "operations": [
+    {
+      "operationId": "companyDetails",
+      "group": "company",
+      "action": "details",
+      "method": "get",
+      "path": "/v1/company/details",
+      "summary": "Company details",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        }
+      ],
+      "view": "keyValue",
+      "rowsPath": "companies.0",
+      "columns": [
+        "name",
+        "ticker",
+        "cik",
+        "category",
+        "exchange",
+        "sector",
+        "industry",
+        "sic",
+        "sic_sector",
+        "sic_industry",
+        "fama_sector",
+        "fama_industry",
+        "currency",
+        "cusip",
+        "composite_figi",
+        "market_cap",
+        "shares_outstanding",
+        "employees",
+        "insider_own_pct",
+        "insider_own_shares",
+        "inst_own_pct",
+        "inst_own_shares",
+        "short_float_pct",
+        "short_float_shares",
+        "list_date",
+        "is_delisted",
+        "homepage_url",
+        "investor_relations_url",
+        "logo_url",
+        "brand_colors",
+        "street",
+        "city",
+        "state",
+        "zip_code",
+        "country_code"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "companyDividends",
+      "group": "company",
+      "action": "dividends",
+      "method": "get",
+      "path": "/v1/company/dividends",
+      "summary": "Company dividends",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "start_date",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Filter dividends with ex_dividend_date on or after this date (YYYY-MM-DD)"
+        },
+        {
+          "name": "end_date",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Filter dividends with ex_dividend_date on or before this date (YYYY-MM-DD)"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for dividends by ex_dividend_date",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 40,
+          "description": "Maximum number of dividends to return",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of dividends to skip for pagination"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "companies.0.dividends",
+      "columns": [
+        "ex_dividend_date",
+        "declaration_date",
+        "cash_amount",
+        "dividend_type",
+        "frequency",
+        "pay_date",
+        "record_date"
+      ],
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "dividends"
+      ]
+    },
+    {
+      "operationId": "companyFiscalPeriods",
+      "group": "company",
+      "action": "fiscal-periods",
+      "method": "get",
+      "path": "/v1/company/fiscal-periods",
+      "summary": "Company fiscal periods",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for periods by period_end",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 40,
+          "description": "Maximum number of periods per company",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of periods to skip for pagination"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "companies.0.periods",
+      "columns": [
+        "fiscal_year",
+        "fiscal_quarter",
+        "calendar_year",
+        "calendar_quarter",
+        "period_end"
+      ],
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "periods"
+      ]
+    },
+    {
+      "operationId": "companyAvailableCompanies",
+      "group": "company",
+      "action": "list",
+      "method": "get",
+      "path": "/v1/company/available-companies",
+      "summary": "List available companies",
+      "params": [],
+      "view": "table",
+      "rowsPath": "companies",
+      "columns": [
+        "ticker",
+        "cik",
+        "name"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "companySearch",
+      "group": "company",
+      "action": "search",
+      "method": "get",
+      "path": "/v1/company/search",
+      "summary": "Search companies",
+      "params": [
+        {
+          "name": "query",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Search text to match against ticker (prefix) or name (contains)",
+          "alias": "q"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of companies to return",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Pagination offset"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "companies",
+      "columns": [
+        "ticker",
+        "cik",
+        "name",
+        "logo_url"
+      ],
+      "pagination": "top",
+      "allItemsPath": [
+        "companies"
+      ]
+    },
+    {
+      "operationId": "companySplits",
+      "group": "company",
+      "action": "splits",
+      "method": "get",
+      "path": "/v1/company/splits",
+      "summary": "Stock splits",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for splits by execution_date",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 40,
+          "description": "Maximum number of splits to return",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of splits to skip for pagination"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "companies.0.splits",
+      "columns": [
+        "execution_date",
+        "split_from",
+        "split_to"
+      ],
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "splits"
+      ]
+    },
+    {
+      "operationId": "earningsCallsAnalysts",
+      "group": "earnings",
+      "action": "analysts",
+      "method": "get",
+      "path": "/v1/earnings-calls/analysts",
+      "summary": "Analysts of a company",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Company ticker symbol or CIK (US companies only)",
+          "alias": "i"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "description": "Maximum number of analysts to return",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of analysts to skip for pagination"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "analysts",
+      "columns": [
+        "name",
+        "firm",
+        "appearances",
+        "questions",
+        "first_seen",
+        "last_seen",
+        "person_id"
+      ],
+      "pagination": "top",
+      "allItemsPath": [
+        "analysts"
+      ]
+    },
+    {
+      "operationId": "earningsCallsCalendar",
+      "group": "earnings",
+      "action": "calendar",
+      "method": "get",
+      "path": "/v1/earnings-calls/calendar",
+      "summary": "Earnings call calendar",
+      "params": [
+        {
+          "name": "from",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "First day (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date. Default: today"
+        },
+        {
+          "name": "to",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Last day (YYYY-MM-DD), at most 92 days after `from`: a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date. Default: `from` + 14 days"
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "required": false,
+          "type": "array",
+          "items": "string",
+          "enum": [
+            "estimated",
+            "unconfirmed",
+            "confirmed",
+            "postponed",
+            "cancelled"
+          ],
+          "description": "Filter by date status (repeatable). Default: every status except `cancelled`"
+        },
+        {
+          "name": "session",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "bmo",
+            "amc",
+            "intraday"
+          ],
+          "description": "Filter by market session"
+        },
+        {
+          "name": "exchange",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Filter by listing exchange (e.g. NASDAQ, NYSE)"
+        },
+        {
+          "name": "event_type",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "default": "earnings_call",
+          "description": "Event types as a comma list (e.g. `investor_day,conference`) of earnings_call, investor_day, conference, agm, other; `all` = every event type"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "asc",
+          "description": "Sort direction by scheduled start",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 100,
+          "description": "Maximum number of events to return",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of events to skip for pagination"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "events",
+      "columns": [
+        "scheduled_at",
+        "symbol",
+        "company_name",
+        "event_type",
+        "event_title",
+        "fiscal_year",
+        "fiscal_quarter",
+        "session",
+        "date_status",
+        "capture_status",
+        "has_transcript",
+        "has_audio",
+        "has_slides",
+        "event_id"
+      ],
+      "pagination": "top",
+      "allItemsPath": [
+        "events"
+      ]
+    },
+    {
+      "operationId": "earningsCallsDiff",
+      "group": "earnings",
+      "action": "diff",
+      "method": "get",
+      "path": "/v1/earnings-calls/diff",
+      "summary": "Call-over-call diff",
+      "params": [
+        {
+          "name": "event_id",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors"
+        },
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Company ticker symbol or CIK (US companies only); alone = the latest call with a diff, else with year+quarter or date",
+          "alias": "i"
+        },
+        {
+          "name": "year",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Fiscal year of the call (with quarter)"
+        },
+        {
+          "name": "quarter",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Fiscal quarter of the call (with year)"
+        },
+        {
+          "name": "date",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
+        },
+        {
+          "name": "event_type",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ],
+          "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only"
+        },
+        {
+          "name": "vs",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "prior"
+          ],
+          "default": "prior",
+          "description": "Comparison base: the company's prior call"
+        }
+      ],
+      "view": "keyValue",
+      "columns": [
+        "event.symbol",
+        "event.conference_date",
+        "prior_event.event_id",
+        "prior_event.conference_date",
+        "similarity",
+        "tone_shift",
+        "hedging.level",
+        "hedging.change",
+        "uncertainty.level",
+        "uncertainty.change",
+        "numeric_specificity.level",
+        "numeric_specificity.change",
+        "slide_diff.page_delta",
+        "slide_diff.new_titles",
+        "slide_diff.dropped_titles",
+        "summary"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "earningsCallsDocumentSearch",
+      "group": "earnings",
+      "action": "document-search",
+      "method": "get",
+      "path": "/v1/earnings-calls/documents/search",
+      "summary": "Search investor documents",
+      "params": [
+        {
+          "name": "q",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "The question or phrase to search for",
+          "alias": "q"
+        },
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Search one company's documents (ticker or CIK, US only)",
+          "alias": "i"
+        },
+        {
+          "name": "kind",
+          "in": "query",
+          "required": false,
+          "type": "array",
+          "items": "string",
+          "description": "Only these document kinds, comma-separated or repeated: annual_report, ceo_letter, proxy_statement, proxy_supplement, esg_report, conference_presentation, investor_day_deck, earnings_deck, fact_sheet, financial_data, shareholder_letter, company_transcript, cfo_commentary, governance, press_release, infographic, webcast, other, prepared_remarks, sec_filing"
+        },
+        {
+          "name": "section",
+          "in": "query",
+          "required": false,
+          "type": "array",
+          "items": "string",
+          "description": "Only company documents of these IR sections: quarterly_results, events_archive, presentations_archive, annual_reports, proxy, sec_filings, press_releases, esg, governance, faq, other"
+        },
+        {
+          "name": "year",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Only documents of this year"
+        },
+        {
+          "name": "table",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "event_documents",
+            "company_documents"
+          ],
+          "description": "event_documents (a call's documents) or company_documents (the company's IR library)"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of passages (at most 20)",
+          "alias": "l"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "hits",
+      "columns": [
+        "score",
+        "kind",
+        "year",
+        "page",
+        "symbol",
+        "title",
+        "text",
+        "document_id"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "earningsCallsEvent",
+      "group": "earnings",
+      "action": "event",
+      "method": "get",
+      "path": "/v1/earnings-calls/event/{event_id}",
+      "summary": "Earnings call by ID",
+      "params": [
+        {
+          "name": "include",
+          "in": "query",
+          "required": false,
+          "type": "array",
+          "items": "string",
+          "enum": [
+            "observations"
+          ],
+          "description": "Extra data (repeatable): `observations` = the date / time observations behind the call time"
+        },
+        {
+          "name": "event_id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "description": "Event identifier (event_id of any earnings-calls response)"
+        }
+      ],
+      "view": "keyValue",
+      "columns": [
+        "event_id",
+        "symbol",
+        "company_name",
+        "event_type",
+        "event_title",
+        "fiscal_year",
+        "fiscal_quarter",
+        "scheduled_at",
+        "tz",
+        "date_status",
+        "call_time_source",
+        "session",
+        "started_at",
+        "ended_at",
+        "capture_status",
+        "reschedule_count",
+        "has_transcript",
+        "has_audio",
+        "has_slides",
+        "has_press_release",
+        "has_documents",
+        "webcast_url"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "earningsCallsEvents",
+      "group": "earnings",
+      "action": "events",
+      "method": "get",
+      "path": "/v1/earnings-calls/events",
+      "summary": "Event history of a company",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Company ticker symbol or CIK (US companies only)",
+          "alias": "i"
+        },
+        {
+          "name": "from",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Only calls on or after this day (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
+        },
+        {
+          "name": "to",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Only calls on or before this day (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
+        },
+        {
+          "name": "include",
+          "in": "query",
+          "required": false,
+          "type": "array",
+          "items": "string",
+          "enum": [
+            "observations"
+          ],
+          "description": "Extra data per event (repeatable): `observations` = the date / time observations"
+        },
+        {
+          "name": "event_type",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "default": "all",
+          "description": "Only events of these types, a comma list (e.g. `investor_day,conference`) of earnings_call, investor_day, conference, agm, other; `all` (default) = every event type"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction by scheduled start",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 50,
+          "description": "Maximum number of events to return",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of events to skip for pagination"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "events",
+      "columns": [
+        "scheduled_at",
+        "symbol",
+        "company_name",
+        "event_type",
+        "event_title",
+        "fiscal_year",
+        "fiscal_quarter",
+        "session",
+        "date_status",
+        "capture_status",
+        "has_transcript",
+        "has_audio",
+        "has_slides",
+        "event_id"
+      ],
+      "pagination": "top",
+      "allItemsPath": [
+        "events"
+      ]
+    },
+    {
+      "operationId": "earningsCallsExtractions",
+      "group": "earnings",
+      "action": "extractions",
+      "method": "get",
+      "path": "/v1/earnings-calls/extractions",
+      "summary": "Guidance and KPI extractions",
+      "params": [
+        {
+          "name": "event_id",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors"
+        },
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date",
+          "alias": "i"
+        },
+        {
+          "name": "year",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Fiscal year of the call (with quarter)"
+        },
+        {
+          "name": "quarter",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Fiscal quarter of the call (with year)"
+        },
+        {
+          "name": "date",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
+        },
+        {
+          "name": "event_type",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ],
+          "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only"
+        },
+        {
+          "name": "kind",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "guidance",
+            "kpi"
+          ],
+          "default": "guidance",
+          "description": "guidance = consolidated forward guidance; kpi = every reported KPI figure"
+        },
+        {
+          "name": "review",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "approved",
+            "auto",
+            "all"
+          ],
+          "default": "all",
+          "description": "Guidance review filter: approved (human-approved only), auto, or all (auto + needs_review + approved)"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 200,
+          "description": "Maximum number of items to return",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of items to skip for pagination"
+        }
+      ],
+      "view": "json",
+      "pagination": "top",
+      "allItemsPath": [
+        "guidance",
+        "kpis"
+      ]
+    },
+    {
+      "operationId": "earningsCallsGuidanceHistory",
+      "group": "earnings",
+      "action": "guidance-history",
+      "method": "get",
+      "path": "/v1/earnings-calls/guidance/history",
+      "summary": "Guidance history",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Company ticker symbol or CIK (US companies only)",
+          "alias": "i"
+        },
+        {
+          "name": "metric",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Normalized metric (e.g. revenue, eps_non_gaap, segment:iphone)"
+        },
+        {
+          "name": "period_kind",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "quarter",
+            "fiscal_year",
+            "half",
+            "other"
+          ],
+          "description": "Only this kind of guided period"
+        },
+        {
+          "name": "basis",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "gaap",
+            "non_gaap",
+            "unknown"
+          ],
+          "description": "Only this accounting basis"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 12,
+          "description": "Maximum number of series entries to return",
+          "alias": "l"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "series",
+      "columns": [
+        "conference_date",
+        "period_label",
+        "low",
+        "high",
+        "midpoint",
+        "unit",
+        "direction",
+        "change_vs_prior.midpoint_delta"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "earningsCallsLive",
+      "group": "earnings",
+      "action": "live",
+      "method": "get",
+      "path": "/v1/earnings-calls/live",
+      "summary": "Live earnings calls",
+      "params": [],
+      "view": "table",
+      "rowsPath": "events",
+      "columns": [
+        "scheduled_at",
+        "symbol",
+        "company_name",
+        "event_type",
+        "event_title",
+        "fiscal_year",
+        "fiscal_quarter",
+        "session",
+        "date_status",
+        "capture_status",
+        "has_transcript",
+        "has_audio",
+        "has_slides",
+        "event_id",
+        "live_audio",
+        "live_prices"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "earningsCallsMetrics",
+      "group": "earnings",
+      "action": "metrics",
+      "method": "get",
+      "path": "/v1/earnings-calls/metrics",
+      "summary": "Earnings call metrics",
+      "params": [
+        {
+          "name": "event_id",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors"
+        },
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date",
+          "alias": "i"
+        },
+        {
+          "name": "year",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Fiscal year of the call (with quarter)"
+        },
+        {
+          "name": "quarter",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Fiscal quarter of the call (with year)"
+        },
+        {
+          "name": "date",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
+        },
+        {
+          "name": "event_type",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ],
+          "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only"
+        }
+      ],
+      "view": "keyValue",
+      "columns": [
+        "event.symbol",
+        "event.conference_date",
+        "call_happened",
+        "call_length_ms",
+        "release_to_call_gap_s",
+        "prepared_remarks_ms",
+        "qa_ms",
+        "qa_share",
+        "question_count",
+        "analyst_count",
+        "mgmt_word_share_qa",
+        "zero_questions",
+        "prepared_remarks_posted_in_advance",
+        "speaker_count",
+        "unknown_speaker_word_share"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "earningsCallsParticipants",
+      "group": "earnings",
+      "action": "participants",
+      "method": "get",
+      "path": "/v1/earnings-calls/participants",
+      "summary": "Earnings call participants",
+      "params": [
+        {
+          "name": "event_id",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors"
+        },
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date",
+          "alias": "i"
+        },
+        {
+          "name": "year",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Fiscal year of the call (with quarter)"
+        },
+        {
+          "name": "quarter",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Fiscal quarter of the call (with year)"
+        },
+        {
+          "name": "date",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
+        },
+        {
+          "name": "event_type",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ],
+          "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only"
+        },
+        {
+          "name": "include",
+          "in": "query",
+          "required": false,
+          "type": "array",
+          "items": "string",
+          "enum": [
+            "evidence"
+          ],
+          "description": "Extra data (repeatable): `evidence` = the quotes each name was resolved from"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "participants",
+      "columns": [
+        "speaker_label",
+        "name",
+        "title",
+        "firm",
+        "role",
+        "confidence",
+        "resolved_by",
+        "person_id"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "earningsCallsPerson",
+      "group": "earnings",
+      "action": "person",
+      "method": "get",
+      "path": "/v1/earnings-calls/people/{person_id}",
+      "summary": "Person across earnings calls",
+      "params": [
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 50,
+          "description": "Maximum number of appearances to return",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of appearances to skip for pagination"
+        },
+        {
+          "name": "person_id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "description": "Person identifier (person_id of participants / qa / analysts)"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "appearances",
+      "columns": [
+        "scheduled_at",
+        "symbol",
+        "company_name",
+        "fiscal_year",
+        "fiscal_quarter",
+        "role",
+        "title",
+        "firm",
+        "word_count",
+        "question_count",
+        "event_id"
+      ],
+      "pagination": "top",
+      "allItemsPath": [
+        "appearances"
+      ]
+    },
+    {
+      "operationId": "earningsCallsPriceAttribution",
+      "group": "earnings",
+      "action": "price-attribution",
+      "method": "get",
+      "path": "/v1/earnings-calls/price-attribution",
+      "summary": "Price moves during a call",
+      "params": [
+        {
+          "name": "event_id",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors"
+        },
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date",
+          "alias": "i"
+        },
+        {
+          "name": "year",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Fiscal year of the call (with quarter)"
+        },
+        {
+          "name": "quarter",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Fiscal quarter of the call (with year)"
+        },
+        {
+          "name": "date",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
+        },
+        {
+          "name": "event_type",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ],
+          "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only"
+        }
+      ],
+      "view": "json",
+      "pagination": "none"
+    },
+    {
+      "operationId": "earningsCallsProsody",
+      "group": "earnings",
+      "action": "prosody",
+      "method": "get",
+      "path": "/v1/earnings-calls/prosody",
+      "summary": "Speaker prosody",
+      "params": [
+        {
+          "name": "event_id",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors"
+        },
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date",
+          "alias": "i"
+        },
+        {
+          "name": "year",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Fiscal year of the call (with quarter)"
+        },
+        {
+          "name": "quarter",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Fiscal quarter of the call (with year)"
+        },
+        {
+          "name": "date",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
+        },
+        {
+          "name": "event_type",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ],
+          "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only"
+        },
+        {
+          "name": "section",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "prepared",
+            "qa",
+            "all"
+          ],
+          "default": "all",
+          "description": "prepared (remarks), qa, or all (the whole call)"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "speakers",
+      "columns": [
+        "speaker.name",
+        "speaker.role",
+        "section",
+        "speech_rate_wpm",
+        "pause_count",
+        "pause_mean_ms",
+        "filler_rate",
+        "time_to_answer_mean_ms",
+        "pitch_mean_hz",
+        "energy_mean_db",
+        "spoken_ms",
+        "word_count",
+        "acoustic_available"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "earningsCallsQa",
+      "group": "earnings",
+      "action": "qa",
+      "method": "get",
+      "path": "/v1/earnings-calls/qa",
+      "summary": "Earnings call Q&A",
+      "params": [
+        {
+          "name": "event_id",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors"
+        },
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date",
+          "alias": "i"
+        },
+        {
+          "name": "year",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Fiscal year of the call (with quarter)"
+        },
+        {
+          "name": "quarter",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Fiscal quarter of the call (with year)"
+        },
+        {
+          "name": "date",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
+        },
+        {
+          "name": "event_type",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ],
+          "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 50,
+          "description": "Maximum number of Q&A pairs to return",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of Q&A pairs to skip for pagination"
+        },
+        {
+          "name": "include",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "scores"
+          ],
+          "description": "scores = add each pair's descriptive scores (analyst casting order, question tone, difficulty, evasiveness, non-answer flag with verbatim evidence); null for a pair not scored yet"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "pairs",
+      "columns": [
+        "seq",
+        "analyst.name",
+        "analyst.firm",
+        "is_follow_up",
+        "question_start_ms",
+        "question",
+        "answer"
+      ],
+      "pagination": "top",
+      "allItemsPath": [
+        "pairs"
+      ]
+    },
+    {
+      "operationId": "earningsCallsSearch",
+      "group": "earnings",
+      "action": "search",
+      "method": "get",
+      "path": "/v1/earnings-calls/search",
+      "summary": "Search earnings calls",
+      "params": [
+        {
+          "name": "q",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "The question or phrase to search for",
+          "alias": "q"
+        },
+        {
+          "name": "event_id",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Search one call"
+        },
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Search one company's calls (ticker or CIK, US only)",
+          "alias": "i"
+        },
+        {
+          "name": "from",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "First call day (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date. An unscoped search defaults to 365 days back"
+        },
+        {
+          "name": "to",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Last call day (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
+        },
+        {
+          "name": "type",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "transcript",
+            "qa",
+            "preparedRemarks",
+            "presentation"
+          ],
+          "description": "transcript (all speech), qa, preparedRemarks or presentation (slide text)"
+        },
+        {
+          "name": "event_type",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "default": "earnings_call",
+          "description": "Events searched, as a comma list of earnings_call, investor_day, conference, agm, other; `all` = every event type (default earnings calls)"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 5,
+          "description": "Maximum number of passages (at most 8)",
+          "alias": "l"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "hits",
+      "columns": [
+        "score",
+        "type",
+        "symbol",
+        "conference_date",
+        "speaker.name",
+        "start_ms",
+        "text",
+        "audio_url"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "earningsCallsLiveStream",
+      "group": "earnings",
+      "action": "stream",
+      "method": "get",
+      "path": "/v1/earnings-calls/live/stream",
+      "summary": "Live audio stream URL",
+      "params": [
+        {
+          "name": "event_id",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors"
+        },
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date",
+          "alias": "i"
+        },
+        {
+          "name": "year",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Fiscal year of the call (with quarter)"
+        },
+        {
+          "name": "quarter",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Fiscal quarter of the call (with year)"
+        },
+        {
+          "name": "date",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
+        },
+        {
+          "name": "event_type",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ],
+          "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only"
+        }
+      ],
+      "view": "keyValue",
+      "columns": [
+        "event.symbol",
+        "event.conference_date",
+        "event.event_id",
+        "status",
+        "url",
+        "expires_at",
+        "call_t0",
+        "segment_seconds"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "earningsCallsTranscriptDiff",
+      "group": "earnings",
+      "action": "transcript-diff",
+      "method": "get",
+      "path": "/v1/earnings-calls/transcript/diff",
+      "summary": "Transcript version diff",
+      "params": [
+        {
+          "name": "event_id",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors"
+        },
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date",
+          "alias": "i"
+        },
+        {
+          "name": "year",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Fiscal year of the call (with quarter)"
+        },
+        {
+          "name": "quarter",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Fiscal quarter of the call (with year)"
+        },
+        {
+          "name": "date",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
+        },
+        {
+          "name": "event_type",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ],
+          "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only"
+        },
+        {
+          "name": "from",
+          "in": "query",
+          "required": true,
+          "type": "integer",
+          "description": "Older version (one listed by transcript/versions)"
+        },
+        {
+          "name": "to",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Newer version; default = the current one"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "changes",
+      "columns": [
+        "op",
+        "at_ms",
+        "text"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "earningsCallsTranscriptVersions",
+      "group": "earnings",
+      "action": "versions",
+      "method": "get",
+      "path": "/v1/earnings-calls/transcript/versions",
+      "summary": "Transcript versions",
+      "params": [
+        {
+          "name": "event_id",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors"
+        },
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date",
+          "alias": "i"
+        },
+        {
+          "name": "year",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Fiscal year of the call (with quarter)"
+        },
+        {
+          "name": "quarter",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Fiscal quarter of the call (with year)"
+        },
+        {
+          "name": "date",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date"
+        },
+        {
+          "name": "event_type",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ],
+          "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "versions",
+      "columns": [
+        "version",
+        "version_kind",
+        "published_at",
+        "word_count",
+        "change_note",
+        "corrected_by"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "secFilingsAvailableFormTypes",
+      "group": "filings",
+      "action": "form-types",
+      "method": "get",
+      "path": "/v1/sec-filings/available-form-types",
+      "summary": "Available SEC form types",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Optional ticker symbol or CIK. If omitted, returns form types across all filings.",
+          "alias": "i"
+        }
+      ],
+      "view": "json",
+      "pagination": "none"
+    },
+    {
+      "operationId": "secFilingsList",
+      "group": "filings",
+      "action": "list",
+      "method": "get",
+      "path": "/v1/sec-filings/filings",
+      "summary": "SEC filings",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "form_type",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "SEC form type filter (e.g., 10-K, 10-Q, 8-K, 3, 4, 5, 13F-HR). Leave empty to return all form types."
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for filings by filing_date",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 40,
+          "description": "Maximum number of filings to return",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of filings to skip for pagination"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "companies.0.filings",
+      "columns": [
+        "filing_date",
+        "form_type",
+        "fiscal_year",
+        "fiscal_quarter",
+        "calendar_year",
+        "calendar_quarter",
+        "period_end",
+        "accession_number",
+        "html_url"
+      ],
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "filings"
+      ]
+    },
+    {
+      "operationId": "secFilingsSearch",
+      "group": "filings",
+      "action": "search",
+      "method": "get",
+      "path": "/v1/sec-filings/search",
+      "summary": "Search SEC filings",
+      "params": [
+        {
+          "name": "request",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Natural language search request for SEC filing information (e.g., 'What are Apple's main risk factors?')",
+          "alias": "r"
+        },
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Ticker symbol or CIK to filter search results to a specific company",
+          "alias": "i"
+        },
+        {
+          "name": "accession_number",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Accession number to filter search results to a specific filing"
+        }
+      ],
+      "view": "json",
+      "pagination": "none"
+    },
+    {
+      "operationId": "secFilingsSections",
+      "group": "filings",
+      "action": "sections",
+      "method": "get",
+      "path": "/v1/sec-filings/sections",
+      "summary": "SEC filing sections",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "form_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "10-Q",
+            "10-K",
+            "8-K"
+          ],
+          "description": "SEC form type. Filter requirements vary: 8-K requires accession_number; 10-K requires accession_number or fiscal_year; 10-Q requires accession_number or fiscal_year+fiscal_quarter."
+        },
+        {
+          "name": "section_id",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Optional section ID. If not specified, all sections from the filing are returned."
+        },
+        {
+          "name": "accession_number",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "SEC accession number of the filing"
+        },
+        {
+          "name": "fiscal_year",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Fiscal year"
+        },
+        {
+          "name": "fiscal_quarter",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Fiscal quarter (1-4). Required for 10-Q when using fiscal_year filter."
+        }
+      ],
+      "view": "json",
+      "pagination": "none"
+    },
+    {
+      "operationId": "asReportedBalanceSheet",
+      "group": "financials",
+      "action": "as-reported-balance-sheet",
+      "method": "get",
+      "path": "/v1/as-reported/balance-sheet",
+      "summary": "As-reported balance sheet",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period",
+          "alias": "p"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for periods by period_end",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of periods per ticker",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of periods to skip for pagination"
+        }
+      ],
+      "view": "json",
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "periods"
+      ]
+    },
+    {
+      "operationId": "asReportedBalanceSheetDetailed",
+      "group": "financials",
+      "action": "as-reported-balance-sheet-detailed",
+      "method": "get",
+      "path": "/v1/as-reported/balance-sheet/detailed",
+      "summary": "As-reported balance sheet (detailed)",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period",
+          "alias": "p"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for periods by period_end",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of periods per ticker",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of periods to skip for pagination"
+        },
+        {
+          "name": "with_formula",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "default": "false",
+          "description": "Include formula in response"
+        }
+      ],
+      "view": "json",
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "periods"
+      ]
+    },
+    {
+      "operationId": "asReportedBalanceSheetPresentation",
+      "group": "financials",
+      "action": "as-reported-balance-sheet-presentation",
+      "method": "get",
+      "path": "/v1/as-reported/balance-sheet/presentation",
+      "summary": "As-reported balance sheet (presentation)",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period",
+          "alias": "p"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for periods by period_end",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of periods per ticker",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of periods to skip for pagination"
+        }
+      ],
+      "view": "json",
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "periods"
+      ]
+    },
+    {
+      "operationId": "asReportedCashFlowStatement",
+      "group": "financials",
+      "action": "as-reported-cash-flow",
+      "method": "get",
+      "path": "/v1/as-reported/cash-flow-statement",
+      "summary": "As-reported cash flow statement",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period",
+          "alias": "p"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for periods by period_end",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of periods per ticker",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of periods to skip for pagination"
+        }
+      ],
+      "view": "json",
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "periods"
+      ]
+    },
+    {
+      "operationId": "asReportedCashFlowStatementDetailed",
+      "group": "financials",
+      "action": "as-reported-cash-flow-detailed",
+      "method": "get",
+      "path": "/v1/as-reported/cash-flow-statement/detailed",
+      "summary": "As-reported cash flow statement (detailed)",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period",
+          "alias": "p"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for periods by period_end",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of periods per ticker",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of periods to skip for pagination"
+        },
+        {
+          "name": "with_formula",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "default": "false",
+          "description": "Include formula in response"
+        }
+      ],
+      "view": "json",
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "periods"
+      ]
+    },
+    {
+      "operationId": "asReportedCashFlowStatementPresentation",
+      "group": "financials",
+      "action": "as-reported-cash-flow-presentation",
+      "method": "get",
+      "path": "/v1/as-reported/cash-flow-statement/presentation",
+      "summary": "As-reported cash flow statement (presentation)",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period",
+          "alias": "p"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for periods by period_end",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of periods per ticker",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of periods to skip for pagination"
+        }
+      ],
+      "view": "json",
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "periods"
+      ]
+    },
+    {
+      "operationId": "asReportedIncomeStatement",
+      "group": "financials",
+      "action": "as-reported-income-statement",
+      "method": "get",
+      "path": "/v1/as-reported/income-statement",
+      "summary": "As-reported income statement",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period",
+          "alias": "p"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for periods by period_end",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of periods per ticker",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of periods to skip for pagination"
+        }
+      ],
+      "view": "json",
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "periods"
+      ]
+    },
+    {
+      "operationId": "asReportedIncomeStatementDetailed",
+      "group": "financials",
+      "action": "as-reported-income-statement-detailed",
+      "method": "get",
+      "path": "/v1/as-reported/income-statement/detailed",
+      "summary": "As-reported income statement (detailed)",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period",
+          "alias": "p"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for periods by period_end",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of periods per ticker",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of periods to skip for pagination"
+        },
+        {
+          "name": "with_formula",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "default": "false",
+          "description": "Include formula in response"
+        }
+      ],
+      "view": "json",
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "periods"
+      ]
+    },
+    {
+      "operationId": "asReportedIncomeStatementPresentation",
+      "group": "financials",
+      "action": "as-reported-income-statement-presentation",
+      "method": "get",
+      "path": "/v1/as-reported/income-statement/presentation",
+      "summary": "As-reported income statement (presentation)",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period",
+          "alias": "p"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for periods by period_end",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of periods per ticker",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of periods to skip for pagination"
+        }
+      ],
+      "view": "json",
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "periods"
+      ]
+    },
+    {
+      "operationId": "asReportedSnapshot",
+      "group": "financials",
+      "action": "as-reported-snapshot",
+      "method": "get",
+      "path": "/v1/as-reported/snapshot",
+      "summary": "As-reported snapshot",
+      "params": [
+        {
+          "name": "identifiers",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers)",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period",
+          "alias": "p"
+        },
+        {
+          "name": "calendar_year",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Calendar year. For annual periods, only calendar_year is needed. For non-annual periods, must be provided together with calendar_quarter."
+        },
+        {
+          "name": "calendar_quarter",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Calendar quarter (1-4). For annual periods, should not be provided. For non-annual periods, must be provided together with calendar_year."
+        }
+      ],
+      "view": "json",
+      "pagination": "none"
+    },
+    {
+      "operationId": "asReportedSnapshotDetailed",
+      "group": "financials",
+      "action": "as-reported-snapshot-detailed",
+      "method": "get",
+      "path": "/v1/as-reported/snapshot/detailed",
+      "summary": "As-reported snapshot (detailed)",
+      "params": [
+        {
+          "name": "identifiers",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers)",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period",
+          "alias": "p"
+        },
+        {
+          "name": "calendar_year",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Calendar year. For annual periods, only calendar_year is needed. For non-annual periods, must be provided together with calendar_quarter."
+        },
+        {
+          "name": "calendar_quarter",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Calendar quarter (1-4). For annual periods, should not be provided. For non-annual periods, must be provided together with calendar_year."
+        },
+        {
+          "name": "with_formula",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "default": "false",
+          "description": "Include formula in response"
+        }
+      ],
+      "view": "json",
+      "pagination": "none"
+    },
+    {
+      "operationId": "asReportedSnapshotPresentation",
+      "group": "financials",
+      "action": "as-reported-snapshot-presentation",
+      "method": "get",
+      "path": "/v1/as-reported/snapshot/presentation",
+      "summary": "As-reported snapshot (presentation)",
+      "params": [
+        {
+          "name": "identifiers",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers)",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period",
+          "alias": "p"
+        },
+        {
+          "name": "calendar_year",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Calendar year. For annual periods, only calendar_year is needed. For non-annual periods, must be provided together with calendar_quarter."
+        },
+        {
+          "name": "calendar_quarter",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Calendar quarter (1-4). For annual periods, should not be provided. For non-annual periods, must be provided together with calendar_year."
+        }
+      ],
+      "view": "json",
+      "pagination": "none"
+    },
+    {
+      "operationId": "standardizedBalanceSheet",
+      "group": "financials",
+      "action": "balance-sheet",
+      "method": "get",
+      "path": "/v1/standardized/balance-sheet",
+      "summary": "Standardized balance sheet",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period",
+          "alias": "p"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for periods by period_end",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of periods per ticker",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of periods to skip for pagination"
+        }
+      ],
+      "view": "json",
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "periods"
+      ]
+    },
+    {
+      "operationId": "standardizedBalanceSheetDetailed",
+      "group": "financials",
+      "action": "balance-sheet-detailed",
+      "method": "get",
+      "path": "/v1/standardized/balance-sheet/detailed",
+      "summary": "Standardized balance sheet (detailed)",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period",
+          "alias": "p"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for periods by period_end",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of periods per ticker",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of periods to skip for pagination"
+        },
+        {
+          "name": "with_formula",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "default": "false",
+          "description": "Include formula in response"
+        }
+      ],
+      "view": "json",
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "periods"
+      ]
+    },
+    {
+      "operationId": "standardizedBalanceSheetPresentation",
+      "group": "financials",
+      "action": "balance-sheet-presentation",
+      "method": "get",
+      "path": "/v1/standardized/balance-sheet/presentation",
+      "summary": "Standardized balance sheet (presentation)",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period",
+          "alias": "p"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for periods by period_end",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of periods per ticker",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of periods to skip for pagination"
+        }
+      ],
+      "view": "json",
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "periods"
+      ]
+    },
+    {
+      "operationId": "standardizedCashFlowStatement",
+      "group": "financials",
+      "action": "cash-flow",
+      "method": "get",
+      "path": "/v1/standardized/cash-flow-statement",
+      "summary": "Standardized cash flow statement",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period",
+          "alias": "p"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for periods by period_end",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of periods per ticker",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of periods to skip for pagination"
+        }
+      ],
+      "view": "json",
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "periods"
+      ]
+    },
+    {
+      "operationId": "standardizedCashFlowStatementDetailed",
+      "group": "financials",
+      "action": "cash-flow-detailed",
+      "method": "get",
+      "path": "/v1/standardized/cash-flow-statement/detailed",
+      "summary": "Standardized cash flow statement (detailed)",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period",
+          "alias": "p"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for periods by period_end",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of periods per ticker",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of periods to skip for pagination"
+        },
+        {
+          "name": "with_formula",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "default": "false",
+          "description": "Include formula in response"
+        }
+      ],
+      "view": "json",
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "periods"
+      ]
+    },
+    {
+      "operationId": "standardizedCashFlowStatementPresentation",
+      "group": "financials",
+      "action": "cash-flow-presentation",
+      "method": "get",
+      "path": "/v1/standardized/cash-flow-statement/presentation",
+      "summary": "Standardized cash flow statement (presentation)",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period",
+          "alias": "p"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for periods by period_end",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of periods per ticker",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of periods to skip for pagination"
+        }
+      ],
+      "view": "json",
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "periods"
+      ]
+    },
+    {
+      "operationId": "standardizedIncomeStatement",
+      "group": "financials",
+      "action": "income-statement",
+      "method": "get",
+      "path": "/v1/standardized/income-statement",
+      "summary": "Standardized income statement",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period",
+          "alias": "p"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for periods by period_end",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of periods per ticker",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of periods to skip for pagination"
+        }
+      ],
+      "view": "json",
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "periods"
+      ]
+    },
+    {
+      "operationId": "standardizedIncomeStatementDetailed",
+      "group": "financials",
+      "action": "income-statement-detailed",
+      "method": "get",
+      "path": "/v1/standardized/income-statement/detailed",
+      "summary": "Standardized income statement (detailed)",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period",
+          "alias": "p"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for periods by period_end",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of periods per ticker",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of periods to skip for pagination"
+        },
+        {
+          "name": "with_formula",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "default": "false",
+          "description": "Include formula in response"
+        }
+      ],
+      "view": "json",
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "periods"
+      ]
+    },
+    {
+      "operationId": "standardizedIncomeStatementPresentation",
+      "group": "financials",
+      "action": "income-statement-presentation",
+      "method": "get",
+      "path": "/v1/standardized/income-statement/presentation",
+      "summary": "Standardized income statement (presentation)",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period",
+          "alias": "p"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for periods by period_end",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of periods per ticker",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of periods to skip for pagination"
+        }
+      ],
+      "view": "json",
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "periods"
+      ]
+    },
+    {
+      "operationId": "standardizedSnapshot",
+      "group": "financials",
+      "action": "snapshot",
+      "method": "get",
+      "path": "/v1/standardized/snapshot",
+      "summary": "Standardized snapshot",
+      "params": [
+        {
+          "name": "identifiers",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers)",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period",
+          "alias": "p"
+        },
+        {
+          "name": "calendar_year",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Calendar year. For annual periods, only calendar_year is needed. For non-annual periods, must be provided together with calendar_quarter."
+        },
+        {
+          "name": "calendar_quarter",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Calendar quarter (1-4). For annual periods, should not be provided. For non-annual periods, must be provided together with calendar_year."
+        }
+      ],
+      "view": "json",
+      "pagination": "none"
+    },
+    {
+      "operationId": "standardizedSnapshotDetailed",
+      "group": "financials",
+      "action": "snapshot-detailed",
+      "method": "get",
+      "path": "/v1/standardized/snapshot/detailed",
+      "summary": "Standardized snapshot (detailed)",
+      "params": [
+        {
+          "name": "identifiers",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers)",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period",
+          "alias": "p"
+        },
+        {
+          "name": "calendar_year",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Calendar year. For annual periods, only calendar_year is needed. For non-annual periods, must be provided together with calendar_quarter."
+        },
+        {
+          "name": "calendar_quarter",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Calendar quarter (1-4). For annual periods, should not be provided. For non-annual periods, must be provided together with calendar_year."
+        },
+        {
+          "name": "with_formula",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "default": "false",
+          "description": "Include formula in response"
+        }
+      ],
+      "view": "json",
+      "pagination": "none"
+    },
+    {
+      "operationId": "standardizedSnapshotPresentation",
+      "group": "financials",
+      "action": "snapshot-presentation",
+      "method": "get",
+      "path": "/v1/standardized/snapshot/presentation",
+      "summary": "Standardized snapshot (presentation)",
+      "params": [
+        {
+          "name": "identifiers",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers)",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period",
+          "alias": "p"
+        },
+        {
+          "name": "calendar_year",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Calendar year. For annual periods, only calendar_year is needed. For non-annual periods, must be provided together with calendar_quarter."
+        },
+        {
+          "name": "calendar_quarter",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Calendar quarter (1-4). For annual periods, should not be provided. For non-annual periods, must be provided together with calendar_year."
+        }
+      ],
+      "view": "json",
+      "pagination": "none"
+    },
+    {
+      "operationId": "healthGet",
+      "group": "health",
+      "action": "",
+      "method": "get",
+      "path": "/health",
+      "summary": "Health check",
+      "params": [],
+      "view": "keyValue",
+      "columns": [
+        "status",
+        "timestamp"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "insiderTradesList",
+      "group": "insider-trades",
+      "action": "list",
+      "method": "get",
+      "path": "/v1/insider-trades",
+      "summary": "Insider trades",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Company ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "start_date",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Filter transactions filed on or after this date (YYYY-MM-DD)"
+        },
+        {
+          "name": "end_date",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Filter transactions filed on or before this date (YYYY-MM-DD)"
+        },
+        {
+          "name": "acquired_disposed",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "A",
+            "D"
+          ],
+          "description": "Filter by acquisition (A) or disposition (D)"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction by filed_at date",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 100,
+          "description": "Maximum number of transactions to return",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of transactions to skip for pagination"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "transactions",
+      "columns": [
+        "filed_at",
+        "period_of_report",
+        "reporting_person_name",
+        "reporting_person_is_director",
+        "reporting_person_is_officer",
+        "reporting_person_is_ten_percent_owner",
+        "reporting_person_is_other",
+        "reporting_person_officer_title",
+        "reporting_person_other_text",
+        "security_title",
+        "acquired_disposed",
+        "coding_code",
+        "shares",
+        "share_price",
+        "total",
+        "shares_owned_before_transaction",
+        "shares_owned_following_transaction",
+        "accession_number"
+      ],
+      "pagination": "top",
+      "allItemsPath": [
+        "transactions"
+      ]
+    },
+    {
+      "operationId": "iposList",
+      "group": "ipos",
+      "action": "list",
+      "method": "get",
+      "path": "/v1/ipos",
+      "summary": "List IPOs",
+      "params": [
+        {
+          "name": "start_date",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Filter IPOs with listing_date on or after this date (YYYY-MM-DD)"
+        },
+        {
+          "name": "end_date",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Filter IPOs with listing_date on or before this date (YYYY-MM-DD)"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for IPOs by listing_date",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 100,
+          "description": "Maximum number of IPOs to return",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of IPOs to skip for pagination"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "ipos",
+      "columns": [
+        "listing_date",
+        "ticker",
+        "issuer_name",
+        "ipo_status",
+        "primary_exchange",
+        "security_type",
+        "final_issue_price",
+        "lowest_offer_price",
+        "highest_offer_price",
+        "total_offer_size",
+        "currency_code"
+      ],
+      "pagination": "top",
+      "allItemsPath": [
+        "ipos"
+      ]
+    },
+    {
+      "operationId": "marketHolidays",
+      "group": "market",
+      "action": "holidays",
+      "method": "get",
+      "path": "/v1/market/market-holidays",
+      "summary": "Market holidays",
+      "params": [
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "asc",
+          "description": "Sort direction for holidays by date",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 100,
+          "description": "Maximum number of holidays to return",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of holidays to skip for pagination"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "holidays",
+      "columns": [
+        "day",
+        "event_name",
+        "start_time",
+        "end_time"
+      ],
+      "pagination": "top",
+      "allItemsPath": [
+        "holidays"
+      ]
+    },
+    {
+      "operationId": "metadataAvailableMetrics",
+      "group": "metadata",
+      "action": "metrics",
+      "method": "get",
+      "path": "/v1/metadata/list-available-metrics",
+      "summary": "Available metrics",
+      "params": [],
+      "view": "table",
+      "rowsPath": "metrics",
+      "columns": [
+        "metric_id",
+        "name"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "metadataAvailableSectionIds",
+      "group": "metadata",
+      "action": "section-ids",
+      "method": "get",
+      "path": "/v1/metadata/list-available-section-ids",
+      "summary": "Available SEC section IDs",
+      "params": [],
+      "view": "json",
+      "pagination": "none"
+    },
+    {
+      "operationId": "financialMetricsCagr",
+      "group": "metrics",
+      "action": "cagr",
+      "method": "get",
+      "path": "/v1/financial-metrics/cagr",
+      "summary": "CAGR metrics",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "period_years",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "3",
+            "5",
+            "10"
+          ],
+          "description": "CAGR calculation period in years: 3, 5, 10"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for periods by period_end: 'asc' (oldest first), 'desc' (newest first)",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of periods per ticker (1-100)",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of periods to skip for pagination"
+        }
+      ],
+      "view": "json",
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "periods"
+      ]
+    },
+    {
+      "operationId": "financialMetricsGrowth",
+      "group": "metrics",
+      "action": "growth",
+      "method": "get",
+      "path": "/v1/financial-metrics/growth",
+      "summary": "Growth metrics",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period: 'quarterly' (Q1-Q4), 'annual' (full year), 'ytd' (year-to-date), 'ttm' (trailing twelve months)",
+          "alias": "p"
+        },
+        {
+          "name": "growth_type",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "year_over_year",
+            "quarter_over_quarter"
+          ],
+          "description": "Filter by growth type: year_over_year, quarter_over_quarter"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for periods by period_end: 'asc' (oldest first), 'desc' (newest first)",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of periods per ticker (1-100)",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of periods to skip for pagination"
+        }
+      ],
+      "view": "json",
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "periods"
+      ]
+    },
+    {
+      "operationId": "financialMetricsRatios",
+      "group": "metrics",
+      "action": "ratios",
+      "method": "get",
+      "path": "/v1/financial-metrics/ratios",
+      "summary": "Financial ratios",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period: 'quarterly' (Q1-Q4), 'annual' (full year), 'ytd' (year-to-date), 'ttm' (trailing twelve months)",
+          "alias": "p"
+        },
+        {
+          "name": "category",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "valuation",
+            "profitability",
+            "liquidity",
+            "solvency"
+          ],
+          "description": "Filter by ratio category: valuation, profitability, liquidity, solvency"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for periods by period_end: 'asc' (oldest first), 'desc' (newest first)",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of periods per ticker (1-100)",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of periods to skip for pagination"
+        }
+      ],
+      "view": "json",
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "periods"
+      ]
+    },
+    {
+      "operationId": "institutionalOwnershipHoldingsByCompany",
+      "group": "ownership",
+      "action": "holdings-by-company",
+      "method": "get",
+      "path": "/v1/institutional-ownership/holdings-by-company",
+      "summary": "Holdings by company",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Company ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "min_value",
+          "in": "query",
+          "required": false,
+          "type": "number",
+          "description": "Minimum dollar value filter"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction by dollar_value",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 100,
+          "description": "Maximum number of holdings to return",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of holdings to skip for pagination"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "holdings",
+      "columns": [
+        "name_institution",
+        "cik_institution",
+        "ticker_company",
+        "cik_company",
+        "name_company",
+        "cusip_company",
+        "dollar_value",
+        "shares_or_principal_amount",
+        "shares_or_principal_amount_type",
+        "investment_discretion",
+        "put_call",
+        "voting_authority_sole",
+        "voting_authority_shared",
+        "voting_authority_none",
+        "calendar_year",
+        "calendar_quarter",
+        "period_end",
+        "filing_date",
+        "accession_number",
+        "link_to_filing_details"
+      ],
+      "pagination": "top",
+      "allItemsPath": [
+        "holdings"
+      ]
+    },
+    {
+      "operationId": "institutionalOwnershipHoldingsByInvestor",
+      "group": "ownership",
+      "action": "holdings-by-investor",
+      "method": "get",
+      "path": "/v1/institutional-ownership/holdings-by-investor",
+      "summary": "Holdings by investor",
+      "params": [
+        {
+          "name": "cik",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Institution CIK"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction by dollar_value",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 100,
+          "description": "Maximum number of holdings to return",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of holdings to skip for pagination"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "holdings",
+      "columns": [
+        "ticker_company",
+        "cik_company",
+        "name_company",
+        "cusip_company",
+        "cik_institution",
+        "name_institution",
+        "dollar_value",
+        "shares_or_principal_amount",
+        "shares_or_principal_amount_type",
+        "investment_discretion",
+        "put_call",
+        "voting_authority_sole",
+        "voting_authority_shared",
+        "voting_authority_none",
+        "calendar_year",
+        "calendar_quarter",
+        "period_end",
+        "filing_date",
+        "accession_number",
+        "link_to_filing_details"
+      ],
+      "pagination": "top",
+      "allItemsPath": [
+        "holdings"
+      ]
+    },
+    {
+      "operationId": "institutionalOwnershipInstitutions",
+      "group": "ownership",
+      "action": "institutions",
+      "method": "get",
+      "path": "/v1/institutional-ownership/institutions",
+      "summary": "List institutional investors",
+      "params": [
+        {
+          "name": "ciks",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Comma-separated list of CIKs (Central Index Keys)"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 100,
+          "description": "Maximum number of institutions to return",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Pagination offset"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "asc",
+          "description": "Sort direction for institutions by name",
+          "alias": "s"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "institutions",
+      "columns": [
+        "cik",
+        "name",
+        "street1",
+        "street2",
+        "city",
+        "state",
+        "zip_code",
+        "country"
+      ],
+      "pagination": "top",
+      "allItemsPath": [
+        "institutions"
+      ]
+    },
+    {
+      "operationId": "institutionalOwnershipTransactions",
+      "group": "ownership",
+      "action": "transactions",
+      "method": "get",
+      "path": "/v1/institutional-ownership/transactions",
+      "summary": "Institutional transactions",
+      "params": [
+        {
+          "name": "cik",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Institution CIK (at least one of cik or identifier required)"
+        },
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Company ticker symbol or CIK (at least one of cik or identifier required)",
+          "alias": "i"
+        },
+        {
+          "name": "start_date",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Filter transactions with period_end_new on or after this date (YYYY-MM-DD)"
+        },
+        {
+          "name": "end_date",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Filter transactions with period_end_new on or before this date (YYYY-MM-DD)"
+        },
+        {
+          "name": "type",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "new_buy",
+            "added",
+            "reduced",
+            "sold_out"
+          ],
+          "description": "Filter by transaction type: new_buy, added, reduced, sold_out"
+        },
+        {
+          "name": "calendar_year",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Filter by calendar year (of new position)"
+        },
+        {
+          "name": "calendar_quarter",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "description": "Filter by calendar quarter (of new position)"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction by period_end_new: 'asc' (oldest first), 'desc' (newest first)",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 100,
+          "description": "Maximum number of transactions to return (1-1000)",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of transactions to skip for pagination"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "transactions",
+      "columns": [
+        "cik_institution",
+        "name_institution",
+        "ticker_company",
+        "cik_company",
+        "name_company",
+        "cusip_company",
+        "type",
+        "change_dollar_value",
+        "change_shares_or_principal_amount_absolute",
+        "change_shares_or_principal_amount_percent",
+        "shares_or_principal_amount_new",
+        "shares_or_principal_amount_old",
+        "dollar_value",
+        "shares_or_principal_amount_type",
+        "investment_discretion",
+        "put_call",
+        "voting_authority_sole",
+        "voting_authority_shared",
+        "voting_authority_none",
+        "calendar_year",
+        "calendar_quarter",
+        "period_end",
+        "filing_date",
+        "accession_number"
+      ],
+      "pagination": "top",
+      "allItemsPath": [
+        "transactions"
+      ]
+    },
+    {
+      "operationId": "segmentedFinancials",
+      "group": "segments",
+      "action": "list",
+      "method": "get",
+      "path": "/v1/segmented-financials",
+      "summary": "Segmented financials",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period: 'quarterly' (Q1-Q4), 'annual' (full year), 'ytd' (year-to-date), 'ttm' (trailing twelve months)",
+          "alias": "p"
+        },
+        {
+          "name": "segment_id",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "seg_revenue_product",
+            "seg_revenue_geographic",
+            "seg_revenue_business_segment",
+            "seg_cost_of_revenue_business_segment",
+            "seg_research_and_development_expenses_business_segment",
+            "seg_selling_and_marketing_expenses_business_segment",
+            "seg_general_and_administrative_expenses_business_segment"
+          ],
+          "description": "Filter by segment ID: seg_revenue_product, seg_revenue_geographic, seg_revenue_business_segment, seg_cost_of_revenue_business_segment, seg_research_and_development_expenses_business_segment, seg_selling_and_marketing_expenses_business_segment, seg_general_and_administrative_expenses_business_segment"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for periods by period_end: 'asc' (oldest first), 'desc' (newest first)",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of periods per ticker (1-100)",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of periods to skip for pagination"
+        }
+      ],
+      "view": "json",
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "periods"
+      ]
+    },
+    {
+      "operationId": "segmentedFinancialsDetailed",
+      "group": "segments",
+      "action": "list-detailed",
+      "method": "get",
+      "path": "/v1/segmented-financials/detailed",
+      "summary": "Segmented financials (detailed)",
+      "params": [
+        {
+          "name": "identifier",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Ticker symbol or CIK",
+          "alias": "i"
+        },
+        {
+          "name": "fiscal_period_type",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ],
+          "description": "Type of fiscal period: 'quarterly' (Q1-Q4), 'annual' (full year), 'ytd' (year-to-date), 'ttm' (trailing twelve months)",
+          "alias": "p"
+        },
+        {
+          "name": "segment_id",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "seg_revenue_product",
+            "seg_revenue_geographic",
+            "seg_revenue_business_segment",
+            "seg_cost_of_revenue_business_segment",
+            "seg_research_and_development_expenses_business_segment",
+            "seg_selling_and_marketing_expenses_business_segment",
+            "seg_general_and_administrative_expenses_business_segment"
+          ],
+          "description": "Filter by segment ID: seg_revenue_product, seg_revenue_geographic, seg_revenue_business_segment, seg_cost_of_revenue_business_segment, seg_research_and_development_expenses_business_segment, seg_selling_and_marketing_expenses_business_segment, seg_general_and_administrative_expenses_business_segment"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Sort direction for periods by period_end: 'asc' (oldest first), 'desc' (newest first)",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum number of periods per ticker (1-100)",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "description": "Number of periods to skip for pagination"
+        }
+      ],
+      "view": "json",
+      "pagination": "perCompany",
+      "allItemsPath": [
+        "periods"
+      ]
+    },
+    {
+      "operationId": "statusLicensing",
+      "group": "status",
+      "action": "licensing",
+      "method": "get",
+      "path": "/status/licensing",
+      "summary": "Licensing policy",
+      "params": [],
+      "view": "json",
+      "pagination": "none"
+    },
+    {
+      "operationId": "statusGet",
+      "group": "status",
+      "action": "show",
+      "method": "get",
+      "path": "/status",
+      "summary": "Service status",
+      "params": [],
+      "view": "table",
+      "rowsPath": "services",
+      "columns": [
+        "family",
+        "status",
+        "uptime_7d",
+        "uptime_30d",
+        "uptime_90d"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "accountUsage",
+      "group": "usage",
+      "action": "",
+      "method": "get",
+      "path": "/v1/account/usage",
+      "summary": "Account usage",
+      "params": [
+        {
+          "name": "days",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "enum": [
+            "7",
+            "30",
+            "90"
+          ],
+          "default": 30,
+          "description": "Window in UTC days ending today (inclusive): 7, 30 or 90"
+        }
+      ],
+      "view": "keyValue",
+      "columns": [
+        "window_days",
+        "period.tier",
+        "period.included_credits",
+        "period.used_credits",
+        "period.prepaid_balance_usd",
+        "period.resets_at",
+        "truncated"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "earningsCallsWebhooksCreate",
+      "group": "webhooks",
+      "action": "create",
+      "method": "post",
+      "path": "/v1/earnings-calls/webhooks",
+      "summary": "Create a webhook",
+      "params": [],
+      "body": {
+        "required": true,
+        "contentType": "application/json"
+      },
+      "view": "keyValue",
+      "columns": [
+        "id",
+        "url",
+        "events",
+        "filters.ciks",
+        "filters.keywords",
+        "active",
+        "consecutive_failures",
+        "secret_hint",
+        "created_at",
+        "secret"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "earningsCallsWebhooksDelete",
+      "group": "webhooks",
+      "action": "delete",
+      "method": "delete",
+      "path": "/v1/earnings-calls/webhooks/{id}",
+      "summary": "Delete a webhook",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "description": "Webhook subscription id (from the create / list response)"
+        }
+      ],
+      "view": "json",
+      "pagination": "none"
+    },
+    {
+      "operationId": "earningsCallsWebhooksDeliveries",
+      "group": "webhooks",
+      "action": "deliveries",
+      "method": "get",
+      "path": "/v1/earnings-calls/webhooks/{id}/deliveries",
+      "summary": "Webhook delivery attempts",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "description": "Webhook subscription id (from the create / list response)"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "data",
+      "columns": [
+        "delivery_id",
+        "event",
+        "attempt",
+        "status",
+        "response_status",
+        "duration_ms",
+        "at",
+        "next_attempt_at"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "earningsCallsWebhooksList",
+      "group": "webhooks",
+      "action": "list",
+      "method": "get",
+      "path": "/v1/earnings-calls/webhooks",
+      "summary": "List webhooks",
+      "params": [],
+      "view": "table",
+      "rowsPath": "data",
+      "columns": [
+        "id",
+        "url",
+        "events",
+        "filters.ciks",
+        "filters.keywords",
+        "active",
+        "consecutive_failures",
+        "secret_hint",
+        "created_at"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "earningsCallsWebhooksRotateSecret",
+      "group": "webhooks",
+      "action": "rotate-secret",
+      "method": "post",
+      "path": "/v1/earnings-calls/webhooks/{id}/rotate-secret",
+      "summary": "Rotate a webhook signing secret",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "description": "Webhook subscription id (from the create / list response)"
+        }
+      ],
+      "view": "keyValue",
+      "columns": [
+        "secret",
+        "previous_secret_expires_at"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "earningsCallsWebhooksTest",
+      "group": "webhooks",
+      "action": "test",
+      "method": "post",
+      "path": "/v1/earnings-calls/webhooks/{id}/test",
+      "summary": "Send a test delivery",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "description": "Webhook subscription id (from the create / list response)"
+        }
+      ],
+      "view": "keyValue",
+      "columns": [
+        "event",
+        "delivery_id"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "earningsCallsWebhooksUpdate",
+      "group": "webhooks",
+      "action": "update",
+      "method": "patch",
+      "path": "/v1/earnings-calls/webhooks/{id}",
+      "summary": "Update a webhook",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "description": "Webhook subscription id (from the create / list response)"
+        }
+      ],
+      "body": {
+        "required": false,
+        "contentType": "application/json"
+      },
+      "view": "keyValue",
+      "columns": [
+        "id",
+        "url",
+        "events",
+        "filters.ciks",
+        "filters.keywords",
+        "active",
+        "consecutive_failures",
+        "secret_hint",
+        "created_at"
+      ],
+      "pagination": "none"
+    }
+  ]
+}
