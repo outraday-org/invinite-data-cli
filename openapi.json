@@ -1343,6 +1343,16 @@
           "Health"
         ],
         "description": "Health check endpoint.",
+        "x-cli": {
+          "group": "health",
+          "action": "",
+          "view": "keyValue",
+          "columns": [
+            "status",
+            "timestamp"
+          ],
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Success response",
@@ -1386,6 +1396,18 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "company",
+          "action": "list",
+          "view": "table",
+          "rowsPath": "companies",
+          "columns": [
+            "ticker",
+            "cik",
+            "name"
+          ],
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -1494,6 +1516,23 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "company",
+          "action": "search",
+          "view": "table",
+          "rowsPath": "companies",
+          "columns": [
+            "ticker",
+            "cik",
+            "name",
+            "logo_url"
+          ],
+          "flags": {
+            "query": "q",
+            "limit": "l"
+          },
+          "pagination": "top"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -1590,6 +1629,53 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "company",
+          "action": "details",
+          "view": "keyValue",
+          "rowsPath": "companies.0",
+          "columns": [
+            "name",
+            "ticker",
+            "cik",
+            "category",
+            "exchange",
+            "sector",
+            "industry",
+            "sic",
+            "sic_sector",
+            "sic_industry",
+            "fama_sector",
+            "fama_industry",
+            "currency",
+            "cusip",
+            "composite_figi",
+            "market_cap",
+            "shares_outstanding",
+            "employees",
+            "insider_own_pct",
+            "insider_own_shares",
+            "inst_own_pct",
+            "inst_own_shares",
+            "short_float_pct",
+            "short_float_shares",
+            "list_date",
+            "is_delisted",
+            "homepage_url",
+            "investor_relations_url",
+            "logo_url",
+            "brand_colors",
+            "street",
+            "city",
+            "state",
+            "zip_code",
+            "country_code"
+          ],
+          "flags": {
+            "identifier": "i"
+          },
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -1924,6 +2010,28 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "company",
+          "action": "dividends",
+          "view": "table",
+          "rowsPath": "companies.0.dividends",
+          "columns": [
+            "ex_dividend_date",
+            "declaration_date",
+            "cash_amount",
+            "dividend_type",
+            "frequency",
+            "pay_date",
+            "record_date"
+          ],
+          "flags": {
+            "identifier": "i",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "dividends",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -2095,6 +2203,26 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "company",
+          "action": "fiscal-periods",
+          "view": "table",
+          "rowsPath": "companies.0.periods",
+          "columns": [
+            "fiscal_year",
+            "fiscal_quarter",
+            "calendar_year",
+            "calendar_quarter",
+            "period_end"
+          ],
+          "flags": {
+            "identifier": "i",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "periods",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -2253,6 +2381,24 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "company",
+          "action": "splits",
+          "view": "table",
+          "rowsPath": "companies.0.splits",
+          "columns": [
+            "execution_date",
+            "split_from",
+            "split_to"
+          ],
+          "flags": {
+            "identifier": "i",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "splits",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -2421,6 +2567,19 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "financials",
+          "action": "income-statement",
+          "flags": {
+            "identifier": "i",
+            "fiscal_period_type": "p",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "periods",
+          "groupDescription": "Financial statements (standardized & as-reported)",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -2634,6 +2793,18 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "financials",
+          "action": "income-statement-detailed",
+          "flags": {
+            "identifier": "i",
+            "fiscal_period_type": "p",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "periods",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -2973,6 +3144,18 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "financials",
+          "action": "income-statement-presentation",
+          "flags": {
+            "identifier": "i",
+            "fiscal_period_type": "p",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "periods",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -3171,6 +3354,18 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "financials",
+          "action": "balance-sheet",
+          "flags": {
+            "identifier": "i",
+            "fiscal_period_type": "p",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "periods",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -3384,6 +3579,18 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "financials",
+          "action": "balance-sheet-detailed",
+          "flags": {
+            "identifier": "i",
+            "fiscal_period_type": "p",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "periods",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -3723,6 +3930,18 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "financials",
+          "action": "balance-sheet-presentation",
+          "flags": {
+            "identifier": "i",
+            "fiscal_period_type": "p",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "periods",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -3921,6 +4140,18 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "financials",
+          "action": "cash-flow",
+          "flags": {
+            "identifier": "i",
+            "fiscal_period_type": "p",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "periods",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -4134,6 +4365,18 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "financials",
+          "action": "cash-flow-detailed",
+          "flags": {
+            "identifier": "i",
+            "fiscal_period_type": "p",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "periods",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -4473,6 +4716,18 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "financials",
+          "action": "cash-flow-presentation",
+          "flags": {
+            "identifier": "i",
+            "fiscal_period_type": "p",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "periods",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -4656,6 +4911,15 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "financials",
+          "action": "snapshot",
+          "flags": {
+            "identifiers": "i",
+            "fiscal_period_type": "p"
+          },
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -4884,6 +5148,15 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "financials",
+          "action": "snapshot-detailed",
+          "flags": {
+            "identifiers": "i",
+            "fiscal_period_type": "p"
+          },
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -5518,6 +5791,15 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "financials",
+          "action": "snapshot-presentation",
+          "flags": {
+            "identifiers": "i",
+            "fiscal_period_type": "p"
+          },
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -5744,6 +6026,18 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "financials",
+          "action": "as-reported-income-statement",
+          "flags": {
+            "identifier": "i",
+            "fiscal_period_type": "p",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "periods",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -5944,6 +6238,18 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "financials",
+          "action": "as-reported-income-statement-detailed",
+          "flags": {
+            "identifier": "i",
+            "fiscal_period_type": "p",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "periods",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -6260,6 +6566,18 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "financials",
+          "action": "as-reported-income-statement-presentation",
+          "flags": {
+            "identifier": "i",
+            "fiscal_period_type": "p",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "periods",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -6444,6 +6762,18 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "financials",
+          "action": "as-reported-balance-sheet",
+          "flags": {
+            "identifier": "i",
+            "fiscal_period_type": "p",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "periods",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -6644,6 +6974,18 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "financials",
+          "action": "as-reported-balance-sheet-detailed",
+          "flags": {
+            "identifier": "i",
+            "fiscal_period_type": "p",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "periods",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -6960,6 +7302,18 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "financials",
+          "action": "as-reported-balance-sheet-presentation",
+          "flags": {
+            "identifier": "i",
+            "fiscal_period_type": "p",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "periods",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -7144,6 +7498,18 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "financials",
+          "action": "as-reported-cash-flow",
+          "flags": {
+            "identifier": "i",
+            "fiscal_period_type": "p",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "periods",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -7344,6 +7710,18 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "financials",
+          "action": "as-reported-cash-flow-detailed",
+          "flags": {
+            "identifier": "i",
+            "fiscal_period_type": "p",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "periods",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -7660,6 +8038,18 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "financials",
+          "action": "as-reported-cash-flow-presentation",
+          "flags": {
+            "identifier": "i",
+            "fiscal_period_type": "p",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "periods",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -7829,6 +8219,15 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "financials",
+          "action": "as-reported-snapshot",
+          "flags": {
+            "identifiers": "i",
+            "fiscal_period_type": "p"
+          },
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -8054,6 +8453,15 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "financials",
+          "action": "as-reported-snapshot-detailed",
+          "flags": {
+            "identifiers": "i",
+            "fiscal_period_type": "p"
+          },
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -8658,6 +9066,15 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "financials",
+          "action": "as-reported-snapshot-presentation",
+          "flags": {
+            "identifiers": "i",
+            "fiscal_period_type": "p"
+          },
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -8899,6 +9316,18 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "metrics",
+          "action": "ratios",
+          "flags": {
+            "identifier": "i",
+            "fiscal_period_type": "p",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "periods",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -9101,6 +9530,17 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "metrics",
+          "action": "cagr",
+          "flags": {
+            "identifier": "i",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "periods",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -9317,6 +9757,18 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "metrics",
+          "action": "growth",
+          "flags": {
+            "identifier": "i",
+            "fiscal_period_type": "p",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "periods",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -9538,6 +9990,18 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "segments",
+          "action": "list",
+          "flags": {
+            "identifier": "i",
+            "fiscal_period_type": "p",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "periods",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -9775,6 +10239,18 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "segments",
+          "action": "list-detailed",
+          "flags": {
+            "identifier": "i",
+            "fiscal_period_type": "p",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "periods",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -10020,6 +10496,30 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "ipos",
+          "action": "list",
+          "view": "table",
+          "rowsPath": "ipos",
+          "columns": [
+            "listing_date",
+            "ticker",
+            "issuer_name",
+            "ipo_status",
+            "primary_exchange",
+            "security_type",
+            "final_issue_price",
+            "lowest_offer_price",
+            "highest_offer_price",
+            "total_offer_size",
+            "currency_code"
+          ],
+          "flags": {
+            "sort": "s",
+            "limit": "l"
+          },
+          "pagination": "top"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -10237,6 +10737,39 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "ownership",
+          "action": "holdings-by-investor",
+          "view": "table",
+          "rowsPath": "holdings",
+          "columns": [
+            "ticker_company",
+            "cik_company",
+            "name_company",
+            "cusip_company",
+            "cik_institution",
+            "name_institution",
+            "dollar_value",
+            "shares_or_principal_amount",
+            "shares_or_principal_amount_type",
+            "investment_discretion",
+            "put_call",
+            "voting_authority_sole",
+            "voting_authority_shared",
+            "voting_authority_none",
+            "calendar_year",
+            "calendar_quarter",
+            "period_end",
+            "filing_date",
+            "accession_number",
+            "link_to_filing_details"
+          ],
+          "flags": {
+            "sort": "s",
+            "limit": "l"
+          },
+          "pagination": "top"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -10462,6 +10995,40 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "ownership",
+          "action": "holdings-by-company",
+          "view": "table",
+          "rowsPath": "holdings",
+          "columns": [
+            "name_institution",
+            "cik_institution",
+            "ticker_company",
+            "cik_company",
+            "name_company",
+            "cusip_company",
+            "dollar_value",
+            "shares_or_principal_amount",
+            "shares_or_principal_amount_type",
+            "investment_discretion",
+            "put_call",
+            "voting_authority_sole",
+            "voting_authority_shared",
+            "voting_authority_none",
+            "calendar_year",
+            "calendar_quarter",
+            "period_end",
+            "filing_date",
+            "accession_number",
+            "link_to_filing_details"
+          ],
+          "flags": {
+            "identifier": "i",
+            "sort": "s",
+            "limit": "l"
+          },
+          "pagination": "top"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -10748,6 +11315,44 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "ownership",
+          "action": "transactions",
+          "view": "table",
+          "rowsPath": "transactions",
+          "columns": [
+            "cik_institution",
+            "name_institution",
+            "ticker_company",
+            "cik_company",
+            "name_company",
+            "cusip_company",
+            "type",
+            "change_dollar_value",
+            "change_shares_or_principal_amount_absolute",
+            "change_shares_or_principal_amount_percent",
+            "shares_or_principal_amount_new",
+            "shares_or_principal_amount_old",
+            "dollar_value",
+            "shares_or_principal_amount_type",
+            "investment_discretion",
+            "put_call",
+            "voting_authority_sole",
+            "voting_authority_shared",
+            "voting_authority_none",
+            "calendar_year",
+            "calendar_quarter",
+            "period_end",
+            "filing_date",
+            "accession_number"
+          ],
+          "flags": {
+            "identifier": "i",
+            "sort": "s",
+            "limit": "l"
+          },
+          "pagination": "top"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -10984,6 +11589,27 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "ownership",
+          "action": "institutions",
+          "view": "table",
+          "rowsPath": "institutions",
+          "columns": [
+            "cik",
+            "name",
+            "street1",
+            "street2",
+            "city",
+            "state",
+            "zip_code",
+            "country"
+          ],
+          "flags": {
+            "sort": "s",
+            "limit": "l"
+          },
+          "pagination": "top"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -11170,6 +11796,38 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "insider-trades",
+          "action": "list",
+          "view": "table",
+          "rowsPath": "transactions",
+          "columns": [
+            "filed_at",
+            "period_of_report",
+            "reporting_person_name",
+            "reporting_person_is_director",
+            "reporting_person_is_officer",
+            "reporting_person_is_ten_percent_owner",
+            "reporting_person_is_other",
+            "reporting_person_officer_title",
+            "reporting_person_other_text",
+            "security_title",
+            "acquired_disposed",
+            "coding_code",
+            "shares",
+            "share_price",
+            "total",
+            "shares_owned_before_transaction",
+            "shares_owned_following_transaction",
+            "accession_number"
+          ],
+          "flags": {
+            "identifier": "i",
+            "sort": "s",
+            "limit": "l"
+          },
+          "pagination": "top"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -11454,6 +12112,33 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "earnings",
+          "action": "calendar",
+          "view": "table",
+          "rowsPath": "events",
+          "columns": [
+            "scheduled_at",
+            "symbol",
+            "company_name",
+            "event_type",
+            "event_title",
+            "fiscal_year",
+            "fiscal_quarter",
+            "session",
+            "date_status",
+            "capture_status",
+            "has_transcript",
+            "has_audio",
+            "has_slides",
+            "event_id"
+          ],
+          "flags": {
+            "sort": "s",
+            "limit": "l"
+          },
+          "pagination": "top"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -11795,6 +12480,34 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "earnings",
+          "action": "events",
+          "view": "table",
+          "rowsPath": "events",
+          "columns": [
+            "scheduled_at",
+            "symbol",
+            "company_name",
+            "event_type",
+            "event_title",
+            "fiscal_year",
+            "fiscal_quarter",
+            "session",
+            "date_status",
+            "capture_status",
+            "has_transcript",
+            "has_audio",
+            "has_slides",
+            "event_id"
+          ],
+          "flags": {
+            "identifier": "i",
+            "sort": "s",
+            "limit": "l"
+          },
+          "pagination": "top"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -12092,6 +12805,31 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "earnings",
+          "action": "live",
+          "view": "table",
+          "rowsPath": "events",
+          "columns": [
+            "scheduled_at",
+            "symbol",
+            "company_name",
+            "event_type",
+            "event_title",
+            "fiscal_year",
+            "fiscal_quarter",
+            "session",
+            "date_status",
+            "capture_status",
+            "has_transcript",
+            "has_audio",
+            "has_slides",
+            "event_id",
+            "live_audio",
+            "live_prices"
+          ],
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -12415,6 +13153,25 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "earnings",
+          "action": "stream",
+          "view": "keyValue",
+          "columns": [
+            "event.symbol",
+            "event.conference_date",
+            "event.event_id",
+            "status",
+            "url",
+            "expires_at",
+            "call_t0",
+            "segment_seconds"
+          ],
+          "flags": {
+            "identifier": "i"
+          },
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -12570,6 +13327,36 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "earnings",
+          "action": "event",
+          "view": "keyValue",
+          "columns": [
+            "event_id",
+            "symbol",
+            "company_name",
+            "event_type",
+            "event_title",
+            "fiscal_year",
+            "fiscal_quarter",
+            "scheduled_at",
+            "tz",
+            "date_status",
+            "call_time_source",
+            "session",
+            "started_at",
+            "ended_at",
+            "capture_status",
+            "reschedule_count",
+            "has_transcript",
+            "has_audio",
+            "has_slides",
+            "has_press_release",
+            "has_documents",
+            "webcast_url"
+          ],
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -12942,6 +13729,9 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "exclude": "hand-written: invd earnings transcript (renders the transcript as text and saves it with -o)"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -13324,6 +14114,24 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "earnings",
+          "action": "versions",
+          "view": "table",
+          "rowsPath": "versions",
+          "columns": [
+            "version",
+            "version_kind",
+            "published_at",
+            "word_count",
+            "change_note",
+            "corrected_by"
+          ],
+          "flags": {
+            "identifier": "i"
+          },
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -13521,6 +14329,21 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "earnings",
+          "action": "transcript-diff",
+          "view": "table",
+          "rowsPath": "changes",
+          "columns": [
+            "op",
+            "at_ms",
+            "text"
+          ],
+          "flags": {
+            "identifier": "i"
+          },
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -13766,6 +14589,26 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "earnings",
+          "action": "qa",
+          "view": "table",
+          "rowsPath": "pairs",
+          "columns": [
+            "seq",
+            "analyst.name",
+            "analyst.firm",
+            "is_follow_up",
+            "question_start_ms",
+            "question",
+            "answer"
+          ],
+          "flags": {
+            "identifier": "i",
+            "limit": "l"
+          },
+          "pagination": "top"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -14101,6 +14944,26 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "earnings",
+          "action": "participants",
+          "view": "table",
+          "rowsPath": "participants",
+          "columns": [
+            "speaker_label",
+            "name",
+            "title",
+            "firm",
+            "role",
+            "confidence",
+            "resolved_by",
+            "person_id"
+          ],
+          "flags": {
+            "identifier": "i"
+          },
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -14305,6 +15168,26 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "earnings",
+          "action": "analysts",
+          "view": "table",
+          "rowsPath": "analysts",
+          "columns": [
+            "name",
+            "firm",
+            "appearances",
+            "questions",
+            "first_seen",
+            "last_seen",
+            "person_id"
+          ],
+          "flags": {
+            "identifier": "i",
+            "limit": "l"
+          },
+          "pagination": "top"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -14462,6 +15345,29 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "earnings",
+          "action": "person",
+          "view": "table",
+          "rowsPath": "appearances",
+          "columns": [
+            "scheduled_at",
+            "symbol",
+            "company_name",
+            "fiscal_year",
+            "fiscal_quarter",
+            "role",
+            "title",
+            "firm",
+            "word_count",
+            "question_count",
+            "event_id"
+          ],
+          "flags": {
+            "limit": "l"
+          },
+          "pagination": "top"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -14757,6 +15663,9 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "exclude": "hand-written: invd earnings press-release (prints the release text with --body and saves it with -o)"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -15004,6 +15913,19 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "earnings",
+          "action": "extractions",
+          "flags": {
+            "identifier": "i",
+            "limit": "l"
+          },
+          "allItemsPath": [
+            "guidance",
+            "kpis"
+          ],
+          "pagination": "top"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -15560,6 +16482,27 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "earnings",
+          "action": "guidance-history",
+          "view": "table",
+          "rowsPath": "series",
+          "columns": [
+            "conference_date",
+            "period_label",
+            "low",
+            "high",
+            "midpoint",
+            "unit",
+            "direction",
+            "change_vs_prior.midpoint_delta"
+          ],
+          "flags": {
+            "identifier": "i",
+            "limit": "l"
+          },
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -15841,6 +16784,33 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "earnings",
+          "action": "diff",
+          "view": "keyValue",
+          "columns": [
+            "event.symbol",
+            "event.conference_date",
+            "prior_event.event_id",
+            "prior_event.conference_date",
+            "similarity",
+            "tone_shift",
+            "hedging.level",
+            "hedging.change",
+            "uncertainty.level",
+            "uncertainty.change",
+            "numeric_specificity.level",
+            "numeric_specificity.change",
+            "slide_diff.page_delta",
+            "slide_diff.new_titles",
+            "slide_diff.dropped_titles",
+            "summary"
+          ],
+          "flags": {
+            "identifier": "i"
+          },
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -16198,6 +17168,32 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "earnings",
+          "action": "metrics",
+          "view": "keyValue",
+          "columns": [
+            "event.symbol",
+            "event.conference_date",
+            "call_happened",
+            "call_length_ms",
+            "release_to_call_gap_s",
+            "prepared_remarks_ms",
+            "qa_ms",
+            "qa_share",
+            "question_count",
+            "analyst_count",
+            "mgmt_word_share_qa",
+            "zero_questions",
+            "prepared_remarks_posted_in_advance",
+            "speaker_count",
+            "unknown_speaker_word_share"
+          ],
+          "flags": {
+            "identifier": "i"
+          },
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -16431,6 +17427,31 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "earnings",
+          "action": "prosody",
+          "view": "table",
+          "rowsPath": "speakers",
+          "columns": [
+            "speaker.name",
+            "speaker.role",
+            "section",
+            "speech_rate_wpm",
+            "pause_count",
+            "pause_mean_ms",
+            "filler_rate",
+            "time_to_answer_mean_ms",
+            "pitch_mean_hz",
+            "energy_mean_db",
+            "spoken_ms",
+            "word_count",
+            "acoustic_available"
+          ],
+          "flags": {
+            "identifier": "i"
+          },
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -16714,6 +17735,14 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "earnings",
+          "action": "price-attribution",
+          "flags": {
+            "identifier": "i"
+          },
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -17035,6 +18064,9 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "exclude": "hand-written: invd earnings audio (downloads the recording with -o)"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -17303,6 +18335,9 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "exclude": "hand-written: invd earnings slides (downloads the deck PDF with -o)"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -17582,6 +18617,9 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "exclude": "hand-written: invd earnings documents (downloads every document into a directory with -o)"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -17899,6 +18937,9 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "exclude": "hand-written: invd earnings company-documents (downloads every stored file into a directory with -o)"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -18238,6 +19279,9 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "exclude": "hand-written: invd earnings document (downloads the file, or prints its page text with --pages, and saves it with -o)"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -18627,6 +19671,28 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "earnings",
+          "action": "document-search",
+          "view": "table",
+          "rowsPath": "hits",
+          "columns": [
+            "score",
+            "kind",
+            "year",
+            "page",
+            "symbol",
+            "title",
+            "text",
+            "document_id"
+          ],
+          "flags": {
+            "q": "q",
+            "identifier": "i",
+            "limit": "l"
+          },
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -18906,6 +19972,28 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "earnings",
+          "action": "search",
+          "view": "table",
+          "rowsPath": "hits",
+          "columns": [
+            "score",
+            "type",
+            "symbol",
+            "conference_date",
+            "speaker.name",
+            "start_ms",
+            "text",
+            "audio_url"
+          ],
+          "flags": {
+            "q": "q",
+            "identifier": "i",
+            "limit": "l"
+          },
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -19118,6 +20206,25 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "webhooks",
+          "action": "list",
+          "view": "table",
+          "rowsPath": "data",
+          "columns": [
+            "id",
+            "url",
+            "events",
+            "filters.ciks",
+            "filters.keywords",
+            "active",
+            "consecutive_failures",
+            "secret_hint",
+            "created_at"
+          ],
+          "groupDescription": "Earnings-call webhook subscriptions (PRO): signed POSTs of the call lifecycle",
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -19358,6 +20465,24 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "webhooks",
+          "action": "create",
+          "view": "keyValue",
+          "columns": [
+            "id",
+            "url",
+            "events",
+            "filters.ciks",
+            "filters.keywords",
+            "active",
+            "consecutive_failures",
+            "secret_hint",
+            "created_at",
+            "secret"
+          ],
+          "pagination": "none"
+        },
         "responses": {
           "201": {
             "description": "Default Response",
@@ -19623,6 +20748,23 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "webhooks",
+          "action": "update",
+          "view": "keyValue",
+          "columns": [
+            "id",
+            "url",
+            "events",
+            "filters.ciks",
+            "filters.keywords",
+            "active",
+            "consecutive_failures",
+            "secret_hint",
+            "created_at"
+          ],
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -19814,6 +20956,11 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "webhooks",
+          "action": "delete",
+          "pagination": "none"
+        },
         "responses": {
           "204": {
             "description": "Deleted"
@@ -19910,6 +21057,16 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "webhooks",
+          "action": "rotate-secret",
+          "view": "keyValue",
+          "columns": [
+            "secret",
+            "previous_secret_expires_at"
+          ],
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -20028,6 +21185,16 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "webhooks",
+          "action": "test",
+          "view": "keyValue",
+          "columns": [
+            "event",
+            "delivery_id"
+          ],
+          "pagination": "none"
+        },
         "responses": {
           "202": {
             "description": "Default Response",
@@ -20172,6 +21339,23 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "webhooks",
+          "action": "deliveries",
+          "view": "table",
+          "rowsPath": "data",
+          "columns": [
+            "delivery_id",
+            "event",
+            "attempt",
+            "status",
+            "response_status",
+            "duration_ms",
+            "at",
+            "next_attempt_at"
+          ],
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -20401,6 +21585,30 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "filings",
+          "action": "list",
+          "view": "table",
+          "rowsPath": "companies.0.filings",
+          "columns": [
+            "filing_date",
+            "form_type",
+            "fiscal_year",
+            "fiscal_quarter",
+            "calendar_year",
+            "calendar_quarter",
+            "period_end",
+            "accession_number",
+            "html_url"
+          ],
+          "flags": {
+            "identifier": "i",
+            "sort": "s",
+            "limit": "l"
+          },
+          "allItemsPath": "filings",
+          "pagination": "perCompany"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -20570,6 +21778,15 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "filings",
+          "action": "search",
+          "flags": {
+            "request": "r",
+            "identifier": "i"
+          },
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -20724,6 +21941,14 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "filings",
+          "action": "sections",
+          "flags": {
+            "identifier": "i"
+          },
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -20895,6 +22120,14 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "filings",
+          "action": "form-types",
+          "flags": {
+            "identifier": "i"
+          },
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -20989,6 +22222,23 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "market",
+          "action": "holidays",
+          "view": "table",
+          "rowsPath": "holidays",
+          "columns": [
+            "day",
+            "event_name",
+            "start_time",
+            "end_time"
+          ],
+          "flags": {
+            "sort": "s",
+            "limit": "l"
+          },
+          "pagination": "top"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -21071,6 +22321,17 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "metadata",
+          "action": "metrics",
+          "view": "table",
+          "rowsPath": "metrics",
+          "columns": [
+            "metric_id",
+            "name"
+          ],
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -21133,6 +22394,11 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "metadata",
+          "action": "section-ids",
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -21243,6 +22509,21 @@
             "bearerAuth": []
           }
         ],
+        "x-cli": {
+          "group": "usage",
+          "action": "",
+          "view": "keyValue",
+          "columns": [
+            "window_days",
+            "period.tier",
+            "period.included_credits",
+            "period.used_credits",
+            "period.prepaid_balance_usd",
+            "period.resets_at",
+            "truncated"
+          ],
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -21482,6 +22763,20 @@
         ],
         "description": "Whether each product works: a status and its uptime per product family, plus the coverage universe. Uptime is the share of requests answered without a server error, measured by the API per product family; a window with too little traffic to judge shows no figure. Status reflects the last 24 hours.",
         "security": [],
+        "x-cli": {
+          "group": "status",
+          "action": "show",
+          "view": "table",
+          "rowsPath": "services",
+          "columns": [
+            "family",
+            "status",
+            "uptime_7d",
+            "uptime_30d",
+            "uptime_90d"
+          ],
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
@@ -21610,6 +22905,11 @@
         ],
         "description": "The licensing policy: rights per tier, the right and tier of every route by product family, and the coverage universe.",
         "security": [],
+        "x-cli": {
+          "group": "status",
+          "action": "licensing",
+          "pagination": "none"
+        },
         "responses": {
           "200": {
             "description": "Default Response",
