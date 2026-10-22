@@ -295,7 +295,7 @@ invd earnings documents --event-id <event_id> --output ./docs
 # Company IR library (outside the calls' folders); --output downloads every stored file: <year>-<kind>-<document_id>.<ext>
 invd earnings company-documents -i AAPL --section annual_reports,proxy --json
 invd earnings company-documents -i AAPL --kind investor_day_deck --output ./ir-docs
-# The document tree: a category (earnings, events, news, reports, presentations, governance, esg, shareholder, other) or a folder (prefix)
+# The document tree: a category (earnings, events, reports, presentations, governance, esg, shareholder, other) or a folder (prefix)
 invd earnings company-documents -i AAPL --category reports,esg --json
 invd earnings company-documents -i AAPL --group earnings/fy2026/q4 --json
 ```

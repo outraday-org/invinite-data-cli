@@ -120,7 +120,7 @@ export function skippedDocumentWarning(doc: Row): string {
 }
 
 /** The document tree's spine folders (IDA `ASSET_GROUP_CATEGORIES`), for `--category` help. */
-export const DOCUMENT_TREE_CATEGORIES = 'earnings, events, news, reports, presentations, governance, esg, shareholder, other';
+export const DOCUMENT_TREE_CATEGORIES = 'earnings, events, reports, presentations, governance, esg, shareholder, other';
 
 /** `company-documents --output`: `<year | undated>-<kind>-<document_id>.<ext>` (the public shape has no content hash). */
 export function companyDocumentFileName(doc: Row): string {

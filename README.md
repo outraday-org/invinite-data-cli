@@ -280,7 +280,7 @@ The seven hand-written earnings commands download or render what one call return
 | `earnings audio` | The recording as a presigned URL, or `-o` to save it |
 | `earnings slides` | `--markdown` (each page's text), `--pages <range>`, `-o` saves the deck PDF |
 | `earnings documents` | `--kind <list>`, `--category <list>`, `--group <path>` (document-tree folder, a prefix matches its subfolders), `--body`; `-o <dir>` saves every document as `<kind>-<document_id>.<ext>`. The table shows each document's tree folder (`group`) |
-| `earnings company-documents` | `-i` (required), `--section`, `--kind`, `--year`, `--period`, `--event-id`, `--category <list>` (earnings, events, news, reports, presentations, governance, esg, shareholder, other), `--group <path>` (e.g. `earnings/fy2027/q2`; `earnings` = every quarter), `--fiscal-year` / `--fiscal-quarter`; `-o <dir>` saves every stored file as `<year>-<kind>-<document_id>.<ext>`. The table shows each document's tree folder (`group`) |
+| `earnings company-documents` | `-i` (required), `--section`, `--kind`, `--year`, `--period`, `--event-id`, `--category <list>` (earnings, events, reports, presentations, governance, esg, shareholder, other), `--group <path>` (e.g. `earnings/fy2027/q2`; `earnings` = every quarter), `--fiscal-year` / `--fiscal-quarter`; `-o <dir>` saves every stored file as `<year>-<kind>-<document_id>.<ext>`. The table shows each document's tree folder (`group`) |
 | `earnings document` | `--document-id` (from `company-documents` / `document-search`): metadata and signed URLs, `--pages` the per-page text, `-o` the file |
 
 **Saving files.** An existing `--output` file is only replaced with `--force`; without `--output` the media commands
