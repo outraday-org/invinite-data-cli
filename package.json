@@ -25,10 +25,12 @@
     "test:watch": "vitest",
     "prepublishOnly": "pnpm run build",
     "publish:version": "pnpm version patch && export $(cat .env | xargs) && pnpm publish --access public",
-    "cli:manifest": "tsx scripts/build-cli-manifest.ts",
-    "cli:manifest:check": "tsx scripts/build-cli-manifest.ts --check",
+    "cli:manifest": "node scripts/check-api-contract.mjs && tsx scripts/build-cli-manifest.ts",
+    "cli:manifest:check": "node scripts/check-api-contract.mjs && tsx scripts/build-cli-manifest.ts --check",
     "skill:commands": "tsx scripts/build-skill-commands.ts",
-    "skill:commands:check": "tsx scripts/build-skill-commands.ts --check"
+    "skill:commands:check": "tsx scripts/build-skill-commands.ts --check",
+    "reference:export": "node scripts/check-api-contract.mjs && tsx scripts/snapshot-data-cli-reference.ts && tsx scripts/snapshot-data-plugin-packaging.ts",
+    "reference:check": "node scripts/check-api-contract.mjs && tsx scripts/snapshot-data-cli-reference.ts --check && tsx scripts/snapshot-data-plugin-packaging.ts --check"
   },
   "files": [
     "dist",

@@ -1,0 +1,4384 @@
+{
+  "provenance": {
+    "repository": "https://github.com/outraday-org/invinite-data-cli",
+    "version": "0.5.4",
+    "package": "@invinite-org/invinite-data-cli",
+    "bin": {
+      "invd": "./dist/bin/invd.js"
+    },
+    "engines": {
+      "node": ">=20"
+    },
+    "verifiedOn": "2026-10-22",
+    "sourceHashes": {
+      "api-contract.json": "c7a2856646bba6b0ad27d44d053ecaa898675119d229b4714cc210be49d4a831",
+      "openapi.json": "fd55ce27ebc8396c72555f146f7247c02441fd403a268440ff12eb3d8fbffdfc",
+      "package.json": "95f35939ecb923ea47cf46fa8730dd472bcf00130eed668a2f9f9529e3022f5a",
+      "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
+      "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
+      "scripts/snapshot-data-cli-reference.ts": "274c2c99671474d4442343a9e625bb41eda85343cc74de3cb032821c5736b1a7",
+      "src/cli.ts": "6796aacbb715ad25aa79174c636071fd7fbf655ab57f503e5ed16789b9659cff",
+      "src/client/api-client.ts": "42857862c38a3cdbd51fd45a13752108b468a937b2e1ef91b11c02b163654ba7",
+      "src/client/download.ts": "98433fed77e89357a916690fc01dcd0982b0dc0f732bc240c6114284663573e2",
+      "src/client/earnings-live.ts": "ec7695211e9e8caa51988d3bca0b87da6e370be6621045783876bb537bf91a4c",
+      "src/client/pagination.ts": "d9ffa4af81e6dab59f7fb3b8afb7e1805fc6b542d673bb3e28f97eecd970a454",
+      "src/client/websocket-client.ts": "3c219df00c898fa2ba64482c25a1fa7e663cc20863cc88a1313bf6e12be24d37",
+      "src/commands/config.ts": "f2f9a8b9c2eee46abf29e887b99837e10bd061416825d0b7eb84d043ae0a01ca",
+      "src/commands/earnings.ts": "da96359e5f30ed23f591e9ea3a3f7059224178b3ba7c1fe8e18d7c2e52c03062",
+      "src/commands/login.ts": "639b5c47ce2f61c94f4c6be581711b80a51f446f2c1fa86f7d5f09f35e478e87",
+      "src/commands/plugin.ts": "953f279105a682c5659c698f5145822c079d51497882f9d64cc54e4255a617b6",
+      "src/commands/ws.ts": "790bfee917b125138533b20f3f9aaa0a93d6c6d38b61d92194ca2096d19a575d",
+      "src/config/auth.ts": "25780335aca7caa5f659164270f0588755d85f29be166ab42bc50771d879be44",
+      "src/config/config-manager.ts": "8e492cb5dd9170899ef9474703f3d710da063db3318cdadf79c3f97dc210238d",
+      "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
+      "src/formatters/json-formatter.ts": "0fa8904f4a31c7e0d10ac5eb6c4947c5d56079216e3c93349583ed02ef21b833",
+      "src/formatters/table-formatter.ts": "56edfc931457289b4314107971d0021e237430131831199828a8bfd7b3e35c40",
+      "src/formatters/time.ts": "f4d4e7c28b2f4610553a82cfdc55b585090c0f1cc6788f84acd6824b29e6bd0a",
+      "src/generated/cli-manifest.json": "62b98dd052670f46fab526c751136b6151dba413ec773bf3ba8d93889f20213c",
+      "src/hand-written-commands.ts": "c31e969855870d3cacd281f5f1ef8d6aae4e291122bc20ef8fbbc254e93fb20c",
+      "src/shared/errors.ts": "3c379b53515a950fae853b9411bf456d3dfb21bcca4237d5730204045dca7097",
+      "src/shared/options.ts": "6783cfa83b301857903bbde46edc238cd7adf80f05f0f33a7a883136de8a27b8",
+      "src/shared/output.ts": "613b3573aa7d3e11e9a98ac427db4d15ec895e1f242baf154e0cd6ff5f030ff0",
+      "src/shared/spinner.ts": "3474f6c55ca5c854a067248092d820ee5f51673fb4a8e3d9d4c300e66c28cd38",
+      "src/shared/types.ts": "9a9ab55519aa4f3de2cd020118091315530ecdb6e05a557a5b5ec2e5b1592b78",
+      "src/spec-commands.ts": "3cedc9570dfb0eee8028e6395f1610f4175f9f274b3be4f377bcb51583085a7a",
+      "src/spec-flags.ts": "ce66ba5acced7a6a295d4ad53ccfd62ebad713b6523ff5ccf98d892a53f49d37",
+      "src/spec-manifest.ts": "5ea901757d497900b968c4badb7ed1086def58afb719f19a8a89a5bbba27925c"
+    },
+    "specSha256": "fd55ce27ebc8396c72555f146f7247c02441fd403a268440ff12eb3d8fbffdfc",
+    "revision": "f394c316a5ff88c33b19f9e01bc4d44d653163ba",
+    "fingerprint": "e3fe9af62105a5c27200367c813dc2c80294b2a828888f7c8a170e363209a7d8"
+  },
+  "globalOptions": [
+    {
+      "flags": "-V, --version",
+      "description": "output the version number",
+      "required": false
+    },
+    {
+      "flags": "--json",
+      "description": "Output raw JSON (pipe-friendly)",
+      "required": false
+    },
+    {
+      "flags": "--all",
+      "description": "Auto-paginate through all results",
+      "required": false
+    },
+    {
+      "flags": "--show-cost",
+      "description": "Print the credits a command cost to stderr (or set INVD_SHOW_COST=1)",
+      "required": false
+    }
+  ],
+  "groups": [
+    {
+      "id": "company",
+      "description": "Company search, details, fiscal periods, dividends and splits"
+    },
+    {
+      "id": "config",
+      "description": "Manage CLI configuration"
+    },
+    {
+      "id": "earnings",
+      "description": "Earnings calls: calendar, transcripts, Q&A, extractions, media, search and webhook subscriptions"
+    },
+    {
+      "id": "filings",
+      "description": "SEC filings, their parsed sections and natural-language filing search"
+    },
+    {
+      "id": "financials",
+      "description": "Financial statements (standardized & as-reported)"
+    },
+    {
+      "id": "health",
+      "description": "Liveness of the API (no API key)"
+    },
+    {
+      "id": "insider-trades",
+      "description": "Insider transactions of a company"
+    },
+    {
+      "id": "ipos",
+      "description": "Initial public offerings"
+    },
+    {
+      "id": "login",
+      "description": "Log in through your browser (the key belongs to your Invinite Data account)"
+    },
+    {
+      "id": "logout",
+      "description": "Revoke the current login and clear local credentials"
+    },
+    {
+      "id": "market",
+      "description": "Market calendar"
+    },
+    {
+      "id": "metadata",
+      "description": "The metrics and filing section ids the API serves"
+    },
+    {
+      "id": "metrics",
+      "description": "Ratios, growth and CAGR derived from the statements"
+    },
+    {
+      "id": "ownership",
+      "description": "13F holdings, holders and position changes of institutional investors"
+    },
+    {
+      "id": "plugin",
+      "description": "Install or uninstall AI coding tool plugins"
+    },
+    {
+      "id": "segments",
+      "description": "Financial facts broken down by business and geographic segment"
+    },
+    {
+      "id": "status",
+      "description": "Public status and licensing (no API key)"
+    },
+    {
+      "id": "usage",
+      "description": "Your data account's own usage (costs no credits)"
+    },
+    {
+      "id": "webhooks",
+      "description": "Earnings-call webhook subscriptions (PRO): signed POSTs of the call lifecycle"
+    },
+    {
+      "id": "ws",
+      "description": "WebSocket streaming"
+    }
+  ],
+  "commands": [
+    {
+      "command": "company details",
+      "group": "company",
+      "origin": "spec",
+      "description": "Company details",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/company/details"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "command": "company dividends",
+      "group": "company",
+      "origin": "spec",
+      "description": "Company dividends",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/company/dividends"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "--start-date <value>",
+          "description": "Filter dividends with ex_dividend_date on or after this date (YYYY-MM-DD) (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--end-date <value>",
+          "description": "Filter dividends with ex_dividend_date on or before this date (YYYY-MM-DD) (e.g. 2025-12-31)",
+          "required": false
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for dividends by ex_dividend_date (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of dividends to return (default: 40; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of dividends to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "company fiscal-periods",
+      "group": "company",
+      "origin": "spec",
+      "description": "Company fiscal periods",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/company/fiscal-periods"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for periods by period_end (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of periods per company (default: 40; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of periods to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "company list",
+      "group": "company",
+      "origin": "spec",
+      "description": "List available companies",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/company/available-companies"
+        }
+      ],
+      "arguments": [],
+      "options": []
+    },
+    {
+      "command": "company search",
+      "group": "company",
+      "origin": "spec",
+      "description": "Search companies",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/company/search"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-q, --query <value>",
+          "description": "Search text to match against ticker (prefix) or name (contains) (e.g. apple)",
+          "required": true
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of companies to return (default: 10; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Pagination offset (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "company splits",
+      "group": "company",
+      "origin": "spec",
+      "description": "Stock splits",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/company/splits"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for splits by execution_date (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of splits to return (default: 40; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of splits to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "config reset",
+      "group": "config",
+      "origin": "hand",
+      "description": "Reset all configuration",
+      "source": "src/commands/config.ts",
+      "operations": [],
+      "arguments": [],
+      "options": []
+    },
+    {
+      "command": "config set-key",
+      "group": "config",
+      "origin": "hand",
+      "description": "Set API key (interactive, masked input)",
+      "source": "src/commands/config.ts",
+      "operations": [],
+      "arguments": [],
+      "options": []
+    },
+    {
+      "command": "config set-url",
+      "group": "config",
+      "origin": "hand",
+      "description": "Set API base URL",
+      "source": "src/commands/config.ts",
+      "operations": [],
+      "arguments": [
+        {
+          "name": "url",
+          "description": "Base URL for the API",
+          "required": true
+        }
+      ],
+      "options": []
+    },
+    {
+      "command": "config show",
+      "group": "config",
+      "origin": "hand",
+      "description": "Display current configuration",
+      "source": "src/commands/config.ts",
+      "operations": [],
+      "arguments": [],
+      "options": []
+    },
+    {
+      "command": "earnings analysts",
+      "group": "earnings",
+      "origin": "spec",
+      "description": "Analysts of a company",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/analysts"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Company ticker symbol or CIK (US companies only) (e.g. MSFT)",
+          "required": true
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of analysts to return (default: 25; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of analysts to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "earnings audio",
+      "group": "earnings",
+      "origin": "hand",
+      "description": "Call recording (signed URL, or --output to save it)",
+      "source": "src/commands/earnings.ts",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/audio"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--event-id <event_id>",
+          "description": "Event ID (wins over the other selectors)",
+          "required": false
+        },
+        {
+          "flags": "-i, --identifier <ticker>",
+          "description": "Ticker or CIK (with --year + --quarter, or --date)",
+          "required": false
+        },
+        {
+          "flags": "--year <n>",
+          "description": "Fiscal year of the call (with --quarter)",
+          "required": false
+        },
+        {
+          "flags": "--quarter <n>",
+          "description": "Fiscal quarter of the call (with --year)",
+          "required": false
+        },
+        {
+          "flags": "--date <date>",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date",
+          "required": false
+        },
+        {
+          "flags": "--event-type <type>",
+          "description": "Event type of the selected call",
+          "required": false,
+          "choices": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ]
+        },
+        {
+          "flags": "-o, --output <file>",
+          "description": "Save the recording (e.g. call.mp3)",
+          "required": false
+        },
+        {
+          "flags": "--force",
+          "description": "Overwrite an existing --output file",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "earnings calendar",
+      "group": "earnings",
+      "origin": "spec",
+      "description": "Earnings call calendar",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/calendar"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--from <value>",
+          "description": "First day (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date. Default: today (e.g. 2026-07-01)",
+          "required": false
+        },
+        {
+          "flags": "--to <value>",
+          "description": "Last day (YYYY-MM-DD), at most 92 days after `from`: a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date. Default: `from` + 14 days (e.g. 2026-07-31)",
+          "required": false
+        },
+        {
+          "flags": "--status <list>",
+          "description": "Filter by date status (repeatable). Default: every status except `cancelled` (comma-separated: estimated, unconfirmed, confirmed, postponed, cancelled; e.g. confirmed)",
+          "required": false
+        },
+        {
+          "flags": "--session <value>",
+          "description": "Filter by market session (e.g. amc)",
+          "required": false,
+          "choices": [
+            "bmo",
+            "amc",
+            "intraday"
+          ]
+        },
+        {
+          "flags": "--exchange <value>",
+          "description": "Filter by listing exchange (e.g. NASDAQ, NYSE) (e.g. NASDAQ)",
+          "required": false
+        },
+        {
+          "flags": "--event-type <value>",
+          "description": "Event types as a comma list (e.g. `investor_day,conference`) of earnings_call, investor_day, conference, agm, other; `all` = every event type (default: \"earnings_call\"; e.g. earnings_call)",
+          "required": false
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction by scheduled start (default: \"asc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of events to return (default: 100; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of events to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "earnings company-documents",
+      "group": "earnings",
+      "origin": "hand",
+      "description": "A company's IR documents (annual reports, proxy, ESG, investor-day decks, letters, webcast pages)",
+      "source": "src/commands/earnings.ts",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/company-documents"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <ticker>",
+          "description": "Ticker or CIK",
+          "required": true
+        },
+        {
+          "flags": "--section <list>",
+          "description": "IR sections, comma-separated (quarterly_results, events_archive, presentations_archive, annual_reports, proxy, sec_filings, press_releases, esg, governance, faq, other)",
+          "required": false
+        },
+        {
+          "flags": "--kind <list>",
+          "description": "Kinds, comma-separated (annual_report, proxy_statement, esg_report, investor_day_deck, conference_presentation, shareholder_letter, fact_sheet, webcast, …)",
+          "required": false
+        },
+        {
+          "flags": "--year <n>",
+          "description": "Year the document belongs to",
+          "required": false
+        },
+        {
+          "flags": "--period <period>",
+          "description": "Period within the year (Q1-Q4, H1, H2, FY)",
+          "required": false
+        },
+        {
+          "flags": "--category <list>",
+          "description": "Document-tree categories, comma-separated (earnings, events, reports, presentations, governance, esg, shareholder, other)",
+          "required": false
+        },
+        {
+          "flags": "--group <path>",
+          "description": "Document-tree folder or a parent of it, e.g. earnings/fy2027/q2, esg or shareholder/tax",
+          "required": false
+        },
+        {
+          "flags": "--fiscal-year <n>",
+          "description": "Only the earnings folders of this fiscal year (earnings/fy<YYYY>/…)",
+          "required": false
+        },
+        {
+          "flags": "--fiscal-quarter <n>",
+          "description": "Only the earnings folders of this fiscal quarter (1-4)",
+          "required": false
+        },
+        {
+          "flags": "--event-id <event_id>",
+          "description": "Only the documents of this event (investor day, conference, AGM)",
+          "required": false
+        },
+        {
+          "flags": "-l, --limit <n>",
+          "description": "Max results (1-100)",
+          "required": false
+        },
+        {
+          "flags": "--offset <n>",
+          "description": "Offset",
+          "required": false
+        },
+        {
+          "flags": "-o, --output <dir>",
+          "description": "Save every stored file into this directory as <year>-<kind>-<document_id>.<ext>; a link-only row (webcast) is reported on stderr, exit 1 only when none could be saved",
+          "required": false
+        },
+        {
+          "flags": "--force",
+          "description": "Overwrite existing files in --output",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "earnings diff",
+      "group": "earnings",
+      "origin": "spec",
+      "description": "Call-over-call diff",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/diff"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--event-id <value>",
+          "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors (e.g. cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c)",
+          "required": false
+        },
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Company ticker symbol or CIK (US companies only); alone = the latest call with a diff, else with year+quarter or date (e.g. MSFT)",
+          "required": false
+        },
+        {
+          "flags": "--year <value>",
+          "description": "Fiscal year of the call (with quarter) (e.g. 2026)",
+          "required": false
+        },
+        {
+          "flags": "--quarter <value>",
+          "description": "Fiscal quarter of the call (with year) (e.g. 4)",
+          "required": false
+        },
+        {
+          "flags": "--date <value>",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date (e.g. 2026-07-29)",
+          "required": false
+        },
+        {
+          "flags": "--event-type <value>",
+          "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only (e.g. earnings_call)",
+          "required": false,
+          "choices": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ]
+        },
+        {
+          "flags": "--vs <value>",
+          "description": "Comparison base: the company's prior call (default: \"prior\"; e.g. prior)",
+          "required": false,
+          "choices": [
+            "prior"
+          ]
+        }
+      ]
+    },
+    {
+      "command": "earnings document",
+      "group": "earnings",
+      "origin": "hand",
+      "description": "One company IR document (metadata and signed URLs, or --pages for its text)",
+      "source": "src/commands/earnings.ts",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/company-documents/{document_id}"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--document-id <document_id>",
+          "description": "Document ID (from company-documents or document-search)",
+          "required": true
+        },
+        {
+          "flags": "--pages",
+          "description": "Print the per-page text",
+          "required": false
+        },
+        {
+          "flags": "-o, --output <file>",
+          "description": "Save the file (or, with --pages, the text)",
+          "required": false
+        },
+        {
+          "flags": "--force",
+          "description": "Overwrite an existing --output file",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "earnings document-search",
+      "group": "earnings",
+      "origin": "spec",
+      "description": "Search investor documents",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/documents/search"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-q, --q <value>",
+          "description": "The question or phrase to search for (e.g. Azure growth)",
+          "required": true
+        },
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Search one company's documents (ticker or CIK, US only) (e.g. MSFT)",
+          "required": false
+        },
+        {
+          "flags": "--kind <list>",
+          "description": "Only these document kinds, comma-separated or repeated: annual_report, ceo_letter, proxy_statement, proxy_supplement, esg_report, conference_presentation, investor_day_deck, earnings_deck, fact_sheet, financial_data, shareholder_letter, company_transcript, cfo_commentary, governance, press_release, infographic, webcast, other, prepared_remarks, sec_filing (comma-separated; e.g. annual_report)",
+          "required": false
+        },
+        {
+          "flags": "--section <list>",
+          "description": "Only company documents of these IR sections: quarterly_results, events_archive, presentations_archive, annual_reports, proxy, sec_filings, press_releases, esg, governance, faq, other (comma-separated; e.g. annual_reports)",
+          "required": false
+        },
+        {
+          "flags": "--year <value>",
+          "description": "Only documents of this year (e.g. 2025)",
+          "required": false
+        },
+        {
+          "flags": "--table <value>",
+          "description": "event_documents (a call's documents) or company_documents (the company's IR library) (e.g. company_documents)",
+          "required": false,
+          "choices": [
+            "event_documents",
+            "company_documents"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of passages (at most 20) (default: 10; e.g. 5)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "earnings documents",
+      "group": "earnings",
+      "origin": "hand",
+      "description": "Investor documents of a call (CFO commentary, data sheets, letters, filings)",
+      "source": "src/commands/earnings.ts",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/documents"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--event-id <event_id>",
+          "description": "Event ID (wins over the other selectors)",
+          "required": false
+        },
+        {
+          "flags": "-i, --identifier <ticker>",
+          "description": "Ticker or CIK (with --year + --quarter, or --date)",
+          "required": false
+        },
+        {
+          "flags": "--year <n>",
+          "description": "Fiscal year of the call (with --quarter)",
+          "required": false
+        },
+        {
+          "flags": "--quarter <n>",
+          "description": "Fiscal quarter of the call (with --year)",
+          "required": false
+        },
+        {
+          "flags": "--date <date>",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date",
+          "required": false
+        },
+        {
+          "flags": "--event-type <type>",
+          "description": "Event type of the selected call",
+          "required": false,
+          "choices": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ]
+        },
+        {
+          "flags": "--kind <list>",
+          "description": "Kinds, comma-separated (cfo_commentary, financial_data, shareholder_letter, fact_sheet, company_transcript, sec_filing, infographic, other)",
+          "required": false
+        },
+        {
+          "flags": "--category <list>",
+          "description": "Document-tree categories, comma-separated (earnings, events, reports, presentations, governance, esg, shareholder, other)",
+          "required": false
+        },
+        {
+          "flags": "--group <path>",
+          "description": "Document-tree folder or a parent of it, e.g. earnings/fy2027/q2 or earnings",
+          "required": false
+        },
+        {
+          "flags": "--body",
+          "description": "Include the extracted text",
+          "required": false
+        },
+        {
+          "flags": "-l, --limit <n>",
+          "description": "Max results (1-100)",
+          "required": false
+        },
+        {
+          "flags": "--offset <n>",
+          "description": "Offset",
+          "required": false
+        },
+        {
+          "flags": "-o, --output <dir>",
+          "description": "Save every document into this directory as <kind>-<document_id>.<ext>; one without a download URL (link-only sec_filing) is reported on stderr, exit 1 only when none could be saved",
+          "required": false
+        },
+        {
+          "flags": "--force",
+          "description": "Overwrite existing files in --output",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "earnings event",
+      "group": "earnings",
+      "origin": "spec",
+      "description": "Earnings call by ID",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/event/{event_id}"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--include <list>",
+          "description": "Extra data (repeatable): `observations` = the date / time observations behind the call time (comma-separated: observations; e.g. observations)",
+          "required": false
+        },
+        {
+          "flags": "--event-id <value>",
+          "description": "Event identifier (event_id of any earnings-calls response) (e.g. cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "command": "earnings events",
+      "group": "earnings",
+      "origin": "spec",
+      "description": "Event history of a company",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/events"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Company ticker symbol or CIK (US companies only) (e.g. MSFT)",
+          "required": true
+        },
+        {
+          "flags": "--from <value>",
+          "description": "Only calls on or after this day (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date (e.g. 2026-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--to <value>",
+          "description": "Only calls on or before this day (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date (e.g. 2026-09-30)",
+          "required": false
+        },
+        {
+          "flags": "--include <list>",
+          "description": "Extra data per event (repeatable): `observations` = the date / time observations (comma-separated: observations; e.g. observations)",
+          "required": false
+        },
+        {
+          "flags": "--event-type <value>",
+          "description": "Only events of these types, a comma list (e.g. `investor_day,conference`) of earnings_call, investor_day, conference, agm, other; `all` (default) = every event type (default: \"all\"; e.g. earnings_call)",
+          "required": false
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction by scheduled start (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of events to return (default: 50; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of events to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "earnings extractions",
+      "group": "earnings",
+      "origin": "spec",
+      "description": "Guidance and KPI extractions",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/extractions"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--event-id <value>",
+          "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors (e.g. cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c)",
+          "required": false
+        },
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date (e.g. MSFT)",
+          "required": false
+        },
+        {
+          "flags": "--year <value>",
+          "description": "Fiscal year of the call (with quarter) (e.g. 2026)",
+          "required": false
+        },
+        {
+          "flags": "--quarter <value>",
+          "description": "Fiscal quarter of the call (with year) (e.g. 4)",
+          "required": false
+        },
+        {
+          "flags": "--date <value>",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date (e.g. 2026-07-29)",
+          "required": false
+        },
+        {
+          "flags": "--event-type <value>",
+          "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only (e.g. earnings_call)",
+          "required": false,
+          "choices": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ]
+        },
+        {
+          "flags": "--kind <value>",
+          "description": "guidance = consolidated forward guidance; kpi = every reported KPI figure (default: \"guidance\"; e.g. guidance)",
+          "required": false,
+          "choices": [
+            "guidance",
+            "kpi"
+          ]
+        },
+        {
+          "flags": "--review <value>",
+          "description": "Guidance review filter: approved (human-approved only), auto, or all (auto + needs_review + approved) (default: \"all\"; e.g. all)",
+          "required": false,
+          "choices": [
+            "approved",
+            "auto",
+            "all"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of items to return (default: 200; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of items to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "earnings guidance-history",
+      "group": "earnings",
+      "origin": "spec",
+      "description": "Guidance history",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/guidance/history"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Company ticker symbol or CIK (US companies only) (e.g. MSFT)",
+          "required": true
+        },
+        {
+          "flags": "--metric <value>",
+          "description": "Normalized metric (e.g. revenue, eps_non_gaap, segment:iphone) (e.g. revenue)",
+          "required": true
+        },
+        {
+          "flags": "--period-kind <value>",
+          "description": "Only this kind of guided period (e.g. quarter)",
+          "required": false,
+          "choices": [
+            "quarter",
+            "fiscal_year",
+            "half",
+            "other"
+          ]
+        },
+        {
+          "flags": "--basis <value>",
+          "description": "Only this accounting basis (e.g. gaap)",
+          "required": false,
+          "choices": [
+            "gaap",
+            "non_gaap",
+            "unknown"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of series entries to return (default: 12; e.g. 5)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "earnings live",
+      "group": "earnings",
+      "origin": "spec",
+      "description": "Live earnings calls",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/live"
+        }
+      ],
+      "arguments": [],
+      "options": []
+    },
+    {
+      "command": "earnings metrics",
+      "group": "earnings",
+      "origin": "spec",
+      "description": "Earnings call metrics",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/metrics"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--event-id <value>",
+          "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors (e.g. cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c)",
+          "required": false
+        },
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date (e.g. MSFT)",
+          "required": false
+        },
+        {
+          "flags": "--year <value>",
+          "description": "Fiscal year of the call (with quarter) (e.g. 2026)",
+          "required": false
+        },
+        {
+          "flags": "--quarter <value>",
+          "description": "Fiscal quarter of the call (with year) (e.g. 4)",
+          "required": false
+        },
+        {
+          "flags": "--date <value>",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date (e.g. 2026-07-29)",
+          "required": false
+        },
+        {
+          "flags": "--event-type <value>",
+          "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only (e.g. earnings_call)",
+          "required": false,
+          "choices": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ]
+        }
+      ]
+    },
+    {
+      "command": "earnings participants",
+      "group": "earnings",
+      "origin": "spec",
+      "description": "Earnings call participants",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/participants"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--event-id <value>",
+          "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors (e.g. cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c)",
+          "required": false
+        },
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date (e.g. MSFT)",
+          "required": false
+        },
+        {
+          "flags": "--year <value>",
+          "description": "Fiscal year of the call (with quarter) (e.g. 2026)",
+          "required": false
+        },
+        {
+          "flags": "--quarter <value>",
+          "description": "Fiscal quarter of the call (with year) (e.g. 4)",
+          "required": false
+        },
+        {
+          "flags": "--date <value>",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date (e.g. 2026-07-29)",
+          "required": false
+        },
+        {
+          "flags": "--event-type <value>",
+          "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only (e.g. earnings_call)",
+          "required": false,
+          "choices": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ]
+        },
+        {
+          "flags": "--include <list>",
+          "description": "Extra data (repeatable): `evidence` = the quotes each name was resolved from (comma-separated: evidence; e.g. evidence)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "earnings person",
+      "group": "earnings",
+      "origin": "spec",
+      "description": "Person across earnings calls",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/people/{person_id}"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of appearances to return (default: 50; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of appearances to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        },
+        {
+          "flags": "--person-id <value>",
+          "description": "Person identifier (person_id of participants / qa / analysts) (e.g. 9b135e05-d7c2-4d23-9c89-728501ad8e58)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "command": "earnings press-release",
+      "group": "earnings",
+      "origin": "hand",
+      "description": "Results press release of a call",
+      "source": "src/commands/earnings.ts",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/press-release"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--event-id <event_id>",
+          "description": "Event ID (wins over the other selectors)",
+          "required": false
+        },
+        {
+          "flags": "-i, --identifier <ticker>",
+          "description": "Ticker or CIK (with --year + --quarter, or --date)",
+          "required": false
+        },
+        {
+          "flags": "--year <n>",
+          "description": "Fiscal year of the call (with --quarter)",
+          "required": false
+        },
+        {
+          "flags": "--quarter <n>",
+          "description": "Fiscal quarter of the call (with --year)",
+          "required": false
+        },
+        {
+          "flags": "--date <date>",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date",
+          "required": false
+        },
+        {
+          "flags": "--event-type <type>",
+          "description": "Event type of the selected call",
+          "required": false,
+          "choices": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ]
+        },
+        {
+          "flags": "--body",
+          "description": "Include the release text",
+          "required": false
+        },
+        {
+          "flags": "-o, --output <file>",
+          "description": "Save the release text to a file",
+          "required": false
+        },
+        {
+          "flags": "--force",
+          "description": "Overwrite an existing --output file",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "earnings price-attribution",
+      "group": "earnings",
+      "origin": "spec",
+      "description": "Price moves during a call",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/price-attribution"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--event-id <value>",
+          "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors (e.g. dd04abe1-f83f-4e92-8ddf-1f8864e7db30)",
+          "required": false
+        },
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date (e.g. JPM)",
+          "required": false
+        },
+        {
+          "flags": "--year <value>",
+          "description": "Fiscal year of the call (with quarter) (e.g. 2026)",
+          "required": false
+        },
+        {
+          "flags": "--quarter <value>",
+          "description": "Fiscal quarter of the call (with year) (e.g. 3)",
+          "required": false
+        },
+        {
+          "flags": "--date <value>",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date (e.g. 2026-10-13)",
+          "required": false
+        },
+        {
+          "flags": "--event-type <value>",
+          "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only (e.g. earnings_call)",
+          "required": false,
+          "choices": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ]
+        }
+      ]
+    },
+    {
+      "command": "earnings prosody",
+      "group": "earnings",
+      "origin": "spec",
+      "description": "Speaker prosody",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/prosody"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--event-id <value>",
+          "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors (e.g. cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c)",
+          "required": false
+        },
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date (e.g. MSFT)",
+          "required": false
+        },
+        {
+          "flags": "--year <value>",
+          "description": "Fiscal year of the call (with quarter) (e.g. 2026)",
+          "required": false
+        },
+        {
+          "flags": "--quarter <value>",
+          "description": "Fiscal quarter of the call (with year) (e.g. 4)",
+          "required": false
+        },
+        {
+          "flags": "--date <value>",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date (e.g. 2026-07-29)",
+          "required": false
+        },
+        {
+          "flags": "--event-type <value>",
+          "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only (e.g. earnings_call)",
+          "required": false,
+          "choices": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ]
+        },
+        {
+          "flags": "--section <value>",
+          "description": "prepared (remarks), qa, or all (the whole call) (default: \"all\"; e.g. qa)",
+          "required": false,
+          "choices": [
+            "prepared",
+            "qa",
+            "all"
+          ]
+        }
+      ]
+    },
+    {
+      "command": "earnings qa",
+      "group": "earnings",
+      "origin": "spec",
+      "description": "Earnings call Q&A",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/qa"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--event-id <value>",
+          "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors (e.g. cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c)",
+          "required": false
+        },
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date (e.g. MSFT)",
+          "required": false
+        },
+        {
+          "flags": "--year <value>",
+          "description": "Fiscal year of the call (with quarter) (e.g. 2026)",
+          "required": false
+        },
+        {
+          "flags": "--quarter <value>",
+          "description": "Fiscal quarter of the call (with year) (e.g. 4)",
+          "required": false
+        },
+        {
+          "flags": "--date <value>",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date (e.g. 2026-07-29)",
+          "required": false
+        },
+        {
+          "flags": "--event-type <value>",
+          "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only (e.g. earnings_call)",
+          "required": false,
+          "choices": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of Q&A pairs to return (default: 50; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of Q&A pairs to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        },
+        {
+          "flags": "--include <value>",
+          "description": "scores = add each pair's descriptive scores (analyst casting order, question tone, difficulty, evasiveness, non-answer flag with verbatim evidence); null for a pair not scored yet (e.g. scores)",
+          "required": false,
+          "choices": [
+            "scores"
+          ]
+        }
+      ]
+    },
+    {
+      "command": "earnings search",
+      "group": "earnings",
+      "origin": "spec",
+      "description": "Search earnings calls",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/search"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-q, --q <value>",
+          "description": "The question or phrase to search for (e.g. Azure growth)",
+          "required": true
+        },
+        {
+          "flags": "--event-id <value>",
+          "description": "Search one call (e.g. cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c)",
+          "required": false
+        },
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Search one company's calls (ticker or CIK, US only) (e.g. MSFT)",
+          "required": false
+        },
+        {
+          "flags": "--from <value>",
+          "description": "First call day (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date. An unscoped search defaults to 365 days back (e.g. 2026-07-01)",
+          "required": false
+        },
+        {
+          "flags": "--to <value>",
+          "description": "Last call day (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date (e.g. 2026-07-31)",
+          "required": false
+        },
+        {
+          "flags": "--type <value>",
+          "description": "transcript (all speech), qa, preparedRemarks or presentation (slide text) (e.g. qa)",
+          "required": false,
+          "choices": [
+            "transcript",
+            "qa",
+            "preparedRemarks",
+            "presentation"
+          ]
+        },
+        {
+          "flags": "--event-type <value>",
+          "description": "Events searched, as a comma list of earnings_call, investor_day, conference, agm, other; `all` = every event type (default earnings calls) (default: \"earnings_call\"; e.g. earnings_call)",
+          "required": false
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of passages (at most 8) (default: 5; e.g. 5)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "earnings slides",
+      "group": "earnings",
+      "origin": "hand",
+      "description": "Slide deck (signed URL, or --output to save the PDF)",
+      "source": "src/commands/earnings.ts",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/slides"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--event-id <event_id>",
+          "description": "Event ID (wins over the other selectors)",
+          "required": false
+        },
+        {
+          "flags": "-i, --identifier <ticker>",
+          "description": "Ticker or CIK (with --year + --quarter, or --date)",
+          "required": false
+        },
+        {
+          "flags": "--year <n>",
+          "description": "Fiscal year of the call (with --quarter)",
+          "required": false
+        },
+        {
+          "flags": "--quarter <n>",
+          "description": "Fiscal quarter of the call (with --year)",
+          "required": false
+        },
+        {
+          "flags": "--date <date>",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date",
+          "required": false
+        },
+        {
+          "flags": "--event-type <type>",
+          "description": "Event type of the selected call",
+          "required": false,
+          "choices": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ]
+        },
+        {
+          "flags": "--markdown",
+          "description": "Include each page's extracted text",
+          "required": false
+        },
+        {
+          "flags": "--pages <range>",
+          "description": "Page or range, e.g. 3 or 1-5",
+          "required": false
+        },
+        {
+          "flags": "-o, --output <file>",
+          "description": "Save the deck PDF (e.g. deck.pdf)",
+          "required": false
+        },
+        {
+          "flags": "--force",
+          "description": "Overwrite an existing --output file",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "earnings stream",
+      "group": "earnings",
+      "origin": "spec",
+      "description": "Live audio stream URL",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/live/stream"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--event-id <value>",
+          "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors (e.g. cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c)",
+          "required": false
+        },
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date (e.g. MSFT)",
+          "required": false
+        },
+        {
+          "flags": "--year <value>",
+          "description": "Fiscal year of the call (with quarter) (e.g. 2026)",
+          "required": false
+        },
+        {
+          "flags": "--quarter <value>",
+          "description": "Fiscal quarter of the call (with year) (e.g. 4)",
+          "required": false
+        },
+        {
+          "flags": "--date <value>",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date (e.g. 2026-07-29)",
+          "required": false
+        },
+        {
+          "flags": "--event-type <value>",
+          "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only (e.g. earnings_call)",
+          "required": false,
+          "choices": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ]
+        }
+      ]
+    },
+    {
+      "command": "earnings transcript",
+      "group": "earnings",
+      "origin": "hand",
+      "description": "Transcript of a call",
+      "source": "src/commands/earnings.ts",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/transcript"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--event-id <event_id>",
+          "description": "Event ID (wins over the other selectors)",
+          "required": false
+        },
+        {
+          "flags": "-i, --identifier <ticker>",
+          "description": "Ticker or CIK (with --year + --quarter, or --date)",
+          "required": false
+        },
+        {
+          "flags": "--year <n>",
+          "description": "Fiscal year of the call (with --quarter)",
+          "required": false
+        },
+        {
+          "flags": "--quarter <n>",
+          "description": "Fiscal quarter of the call (with --year)",
+          "required": false
+        },
+        {
+          "flags": "--date <date>",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date",
+          "required": false
+        },
+        {
+          "flags": "--event-type <type>",
+          "description": "Event type of the selected call",
+          "required": false,
+          "choices": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ]
+        },
+        {
+          "flags": "--format <format>",
+          "description": "Transcript format",
+          "required": false,
+          "choices": [
+            "speakers",
+            "text",
+            "words",
+            "sections",
+            "cleaned"
+          ]
+        },
+        {
+          "flags": "--transcript-version <n>",
+          "description": "A specific published version (see `invd earnings versions`)",
+          "required": false
+        },
+        {
+          "flags": "--as-of <iso>",
+          "description": "The version current at this instant (ISO 8601)",
+          "required": false
+        },
+        {
+          "flags": "-o, --output <file>",
+          "description": "Save the transcript to a file",
+          "required": false
+        },
+        {
+          "flags": "--force",
+          "description": "Overwrite an existing --output file",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "earnings transcript-diff",
+      "group": "earnings",
+      "origin": "spec",
+      "description": "Transcript version diff",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/transcript/diff"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--event-id <value>",
+          "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors (e.g. cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c)",
+          "required": false
+        },
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date (e.g. MSFT)",
+          "required": false
+        },
+        {
+          "flags": "--year <value>",
+          "description": "Fiscal year of the call (with quarter) (e.g. 2026)",
+          "required": false
+        },
+        {
+          "flags": "--quarter <value>",
+          "description": "Fiscal quarter of the call (with year) (e.g. 4)",
+          "required": false
+        },
+        {
+          "flags": "--date <value>",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date (e.g. 2026-07-29)",
+          "required": false
+        },
+        {
+          "flags": "--event-type <value>",
+          "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only (e.g. earnings_call)",
+          "required": false,
+          "choices": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ]
+        },
+        {
+          "flags": "--from <value>",
+          "description": "Older version (one listed by transcript/versions) (e.g. 3)",
+          "required": true
+        },
+        {
+          "flags": "--to <value>",
+          "description": "Newer version; default = the current one (e.g. 6)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "earnings versions",
+      "group": "earnings",
+      "origin": "spec",
+      "description": "Transcript versions",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/transcript/versions"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--event-id <value>",
+          "description": "Event identifier (event_id of any earnings-calls response); wins over the other selectors (e.g. cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c)",
+          "required": false
+        },
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Company ticker symbol or CIK (US companies only), with year+quarter or date (e.g. MSFT)",
+          "required": false
+        },
+        {
+          "flags": "--year <value>",
+          "description": "Fiscal year of the call (with quarter) (e.g. 2026)",
+          "required": false
+        },
+        {
+          "flags": "--quarter <value>",
+          "description": "Fiscal quarter of the call (with year) (e.g. 4)",
+          "required": false
+        },
+        {
+          "flags": "--date <value>",
+          "description": "Day of the call (YYYY-MM-DD): a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date (e.g. 2026-07-29)",
+          "required": false
+        },
+        {
+          "flags": "--event-type <value>",
+          "description": "Event type the date selector matches (default earnings_call): investor_day, conference, agm or other address a non-earnings event by its date; year+quarter select earnings calls only (e.g. earnings_call)",
+          "required": false,
+          "choices": [
+            "earnings_call",
+            "investor_day",
+            "conference",
+            "agm",
+            "other"
+          ]
+        }
+      ]
+    },
+    {
+      "command": "filings form-types",
+      "group": "filings",
+      "origin": "spec",
+      "description": "Available SEC form types",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/sec-filings/available-form-types"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Optional ticker symbol or CIK. If omitted, returns form types across all filings. (e.g. AAPL)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "filings list",
+      "group": "filings",
+      "origin": "spec",
+      "description": "SEC filings",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/sec-filings/filings"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "--form-type <value>",
+          "description": "SEC form type filter (e.g., 10-K, 10-Q, 8-K, 3, 4, 5, 13F-HR). Leave empty to return all form types. (e.g. 10-K)",
+          "required": false
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for filings by filing_date (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of filings to return (default: 40; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of filings to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "filings search",
+      "group": "filings",
+      "origin": "spec",
+      "description": "Search SEC filings",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/sec-filings/search"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-r, --request <value>",
+          "description": "Natural language search request for SEC filing information (e.g., 'What are Apple's main risk factors?') (e.g. What are Apple's main risk factors?)",
+          "required": true
+        },
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK to filter search results to a specific company (e.g. AAPL)",
+          "required": false
+        },
+        {
+          "flags": "--accession-number <value>",
+          "description": "Accession number to filter search results to a specific filing (e.g. 0000320193-25-000079)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "filings sections",
+      "group": "filings",
+      "origin": "spec",
+      "description": "SEC filing sections",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/sec-filings/sections"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "--form-type <value>",
+          "description": "SEC form type. Filter requirements vary: 8-K requires accession_number; 10-K requires accession_number or fiscal_year; 10-Q requires accession_number or fiscal_year+fiscal_quarter. (e.g. 10-K)",
+          "required": true,
+          "choices": [
+            "10-Q",
+            "10-K",
+            "8-K"
+          ]
+        },
+        {
+          "flags": "--section-id <value>",
+          "description": "Optional section ID. If not specified, all sections from the filing are returned. (e.g. part_i-item_1a)",
+          "required": false
+        },
+        {
+          "flags": "--accession-number <value>",
+          "description": "SEC accession number of the filing (e.g. 0000320193-25-000079)",
+          "required": false
+        },
+        {
+          "flags": "--fiscal-year <value>",
+          "description": "Fiscal year (e.g. 2025)",
+          "required": false
+        },
+        {
+          "flags": "--fiscal-quarter <value>",
+          "description": "Fiscal quarter (1-4). Required for 10-Q when using fiscal_year filter. (e.g. 4)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "financials as-reported-balance-sheet",
+      "group": "financials",
+      "origin": "spec",
+      "description": "As-reported balance sheet",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/as-reported/balance-sheet"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for periods by period_end (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of periods per ticker (default: 10; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of periods to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "financials as-reported-balance-sheet-detailed",
+      "group": "financials",
+      "origin": "spec",
+      "description": "As-reported balance sheet (detailed)",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/as-reported/balance-sheet/detailed"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for periods by period_end (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of periods per ticker (default: 10; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of periods to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        },
+        {
+          "flags": "--with-formula <value>",
+          "description": "Include formula in response (default: \"false\"; e.g. true)",
+          "required": false,
+          "choices": [
+            "true",
+            "false"
+          ]
+        }
+      ]
+    },
+    {
+      "command": "financials as-reported-balance-sheet-presentation",
+      "group": "financials",
+      "origin": "spec",
+      "description": "As-reported balance sheet (presentation)",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/as-reported/balance-sheet/presentation"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for periods by period_end (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of periods per ticker (default: 10; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of periods to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "financials as-reported-cash-flow",
+      "group": "financials",
+      "origin": "spec",
+      "description": "As-reported cash flow statement",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/as-reported/cash-flow-statement"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for periods by period_end (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of periods per ticker (default: 10; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of periods to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "financials as-reported-cash-flow-detailed",
+      "group": "financials",
+      "origin": "spec",
+      "description": "As-reported cash flow statement (detailed)",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/as-reported/cash-flow-statement/detailed"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for periods by period_end (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of periods per ticker (default: 10; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of periods to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        },
+        {
+          "flags": "--with-formula <value>",
+          "description": "Include formula in response (default: \"false\"; e.g. true)",
+          "required": false,
+          "choices": [
+            "true",
+            "false"
+          ]
+        }
+      ]
+    },
+    {
+      "command": "financials as-reported-cash-flow-presentation",
+      "group": "financials",
+      "origin": "spec",
+      "description": "As-reported cash flow statement (presentation)",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/as-reported/cash-flow-statement/presentation"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for periods by period_end (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of periods per ticker (default: 10; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of periods to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "financials as-reported-income-statement",
+      "group": "financials",
+      "origin": "spec",
+      "description": "As-reported income statement",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/as-reported/income-statement"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for periods by period_end (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of periods per ticker (default: 10; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of periods to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "financials as-reported-income-statement-detailed",
+      "group": "financials",
+      "origin": "spec",
+      "description": "As-reported income statement (detailed)",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/as-reported/income-statement/detailed"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for periods by period_end (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of periods per ticker (default: 10; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of periods to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        },
+        {
+          "flags": "--with-formula <value>",
+          "description": "Include formula in response (default: \"false\"; e.g. true)",
+          "required": false,
+          "choices": [
+            "true",
+            "false"
+          ]
+        }
+      ]
+    },
+    {
+      "command": "financials as-reported-income-statement-presentation",
+      "group": "financials",
+      "origin": "spec",
+      "description": "As-reported income statement (presentation)",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/as-reported/income-statement/presentation"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for periods by period_end (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of periods per ticker (default: 10; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of periods to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "financials as-reported-snapshot",
+      "group": "financials",
+      "origin": "spec",
+      "description": "As-reported snapshot",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/as-reported/snapshot"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifiers <value>",
+          "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers) (e.g. AAPL,MSFT)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "--calendar-year <value>",
+          "description": "Calendar year. For annual periods, only calendar_year is needed. For non-annual periods, must be provided together with calendar_quarter. (e.g. 2024)",
+          "required": false
+        },
+        {
+          "flags": "--calendar-quarter <value>",
+          "description": "Calendar quarter (1-4). For annual periods, should not be provided. For non-annual periods, must be provided together with calendar_year. (e.g. 4)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "financials as-reported-snapshot-detailed",
+      "group": "financials",
+      "origin": "spec",
+      "description": "As-reported snapshot (detailed)",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/as-reported/snapshot/detailed"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifiers <value>",
+          "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers) (e.g. AAPL,MSFT)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "--calendar-year <value>",
+          "description": "Calendar year. For annual periods, only calendar_year is needed. For non-annual periods, must be provided together with calendar_quarter. (e.g. 2024)",
+          "required": false
+        },
+        {
+          "flags": "--calendar-quarter <value>",
+          "description": "Calendar quarter (1-4). For annual periods, should not be provided. For non-annual periods, must be provided together with calendar_year. (e.g. 4)",
+          "required": false
+        },
+        {
+          "flags": "--with-formula <value>",
+          "description": "Include formula in response (default: \"false\"; e.g. true)",
+          "required": false,
+          "choices": [
+            "true",
+            "false"
+          ]
+        }
+      ]
+    },
+    {
+      "command": "financials as-reported-snapshot-presentation",
+      "group": "financials",
+      "origin": "spec",
+      "description": "As-reported snapshot (presentation)",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/as-reported/snapshot/presentation"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifiers <value>",
+          "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers) (e.g. AAPL,MSFT)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "--calendar-year <value>",
+          "description": "Calendar year. For annual periods, only calendar_year is needed. For non-annual periods, must be provided together with calendar_quarter. (e.g. 2024)",
+          "required": false
+        },
+        {
+          "flags": "--calendar-quarter <value>",
+          "description": "Calendar quarter (1-4). For annual periods, should not be provided. For non-annual periods, must be provided together with calendar_year. (e.g. 4)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "financials balance-sheet",
+      "group": "financials",
+      "origin": "spec",
+      "description": "Standardized balance sheet",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/standardized/balance-sheet"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for periods by period_end (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of periods per ticker (default: 10; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of periods to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "financials balance-sheet-detailed",
+      "group": "financials",
+      "origin": "spec",
+      "description": "Standardized balance sheet (detailed)",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/standardized/balance-sheet/detailed"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for periods by period_end (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of periods per ticker (default: 10; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of periods to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        },
+        {
+          "flags": "--with-formula <value>",
+          "description": "Include formula in response (default: \"false\"; e.g. true)",
+          "required": false,
+          "choices": [
+            "true",
+            "false"
+          ]
+        }
+      ]
+    },
+    {
+      "command": "financials balance-sheet-presentation",
+      "group": "financials",
+      "origin": "spec",
+      "description": "Standardized balance sheet (presentation)",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/standardized/balance-sheet/presentation"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for periods by period_end (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of periods per ticker (default: 10; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of periods to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "financials cash-flow",
+      "group": "financials",
+      "origin": "spec",
+      "description": "Standardized cash flow statement",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/standardized/cash-flow-statement"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for periods by period_end (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of periods per ticker (default: 10; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of periods to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "financials cash-flow-detailed",
+      "group": "financials",
+      "origin": "spec",
+      "description": "Standardized cash flow statement (detailed)",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/standardized/cash-flow-statement/detailed"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for periods by period_end (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of periods per ticker (default: 10; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of periods to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        },
+        {
+          "flags": "--with-formula <value>",
+          "description": "Include formula in response (default: \"false\"; e.g. true)",
+          "required": false,
+          "choices": [
+            "true",
+            "false"
+          ]
+        }
+      ]
+    },
+    {
+      "command": "financials cash-flow-presentation",
+      "group": "financials",
+      "origin": "spec",
+      "description": "Standardized cash flow statement (presentation)",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/standardized/cash-flow-statement/presentation"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for periods by period_end (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of periods per ticker (default: 10; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of periods to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "financials income-statement",
+      "group": "financials",
+      "origin": "spec",
+      "description": "Standardized income statement",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/standardized/income-statement"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for periods by period_end (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of periods per ticker (default: 10; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of periods to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "financials income-statement-detailed",
+      "group": "financials",
+      "origin": "spec",
+      "description": "Standardized income statement (detailed)",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/standardized/income-statement/detailed"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for periods by period_end (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of periods per ticker (default: 10; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of periods to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        },
+        {
+          "flags": "--with-formula <value>",
+          "description": "Include formula in response (default: \"false\"; e.g. true)",
+          "required": false,
+          "choices": [
+            "true",
+            "false"
+          ]
+        }
+      ]
+    },
+    {
+      "command": "financials income-statement-presentation",
+      "group": "financials",
+      "origin": "spec",
+      "description": "Standardized income statement (presentation)",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/standardized/income-statement/presentation"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for periods by period_end (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of periods per ticker (default: 10; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of periods to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "financials snapshot",
+      "group": "financials",
+      "origin": "spec",
+      "description": "Standardized snapshot",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/standardized/snapshot"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifiers <value>",
+          "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers) (e.g. AAPL,MSFT)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "--calendar-year <value>",
+          "description": "Calendar year. For annual periods, only calendar_year is needed. For non-annual periods, must be provided together with calendar_quarter. (e.g. 2024)",
+          "required": false
+        },
+        {
+          "flags": "--calendar-quarter <value>",
+          "description": "Calendar quarter (1-4). For annual periods, should not be provided. For non-annual periods, must be provided together with calendar_year. (e.g. 4)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "financials snapshot-detailed",
+      "group": "financials",
+      "origin": "spec",
+      "description": "Standardized snapshot (detailed)",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/standardized/snapshot/detailed"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifiers <value>",
+          "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers) (e.g. AAPL,MSFT)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "--calendar-year <value>",
+          "description": "Calendar year. For annual periods, only calendar_year is needed. For non-annual periods, must be provided together with calendar_quarter. (e.g. 2024)",
+          "required": false
+        },
+        {
+          "flags": "--calendar-quarter <value>",
+          "description": "Calendar quarter (1-4). For annual periods, should not be provided. For non-annual periods, must be provided together with calendar_year. (e.g. 4)",
+          "required": false
+        },
+        {
+          "flags": "--with-formula <value>",
+          "description": "Include formula in response (default: \"false\"; e.g. true)",
+          "required": false,
+          "choices": [
+            "true",
+            "false"
+          ]
+        }
+      ]
+    },
+    {
+      "command": "financials snapshot-presentation",
+      "group": "financials",
+      "origin": "spec",
+      "description": "Standardized snapshot (presentation)",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/standardized/snapshot/presentation"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifiers <value>",
+          "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers) (e.g. AAPL,MSFT)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "--calendar-year <value>",
+          "description": "Calendar year. For annual periods, only calendar_year is needed. For non-annual periods, must be provided together with calendar_quarter. (e.g. 2024)",
+          "required": false
+        },
+        {
+          "flags": "--calendar-quarter <value>",
+          "description": "Calendar quarter (1-4). For annual periods, should not be provided. For non-annual periods, must be provided together with calendar_year. (e.g. 4)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "health",
+      "group": "health",
+      "origin": "spec",
+      "description": "Liveness of the API (no API key)",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/health"
+        }
+      ],
+      "arguments": [],
+      "options": []
+    },
+    {
+      "command": "insider-trades list",
+      "group": "insider-trades",
+      "origin": "spec",
+      "description": "Insider trades",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/insider-trades"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Company ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "--start-date <value>",
+          "description": "Filter transactions filed on or after this date (YYYY-MM-DD) (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--end-date <value>",
+          "description": "Filter transactions filed on or before this date (YYYY-MM-DD) (e.g. 2025-12-31)",
+          "required": false
+        },
+        {
+          "flags": "--acquired-disposed <value>",
+          "description": "Filter by acquisition (A) or disposition (D) (e.g. D)",
+          "required": false,
+          "choices": [
+            "A",
+            "D"
+          ]
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction by filed_at date (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of transactions to return (default: 100; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of transactions to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "ipos list",
+      "group": "ipos",
+      "origin": "spec",
+      "description": "List IPOs",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/ipos"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--start-date <value>",
+          "description": "Filter IPOs with listing_date on or after this date (YYYY-MM-DD) (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--end-date <value>",
+          "description": "Filter IPOs with listing_date on or before this date (YYYY-MM-DD) (e.g. 2025-12-31)",
+          "required": false
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for IPOs by listing_date (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of IPOs to return (default: 100; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of IPOs to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "login",
+      "group": "login",
+      "origin": "hand",
+      "description": "Log in through your browser (the key belongs to your Invinite Data account)",
+      "source": "src/commands/login.ts",
+      "operations": [],
+      "arguments": [],
+      "options": []
+    },
+    {
+      "command": "logout",
+      "group": "logout",
+      "origin": "hand",
+      "description": "Revoke the current login and clear local credentials",
+      "source": "src/commands/login.ts",
+      "operations": [],
+      "arguments": [],
+      "options": []
+    },
+    {
+      "command": "market holidays",
+      "group": "market",
+      "origin": "spec",
+      "description": "Market holidays",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/market/market-holidays"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for holidays by date (default: \"asc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of holidays to return (default: 100; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of holidays to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "metadata metrics",
+      "group": "metadata",
+      "origin": "spec",
+      "description": "Available metrics",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/metadata/list-available-metrics"
+        }
+      ],
+      "arguments": [],
+      "options": []
+    },
+    {
+      "command": "metadata section-ids",
+      "group": "metadata",
+      "origin": "spec",
+      "description": "Available SEC section IDs",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/metadata/list-available-section-ids"
+        }
+      ],
+      "arguments": [],
+      "options": []
+    },
+    {
+      "command": "metrics cagr",
+      "group": "metrics",
+      "origin": "spec",
+      "description": "CAGR metrics",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/financial-metrics/cagr"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "--period-years <value>",
+          "description": "CAGR calculation period in years: 3, 5, 10 (e.g. 5)",
+          "required": false,
+          "choices": [
+            "3",
+            "5",
+            "10"
+          ]
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for periods by period_end: 'asc' (oldest first), 'desc' (newest first) (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of periods per ticker (1-100) (default: 10; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of periods to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "metrics growth",
+      "group": "metrics",
+      "origin": "spec",
+      "description": "Growth metrics",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/financial-metrics/growth"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period: 'quarterly' (Q1-Q4), 'annual' (full year), 'ytd' (year-to-date), 'ttm' (trailing twelve months) (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "--growth-type <value>",
+          "description": "Filter by growth type: year_over_year, quarter_over_quarter (e.g. year_over_year)",
+          "required": false,
+          "choices": [
+            "year_over_year",
+            "quarter_over_quarter"
+          ]
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for periods by period_end: 'asc' (oldest first), 'desc' (newest first) (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of periods per ticker (1-100) (default: 10; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of periods to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "metrics ratios",
+      "group": "metrics",
+      "origin": "spec",
+      "description": "Financial ratios",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/financial-metrics/ratios"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period: 'quarterly' (Q1-Q4), 'annual' (full year), 'ytd' (year-to-date), 'ttm' (trailing twelve months) (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "--category <value>",
+          "description": "Filter by ratio category: valuation, profitability, liquidity, solvency (e.g. profitability)",
+          "required": false,
+          "choices": [
+            "valuation",
+            "profitability",
+            "liquidity",
+            "solvency"
+          ]
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for periods by period_end: 'asc' (oldest first), 'desc' (newest first) (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of periods per ticker (1-100) (default: 10; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of periods to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "ownership holdings-by-company",
+      "group": "ownership",
+      "origin": "spec",
+      "description": "Holdings by company",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/institutional-ownership/holdings-by-company"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Company ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "--min-value <value>",
+          "description": "Minimum dollar value filter (e.g. 1000000000)",
+          "required": false
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction by dollar_value (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of holdings to return (default: 100; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of holdings to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "ownership holdings-by-investor",
+      "group": "ownership",
+      "origin": "spec",
+      "description": "Holdings by investor",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/institutional-ownership/holdings-by-investor"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--cik <value>",
+          "description": "Institution CIK (e.g. 1067983)",
+          "required": true
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction by dollar_value (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of holdings to return (default: 100; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of holdings to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "ownership institutions",
+      "group": "ownership",
+      "origin": "spec",
+      "description": "List institutional investors",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/institutional-ownership/institutions"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--ciks <value>",
+          "description": "Comma-separated list of CIKs (Central Index Keys) (e.g. 1067983,102909)",
+          "required": false
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of institutions to return (default: 100; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Pagination offset (default: 0; e.g. 0)",
+          "required": false
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for institutions by name (default: \"asc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        }
+      ]
+    },
+    {
+      "command": "ownership transactions",
+      "group": "ownership",
+      "origin": "spec",
+      "description": "Institutional transactions",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/institutional-ownership/transactions"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--cik <value>",
+          "description": "Institution CIK (at least one of cik or identifier required) (e.g. 1067983)",
+          "required": false
+        },
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Company ticker symbol or CIK (at least one of cik or identifier required) (e.g. AAPL)",
+          "required": false
+        },
+        {
+          "flags": "--start-date <value>",
+          "description": "Filter transactions with period_end_new on or after this date (YYYY-MM-DD) (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--end-date <value>",
+          "description": "Filter transactions with period_end_new on or before this date (YYYY-MM-DD) (e.g. 2025-12-31)",
+          "required": false
+        },
+        {
+          "flags": "--type <value>",
+          "description": "Filter by transaction type: new_buy, added, reduced, sold_out (e.g. new_buy)",
+          "required": false,
+          "choices": [
+            "new_buy",
+            "added",
+            "reduced",
+            "sold_out"
+          ]
+        },
+        {
+          "flags": "--calendar-year <value>",
+          "description": "Filter by calendar year (of new position) (e.g. 2025)",
+          "required": false
+        },
+        {
+          "flags": "--calendar-quarter <value>",
+          "description": "Filter by calendar quarter (of new position) (e.g. 1)",
+          "required": false
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction by period_end_new: 'asc' (oldest first), 'desc' (newest first) (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of transactions to return (1-1000) (default: 100; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of transactions to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "plugin install",
+      "group": "plugin",
+      "origin": "hand",
+      "description": "Install the Invinite plugin for AI coding tools",
+      "source": "src/commands/plugin.ts",
+      "operations": [],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--claude",
+          "description": "Install for Claude Code",
+          "required": false
+        },
+        {
+          "flags": "--opencode",
+          "description": "Install for OpenCode",
+          "required": false
+        },
+        {
+          "flags": "--codex",
+          "description": "Install for Codex",
+          "required": false
+        },
+        {
+          "flags": "--copilot",
+          "description": "Install for Copilot",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Install for all supported runtimes",
+          "required": false
+        },
+        {
+          "flags": "-g, --global",
+          "description": "Install globally (user home)",
+          "required": false
+        },
+        {
+          "flags": "-l, --local",
+          "description": "Install locally (current directory)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "plugin uninstall",
+      "group": "plugin",
+      "origin": "hand",
+      "description": "Uninstall the Invinite plugin from AI coding tools",
+      "source": "src/commands/plugin.ts",
+      "operations": [],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--claude",
+          "description": "Uninstall from Claude Code",
+          "required": false
+        },
+        {
+          "flags": "--opencode",
+          "description": "Uninstall from OpenCode",
+          "required": false
+        },
+        {
+          "flags": "--codex",
+          "description": "Uninstall from Codex",
+          "required": false
+        },
+        {
+          "flags": "--copilot",
+          "description": "Uninstall from Copilot",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Uninstall from all supported runtimes",
+          "required": false
+        },
+        {
+          "flags": "-g, --global",
+          "description": "Uninstall globally (user home)",
+          "required": false
+        },
+        {
+          "flags": "-l, --local",
+          "description": "Uninstall locally (current directory)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "segments list",
+      "group": "segments",
+      "origin": "spec",
+      "description": "Segmented financials",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/segmented-financials"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period: 'quarterly' (Q1-Q4), 'annual' (full year), 'ytd' (year-to-date), 'ttm' (trailing twelve months) (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "--segment-id <value>",
+          "description": "Filter by segment ID: seg_revenue_product, seg_revenue_geographic, seg_revenue_business_segment, seg_cost_of_revenue_business_segment, seg_research_and_development_expenses_business_segment, seg_selling_and_marketing_expenses_business_segment, seg_general_and_administrative_expenses_business_segment (e.g. seg_revenue_product)",
+          "required": false,
+          "choices": [
+            "seg_revenue_product",
+            "seg_revenue_geographic",
+            "seg_revenue_business_segment",
+            "seg_cost_of_revenue_business_segment",
+            "seg_research_and_development_expenses_business_segment",
+            "seg_selling_and_marketing_expenses_business_segment",
+            "seg_general_and_administrative_expenses_business_segment"
+          ]
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for periods by period_end: 'asc' (oldest first), 'desc' (newest first) (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of periods per ticker (1-100) (default: 10; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of periods to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "segments list-detailed",
+      "group": "segments",
+      "origin": "spec",
+      "description": "Segmented financials (detailed)",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/segmented-financials/detailed"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-i, --identifier <value>",
+          "description": "Ticker symbol or CIK (e.g. AAPL)",
+          "required": true
+        },
+        {
+          "flags": "-p, --fiscal-period-type <value>",
+          "description": "Type of fiscal period: 'quarterly' (Q1-Q4), 'annual' (full year), 'ytd' (year-to-date), 'ttm' (trailing twelve months) (e.g. annual)",
+          "required": true,
+          "choices": [
+            "quarterly",
+            "annual",
+            "ytd",
+            "ttm"
+          ]
+        },
+        {
+          "flags": "--segment-id <value>",
+          "description": "Filter by segment ID: seg_revenue_product, seg_revenue_geographic, seg_revenue_business_segment, seg_cost_of_revenue_business_segment, seg_research_and_development_expenses_business_segment, seg_selling_and_marketing_expenses_business_segment, seg_general_and_administrative_expenses_business_segment (e.g. seg_revenue_product)",
+          "required": false,
+          "choices": [
+            "seg_revenue_product",
+            "seg_revenue_geographic",
+            "seg_revenue_business_segment",
+            "seg_cost_of_revenue_business_segment",
+            "seg_research_and_development_expenses_business_segment",
+            "seg_selling_and_marketing_expenses_business_segment",
+            "seg_general_and_administrative_expenses_business_segment"
+          ]
+        },
+        {
+          "flags": "-s, --sort <value>",
+          "description": "Sort direction for periods by period_end: 'asc' (oldest first), 'desc' (newest first) (default: \"desc\"; e.g. desc)",
+          "required": false,
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of periods per ticker (1-100) (default: 10; e.g. 5)",
+          "required": false
+        },
+        {
+          "flags": "--offset <value>",
+          "description": "Number of periods to skip for pagination (default: 0; e.g. 0)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "status licensing",
+      "group": "status",
+      "origin": "spec",
+      "description": "Licensing policy",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/status/licensing"
+        }
+      ],
+      "arguments": [],
+      "options": []
+    },
+    {
+      "command": "status show",
+      "group": "status",
+      "origin": "spec",
+      "description": "Service status",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/status"
+        }
+      ],
+      "arguments": [],
+      "options": []
+    },
+    {
+      "command": "usage",
+      "group": "usage",
+      "origin": "spec",
+      "description": "Your data account's own usage (costs no credits)",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/account/usage"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--days <value>",
+          "description": "Window in UTC days ending today (inclusive): 7, 30 or 90 (default: 30; e.g. 30)",
+          "required": false,
+          "choices": [
+            "7",
+            "30",
+            "90"
+          ]
+        }
+      ]
+    },
+    {
+      "command": "webhooks create",
+      "group": "webhooks",
+      "origin": "spec",
+      "description": "Create a webhook",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "POST",
+          "path": "/v1/earnings-calls/webhooks"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--body <json>",
+          "description": "JSON request body (this or --body-file is required)",
+          "required": false
+        },
+        {
+          "flags": "--body-file <path>",
+          "description": "Read the JSON request body from a file (- = stdin)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "webhooks delete",
+      "group": "webhooks",
+      "origin": "spec",
+      "description": "Delete a webhook",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "DELETE",
+          "path": "/v1/earnings-calls/webhooks/{id}"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--id <value>",
+          "description": "Webhook subscription id (from the create / list response) (e.g. js7a2c9xq4m8v1k6t3w5r0n2b8gnd4fh)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "command": "webhooks deliveries",
+      "group": "webhooks",
+      "origin": "spec",
+      "description": "Webhook delivery attempts",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/webhooks/{id}/deliveries"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--id <value>",
+          "description": "Webhook subscription id (from the create / list response) (e.g. js7a2c9xq4m8v1k6t3w5r0n2b8gnd4fh)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "command": "webhooks list",
+      "group": "webhooks",
+      "origin": "spec",
+      "description": "List webhooks",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/earnings-calls/webhooks"
+        }
+      ],
+      "arguments": [],
+      "options": []
+    },
+    {
+      "command": "webhooks rotate-secret",
+      "group": "webhooks",
+      "origin": "spec",
+      "description": "Rotate a webhook signing secret",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "POST",
+          "path": "/v1/earnings-calls/webhooks/{id}/rotate-secret"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--id <value>",
+          "description": "Webhook subscription id (from the create / list response) (e.g. js7a2c9xq4m8v1k6t3w5r0n2b8gnd4fh)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "command": "webhooks test",
+      "group": "webhooks",
+      "origin": "spec",
+      "description": "Send a test delivery",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "POST",
+          "path": "/v1/earnings-calls/webhooks/{id}/test"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--id <value>",
+          "description": "Webhook subscription id (from the create / list response) (e.g. js7a2c9xq4m8v1k6t3w5r0n2b8gnd4fh)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "command": "webhooks update",
+      "group": "webhooks",
+      "origin": "spec",
+      "description": "Update a webhook",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "PATCH",
+          "path": "/v1/earnings-calls/webhooks/{id}"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--id <value>",
+          "description": "Webhook subscription id (from the create / list response) (e.g. js7a2c9xq4m8v1k6t3w5r0n2b8gnd4fh)",
+          "required": true
+        },
+        {
+          "flags": "--body <json>",
+          "description": "JSON request body",
+          "required": false
+        },
+        {
+          "flags": "--body-file <path>",
+          "description": "Read the JSON request body from a file (- = stdin)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "ws listen",
+      "group": "ws",
+      "origin": "hand",
+      "description": "Listen to real-time SEC filing stream, or with --earnings follow a live earnings call transcript (with --keywords: keyword alerts; --all-live: keyword alerts across every live call)",
+      "source": "src/commands/ws.ts",
+      "operations": [
+        {
+          "method": "WS",
+          "path": "/v1/ws"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--earnings <event_id|cik>",
+          "description": "Follow a live earnings call transcript (PRO): event ID (UUID) or CIK",
+          "required": false
+        },
+        {
+          "flags": "--all-live",
+          "description": "Keyword alerts across every live call (PRO; needs --keywords)",
+          "required": false
+        },
+        {
+          "flags": "--since-seq <n>",
+          "description": "Replay finals after this seq (default -1 = the whole call so far)",
+          "required": false
+        },
+        {
+          "flags": "--partials",
+          "description": "Show interim segments, overwritten in place (terminal only; --json emits them)",
+          "required": false
+        },
+        {
+          "flags": "--names",
+          "description": "Print each speaker-name snapshot",
+          "required": false
+        },
+        {
+          "flags": "--prices",
+          "description": "Price ticks of the call's stock (≤ 1/s, one line updated in place; --json emits them). Coincidence, not cause",
+          "required": false
+        },
+        {
+          "flags": "--keywords <list>",
+          "description": "Comma-separated keywords (max 20, 2–64 chars each): one keyword_hit line per mention",
+          "required": false
+        },
+        {
+          "flags": "--keyword-match <mode>",
+          "description": "exact (default) or stem (tariff also hits \"tariffs\")",
+          "required": false
+        },
+        {
+          "flags": "--speaker-roles <list>",
+          "description": "Only hits by these speakers: executive, ir_host, analyst, operator",
+          "required": false
+        },
+        {
+          "flags": "--min-rank <n>",
+          "description": "With --all-live: only companies ranked ≤ n by market cap",
+          "required": false
+        }
+      ]
+    }
+  ]
+}

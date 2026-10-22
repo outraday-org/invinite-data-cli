@@ -41,7 +41,7 @@ duplicate name. The spec marks such an operation `x-cli.exclude` naming the hand
   `body.example`; also shown in `--help` as `e.g. …`) — a `<name>` placeholder only where the spec has no example.
 - `tests/unit/doc-commands.test.ts` resolves every `invd …` line (fenced, or an inline code span) of `README.md` and
   the plugin's skill, agent and commands against `createProgram()`: an unknown command, flag or stray positional fails. `invinite`'s docs read this repo only
-  through its committed snapshot (`invinite/scripts/snapshot-data-cli-reference.ts`, rerun after a command change).
+  through its committed snapshot (`pnpm reference:export`, rerun after a command change).
 
 ## Traps
 
@@ -52,3 +52,23 @@ duplicate name. The spec marks such an operation `x-cli.exclude` naming the hand
 - Publishing is by hand, no CI: the gitignored `.npmrc` reads `${NPM_ACCESS_TOKEN}`, which `export $(cat .env | xargs)`
   supplies (`~/.npmrc`'s token is stale). `publish:version` bumps PATCH — a breaking command surface sets the version
   explicitly (`pnpm version X.Y.0 --no-git-tag-version`) and publishes with `pnpm publish --access public`.
+
+## Versioned reference exports
+
+`pnpm reference:export` exports Commander registration and plugin packaging into
+`reference/` using ONLY this repository's source and its pinned `openapi.json`.
+`reference:check` rechecks source/spec hashes, fingerprints and registration without
+authentication, network requests or sibling source. Source introspection safety
+and freshness tests belong here. `.github/workflows/check.yml` checks the manifest,
+skill, references, tests and build, and uploads an immutable SHA-named reference
+bundle for frontend docs consumption. Consumers import it without reading CLI source.
+The plugin export checks that its download revision really contains the hashed
+source: commit plugin edits before exporting a changed immutable plugin download.
+CLI packaging/release remains this repo's `build`/`prepublishOnly`/`publish:version`
+flow and npm credential; never reintroduce frontend command generation.
+
+Adopt API contracts from a versioned `invinite-data-api` reference bundle: copy its
+`openapi.json` AND `api-contract.json` together (`check-api-contract.mjs` checks their
+identity and provenance), run `cli:manifest`, `skill:commands`, `reference:export`, then the
+corresponding `:check` commands and mocked tests. The reference records exact API
+spec identity, CLI version, checkout base revision and source hashes.

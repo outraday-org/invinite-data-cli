@@ -1,0 +1,61 @@
+{
+  "observedAt": "2026-10-22",
+  "download": {
+    "owner": "outraday-org",
+    "repository": "invinite-data-cli",
+    "revision": "f394c316a5ff88c33b19f9e01bc4d44d653163ba"
+  },
+  "manifest": {
+    "name": "invinite-financial-data",
+    "version": "0.4.5"
+  },
+  "connector": {
+    "key": "invinite-financial-data",
+    "url": "https://api.data.invinite.com/mcp"
+  },
+  "files": [
+    ".claude-plugin/plugin.json",
+    ".mcp.json",
+    "agents/invinite-data.md",
+    "commands/analyze-earnings-call.md",
+    "commands/analyze-filing.md",
+    "commands/compare-companies.md",
+    "commands/financial-research.md",
+    "commands/ownership-review.md",
+    "skills/invinite-data-cli/SKILL.md"
+  ],
+  "sourceHashes": {
+    "claude-plugin/.claude-plugin/plugin.json": "c3a20aacaaf0c14ea287294b986c2cf71d6ee7c13651da994598ed26f34301b1",
+    "claude-plugin/.mcp.json": "a473ef1b56c55c29434aa2864d3bc0b250b4954890af437308ff9d66bc85d0d5",
+    "claude-plugin/agents/invinite-data.md": "20d691427b9ef6a0d277ec16493107561381a0900acaf69effc6a96a6aa494e3",
+    "claude-plugin/commands/analyze-earnings-call.md": "2e6d49c4bb63fedbd18e3795f444f13af6bdaef01d41577b2150478b6a015812",
+    "claude-plugin/commands/analyze-filing.md": "092fd86b99d8f8c4fcba6c68802939060232f414a2f1b271c81d3806b0a17196",
+    "claude-plugin/commands/compare-companies.md": "8f7d570d2ac93139148115d6129c74fa6e57ea32868518c9483e8b1041d0454b",
+    "claude-plugin/commands/financial-research.md": "63e6e0aaa3043d8192d600fc8e8bd7f6bbe67f86bc32ccfea23f3507c6800e2e",
+    "claude-plugin/commands/ownership-review.md": "d52c2d234645fcc313e9430de08394545da57082980272198b8d5d5f5675bb08",
+    "claude-plugin/skills/invinite-data-cli/SKILL.md": "8164283adec4ae21ea211358390141364a86cca99af97a8e3a4e63d521f3516b",
+    "src/commands/plugin.ts": "953f279105a682c5659c698f5145822c079d51497882f9d64cc54e4255a617b6"
+  },
+  "provenance": {
+    "repository": "https://github.com/outraday-org/invinite-data-cli",
+    "version": "0.5.4",
+    "specSha256": "fd55ce27ebc8396c72555f146f7247c02441fd403a268440ff12eb3d8fbffdfc",
+    "sourceHashes": {
+      "claude-plugin/.claude-plugin/plugin.json": "c3a20aacaaf0c14ea287294b986c2cf71d6ee7c13651da994598ed26f34301b1",
+      "claude-plugin/.mcp.json": "a473ef1b56c55c29434aa2864d3bc0b250b4954890af437308ff9d66bc85d0d5",
+      "claude-plugin/agents/invinite-data.md": "20d691427b9ef6a0d277ec16493107561381a0900acaf69effc6a96a6aa494e3",
+      "claude-plugin/commands/analyze-earnings-call.md": "2e6d49c4bb63fedbd18e3795f444f13af6bdaef01d41577b2150478b6a015812",
+      "claude-plugin/commands/analyze-filing.md": "092fd86b99d8f8c4fcba6c68802939060232f414a2f1b271c81d3806b0a17196",
+      "claude-plugin/commands/compare-companies.md": "8f7d570d2ac93139148115d6129c74fa6e57ea32868518c9483e8b1041d0454b",
+      "claude-plugin/commands/financial-research.md": "63e6e0aaa3043d8192d600fc8e8bd7f6bbe67f86bc32ccfea23f3507c6800e2e",
+      "claude-plugin/commands/ownership-review.md": "d52c2d234645fcc313e9430de08394545da57082980272198b8d5d5f5675bb08",
+      "claude-plugin/skills/invinite-data-cli/SKILL.md": "8164283adec4ae21ea211358390141364a86cca99af97a8e3a4e63d521f3516b",
+      "package.json": "95f35939ecb923ea47cf46fa8730dd472bcf00130eed668a2f9f9529e3022f5a",
+      "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
+      "scripts/snapshot-data-plugin-packaging.ts": "98945657178e4d4468963f9ef9b7d85025fde6c25444dbc3adb1c2334aac899e",
+      "src/commands/plugin.ts": "953f279105a682c5659c698f5145822c079d51497882f9d64cc54e4255a617b6"
+    },
+    "revision": "f394c316a5ff88c33b19f9e01bc4d44d653163ba",
+    "fingerprint": "1e45a9301fc4a8590895422a29d5c2ead223f4a701f69fd357142c43066609eb"
+  }
+}
