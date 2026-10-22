@@ -119,6 +119,9 @@ export function skippedDocumentWarning(doc: Row): string {
   return `Not saved: ${doc.kind} ${doc.document_id} has no download URL${source}`;
 }
 
+/** The document tree's spine folders (IDA `ASSET_GROUP_CATEGORIES`), for `--category` help. */
+export const DOCUMENT_TREE_CATEGORIES = 'earnings, events, news, reports, presentations, governance, esg, shareholder, other';
+
 /** `company-documents --output`: `<year | undated>-<kind>-<document_id>.<ext>` (the public shape has no content hash). */
 export function companyDocumentFileName(doc: Row): string {
   return `${doc.year ?? 'undated'}-${doc.kind}-${doc.document_id}.${extensionFor(doc.content_type)}`;
@@ -280,6 +283,8 @@ export function registerEarningsCommands(program: Command): void {
 
   selectorCommand('documents', 'Investor documents of a call (CFO commentary, data sheets, letters, filings)')
     .option('--kind <list>', 'Kinds, comma-separated (cfo_commentary, financial_data, shareholder_letter, fact_sheet, company_transcript, sec_filing, infographic, other)')
+    .option('--category <list>', `Document-tree categories, comma-separated (${DOCUMENT_TREE_CATEGORIES})`)
+    .option('--group <path>', 'Document-tree folder or a parent of it, e.g. earnings/fy2027/q2 or earnings')
     .option('--body', 'Include the extracted text')
     .option('-l, --limit <n>', 'Max results (1-100)')
     .option('--offset <n>', 'Offset')
@@ -292,6 +297,8 @@ export function registerEarningsCommands(program: Command): void {
         params: {
           ...selectorParams(cmdOpts),
           kind: cmdOpts.kind,
+          category: cmdOpts.category,
+          group: cmdOpts.group,
           include: cmdOpts.body ? 'body' : undefined,
           limit: cmdOpts.limit,
           offset: cmdOpts.offset,
@@ -315,7 +322,7 @@ export function registerEarningsCommands(program: Command): void {
       }
       output(data, opts, () => {
         console.log(chalk.bold(`\n${eventLine(data.event)} · documents\n`));
-        formatTable(data.documents, ['kind', 'title', 'content_type', 'bytes', 'pages', 'trust_tier', 'origin', 'expires_at', 'document_id']);
+        formatTable(data.documents, ['kind', 'group', 'title', 'content_type', 'bytes', 'pages', 'trust_tier', 'origin', 'expires_at', 'document_id']);
         if (cmdOpts.output) {
           console.log(chalk.bold('\nSaved\n'));
           formatTable(saved, ['document_id', 'kind', 'path', 'bytes']);
@@ -350,6 +357,10 @@ export function registerEarningsCommands(program: Command): void {
     .option('--kind <list>', 'Kinds, comma-separated (annual_report, proxy_statement, esg_report, investor_day_deck, conference_presentation, shareholder_letter, fact_sheet, webcast, …)')
     .option('--year <n>', 'Year the document belongs to')
     .option('--period <period>', 'Period within the year (Q1-Q4, H1, H2, FY)')
+    .option('--category <list>', `Document-tree categories, comma-separated (${DOCUMENT_TREE_CATEGORIES})`)
+    .option('--group <path>', 'Document-tree folder or a parent of it, e.g. earnings/fy2027/q2, esg or shareholder/tax')
+    .option('--fiscal-year <n>', 'Only the earnings folders of this fiscal year (earnings/fy<YYYY>/…)')
+    .option('--fiscal-quarter <n>', 'Only the earnings folders of this fiscal quarter (1-4)')
     .option('--event-id <event_id>', 'Only the documents of this event (investor day, conference, AGM)')
     .option('-l, --limit <n>', 'Max results (1-100)')
     .option('--offset <n>', 'Offset')
@@ -365,6 +376,10 @@ export function registerEarningsCommands(program: Command): void {
           kind: cmdOpts.kind,
           year: cmdOpts.year,
           period: cmdOpts.period,
+          category: cmdOpts.category,
+          group: cmdOpts.group,
+          fiscal_year: cmdOpts.fiscalYear,
+          fiscal_quarter: cmdOpts.fiscalQuarter,
           event_id: cmdOpts.eventId,
           limit: cmdOpts.limit,
           offset: cmdOpts.offset,
@@ -391,7 +406,7 @@ export function registerEarningsCommands(program: Command): void {
       output(data, opts, () => {
         console.log(chalk.bold(`\n${data.company?.symbol ?? cmdOpts.identifier} (${data.company?.cik ?? ''}) IR documents\n`));
         console.log(chalk.dim('Company-published material, shown as published.\n'));
-        formatTable(data.documents, ['document_id', 'kind', 'section', 'year', 'period', 'title', 'pages']);
+        formatTable(data.documents, ['document_id', 'kind', 'group', 'section', 'year', 'period', 'title', 'pages']);
         if (cmdOpts.output) {
           console.log(chalk.bold('\nSaved\n'));
           formatTable(saved, ['document_id', 'kind', 'path', 'bytes']);

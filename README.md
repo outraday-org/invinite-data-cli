@@ -279,8 +279,8 @@ The seven hand-written earnings commands download or render what one call return
 | `earnings press-release` | `--body` includes the release text; `-o` saves it |
 | `earnings audio` | The recording as a presigned URL, or `-o` to save it |
 | `earnings slides` | `--markdown` (each page's text), `--pages <range>`, `-o` saves the deck PDF |
-| `earnings documents` | `--kind <list>`, `--body`; `-o <dir>` saves every document as `<kind>-<document_id>.<ext>` |
-| `earnings company-documents` | `-i` (required), `--section`, `--kind`, `--year`, `--period`, `--event-id`; `-o <dir>` saves every stored file as `<year>-<kind>-<document_id>.<ext>` |
+| `earnings documents` | `--kind <list>`, `--category <list>`, `--group <path>` (document-tree folder, a prefix matches its subfolders), `--body`; `-o <dir>` saves every document as `<kind>-<document_id>.<ext>`. The table shows each document's tree folder (`group`) |
+| `earnings company-documents` | `-i` (required), `--section`, `--kind`, `--year`, `--period`, `--event-id`, `--category <list>` (earnings, events, news, reports, presentations, governance, esg, shareholder, other), `--group <path>` (e.g. `earnings/fy2027/q2`; `earnings` = every quarter), `--fiscal-year` / `--fiscal-quarter`; `-o <dir>` saves every stored file as `<year>-<kind>-<document_id>.<ext>`. The table shows each document's tree folder (`group`) |
 | `earnings document` | `--document-id` (from `company-documents` / `document-search`): metadata and signed URLs, `--pages` the per-page text, `-o` the file |
 
 **Saving files.** An existing `--output` file is only replaced with `--force`; without `--output` the media commands
@@ -297,6 +297,7 @@ invd earnings audio --event-id <event_id> --output call.mp3
 invd earnings slides -i AAPL --year 2026 --quarter 4 --output deck.pdf
 invd earnings documents --event-id <event_id> --output ./docs
 invd earnings company-documents -i AAPL --kind investor_day_deck --output ./ir-docs
+invd earnings company-documents -i AAPL --group earnings/fy2026/q4
 invd earnings document --document-id <document_id> --pages
 ```
 

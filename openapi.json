@@ -21734,7 +21734,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Further investor documents of one earnings call, ordered by kind: CFO commentary, financial data sheets, shareholder letters, fact sheets, the company's own transcript, its prepared remarks / call script, 10-Q / 10-K links. Infographics are stored as fact sheets.\n\n### What you get\n\n- Stored files come as signed URLs; link-only rows (`sec_filing`) have `url` null and point to EDGAR through `source_url`.\n\n- Files are served as short-lived signed URLs (see `expires_at`), never proxied; request a fresh response after expiry.\n\n- Each document carries its `trust_tier`.\n\n- `documents` is `[]` for a call without further documents (`has_documents` tells ahead).\n\n### Errors\n\n- `503 media_unavailable` while media signing is not configured.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
+        "description": "Further investor documents of one earnings call, ordered by kind: CFO commentary, financial data sheets, shareholder letters, fact sheets, the company's own transcript, its prepared remarks / call script, 10-Q / 10-K links. Infographics are stored as fact sheets.\n\n### What you get\n\n- Stored files come as signed URLs; link-only rows (`sec_filing`) have `url` null and point to EDGAR through `source_url`.\n\n- Files are served as short-lived signed URLs (see `expires_at`), never proxied; request a fresh response after expiry.\n\n- Each document carries its `trust_tier` and its folder of the company's document tree (`group`, `group_label`, `category`; filter with `category` / `group`). A call's own files sit in its earnings folder, e.g. `earnings/fy2027/q2`.\n\n### The document tree\n\nEvery stored document sits in one folder of the company's document tree: `group` (its path) under one of nine `category` spine folders, in this order: `earnings` (`earnings/fy2027/q2` = one fiscal quarter's call: release, deck, CFO commentary, data sheets, transcript; `earnings/cy2026/08-26` = a call without a fiscal period), `events` (`events/2026/09-10-<event>` = a conference, investor day or shareholder meeting), `news` (`news/2025`), `reports` (`reports/2025`: annual reports, proxy statements, annual letters), `presentations` (`presentations/2024`), `governance`, `esg` (`esg/2025`), `shareholder` (`shareholder/tax`, `shareholder/dividends`, `shareholder/stock`) and `other` (`other/faq`, `other/fact-sheets`, `other/financial-data[/2025]`, `other/web-pages`, `other/documents`). `…/undated` = no date could be read. `group` and `category` are null while a document has not been placed yet.\n\n- `documents` is `[]` for a call without further documents (`has_documents` tells ahead).\n\n### Errors\n\n- `503 media_unavailable` while media signing is not configured.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -21823,6 +21823,31 @@
             "example": [
               "cfo_commentary"
             ]
+          },
+          {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "description": "Only these tree categories, comma-separated or repeated: earnings, events, news, reports, presentations, governance, esg, shareholder, other",
+            "example": [
+              "earnings"
+            ]
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "group",
+            "required": false,
+            "description": "Only this folder of the document tree and everything below it (prefix match), e.g. earnings/fy2027 or earnings/fy2027/q2 or reports",
+            "example": "earnings/fy2026/q4"
           },
           {
             "schema": {
@@ -21934,7 +21959,10 @@
                           "content_type",
                           "bytes",
                           "pages",
-                          "trust_tier"
+                          "trust_tier",
+                          "group",
+                          "group_label",
+                          "category"
                         ],
                         "properties": {
                           "document_id": {
@@ -22042,6 +22070,32 @@
                             "nullable": true,
                             "description": "sec, wire, confirmed_domain, unconfirmed (AI-approved) or internal; null = not assessed"
                           },
+                          "group": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "Folder of the document tree, e.g. earnings/fy2027/q2, events/2026/09-10-<event>, news/2025, reports/2025, governance, shareholder/tax; null = not placed yet"
+                          },
+                          "group_label": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "Human label of `group`, e.g. \"Q2 FY2027\", \"Reports 2025\", \"Shareholder · Tax\""
+                          },
+                          "category": {
+                            "type": "string",
+                            "enum": [
+                              "earnings",
+                              "events",
+                              "news",
+                              "reports",
+                              "presentations",
+                              "governance",
+                              "esg",
+                              "shareholder",
+                              "other"
+                            ],
+                            "nullable": true,
+                            "description": "Spine folder of the tree: earnings, events, news, reports, presentations, governance, esg, shareholder, other; null = not placed yet"
+                          },
                           "body_text": {
                             "type": "string",
                             "nullable": true,
@@ -22079,7 +22133,10 @@
                       "content_type": "application/pdf",
                       "bytes": 487074,
                       "pages": 6,
-                      "trust_tier": "confirmed_domain"
+                      "trust_tier": "confirmed_domain",
+                      "group": "earnings/fy2026/q4",
+                      "group_label": "Q4 FY2026",
+                      "category": "earnings"
                     }
                   ]
                 }
@@ -22117,7 +22174,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "A company's investor-relations documents outside its earnings calls' folders, newest year first: annual reports, proxy statements, ESG / governance documents, investor-day and conference decks, shareholder letters, fact sheets, and link-only webcast replay pages.\n\nFilter by IR section, kind, year, period or event. Documents of one earnings call are on `/v1/earnings-calls/documents`.\n\n### What you get\n\n- Company-published material: displayed as published, not verified facts.\n\n- Stored files come as signed URLs; `pages_url` is the per-page text (JSON). A link-only row (webcast) has `url` null and `link_status`.\n\n- Files are served as short-lived signed URLs (see `expires_at`), never proxied; request a fresh response after expiry.\n\n### Errors\n\n- `503 media_unavailable` while media signing is not configured.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
+        "description": "A company's investor-relations documents outside its earnings calls' folders, newest year first: annual reports, proxy statements, ESG / governance documents, investor-day and conference decks, shareholder letters, fact sheets, and link-only webcast replay pages.\n\nFilter by IR section, kind, year, period or event, or by the document tree: `category`, `group` (a folder and everything below it) and `fiscal_year` / `fiscal_quarter` (the earnings folder `earnings/fy<YYYY>/q<N>`). Documents of one earnings call are on `/v1/earnings-calls/documents`.\n\n### The document tree\n\nEvery stored document sits in one folder of the company's document tree: `group` (its path) under one of nine `category` spine folders, in this order: `earnings` (`earnings/fy2027/q2` = one fiscal quarter's call: release, deck, CFO commentary, data sheets, transcript; `earnings/cy2026/08-26` = a call without a fiscal period), `events` (`events/2026/09-10-<event>` = a conference, investor day or shareholder meeting), `news` (`news/2025`), `reports` (`reports/2025`: annual reports, proxy statements, annual letters), `presentations` (`presentations/2024`), `governance`, `esg` (`esg/2025`), `shareholder` (`shareholder/tax`, `shareholder/dividends`, `shareholder/stock`) and `other` (`other/faq`, `other/fact-sheets`, `other/financial-data[/2025]`, `other/web-pages`, `other/documents`). `…/undated` = no date could be read. `group` and `category` are null while a document has not been placed yet.\n\n### What you get\n\n- Company-published material: displayed as published, not verified facts.\n\n- Stored files come as signed URLs; `pages_url` is the per-page text (JSON). A link-only row (webcast) has `url` null and `link_status`.\n\n- Files are served as short-lived signed URLs (see `expires_at`), never proxied; request a fresh response after expiry.\n\n### Errors\n\n- `503 media_unavailable` while media signing is not configured.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -22203,6 +22260,55 @@
           },
           {
             "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "description": "Only these tree categories, comma-separated or repeated: earnings, events, news, reports, presentations, governance, esg, shareholder, other",
+            "example": [
+              "earnings"
+            ]
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "group",
+            "required": false,
+            "description": "Only this folder of the document tree and everything below it (prefix match), e.g. earnings/fy2027 or earnings/fy2027/q2 or reports",
+            "example": "earnings/fy2026/q4"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1990,
+              "maximum": 2100
+            },
+            "in": "query",
+            "name": "fiscal_year",
+            "required": false,
+            "description": "Only documents of this fiscal year's earnings folders (earnings/fy<YYYY>/…)",
+            "example": 2026
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4
+            },
+            "in": "query",
+            "name": "fiscal_quarter",
+            "required": false,
+            "description": "Only documents of this fiscal quarter's earnings folder (earnings/fy…/q<N>); combine with fiscal_year",
+            "example": 4
+          },
+          {
+            "schema": {
               "type": "integer",
               "minimum": 1,
               "maximum": 100,
@@ -22279,6 +22385,9 @@
                           "kind",
                           "year",
                           "period",
+                          "group",
+                          "group_label",
+                          "category",
                           "event_id",
                           "event_type",
                           "event_date",
@@ -22366,6 +22475,32 @@
                             ],
                             "nullable": true,
                             "description": "Period within the year"
+                          },
+                          "group": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "Folder of the document tree, e.g. earnings/fy2027/q2, events/2026/09-10-<event>, news/2025, reports/2025, governance, shareholder/tax; null = not placed yet"
+                          },
+                          "group_label": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "Human label of `group`, e.g. \"Q2 FY2027\", \"Reports 2025\", \"Shareholder · Tax\""
+                          },
+                          "category": {
+                            "type": "string",
+                            "enum": [
+                              "earnings",
+                              "events",
+                              "news",
+                              "reports",
+                              "presentations",
+                              "governance",
+                              "esg",
+                              "shareholder",
+                              "other"
+                            ],
+                            "nullable": true,
+                            "description": "Spine folder of the tree: earnings, events, news, reports, presentations, governance, esg, shareholder, other; null = not placed yet"
                           },
                           "event_id": {
                             "type": "string",
@@ -22526,6 +22661,9 @@
                       "kind": "esg_report",
                       "year": 2030,
                       "period": null,
+                      "group": "esg/2030",
+                      "group_label": "ESG 2030",
+                      "category": "esg",
                       "event_id": null,
                       "event_type": null,
                       "event_date": null,
@@ -22660,6 +22798,9 @@
                         "kind",
                         "year",
                         "period",
+                        "group",
+                        "group_label",
+                        "category",
                         "event_id",
                         "event_type",
                         "event_date",
@@ -22747,6 +22888,32 @@
                           ],
                           "nullable": true,
                           "description": "Period within the year"
+                        },
+                        "group": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "Folder of the document tree, e.g. earnings/fy2027/q2, events/2026/09-10-<event>, news/2025, reports/2025, governance, shareholder/tax; null = not placed yet"
+                        },
+                        "group_label": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "Human label of `group`, e.g. \"Q2 FY2027\", \"Reports 2025\", \"Shareholder · Tax\""
+                        },
+                        "category": {
+                          "type": "string",
+                          "enum": [
+                            "earnings",
+                            "events",
+                            "news",
+                            "reports",
+                            "presentations",
+                            "governance",
+                            "esg",
+                            "shareholder",
+                            "other"
+                          ],
+                          "nullable": true,
+                          "description": "Spine folder of the tree: earnings, events, news, reports, presentations, governance, esg, shareholder, other; null = not placed yet"
                         },
                         "event_id": {
                           "type": "string",
@@ -22900,6 +23067,9 @@
                     "kind": "webcast",
                     "year": 2026,
                     "period": "Q1",
+                    "group": "earnings/fy2026/q1",
+                    "group_label": "Q1 FY2026",
+                    "category": "earnings",
                     "event_id": null,
                     "event_type": null,
                     "event_date": null,
@@ -22953,7 +23123,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Semantic search over the page text of investor documents: the documents of earnings calls (CFO commentary, shareholder letters, data sheets, the company's own transcripts) and companies' IR libraries (annual reports, proxy statements, ESG reports, investor-day decks).\n\n### What you get\n\n- Up to 20 passages from company-published documents, with page numbers — not verified facts — and a signed URL of the file (open it at `#page=<page>`).\n\n- Filter by company (`identifier`), kind, IR section, year or table.\n\n### Errors\n\n- `429 upstream_rate_limited` and `503 search_unavailable` carry `Retry-After`.\n\n- `503 search_disabled` while search is switched off.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
+        "description": "Semantic search over the page text of investor documents: the documents of earnings calls (CFO commentary, shareholder letters, data sheets, the company's own transcripts) and companies' IR libraries (annual reports, proxy statements, ESG reports, investor-day decks).\n\n### What you get\n\n- Up to 20 passages from company-published documents, with page numbers — not verified facts — and a signed URL of the file (open it at `#page=<page>`).\n\n- Filter by company (`identifier`), kind, IR section, year or table.\n\n- Each hit names the document's folder of the company's document tree (`group`, e.g. `earnings/fy2027/q2`, `group_label`, `category`).\n\n### Errors\n\n- `429 upstream_rate_limited` and `503 search_unavailable` carry `Retry-After`.\n\n- `503 search_disabled` while search is switched off.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -23061,6 +23231,7 @@
             "score",
             "kind",
             "year",
+            "group",
             "page",
             "symbol",
             "title",
@@ -23109,6 +23280,9 @@
                           "heading",
                           "text",
                           "title",
+                          "group",
+                          "group_label",
+                          "category",
                           "url",
                           "expires_at"
                         ],
@@ -23182,6 +23356,32 @@
                             "type": "string",
                             "nullable": true,
                             "description": "Document title"
+                          },
+                          "group": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "Folder of the document tree, e.g. earnings/fy2027/q2, events/2026/09-10-<event>, news/2025, reports/2025, governance, shareholder/tax; null = not placed yet"
+                          },
+                          "group_label": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "Human label of `group`, e.g. \"Q2 FY2027\", \"Reports 2025\", \"Shareholder · Tax\""
+                          },
+                          "category": {
+                            "type": "string",
+                            "enum": [
+                              "earnings",
+                              "events",
+                              "news",
+                              "reports",
+                              "presentations",
+                              "governance",
+                              "esg",
+                              "shareholder",
+                              "other"
+                            ],
+                            "nullable": true,
+                            "description": "Spine folder of the tree: earnings, events, news, reports, presentations, governance, esg, shareholder, other; null = not placed yet"
                           },
                           "url": {
                             "type": "string",
