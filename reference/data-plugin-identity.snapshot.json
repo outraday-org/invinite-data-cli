@@ -55,7 +55,7 @@
       "scripts/snapshot-data-plugin-packaging.ts": "98945657178e4d4468963f9ef9b7d85025fde6c25444dbc3adb1c2334aac899e",
       "src/commands/plugin.ts": "953f279105a682c5659c698f5145822c079d51497882f9d64cc54e4255a617b6"
     },
-    "revision": "f394c316a5ff88c33b19f9e01bc4d44d653163ba",
+    "revision": "6db8d2548a995a10d1f623553a5b4e4a654419f9",
     "fingerprint": "1e45a9301fc4a8590895422a29d5c2ead223f4a701f69fd357142c43066609eb"
   }
 }
