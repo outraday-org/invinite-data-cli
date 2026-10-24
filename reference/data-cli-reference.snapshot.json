@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "0.5.4",
+    "version": "0.5.5",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -9,11 +9,11 @@
     "engines": {
       "node": ">=20"
     },
-    "verifiedOn": "2026-10-22",
+    "verifiedOn": "2026-10-24",
     "sourceHashes": {
-      "api-contract.json": "c7a2856646bba6b0ad27d44d053ecaa898675119d229b4714cc210be49d4a831",
-      "openapi.json": "fd55ce27ebc8396c72555f146f7247c02441fd403a268440ff12eb3d8fbffdfc",
-      "package.json": "95f35939ecb923ea47cf46fa8730dd472bcf00130eed668a2f9f9529e3022f5a",
+      "api-contract.json": "c4304e61ced9f6483efb34e06b3d3d3c2bb3cc0287c020e3c46a99b96373a4b7",
+      "openapi.json": "de3dedbe2f4e5bb8c25bf2b33c9cb88fa729a5a9d0e9f7b9e184785f42ed2a37",
+      "package.json": "a0be264cdb019f54d9977fd8c7fb0f52e1e94535f4cc9abdc487181da39688e1",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "274c2c99671474d4442343a9e625bb41eda85343cc74de3cb032821c5736b1a7",
@@ -24,7 +24,7 @@
       "src/client/pagination.ts": "d9ffa4af81e6dab59f7fb3b8afb7e1805fc6b542d673bb3e28f97eecd970a454",
       "src/client/websocket-client.ts": "3c219df00c898fa2ba64482c25a1fa7e663cc20863cc88a1313bf6e12be24d37",
       "src/commands/config.ts": "f2f9a8b9c2eee46abf29e887b99837e10bd061416825d0b7eb84d043ae0a01ca",
-      "src/commands/earnings.ts": "da96359e5f30ed23f591e9ea3a3f7059224178b3ba7c1fe8e18d7c2e52c03062",
+      "src/commands/earnings.ts": "bfa3fc1f007fa0c11f1697df460d017cebe0eeaa0682990071c7f28b8e1f579a",
       "src/commands/login.ts": "639b5c47ce2f61c94f4c6be581711b80a51f446f2c1fa86f7d5f09f35e478e87",
       "src/commands/plugin.ts": "953f279105a682c5659c698f5145822c079d51497882f9d64cc54e4255a617b6",
       "src/commands/ws.ts": "790bfee917b125138533b20f3f9aaa0a93d6c6d38b61d92194ca2096d19a575d",
@@ -34,7 +34,7 @@
       "src/formatters/json-formatter.ts": "0fa8904f4a31c7e0d10ac5eb6c4947c5d56079216e3c93349583ed02ef21b833",
       "src/formatters/table-formatter.ts": "56edfc931457289b4314107971d0021e237430131831199828a8bfd7b3e35c40",
       "src/formatters/time.ts": "f4d4e7c28b2f4610553a82cfdc55b585090c0f1cc6788f84acd6824b29e6bd0a",
-      "src/generated/cli-manifest.json": "62b98dd052670f46fab526c751136b6151dba413ec773bf3ba8d93889f20213c",
+      "src/generated/cli-manifest.json": "33a6516b3952bfdb13a104a78f9bef4a352257dca000e32ecf039cf7ad5e285f",
       "src/hand-written-commands.ts": "c31e969855870d3cacd281f5f1ef8d6aae4e291122bc20ef8fbbc254e93fb20c",
       "src/shared/errors.ts": "3c379b53515a950fae853b9411bf456d3dfb21bcca4237d5730204045dca7097",
       "src/shared/options.ts": "6783cfa83b301857903bbde46edc238cd7adf80f05f0f33a7a883136de8a27b8",
@@ -45,9 +45,9 @@
       "src/spec-flags.ts": "ce66ba5acced7a6a295d4ad53ccfd62ebad713b6523ff5ccf98d892a53f49d37",
       "src/spec-manifest.ts": "5ea901757d497900b968c4badb7ed1086def58afb719f19a8a89a5bbba27925c"
     },
-    "specSha256": "fd55ce27ebc8396c72555f146f7247c02441fd403a268440ff12eb3d8fbffdfc",
-    "revision": "6db8d2548a995a10d1f623553a5b4e4a654419f9",
-    "fingerprint": "e3fe9af62105a5c27200367c813dc2c80294b2a828888f7c8a170e363209a7d8"
+    "specSha256": "de3dedbe2f4e5bb8c25bf2b33c9cb88fa729a5a9d0e9f7b9e184785f42ed2a37",
+    "revision": "4f6bb424b3fa719f9df77923d4544e3b8b924c32",
+    "fingerprint": "83a2c74e1b8d6ccf2d62495b02d4acb2116854f59baccbe104344e9f8fa96d66"
   },
   "globalOptions": [
     {
@@ -565,7 +565,7 @@
       "command": "earnings company-documents",
       "group": "earnings",
       "origin": "hand",
-      "description": "A company's IR documents (annual reports, proxy, ESG, investor-day decks, letters, webcast pages)",
+      "description": "A company's IR documents (annual reports, proxy, ESG, investor-day decks, letters, webcast pages); --include calls adds every earnings call's documents",
       "source": "src/commands/earnings.ts",
       "operations": [
         {
@@ -587,7 +587,7 @@
         },
         {
           "flags": "--kind <list>",
-          "description": "Kinds, comma-separated (annual_report, proxy_statement, esg_report, investor_day_deck, conference_presentation, shareholder_letter, fact_sheet, webcast, …)",
+          "description": "Kinds, comma-separated (annual_report, proxy_statement, esg_report, investor_day_deck, conference_presentation, shareholder_letter, fact_sheet, webcast, cfo_commentary, sec_filing, …)",
           "required": false
         },
         {
@@ -622,7 +622,12 @@
         },
         {
           "flags": "--event-id <event_id>",
-          "description": "Only the documents of this event (investor day, conference, AGM)",
+          "description": "Only the documents of this event (investor day, conference, AGM; with --include calls also an earnings call)",
+          "required": false
+        },
+        {
+          "flags": "--include <list>",
+          "description": "Extra rows: calls = every earnings call's documents in the same list (source: call)",
           "required": false
         },
         {
