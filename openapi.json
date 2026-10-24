@@ -22173,7 +22173,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "A company's investor-relations documents outside its earnings calls' folders, newest year first: annual reports, proxy statements, ESG / governance documents, investor-day and conference decks, shareholder letters, fact sheets, and link-only webcast replay pages.\n\nFilter by IR section, kind, year, period or event, or by the document tree: `category`, `group` (a folder and everything below it) and `fiscal_year` / `fiscal_quarter` (the earnings folder `earnings/fy<YYYY>/q<N>`). Documents of one earnings call are on `/v1/earnings-calls/documents`.\n\n### The document tree\n\nEvery stored document sits in one folder of the company's document tree: `group` (its path) under one of eight `category` spine folders, in this order: `earnings` (`earnings/fy2027/q2` = one fiscal quarter's call: release, deck, CFO commentary, data sheets, transcript; `earnings/cy2026/08-26` = a call without a fiscal period), `events` (`events/2026/09-10-<event>` = a conference, investor day or shareholder meeting), `reports` (`reports/2025`: annual reports, proxy statements, annual letters), `presentations` (`presentations/2024`), `governance`, `esg` (`esg/2025`), `shareholder` (`shareholder/tax`, `shareholder/dividends`, `shareholder/stock`) and `other` (`other/faq`, `other/fact-sheets`, `other/financial-data[/2025]`, `other/web-pages`, `other/documents`). `…/undated` = no date could be read. `group` and `category` are null while a document has not been placed yet.\n\n### What you get\n\n- Company-published material: displayed as published, not verified facts.\n\n- Stored files come as signed URLs; `pages_url` is the per-page text (JSON). A link-only row (webcast) has `url` null and `link_status`.\n\n- Files are served as short-lived signed URLs (see `expires_at`), never proxied; request a fresh response after expiry.\n\n### Errors\n\n- `503 media_unavailable` while media signing is not configured.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
+        "description": "A company's investor-relations documents, newest year first: annual reports, proxy statements, ESG / governance documents, investor-day and conference decks, shareholder letters, fact sheets, and link-only webcast replay pages. By default the IR library outside its earnings calls' folders; `include=calls` adds the documents of every earnings call (CFO commentary, data sheets, letters, the company's own transcript, prepared remarks, 10-Q / 10-K links) to the same list, marked `source: call` with the call's `event_id`, so one paged list holds the company's whole document tree.\n\nFilter by IR section, kind, year, period or event, or by the document tree: `category`, `group` (a folder and everything below it) and `fiscal_year` / `fiscal_quarter` (the earnings folder `earnings/fy<YYYY>/q<N>`). On a call document `year` / `period` are the call's fiscal year / quarter; a `section` filter matches IR-library rows only. Documents of one earnings call alone are on `/v1/earnings-calls/documents`; a call's press release and slide deck are on `/v1/earnings-calls/press-release` and `/v1/earnings-calls/slides`.\n\n### Order and paging\n\n- Without `include`: newest year first, then IR section, kind and title. With `include=calls`: newest year first, then folder (`group`), kind, title and id, one total order over both sources, so `offset` pages never skip or repeat a document.\n\n### The document tree\n\nEvery stored document sits in one folder of the company's document tree: `group` (its path) under one of eight `category` spine folders, in this order: `earnings` (`earnings/fy2027/q2` = one fiscal quarter's call: release, deck, CFO commentary, data sheets, transcript; `earnings/cy2026/08-26` = a call without a fiscal period), `events` (`events/2026/09-10-<event>` = a conference, investor day or shareholder meeting), `reports` (`reports/2025`: annual reports, proxy statements, annual letters), `presentations` (`presentations/2024`), `governance`, `esg` (`esg/2025`), `shareholder` (`shareholder/tax`, `shareholder/dividends`, `shareholder/stock`) and `other` (`other/faq`, `other/fact-sheets`, `other/financial-data[/2025]`, `other/web-pages`, `other/documents`). `…/undated` = no date could be read. `group` and `category` are null while a document has not been placed yet.\n\n### What you get\n\n- Company-published material: displayed as published, not verified facts.\n\n- Stored files come as signed URLs; `pages_url` is the per-page text (JSON). A link-only row (webcast) has `url` null and `link_status`.\n\n- Files are served as short-lived signed URLs (see `expires_at`), never proxied; request a fresh response after expiry.\n\n### Errors\n\n- `503 media_unavailable` while media signing is not configured.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -22195,7 +22195,7 @@
             "in": "query",
             "name": "section",
             "required": false,
-            "description": "Only these IR site sections, comma-separated or repeated: quarterly_results, events_archive, presentations_archive, annual_reports, proxy, sec_filings, press_releases, esg, governance, faq, other",
+            "description": "Only these IR site sections, comma-separated or repeated: quarterly_results, events_archive, presentations_archive, annual_reports, proxy, sec_filings, press_releases, esg, governance, faq, other. IR-library rows only: with include=calls a section filter leaves the call documents out",
             "example": [
               "quarterly_results"
             ]
@@ -22210,7 +22210,7 @@
             "in": "query",
             "name": "kind",
             "required": false,
-            "description": "Only these document kinds, comma-separated or repeated: annual_report, ceo_letter, proxy_statement, proxy_supplement, esg_report, conference_presentation, investor_day_deck, earnings_deck, fact_sheet, financial_data, shareholder_letter, company_transcript, cfo_commentary, governance, press_release, infographic, webcast, other, prepared_remarks",
+            "description": "Only these document kinds, comma-separated or repeated: annual_report, ceo_letter, proxy_statement, proxy_supplement, esg_report, conference_presentation, investor_day_deck, earnings_deck, fact_sheet, financial_data, shareholder_letter, company_transcript, cfo_commentary, governance, press_release, infographic, webcast, other, prepared_remarks, sec_filing",
             "example": [
               "webcast"
             ]
@@ -22224,7 +22224,7 @@
             "in": "query",
             "name": "year",
             "required": false,
-            "description": "Year the document belongs to",
+            "description": "Year the document belongs to (a call document: the call's fiscal year)",
             "example": 2026
           },
           {
@@ -22243,7 +22243,7 @@
             "in": "query",
             "name": "period",
             "required": false,
-            "description": "Period within the year",
+            "description": "Period within the year (a call document: its call's fiscal quarter, Q1-Q4)",
             "example": "Q1"
           },
           {
@@ -22254,7 +22254,7 @@
             "in": "query",
             "name": "event_id",
             "required": false,
-            "description": "Only documents of this event (an investor day, a conference, a shareholder meeting)",
+            "description": "Only documents of this event (an investor day, a conference, a shareholder meeting; with include=calls also an earnings call)",
             "example": "cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c"
           },
           {
@@ -22305,6 +22305,24 @@
             "required": false,
             "description": "Only documents of this fiscal quarter's earnings folder (earnings/fy…/q<N>); combine with fiscal_year",
             "example": 4
+          },
+          {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "calls"
+                ]
+              }
+            },
+            "in": "query",
+            "name": "include",
+            "required": false,
+            "description": "Extra rows: `calls` = the documents of every earnings call of the company (each call's folder, as `/v1/earnings-calls/documents` serves it) in the same list, `source: call`",
+            "example": [
+              "calls"
+            ]
           },
           {
             "schema": {
@@ -22380,6 +22398,7 @@
                         "type": "object",
                         "required": [
                           "document_id",
+                          "source",
                           "section",
                           "kind",
                           "year",
@@ -22414,6 +22433,14 @@
                             "format": "uuid",
                             "description": "Document identifier"
                           },
+                          "source": {
+                            "type": "string",
+                            "enum": [
+                              "company",
+                              "call"
+                            ],
+                            "description": "company = the IR library; call = a document of one earnings call (only with include=calls)"
+                          },
                           "section": {
                             "type": "string",
                             "enum": [
@@ -22429,7 +22456,8 @@
                               "faq",
                               "other"
                             ],
-                            "description": "IR site section the document is filed in"
+                            "nullable": true,
+                            "description": "IR site section the document is filed in; null on a call document"
                           },
                           "kind": {
                             "type": "string",
@@ -22452,7 +22480,8 @@
                               "infographic",
                               "webcast",
                               "other",
-                              "prepared_remarks"
+                              "prepared_remarks",
+                              "sec_filing"
                             ],
                             "description": "Document kind"
                           },
@@ -22522,7 +22551,7 @@
                             "type": "string",
                             "format": "date",
                             "nullable": true,
-                            "description": "The item's own date on the site"
+                            "description": "The item's own date on the site (a call document: the call's New York day)"
                           },
                           "title": {
                             "type": "string",
@@ -22541,7 +22570,7 @@
                           "page_url": {
                             "type": "string",
                             "nullable": true,
-                            "description": "The IR page that listed the document"
+                            "description": "The IR page that listed the document; null on a call document"
                           },
                           "origin": {
                             "type": "string",
@@ -22551,9 +22580,16 @@
                               "notified_listing",
                               "json_feed",
                               "html_page",
-                              "agent"
+                              "agent",
+                              "q4_reports",
+                              "q4_event",
+                              "edgar_exhibit",
+                              "edgar_filing",
+                              "ir_listing",
+                              "playbook_pattern",
+                              "agent_archive"
                             ],
-                            "description": "How the IR section was read"
+                            "description": "How the IR section was read (a call document: where it was found)"
                           },
                           "producer": {
                             "type": "string",
@@ -22655,6 +22691,7 @@
                   "documents": [
                     {
                       "document_id": "f06b3e8d-169d-4142-a558-435c93a02232",
+                      "source": "company",
                       "section": "esg",
                       "kind": "esg_report",
                       "year": 2030,
@@ -22792,6 +22829,7 @@
                       "type": "object",
                       "required": [
                         "document_id",
+                        "source",
                         "section",
                         "kind",
                         "year",
@@ -22826,6 +22864,14 @@
                           "format": "uuid",
                           "description": "Document identifier"
                         },
+                        "source": {
+                          "type": "string",
+                          "enum": [
+                            "company",
+                            "call"
+                          ],
+                          "description": "company = the IR library; call = a document of one earnings call (only with include=calls)"
+                        },
                         "section": {
                           "type": "string",
                           "enum": [
@@ -22841,7 +22887,8 @@
                             "faq",
                             "other"
                           ],
-                          "description": "IR site section the document is filed in"
+                          "nullable": true,
+                          "description": "IR site section the document is filed in; null on a call document"
                         },
                         "kind": {
                           "type": "string",
@@ -22864,7 +22911,8 @@
                             "infographic",
                             "webcast",
                             "other",
-                            "prepared_remarks"
+                            "prepared_remarks",
+                            "sec_filing"
                           ],
                           "description": "Document kind"
                         },
@@ -22934,7 +22982,7 @@
                           "type": "string",
                           "format": "date",
                           "nullable": true,
-                          "description": "The item's own date on the site"
+                          "description": "The item's own date on the site (a call document: the call's New York day)"
                         },
                         "title": {
                           "type": "string",
@@ -22953,7 +23001,7 @@
                         "page_url": {
                           "type": "string",
                           "nullable": true,
-                          "description": "The IR page that listed the document"
+                          "description": "The IR page that listed the document; null on a call document"
                         },
                         "origin": {
                           "type": "string",
@@ -22963,9 +23011,16 @@
                             "notified_listing",
                             "json_feed",
                             "html_page",
-                            "agent"
+                            "agent",
+                            "q4_reports",
+                            "q4_event",
+                            "edgar_exhibit",
+                            "edgar_filing",
+                            "ir_listing",
+                            "playbook_pattern",
+                            "agent_archive"
                           ],
-                          "description": "How the IR section was read"
+                          "description": "How the IR section was read (a call document: where it was found)"
                         },
                         "producer": {
                           "type": "string",
@@ -23060,6 +23115,7 @@
                   },
                   "document": {
                     "document_id": "30f56e78-1702-4183-9deb-02150a8147fb",
+                    "source": "company",
                     "section": "quarterly_results",
                     "kind": "webcast",
                     "year": 2026,

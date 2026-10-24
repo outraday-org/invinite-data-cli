@@ -159,6 +159,22 @@ describe('earnings requests', () => {
     expect(printed).not.toContain('X-Amz-Signature');
   });
 
+  it('company-documents --include calls asks for the calls\' documents and shows each row\'s source', async () => {
+    (fetch as any).mockResolvedValueOnce(json({
+      company: { cik: '0000000001', symbol: 'ACME', name: 'Acme' },
+      documents: [
+        { document_id: 'd1', source: 'company', kind: 'annual_report', group: 'reports/2025', year: 2025, title: 'Annual Report' },
+        { document_id: 'd2', source: 'call', kind: 'cfo_commentary', group: 'earnings/fy2027/q2', section: null, year: 2027, period: 'Q2', title: 'CFO Commentary' },
+      ],
+    }));
+    await run('company-documents', '-i', 'ACME', '--include', 'calls');
+    expect(Object.fromEntries(url().searchParams)).toEqual({ identifier: 'ACME', include: 'calls' });
+    const printed = logs.join('\n');
+    expect(printed).toContain('CFO Commentary');
+    expect(printed).toContain('earnings/fy2027/q2');
+    expect(printed).toMatch(/call/);
+  });
+
   it('document --pages prints the inline page text', async () => {
     (fetch as any).mockResolvedValueOnce(json({
       company: { symbol: 'ACME' },

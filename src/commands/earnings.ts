@@ -351,17 +351,18 @@ export function registerEarningsCommands(program: Command): void {
 
   earnings
     .command('company-documents')
-    .description("A company's IR documents (annual reports, proxy, ESG, investor-day decks, letters, webcast pages)")
+    .description("A company's IR documents (annual reports, proxy, ESG, investor-day decks, letters, webcast pages); --include calls adds every earnings call's documents")
     .requiredOption('-i, --identifier <ticker>', 'Ticker or CIK')
     .option('--section <list>', 'IR sections, comma-separated (quarterly_results, events_archive, presentations_archive, annual_reports, proxy, sec_filings, press_releases, esg, governance, faq, other)')
-    .option('--kind <list>', 'Kinds, comma-separated (annual_report, proxy_statement, esg_report, investor_day_deck, conference_presentation, shareholder_letter, fact_sheet, webcast, …)')
+    .option('--kind <list>', 'Kinds, comma-separated (annual_report, proxy_statement, esg_report, investor_day_deck, conference_presentation, shareholder_letter, fact_sheet, webcast, cfo_commentary, sec_filing, …)')
     .option('--year <n>', 'Year the document belongs to')
     .option('--period <period>', 'Period within the year (Q1-Q4, H1, H2, FY)')
     .option('--category <list>', `Document-tree categories, comma-separated (${DOCUMENT_TREE_CATEGORIES})`)
     .option('--group <path>', 'Document-tree folder or a parent of it, e.g. earnings/fy2027/q2, esg or shareholder/tax')
     .option('--fiscal-year <n>', 'Only the earnings folders of this fiscal year (earnings/fy<YYYY>/…)')
     .option('--fiscal-quarter <n>', 'Only the earnings folders of this fiscal quarter (1-4)')
-    .option('--event-id <event_id>', 'Only the documents of this event (investor day, conference, AGM)')
+    .option('--event-id <event_id>', 'Only the documents of this event (investor day, conference, AGM; with --include calls also an earnings call)')
+    .option('--include <list>', "Extra rows: calls = every earnings call's documents in the same list (source: call)")
     .option('-l, --limit <n>', 'Max results (1-100)')
     .option('--offset <n>', 'Offset')
     .option('-o, --output <dir>', 'Save every stored file into this directory as <year>-<kind>-<document_id>.<ext>; a link-only row (webcast) is reported on stderr, exit 1 only when none could be saved')
@@ -381,6 +382,7 @@ export function registerEarningsCommands(program: Command): void {
           fiscal_year: cmdOpts.fiscalYear,
           fiscal_quarter: cmdOpts.fiscalQuarter,
           event_id: cmdOpts.eventId,
+          include: cmdOpts.include,
           limit: cmdOpts.limit,
           offset: cmdOpts.offset,
         },
@@ -406,7 +408,7 @@ export function registerEarningsCommands(program: Command): void {
       output(data, opts, () => {
         console.log(chalk.bold(`\n${data.company?.symbol ?? cmdOpts.identifier} (${data.company?.cik ?? ''}) IR documents\n`));
         console.log(chalk.dim('Company-published material, shown as published.\n'));
-        formatTable(data.documents, ['document_id', 'kind', 'group', 'section', 'year', 'period', 'title', 'pages']);
+        formatTable(data.documents, ['document_id', 'source', 'kind', 'group', 'section', 'year', 'period', 'title', 'pages']);
         if (cmdOpts.output) {
           console.log(chalk.bold('\nSaved\n'));
           formatTable(saved, ['document_id', 'kind', 'path', 'bytes']);
