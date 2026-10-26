@@ -225,16 +225,16 @@ describe('earnings requests', () => {
   it('audio --output saves the file and never prints the URL', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'invd-earnings-'));
     try {
-      const signed = 'https://pub.r2.example.com/aapl/earnings/fy2026/q4/audio/aapl-q4-2026-earnings-call-0123456789ab.mp3';
+      const audioUrl = 'https://pub.r2.example.com/aapl/earnings/fy2026/q4/audio/aapl-q4-2026-earnings-call-0123456789ab.mp3';
       (fetch as any)
-        .mockResolvedValueOnce(json({ event: { symbol: 'AAPL' }, url: signed, duration_seconds: null, bytes: 3, codec: 'mp3', capture_path: null }))
+        .mockResolvedValueOnce(json({ event: { symbol: 'AAPL' }, url: audioUrl, duration_seconds: null, bytes: 3, codec: 'mp3', capture_path: null }))
         .mockResolvedValueOnce({ ok: true, status: 200, body: new Blob(['mp3']).stream() });
       const file = join(dir, 'call.mp3');
       await run('audio', '--event-id', 'e1', '--output', file);
-      expect((fetch as any).mock.calls[1][0]).toBe(signed);
+      expect((fetch as any).mock.calls[1][0]).toBe(audioUrl);
       expect((fetch as any).mock.calls[1][1]).not.toHaveProperty('headers');
       expect(await readFile(file, 'utf8')).toBe('mp3');
-      expect(logs.join('\n')).not.toContain(signed);
+      expect(logs.join('\n')).not.toContain(audioUrl);
     } finally {
       await rm(dir, { recursive: true, force: true });
     }
