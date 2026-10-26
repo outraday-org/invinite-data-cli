@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Invinite API",
-    "description": "Invinite financial data API. Each endpoint has a base credit cost: `x-credits` is the base cost; responses add 1 credit per started 1,000 rows beyond the first 1,000; `X-Credits-Charged` reports the final debit and `X-Credits-Included-Remaining` what is left of the plan's included credits. `GET /v1/account/usage` returns your account's usage by day, endpoint family and key (it costs no credits). SEC filing search has a 100-credit base cost.\n\n## Webhooks\n\nAccounts on LITE and above subscribe with `POST /v1/earnings-calls/webhooks` to the `earnings_call.*` lifecycle events (filtered by CIK); see `x-webhooks` for each `data` object. What a subscription may hold depends on the plan (a create / update beyond it is refused with the plan's limit; `ping` needs no subscription — the test route and the disabled notice send it to any subscription):\n\n| Plan | Webhooks | Events | CIKs per webhook | Keywords per webhook |\n|---|---|---|---|---|\n| FREE | 0 | — | — | — |\n| LITE | 5 | `.scheduled`, `.rescheduled`, `.started`, `.ended`, `.transcript_ready`, `.assets_ready` | ≤ 10 | — |\n| STANDARD | 15 | LITE + `.transcript_provisional`, `.transcript_corrected`, `.documents_updated` | ≤ 25 | — |\n| PRO / ENTERPRISE | 50 | STANDARD + `.guidance_flash`, `.keyword_hit` | ≤ 100 | ≤ 20 (on ≤ 10 webhooks) |\n\nEvery delivery is a `POST` with `Content-Type: application/json`, `X-Invinite-Event`, `X-Invinite-Delivery` and `X-Invinite-Signature: t=<unix seconds>,v1=<hex>` where `v1` = HMAC-SHA256(secret, `<t>.<raw body>`); during a secret rotation the header carries one `v1` per valid secret. Reject a signature older than 5 minutes. Any 2xx within 10 s acknowledges; redirects are not followed. A failed delivery is retried after 1 min, 5 min, 30 min, 2 h, 6 h, 12 h, 24 h (8 attempts in all, the same delivery id each time). A subscription is disabled after 8 consecutive dead-lettered deliveries (a final `ping` with `notice: subscription_disabled` is sent). Deliveries are at-least-once and unordered: dedupe on the delivery id, order by `created_at`.\n\n## Licensing\n\n| Tier | display | redistribute | rag | train | audio | resell |\n| --- | --- | --- | --- | --- | --- | --- |\n| FREE | ✓ | – | – | – | – | – |\n| LITE | ✓ | – | – | – | – | – |\n| STANDARD | ✓ | – | ✓ | – | – | – |\n| PRO | ✓ | ✓ | ✓ | – | ✓ | – |\n\nInvinite data may be shown and, from PRO, redistributed inside the licensee's own product with attribution (\"Source: Invinite\" on screen or in the API response that carries it). It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.\n\nPolicy version: 2026-10-draft. Draft — pending counsel sign-off.\n\nAudio files are forensically watermarked per customer. Audio is served through signed URLs, is subject to per-company takedown and may not be re-hosted; every delivered file carries a per-account forensic watermark: a copy found elsewhere is traced to the account that received it.\n\nSEC data: Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.\n\nEvery `/v1/*` data operation carries `x-license`, the minimum use right its data ships with; `GET /status/licensing` serves the same matrix per route, rendered at [data.invinite.com/docs/licensing](https://data.invinite.com/docs/licensing). `/v1/account/usage` serves no licensed data and carries none.\n\n## Status\n\n[`/status`](/status) reports whether each product family works (a status and its uptime over 7, 30 and 90 days); [`/status/licensing`](/status/licensing) serves the licensing matrix per route. The status routes need no API key and are cached for 5 minutes. The public status page is [status.data.invinite.com](https://status.data.invinite.com): a snapshot of `/status` every 15 minutes plus an external reachability probe of the API.\n\nUptime is the share of requests answered without a server error, measured by the API per product family; a window with too little traffic to judge shows no figure. Status reflects the last 24 hours.\n\nProduct families: Company, Financials, SEC Filings, Insider Trades, Institutional Ownership, IPOs, Market, Metadata, Earnings Calls, WebSocket, Account.",
+    "description": "Invinite financial data API. Each endpoint has a base credit cost: `x-credits` is the base cost; responses add 1 credit per started 1,000 rows beyond the first 1,000; `X-Credits-Charged` reports the final debit and `X-Credits-Included-Remaining` what is left of the plan's included credits. `GET /v1/account/usage` returns your account's usage by day, endpoint family and key (it costs no credits). SEC filing search has a 100-credit base cost.\n\n## Webhooks\n\nAccounts on LITE and above subscribe with `POST /v1/earnings-calls/webhooks` to the `earnings_call.*` lifecycle events (filtered by CIK); see `x-webhooks` for each `data` object. What a subscription may hold depends on the plan (a create / update beyond it is refused with the plan's limit; `ping` needs no subscription — the test route and the disabled notice send it to any subscription):\n\n| Plan | Webhooks | Events | CIKs per webhook | Keywords per webhook |\n|---|---|---|---|---|\n| FREE | 0 | — | — | — |\n| LITE | 5 | `.scheduled`, `.rescheduled`, `.started`, `.ended`, `.transcript_ready`, `.assets_ready` | ≤ 10 | — |\n| STANDARD | 15 | LITE + `.transcript_provisional`, `.transcript_corrected`, `.documents_updated` | ≤ 25 | — |\n| PRO / ENTERPRISE | 50 | STANDARD + `.guidance_flash`, `.keyword_hit` | ≤ 100 | ≤ 20 (on ≤ 10 webhooks) |\n\nEvery delivery is a `POST` with `Content-Type: application/json`, `X-Invinite-Event`, `X-Invinite-Delivery` and `X-Invinite-Signature: t=<unix seconds>,v1=<hex>` where `v1` = HMAC-SHA256(secret, `<t>.<raw body>`); during a secret rotation the header carries one `v1` per valid secret. Reject a signature older than 5 minutes. Any 2xx within 10 s acknowledges; redirects are not followed. A failed delivery is retried after 1 min, 5 min, 30 min, 2 h, 6 h, 12 h, 24 h (8 attempts in all, the same delivery id each time). A subscription is disabled after 8 consecutive dead-lettered deliveries (a final `ping` with `notice: subscription_disabled` is sent). Deliveries are at-least-once and unordered: dedupe on the delivery id, order by `created_at`.\n\n## Licensing\n\n| Tier | display | redistribute | rag | train | audio | resell |\n| --- | --- | --- | --- | --- | --- | --- |\n| FREE | ✓ | – | – | – | – | – |\n| LITE | ✓ | – | – | – | – | – |\n| STANDARD | ✓ | – | ✓ | – | – | – |\n| PRO | ✓ | ✓ | ✓ | – | ✓ | – |\n\nInvinite data may be shown and, from PRO, redistributed inside the licensee's own product with attribution (\"Source: Invinite\" on screen or in the API response that carries it). It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.\n\nPolicy version: 2026-10-draft. Draft — pending counsel sign-off.\n\nAudio files carry a forensic watermark that identifies the recording. Audio is subject to per-company takedown and may not be re-hosted.\n\nSEC data: Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.\n\nEvery `/v1/*` data operation carries `x-license`, the minimum use right its data ships with; `GET /status/licensing` serves the same matrix per route, rendered at [data.invinite.com/docs/licensing](https://data.invinite.com/docs/licensing). `/v1/account/usage` serves no licensed data and carries none.\n\n## Status\n\n[`/status`](/status) reports whether each product family works (a status and its uptime over 7, 30 and 90 days); [`/status/licensing`](/status/licensing) serves the licensing matrix per route. The status routes need no API key and are cached for 5 minutes. The public status page is [status.data.invinite.com](https://status.data.invinite.com): a snapshot of `/status` every 15 minutes plus an external reachability probe of the API.\n\nUptime is the share of requests answered without a server error, measured by the API per product family; a window with too little traffic to judge shows no figure. Status reflects the last 24 hours.\n\nProduct families: Company, Financials, SEC Filings, Insider Trades, Institutional Ownership, IPOs, Market, Metadata, Earnings Calls, WebSocket, Account.",
     "version": "1.0.0"
   },
   "components": {
@@ -14752,7 +14752,7 @@
                           "scheduled_at": {
                             "type": "string",
                             "format": "date-time",
-                            "description": "Scheduled start (ISO 8601 UTC). When call_time_source is null only the date is known: read only its calendar date in tz."
+                            "description": "Scheduled start (ISO 8601 UTC). A date-only event (call_time_source null) is stored at 00:00:00Z of its calendar date: read its UTC date; do not convert it to tz."
                           },
                           "tz": {
                             "type": "string",
@@ -15170,7 +15170,7 @@
                           "scheduled_at": {
                             "type": "string",
                             "format": "date-time",
-                            "description": "Scheduled start (ISO 8601 UTC). When call_time_source is null only the date is known: read only its calendar date in tz."
+                            "description": "Scheduled start (ISO 8601 UTC). A date-only event (call_time_source null) is stored at 00:00:00Z of its calendar date: read its UTC date; do not convert it to tz."
                           },
                           "tz": {
                             "type": "string",
@@ -15519,7 +15519,7 @@
                           "scheduled_at": {
                             "type": "string",
                             "format": "date-time",
-                            "description": "Scheduled start (ISO 8601 UTC). When call_time_source is null only the date is known: read only its calendar date in tz."
+                            "description": "Scheduled start (ISO 8601 UTC). A date-only event (call_time_source null) is stored at 00:00:00Z of its calendar date: read its UTC date; do not convert it to tz."
                           },
                           "tz": {
                             "type": "string",
@@ -16078,7 +16078,7 @@
                     "scheduled_at": {
                       "type": "string",
                       "format": "date-time",
-                      "description": "Scheduled start (ISO 8601 UTC). When call_time_source is null only the date is known: read only its calendar date in tz."
+                      "description": "Scheduled start (ISO 8601 UTC). A date-only event (call_time_source null) is stored at 00:00:00Z of its calendar date: read its UTC date; do not convert it to tz."
                     },
                     "tz": {
                       "type": "string",
@@ -16506,7 +16506,7 @@
                         "scheduled_at": {
                           "type": "string",
                           "format": "date-time",
-                          "description": "Scheduled start (ISO 8601 UTC). When call_time_source is null only the date is known: read only its calendar date in tz."
+                          "description": "Scheduled start (ISO 8601 UTC). A date-only event (call_time_source null) is stored at 00:00:00Z of its calendar date: read its UTC date; do not convert it to tz."
                         },
                         "tz": {
                           "type": "string",
@@ -21183,7 +21183,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "The recording of one earnings call as a signed download URL (PRO). Audio files are forensically watermarked per customer: every account gets its own copy.\n\n### Getting the file\n\n- An account's first request for a call answers `202` `{ status: \"preparing\", retry_after_seconds }` with `Retry-After` while that copy is prepared (not billed). Repeat the request after it.\n\n- Files are served as short-lived signed URLs (see `expires_at`), never proxied; request a fresh response after expiry.\n\n### Errors\n\n- `403 audio_unavailable` when the company's audio is not licensed for delivery or no recording exists (one answer for both).\n\n- `429 audio_quota_exceeded` when the account requested too many new audio files today.\n\n- `503 audio_temporarily_unavailable` while audio cannot be prepared.\n\n- `503 media_unavailable` while media signing is not configured.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
+        "description": "The recording of one earnings call at its permanent public URL (PRO). The file carries one forensic watermark that identifies the recording.\n\n### Getting the file\n\n- `url` does not expire; download it or play it directly. Audio may not be re-hosted.\n\n### Errors\n\n- `403 audio_unavailable` when the company's audio is not licensed for delivery or no recording is available yet (one answer for both).\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -21277,7 +21277,6 @@
                   "required": [
                     "event",
                     "url",
-                    "expires_at",
                     "duration_seconds",
                     "bytes",
                     "codec",
@@ -21315,12 +21314,7 @@
                     },
                     "url": {
                       "type": "string",
-                      "description": "Signed download URL; a bearer credential, do not share or cache"
-                    },
-                    "expires_at": {
-                      "type": "string",
-                      "format": "date-time",
-                      "description": "When the signed URL stops working"
+                      "description": "Permanent public URL of the recording; the file carries one forensic watermark that identifies it"
                     },
                     "duration_seconds": {
                       "type": "integer",
@@ -21354,33 +21348,6 @@
               }
             }
           },
-          "202": {
-            "description": "The calling account's watermarked copy is being prepared; repeat the request after Retry-After (not billed)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "description": "The calling account's watermarked copy is being prepared; repeat the request after Retry-After (not billed)",
-                  "required": [
-                    "status",
-                    "retry_after_seconds"
-                  ],
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "enum": [
-                        "preparing"
-                      ]
-                    },
-                    "retry_after_seconds": {
-                      "type": "integer",
-                      "description": "Seconds until the copy is usually ready"
-                    }
-                  }
-                }
-              }
-            }
-          },
           "400": {
             "$ref": "#/components/responses/BadRequestError"
           },
@@ -21393,37 +21360,8 @@
           "404": {
             "$ref": "#/components/responses/NotFoundError"
           },
-          "429": {
-            "description": "Too many new audio files for this account (daily quota of new watermarked copies)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "description": "Too many new audio files for this account (daily quota of new watermarked copies)",
-                  "required": [
-                    "error",
-                    "message"
-                  ],
-                  "properties": {
-                    "error": {
-                      "type": "string",
-                      "example": "audio_quota_exceeded",
-                      "description": "Type of error"
-                    },
-                    "message": {
-                      "type": "string",
-                      "description": "Detailed error message"
-                    }
-                  }
-                }
-              }
-            }
-          },
           "500": {
             "$ref": "#/components/responses/InternalServerError"
-          },
-          "503": {
-            "$ref": "#/components/responses/ServiceUnavailableError"
           }
         },
         "x-tier": "pro",
@@ -23512,7 +23450,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "\"Ask this call\": semantic search over earnings-call transcripts and slide text — one call (`event_id`), one company (`identifier`) or every call (default: the last 365 days).\n\n### What you get\n\n- Up to 8 passages with speaker and `start_ms`. Cite `event_id` and `start_ms`.\n\n- On plans that include the audio and slides routes (PRO), signed URLs: `audio_url` opens the calling account's own watermarked copy of the recording at the passage (`#t=<seconds>`) — null while that copy is being prepared (repeat the search a minute later) — and `slide.image_url` shows the slide.\n\n### Event types\n\n- `event_type` (default `earnings_call`; `all` = every type) selects investor days, conferences or shareholder meetings too.\n\n### Errors\n\n- `429 upstream_rate_limited` and `503 search_unavailable` carry `Retry-After`.\n\n- `503 search_disabled` while search is switched off.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for rag: STANDARD.",
+        "description": "\"Ask this call\": semantic search over earnings-call transcripts and slide text — one call (`event_id`), one company (`identifier`) or every call (default: the last 365 days).\n\n### What you get\n\n- Up to 8 passages with speaker and `start_ms`. Cite `event_id` and `start_ms`.\n\n- On plans that include the audio and slides routes (PRO): `audio_url` opens the recording's permanent URL at the passage (`#t=<seconds>`; null while no recording is available) and `slide.image_url` (a signed URL) shows the slide.\n\n### Event types\n\n- `event_type` (default `earnings_call`; `all` = every type) selects investor days, conferences or shareholder meetings too.\n\n### Errors\n\n- `429 upstream_rate_limited` and `503 search_unavailable` carry `Retry-After`.\n\n- `503 search_disabled` while search is switched off.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
@@ -23760,7 +23698,7 @@
                           "audio_url": {
                             "type": "string",
                             "nullable": true,
-                            "description": "Signed audio URL opening at the passage (#t=<seconds>); null without the PRO plan, without a recording, without start_ms or while audio delivery is off. A bearer credential that expires (EARNINGS_SIGNED_URL_TTL_SECONDS, 15 min)."
+                            "description": "The recording's permanent URL opening at the passage (#t=<seconds>); null without the PRO plan, without a servable recording, without start_ms or for an audio opt-out."
                           },
                           "slide": {
                             "type": "object",
@@ -27129,7 +27067,7 @@
                     "redistribute": "Pass the data on inside the licensee's product (exports, embedded widgets, downstream API responses) with attribution; never as a stand-alone data product.",
                     "rag": "Use the text as retrieval context in a customer-facing product.",
                     "train": "Model training is contract-only.",
-                    "audio": "Audio files are forensically watermarked per customer. Audio is served through signed URLs, is subject to per-company takedown and may not be re-hosted; every delivered file carries a per-account forensic watermark: a copy found elsewhere i…",
+                    "audio": "Audio files carry a forensic watermark that identifies the recording. Audio is subject to per-company takedown and may not be re-hosted.",
                     "sec_data": "Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's."
                   },
                   "rights": [
@@ -27630,7 +27568,7 @@
                               "scheduled_at": {
                                 "type": "string",
                                 "format": "date-time",
-                                "description": "Scheduled start (ISO 8601 UTC). When call_time_source is null only the date is known: read only its calendar date in tz."
+                                "description": "Scheduled start (ISO 8601 UTC). A date-only event (call_time_source null) is stored at 00:00:00Z of its calendar date: read its UTC date; do not convert it to tz."
                               },
                               "tz": {
                                 "type": "string",
@@ -27893,7 +27831,7 @@
                               "scheduled_at": {
                                 "type": "string",
                                 "format": "date-time",
-                                "description": "Scheduled start (ISO 8601 UTC). When call_time_source is null only the date is known: read only its calendar date in tz."
+                                "description": "Scheduled start (ISO 8601 UTC). A date-only event (call_time_source null) is stored at 00:00:00Z of its calendar date: read its UTC date; do not convert it to tz."
                               },
                               "tz": {
                                 "type": "string",
@@ -28163,7 +28101,7 @@
                               "scheduled_at": {
                                 "type": "string",
                                 "format": "date-time",
-                                "description": "Scheduled start (ISO 8601 UTC). When call_time_source is null only the date is known: read only its calendar date in tz."
+                                "description": "Scheduled start (ISO 8601 UTC). A date-only event (call_time_source null) is stored at 00:00:00Z of its calendar date: read its UTC date; do not convert it to tz."
                               },
                               "tz": {
                                 "type": "string",
@@ -28424,7 +28362,7 @@
                               "scheduled_at": {
                                 "type": "string",
                                 "format": "date-time",
-                                "description": "Scheduled start (ISO 8601 UTC). When call_time_source is null only the date is known: read only its calendar date in tz."
+                                "description": "Scheduled start (ISO 8601 UTC). A date-only event (call_time_source null) is stored at 00:00:00Z of its calendar date: read its UTC date; do not convert it to tz."
                               },
                               "tz": {
                                 "type": "string",
@@ -28709,7 +28647,7 @@
                               "scheduled_at": {
                                 "type": "string",
                                 "format": "date-time",
-                                "description": "Scheduled start (ISO 8601 UTC). When call_time_source is null only the date is known: read only its calendar date in tz."
+                                "description": "Scheduled start (ISO 8601 UTC). A date-only event (call_time_source null) is stored at 00:00:00Z of its calendar date: read its UTC date; do not convert it to tz."
                               },
                               "tz": {
                                 "type": "string",
@@ -29028,7 +28966,7 @@
                               "scheduled_at": {
                                 "type": "string",
                                 "format": "date-time",
-                                "description": "Scheduled start (ISO 8601 UTC). When call_time_source is null only the date is known: read only its calendar date in tz."
+                                "description": "Scheduled start (ISO 8601 UTC). A date-only event (call_time_source null) is stored at 00:00:00Z of its calendar date: read its UTC date; do not convert it to tz."
                               },
                               "tz": {
                                 "type": "string",
@@ -29336,7 +29274,7 @@
                               "scheduled_at": {
                                 "type": "string",
                                 "format": "date-time",
-                                "description": "Scheduled start (ISO 8601 UTC). When call_time_source is null only the date is known: read only its calendar date in tz."
+                                "description": "Scheduled start (ISO 8601 UTC). A date-only event (call_time_source null) is stored at 00:00:00Z of its calendar date: read its UTC date; do not convert it to tz."
                               },
                               "tz": {
                                 "type": "string",
@@ -29644,7 +29582,7 @@
                               "scheduled_at": {
                                 "type": "string",
                                 "format": "date-time",
-                                "description": "Scheduled start (ISO 8601 UTC). When call_time_source is null only the date is known: read only its calendar date in tz."
+                                "description": "Scheduled start (ISO 8601 UTC). A date-only event (call_time_source null) is stored at 00:00:00Z of its calendar date: read its UTC date; do not convert it to tz."
                               },
                               "tz": {
                                 "type": "string",
@@ -29924,7 +29862,7 @@
                               "scheduled_at": {
                                 "type": "string",
                                 "format": "date-time",
-                                "description": "Scheduled start (ISO 8601 UTC). When call_time_source is null only the date is known: read only its calendar date in tz."
+                                "description": "Scheduled start (ISO 8601 UTC). A date-only event (call_time_source null) is stored at 00:00:00Z of its calendar date: read its UTC date; do not convert it to tz."
                               },
                               "tz": {
                                 "type": "string",
@@ -30259,7 +30197,7 @@
                               "scheduled_at": {
                                 "type": "string",
                                 "format": "date-time",
-                                "description": "Scheduled start (ISO 8601 UTC). When call_time_source is null only the date is known: read only its calendar date in tz."
+                                "description": "Scheduled start (ISO 8601 UTC). A date-only event (call_time_source null) is stored at 00:00:00Z of its calendar date: read its UTC date; do not convert it to tz."
                               },
                               "tz": {
                                 "type": "string",
@@ -30609,7 +30547,7 @@
                               "scheduled_at": {
                                 "type": "string",
                                 "format": "date-time",
-                                "description": "Scheduled start (ISO 8601 UTC). When call_time_source is null only the date is known: read only its calendar date in tz."
+                                "description": "Scheduled start (ISO 8601 UTC). A date-only event (call_time_source null) is stored at 00:00:00Z of its calendar date: read its UTC date; do not convert it to tz."
                               },
                               "tz": {
                                 "type": "string",

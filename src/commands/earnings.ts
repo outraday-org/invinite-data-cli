@@ -221,7 +221,7 @@ export function registerEarningsCommands(program: Command): void {
 
   // ── Media ──────────────────────────────────────────────────────────
 
-  selectorCommand('audio', 'Call recording (signed URL, or --output to save it)')
+  selectorCommand('audio', 'Call recording (permanent URL, or --output to save it)')
     .option('-o, --output <file>', 'Save the recording (e.g. call.mp3)')
     .option('--force', 'Overwrite an existing --output file')
     .action(run(async (cmdOpts: SelectorOptions & Row) => {
@@ -237,7 +237,7 @@ export function registerEarningsCommands(program: Command): void {
           bytes: data.bytes,
           codec: data.codec,
           capture_path: data.capture_path,
-          ...(saved ? {} : { expires_at: data.expires_at, url: data.url }),
+          ...(saved ? {} : { url: data.url }),
         });
         if (saved) printSaved(saved);
       });

@@ -268,7 +268,7 @@ invd earnings press-release -i AAPL --year 2026 --quarter 4 --body --output rele
 
 <!-- invd:hand:earnings audio -->
 ```bash
-# Call recording (PRO); --output saves the file from its signed URL (expires after 15 min)
+# Call recording (PRO): a permanent URL (one forensic watermark per call); --output saves the file
 invd earnings audio --event-id <event_id> --json
 invd earnings audio --event-id <event_id> --output call.mp3
 ```

@@ -12,7 +12,7 @@ export const HAND_WRITTEN_COMMANDS = [
   { command: 'ws', reason: 'WebSocket stream (/v1/ws); --earnings is the live transcript (src/client/earnings-live.ts)' },
   { command: 'earnings transcript', reason: 'renders the transcript as text and saves it with -o' },
   { command: 'earnings press-release', reason: 'prints the release text with --body and saves it with -o' },
-  { command: 'earnings audio', reason: 'downloads the recording from its signed URL with -o' },
+  { command: 'earnings audio', reason: 'downloads the recording from its URL with -o' },
   { command: 'earnings slides', reason: 'downloads the deck PDF with -o, prints page markdown with --markdown' },
   { command: 'earnings documents', reason: 'downloads every document into a directory with -o' },
   { command: 'earnings company-documents', reason: 'downloads every stored file into a directory with -o' },

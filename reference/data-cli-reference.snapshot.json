@@ -9,10 +9,10 @@
     "engines": {
       "node": ">=20"
     },
-    "verifiedOn": "2026-10-24",
+    "verifiedOn": "2026-10-26",
     "sourceHashes": {
-      "api-contract.json": "72c253ce2ec69b424a2916af9b5540e28ca5f2d7febed49868fc6f0a4222077c",
-      "openapi.json": "3f1909882912185c661a1334a525bcf16686a09f0de493db3bdad6d573426b15",
+      "api-contract.json": "d38680263fc460f2d327b42ef0c18c473c54e5602ef3d3853301dba25fbc8991",
+      "openapi.json": "cafa5748c4ca0c51533695eb005138bdd888d5e4144163269fb8b3a245cd0a10",
       "package.json": "a0be264cdb019f54d9977fd8c7fb0f52e1e94535f4cc9abdc487181da39688e1",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
@@ -24,7 +24,7 @@
       "src/client/pagination.ts": "d9ffa4af81e6dab59f7fb3b8afb7e1805fc6b542d673bb3e28f97eecd970a454",
       "src/client/websocket-client.ts": "3c219df00c898fa2ba64482c25a1fa7e663cc20863cc88a1313bf6e12be24d37",
       "src/commands/config.ts": "f2f9a8b9c2eee46abf29e887b99837e10bd061416825d0b7eb84d043ae0a01ca",
-      "src/commands/earnings.ts": "bfa3fc1f007fa0c11f1697df460d017cebe0eeaa0682990071c7f28b8e1f579a",
+      "src/commands/earnings.ts": "10cbcf5bdace6f0cf5c5c02ac8887b74780def966eccce77d3c9295d87e78800",
       "src/commands/login.ts": "639b5c47ce2f61c94f4c6be581711b80a51f446f2c1fa86f7d5f09f35e478e87",
       "src/commands/plugin.ts": "953f279105a682c5659c698f5145822c079d51497882f9d64cc54e4255a617b6",
       "src/commands/ws.ts": "790bfee917b125138533b20f3f9aaa0a93d6c6d38b61d92194ca2096d19a575d",
@@ -34,8 +34,8 @@
       "src/formatters/json-formatter.ts": "0fa8904f4a31c7e0d10ac5eb6c4947c5d56079216e3c93349583ed02ef21b833",
       "src/formatters/table-formatter.ts": "56edfc931457289b4314107971d0021e237430131831199828a8bfd7b3e35c40",
       "src/formatters/time.ts": "f4d4e7c28b2f4610553a82cfdc55b585090c0f1cc6788f84acd6824b29e6bd0a",
-      "src/generated/cli-manifest.json": "0e0d0ca48541f7cbc40c5af9be258b9f45eb2125bd9a825eebfa38e15e77eed7",
-      "src/hand-written-commands.ts": "c31e969855870d3cacd281f5f1ef8d6aae4e291122bc20ef8fbbc254e93fb20c",
+      "src/generated/cli-manifest.json": "194666ece87465b5758e43ac1bce3f1eb2a01599a805143793df3dd28835bd8a",
+      "src/hand-written-commands.ts": "e2dd13ba3fe1783b3152f399c543ab992dade024b9bd42d07e71983ccb1c884d",
       "src/shared/errors.ts": "3c379b53515a950fae853b9411bf456d3dfb21bcca4237d5730204045dca7097",
       "src/shared/options.ts": "6783cfa83b301857903bbde46edc238cd7adf80f05f0f33a7a883136de8a27b8",
       "src/shared/output.ts": "613b3573aa7d3e11e9a98ac427db4d15ec895e1f242baf154e0cd6ff5f030ff0",
@@ -45,9 +45,9 @@
       "src/spec-flags.ts": "ce66ba5acced7a6a295d4ad53ccfd62ebad713b6523ff5ccf98d892a53f49d37",
       "src/spec-manifest.ts": "5ea901757d497900b968c4badb7ed1086def58afb719f19a8a89a5bbba27925c"
     },
-    "specSha256": "3f1909882912185c661a1334a525bcf16686a09f0de493db3bdad6d573426b15",
-    "revision": "fc0fc12af8bd75d18de28c0a5f50691dd259dc38",
-    "fingerprint": "af5c42efabd14377dd07f8dee1fb43d472d0eb207bb19a897185381da9f53770"
+    "specSha256": "cafa5748c4ca0c51533695eb005138bdd888d5e4144163269fb8b3a245cd0a10",
+    "revision": "6cce64528237fa792796735544b976f9230b0922",
+    "fingerprint": "f2a7e47e41e41ae4d73987d2d2b6fddd84e1a06eec4f62a3c0fbc0241311329e"
   },
   "globalOptions": [
     {
@@ -432,7 +432,7 @@
       "command": "earnings audio",
       "group": "earnings",
       "origin": "hand",
-      "description": "Call recording (signed URL, or --output to save it)",
+      "description": "Call recording (permanent URL, or --output to save it)",
       "source": "src/commands/earnings.ts",
       "operations": [
         {

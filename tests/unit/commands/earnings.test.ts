@@ -112,7 +112,7 @@ describe('apiErrorHint', () => {
   });
 
   it('stays silent for other errors', () => {
-    expect(apiErrorHint(new ApiError(503, 'audio_disabled', 'Audio is not enabled'))).toBeUndefined();
+    expect(apiErrorHint(new ApiError(403, 'audio_unavailable', 'Audio for this company is not available under the current licence'))).toBeUndefined();
     expect(apiErrorHint(new ApiError(403, 'Forbidden', 'This account is blocked'))).toBeUndefined();
   });
 });
@@ -222,19 +222,19 @@ describe('earnings requests', () => {
     });
   });
 
-  it('audio --output saves the file and never prints the signed URL', async () => {
+  it('audio --output saves the file and never prints the URL', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'invd-earnings-'));
     try {
-      const signed = 'https://r2.example.com/call.mp3?X-Amz-Signature=secret';
+      const signed = 'https://pub.r2.example.com/aapl/earnings/fy2026/q4/audio/aapl-q4-2026-earnings-call-0123456789ab.mp3';
       (fetch as any)
-        .mockResolvedValueOnce(json({ event: { symbol: 'AAPL' }, url: signed, expires_at: 'x', duration_seconds: null, bytes: 3, codec: 'mp3', capture_path: null }))
+        .mockResolvedValueOnce(json({ event: { symbol: 'AAPL' }, url: signed, duration_seconds: null, bytes: 3, codec: 'mp3', capture_path: null }))
         .mockResolvedValueOnce({ ok: true, status: 200, body: new Blob(['mp3']).stream() });
       const file = join(dir, 'call.mp3');
       await run('audio', '--event-id', 'e1', '--output', file);
       expect((fetch as any).mock.calls[1][0]).toBe(signed);
       expect((fetch as any).mock.calls[1][1]).not.toHaveProperty('headers');
       expect(await readFile(file, 'utf8')).toBe('mp3');
-      expect(logs.join('\n')).not.toContain('X-Amz-Signature');
+      expect(logs.join('\n')).not.toContain(signed);
     } finally {
       await rm(dir, { recursive: true, force: true });
     }

@@ -277,14 +277,14 @@ The seven hand-written earnings commands download or render what one call return
 |---------|--------------|
 | `earnings transcript` | `--format speakers\|text\|words\|sections\|cleaned`; `--transcript-version <n>` (not `--version`, which prints the CLI version) / `--as-of <iso>`; `-o, --output <file>` saves it as text. The header shows where the Q&A begins; `--json` carries it as `qa_start_ms` |
 | `earnings press-release` | `--body` includes the release text; `-o` saves it |
-| `earnings audio` | The recording as a presigned URL, or `-o` to save it |
+| `earnings audio` | The recording's permanent URL (one forensic watermark per call), or `-o` to save it |
 | `earnings slides` | `--markdown` (each page's text), `--pages <range>`, `-o` saves the deck PDF |
 | `earnings documents` | `--kind <list>`, `--category <list>`, `--group <path>` (document-tree folder, a prefix matches its subfolders), `--body`; `-o <dir>` saves every document as `<kind>-<document_id>.<ext>`. The table shows each document's tree folder (`group`) |
 | `earnings company-documents` | `-i` (required), `--section`, `--kind`, `--year`, `--period`, `--event-id`, `--category <list>` (earnings, events, reports, presentations, governance, esg, shareholder, other), `--group <path>` (e.g. `earnings/fy2027/q2`; `earnings` = every quarter), `--fiscal-year` / `--fiscal-quarter`, `--include calls` (every earnings call's documents in the same list, `source: call`); `-o <dir>` saves every stored file as `<year>-<kind>-<document_id>.<ext>`. The table shows each document's source and tree folder (`group`) |
 | `earnings document` | `--document-id` (from `company-documents` / `document-search`): metadata and signed URLs, `--pages` the per-page text, `-o` the file |
 
 **Saving files.** An existing `--output` file is only replaced with `--force`; without `--output` the media commands
-print **presigned URLs that expire after 15 minutes**. With `documents` / `company-documents --output`, a row without a
+print **presigned URLs that expire after 15 minutes** (audio: a permanent URL). With `documents` / `company-documents --output`, a row without a
 download URL (a link-only `sec_filing` or `webcast`, or a file the API could not fetch — use its `source_url`) is never
 skipped silently: each gets a warning on stderr, followed by a count (`2 of 3 documents saved; 1 skipped`). The exit
 code is 0 when at least one document was saved (or the list was empty) and 1 when documents were listed but none could
