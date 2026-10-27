@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "0.7.0",
+    "version": "0.8.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -11,9 +11,9 @@
     },
     "verifiedOn": "2026-10-27",
     "sourceHashes": {
-      "api-contract.json": "c2dc9f17947bf81bfddb174c38d32bbdb7ea546364d3b91797aafd12227c0c41",
-      "openapi.json": "9f4094202acf89ee7a89a522e9825beac9df8a364d2d4b0f59710dc05d986cc5",
-      "package.json": "660ebd6ba8c59cabb5ce3c934719a931912ed4c9ce92b9772f74acef79b89f05",
+      "api-contract.json": "ebc4e954cb237882afb6dcb3fdc7bf9d190751611e0ec3d46815c5271e4c3213",
+      "openapi.json": "d632bccc5d4a587bdf30590211ef565f5503e2f50502a0fffa5a9fc2e8891717",
+      "package.json": "33badd00408027cf3d1110a8365bb22f1584ffeec619f0c6020911078021d2b7",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "274c2c99671474d4442343a9e625bb41eda85343cc74de3cb032821c5736b1a7",
@@ -34,7 +34,7 @@
       "src/formatters/json-formatter.ts": "0fa8904f4a31c7e0d10ac5eb6c4947c5d56079216e3c93349583ed02ef21b833",
       "src/formatters/table-formatter.ts": "56edfc931457289b4314107971d0021e237430131831199828a8bfd7b3e35c40",
       "src/formatters/time.ts": "f4d4e7c28b2f4610553a82cfdc55b585090c0f1cc6788f84acd6824b29e6bd0a",
-      "src/generated/cli-manifest.json": "813364614f92e934c496f03d748c1db12972b0a3de122cdeb02bce2134a52206",
+      "src/generated/cli-manifest.json": "56bd30dbcb110158706ff14a50082a98e9708b7770d3759860fb49583322c853",
       "src/hand-written-commands.ts": "e2dd13ba3fe1783b3152f399c543ab992dade024b9bd42d07e71983ccb1c884d",
       "src/shared/errors.ts": "3c379b53515a950fae853b9411bf456d3dfb21bcca4237d5730204045dca7097",
       "src/shared/options.ts": "6783cfa83b301857903bbde46edc238cd7adf80f05f0f33a7a883136de8a27b8",
@@ -45,9 +45,9 @@
       "src/spec-flags.ts": "ce66ba5acced7a6a295d4ad53ccfd62ebad713b6523ff5ccf98d892a53f49d37",
       "src/spec-manifest.ts": "5ea901757d497900b968c4badb7ed1086def58afb719f19a8a89a5bbba27925c"
     },
-    "specSha256": "9f4094202acf89ee7a89a522e9825beac9df8a364d2d4b0f59710dc05d986cc5",
-    "revision": "9bd38b0710efe9716f2cdb2290a5c8b75f24886e",
-    "fingerprint": "def7e152ca251e56bcc3442ece7d041499dbc795d18628a152c6140060d73a99"
+    "specSha256": "d632bccc5d4a587bdf30590211ef565f5503e2f50502a0fffa5a9fc2e8891717",
+    "revision": "af4f3121d034ad5851e40c02a8e3c2f295eee911",
+    "fingerprint": "4b5fe7d525d6552df395b6a0db94f919739cbe4938e9a240e7f11a9e8497c613"
   },
   "globalOptions": [
     {
@@ -765,18 +765,16 @@
       "options": [
         {
           "flags": "-q, --q <value>",
-          "description": "The keywords, exact text (mode=literal) or question (semantic / hybrid) to search for (e.g. Azure growth)",
+          "description": "The keywords or phrases (mode=lexical) or exact text (mode=literal) to search for (e.g. Azure growth)",
           "required": true
         },
         {
           "flags": "-m, --mode <value>",
-          "description": "lexical (keywords, default), literal (exact characters), semantic (meaning) or hybrid (lexical + semantic, fused) (default: \"lexical\"; e.g. hybrid)",
+          "description": "lexical (keywords and phrases, default) or literal (exact characters) (default: \"lexical\"; e.g. lexical)",
           "required": false,
           "choices": [
             "lexical",
-            "literal",
-            "semantic",
-            "hybrid"
+            "literal"
           ]
         },
         {
@@ -1565,18 +1563,16 @@
       "options": [
         {
           "flags": "-q, --q <value>",
-          "description": "The keywords, exact text (mode=literal) or question (semantic / hybrid) to search for (e.g. Azure growth)",
+          "description": "The keywords or phrases (mode=lexical) or exact text (mode=literal) to search for (e.g. Azure growth)",
           "required": true
         },
         {
           "flags": "-m, --mode <value>",
-          "description": "lexical (keywords, default), literal (exact characters), semantic (meaning) or hybrid (lexical + semantic, fused) (default: \"lexical\"; e.g. semantic)",
+          "description": "lexical (keywords and phrases, default) or literal (exact characters) (default: \"lexical\"; e.g. lexical)",
           "required": false,
           "choices": [
             "lexical",
-            "literal",
-            "semantic",
-            "hybrid"
+            "literal"
           ]
         },
         {
