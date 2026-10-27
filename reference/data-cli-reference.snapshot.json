@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "0.6.0",
+    "version": "0.7.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -9,11 +9,11 @@
     "engines": {
       "node": ">=20"
     },
-    "verifiedOn": "2026-10-26",
+    "verifiedOn": "2026-10-27",
     "sourceHashes": {
-      "api-contract.json": "d38680263fc460f2d327b42ef0c18c473c54e5602ef3d3853301dba25fbc8991",
-      "openapi.json": "cafa5748c4ca0c51533695eb005138bdd888d5e4144163269fb8b3a245cd0a10",
-      "package.json": "6141d7c8939e27638d1d20d2ff5d1d2575c2ac82c1cfa05a4263578a968492e1",
+      "api-contract.json": "3f819b39f31abd7501d2f5498892f4a002085d937d7e69b3a245650d8af85761",
+      "openapi.json": "89fec1994d7aa99cb921bbcdc6d23a14767baa66fe913a6c0bed1fe4a502ffde",
+      "package.json": "660ebd6ba8c59cabb5ce3c934719a931912ed4c9ce92b9772f74acef79b89f05",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "274c2c99671474d4442343a9e625bb41eda85343cc74de3cb032821c5736b1a7",
@@ -34,7 +34,7 @@
       "src/formatters/json-formatter.ts": "0fa8904f4a31c7e0d10ac5eb6c4947c5d56079216e3c93349583ed02ef21b833",
       "src/formatters/table-formatter.ts": "56edfc931457289b4314107971d0021e237430131831199828a8bfd7b3e35c40",
       "src/formatters/time.ts": "f4d4e7c28b2f4610553a82cfdc55b585090c0f1cc6788f84acd6824b29e6bd0a",
-      "src/generated/cli-manifest.json": "194666ece87465b5758e43ac1bce3f1eb2a01599a805143793df3dd28835bd8a",
+      "src/generated/cli-manifest.json": "709fc191085a8e38eb5d699125e7ed2f0aa6e28e201ab31b54942bd23cf132f8",
       "src/hand-written-commands.ts": "e2dd13ba3fe1783b3152f399c543ab992dade024b9bd42d07e71983ccb1c884d",
       "src/shared/errors.ts": "3c379b53515a950fae853b9411bf456d3dfb21bcca4237d5730204045dca7097",
       "src/shared/options.ts": "6783cfa83b301857903bbde46edc238cd7adf80f05f0f33a7a883136de8a27b8",
@@ -45,9 +45,9 @@
       "src/spec-flags.ts": "ce66ba5acced7a6a295d4ad53ccfd62ebad713b6523ff5ccf98d892a53f49d37",
       "src/spec-manifest.ts": "5ea901757d497900b968c4badb7ed1086def58afb719f19a8a89a5bbba27925c"
     },
-    "specSha256": "cafa5748c4ca0c51533695eb005138bdd888d5e4144163269fb8b3a245cd0a10",
-    "revision": "bfff2dae830bea8fd67554f37711ac0a1d865227",
-    "fingerprint": "34b7a71a85cccb18866aa44e460eaa7d175afac9e007c2c4b3c083f92a063a33"
+    "specSha256": "89fec1994d7aa99cb921bbcdc6d23a14767baa66fe913a6c0bed1fe4a502ffde",
+    "revision": "ea4e177d5e495c22f1a026caeaef68315c25cd71",
+    "fingerprint": "fa1068d3a60d21a69592a4db32e4b2140b981c0bb80297527166665c5009dd5a"
   },
   "globalOptions": [
     {
@@ -765,8 +765,28 @@
       "options": [
         {
           "flags": "-q, --q <value>",
-          "description": "The question or phrase to search for (e.g. Azure growth)",
+          "description": "The keywords, exact text (mode=literal) or question (semantic / hybrid) to search for (e.g. Azure growth)",
           "required": true
+        },
+        {
+          "flags": "-m, --mode <value>",
+          "description": "lexical (keywords, default), literal (exact characters), semantic (meaning) or hybrid (lexical + semantic, fused) (default: \"lexical\"; e.g. hybrid)",
+          "required": false,
+          "choices": [
+            "lexical",
+            "literal",
+            "semantic",
+            "hybrid"
+          ]
+        },
+        {
+          "flags": "--case-sensitive <value>",
+          "description": "mode=literal only: \"false\" matches regardless of case (default \"true\": case-sensitive) (e.g. false)",
+          "required": false,
+          "choices": [
+            "true",
+            "false"
+          ]
         },
         {
           "flags": "-i, --identifier <value>",
@@ -918,7 +938,7 @@
         },
         {
           "flags": "--event-id <value>",
-          "description": "Event identifier (event_id of any earnings-calls response) (e.g. cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c)",
+          "description": "Event identifier (event_id of any earnings-calls response) (e.g. 9655a5db-8968-40be-8c79-7cd1a8aed8e9)",
           "required": true
         }
       ]
@@ -1545,8 +1565,28 @@
       "options": [
         {
           "flags": "-q, --q <value>",
-          "description": "The question or phrase to search for (e.g. Azure growth)",
+          "description": "The keywords, exact text (mode=literal) or question (semantic / hybrid) to search for (e.g. Azure growth)",
           "required": true
+        },
+        {
+          "flags": "-m, --mode <value>",
+          "description": "lexical (keywords, default), literal (exact characters), semantic (meaning) or hybrid (lexical + semantic, fused) (default: \"lexical\"; e.g. semantic)",
+          "required": false,
+          "choices": [
+            "lexical",
+            "literal",
+            "semantic",
+            "hybrid"
+          ]
+        },
+        {
+          "flags": "--case-sensitive <value>",
+          "description": "mode=literal only: \"false\" matches regardless of case (default \"true\": case-sensitive) (e.g. false)",
+          "required": false,
+          "choices": [
+            "true",
+            "false"
+          ]
         },
         {
           "flags": "--event-id <value>",
