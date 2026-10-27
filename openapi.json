@@ -356,6 +356,168 @@
         ],
         "title": "ServiceUnavailableError"
       },
+      "HitMatch": {
+        "type": "object",
+        "required": [
+          "type",
+          "lexical_rank",
+          "semantic_rank",
+          "spans"
+        ],
+        "description": "How the passage matched",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "lexical",
+              "literal",
+              "semantic",
+              "hybrid"
+            ],
+            "description": "The leg that found the passage; hybrid = both legs of mode=hybrid"
+          },
+          "lexical_rank": {
+            "type": "integer",
+            "nullable": true,
+            "description": "1-based rank in the keyword leg (lexical / literal); null when it did not find it"
+          },
+          "semantic_rank": {
+            "type": "integer",
+            "nullable": true,
+            "description": "1-based rank in the semantic leg; null when it did not find it"
+          },
+          "spans": {
+            "type": "array",
+            "items": {
+              "title": "MatchSpan",
+              "type": "object",
+              "required": [
+                "start",
+                "end"
+              ],
+              "properties": {
+                "start": {
+                  "type": "integer",
+                  "description": "Zero-based Unicode code-point offset into `text`"
+                },
+                "end": {
+                  "type": "integer",
+                  "description": "End offset, exclusive"
+                }
+              }
+            },
+            "description": "Matched characters in `text`; empty for semantic matches"
+          }
+        },
+        "title": "HitMatch"
+      },
+      "SearchCoverage": {
+        "type": "object",
+        "required": [
+          "completeness",
+          "lexical",
+          "semantic",
+          "reasons"
+        ],
+        "description": "How much of the searched scope the mode's indexes cover",
+        "properties": {
+          "completeness": {
+            "type": "string",
+            "enum": [
+              "complete",
+              "partial",
+              "unknown"
+            ],
+            "description": "complete = no hits is a genuine no-result; partial / unknown = the answer may be incomplete"
+          },
+          "lexical": {
+            "title": "SearchCoverageLeg",
+            "type": "object",
+            "nullable": true,
+            "required": [
+              "state",
+              "indexed",
+              "pending",
+              "failed"
+            ],
+            "description": "The keyword index (lexical / literal / hybrid); null when the mode did not use it",
+            "properties": {
+              "state": {
+                "type": "string",
+                "enum": [
+                  "ready",
+                  "partial",
+                  "not_ready"
+                ],
+                "description": "ready = nothing outstanding; partial = some owners outstanding; not_ready = nothing indexed"
+              },
+              "indexed": {
+                "type": "integer",
+                "description": "Transcripts / documents of the scope searchable in this index"
+              },
+              "pending": {
+                "type": "integer",
+                "description": "Not indexed yet (or not provably)"
+              },
+              "failed": {
+                "type": "integer",
+                "description": "Indexing failed"
+              }
+            }
+          },
+          "semantic": {
+            "title": "SearchCoverageLeg",
+            "type": "object",
+            "nullable": true,
+            "required": [
+              "state",
+              "indexed",
+              "pending",
+              "failed"
+            ],
+            "description": "The semantic index (semantic / hybrid); null when the mode did not use it",
+            "properties": {
+              "state": {
+                "type": "string",
+                "enum": [
+                  "ready",
+                  "partial",
+                  "not_ready"
+                ],
+                "description": "ready = nothing outstanding; partial = some owners outstanding; not_ready = nothing indexed"
+              },
+              "indexed": {
+                "type": "integer",
+                "description": "Transcripts / documents of the scope searchable in this index"
+              },
+              "pending": {
+                "type": "integer",
+                "description": "Not indexed yet (or not provably)"
+              },
+              "failed": {
+                "type": "integer",
+                "description": "Indexing failed"
+              }
+            }
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "lexical_backfill_pending",
+                "projection_failed",
+                "semantic_index_missing",
+                "semantic_backfill_pending",
+                "lexical_unavailable",
+                "semantic_unavailable"
+              ]
+            },
+            "description": "Why the answer may be incomplete"
+          }
+        },
+        "title": "SearchCoverage"
+      },
       "WebSocketFiling": {
         "type": "object",
         "required": [
@@ -14691,7 +14853,8 @@
                           "has_slides",
                           "has_press_release",
                           "has_documents",
-                          "webcast_url"
+                          "webcast_url",
+                          "video"
                         ],
                         "properties": {
                           "event_id": {
@@ -14839,6 +15002,63 @@
                             "type": "string",
                             "nullable": true,
                             "description": "Webcast page of an upcoming dated call; null once published"
+                          },
+                          "video": {
+                            "type": "object",
+                            "nullable": true,
+                            "required": [
+                              "provider",
+                              "video_id",
+                              "url",
+                              "embed_url",
+                              "title",
+                              "channel",
+                              "thumbnail_url",
+                              "embeddable"
+                            ],
+                            "description": "The company's public broadcast on a video platform (YouTube, Vimeo). Embed `embed_url` when `embeddable` is not false; otherwise link `url`. Present before, during and after the event; null = none known.",
+                            "properties": {
+                              "provider": {
+                                "type": "string",
+                                "enum": [
+                                  "youtube",
+                                  "vimeo"
+                                ],
+                                "description": "Video platform"
+                              },
+                              "video_id": {
+                                "type": "string",
+                                "description": "The platform's video id"
+                              },
+                              "url": {
+                                "type": "string",
+                                "description": "Watch page"
+                              },
+                              "embed_url": {
+                                "type": "string",
+                                "description": "Privacy-enhanced player URL (YouTube: youtube-nocookie.com; Vimeo: dnt=1)"
+                              },
+                              "title": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Video title"
+                              },
+                              "channel": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Channel or account that published it"
+                              },
+                              "thumbnail_url": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Thumbnail image"
+                              },
+                              "embeddable": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "false = the owner disabled or restricted embedding (link `url`); null = not checked yet"
+                              }
+                            }
                           }
                         }
                       }
@@ -14876,7 +15096,8 @@
                       "has_slides": false,
                       "has_press_release": false,
                       "has_documents": false,
-                      "webcast_url": null
+                      "webcast_url": null,
+                      "video": null
                     }
                   ],
                   "next_url": "https://api.data.invinite.com/v1/earnings-calls/calendar?offset=100&limit=100&from=2026-10-21&to=2026-11-04"
@@ -15109,7 +15330,8 @@
                           "has_slides",
                           "has_press_release",
                           "has_documents",
-                          "webcast_url"
+                          "webcast_url",
+                          "video"
                         ],
                         "properties": {
                           "event_id": {
@@ -15258,6 +15480,63 @@
                             "nullable": true,
                             "description": "Webcast page of an upcoming dated call; null once published"
                           },
+                          "video": {
+                            "type": "object",
+                            "nullable": true,
+                            "required": [
+                              "provider",
+                              "video_id",
+                              "url",
+                              "embed_url",
+                              "title",
+                              "channel",
+                              "thumbnail_url",
+                              "embeddable"
+                            ],
+                            "description": "The company's public broadcast on a video platform (YouTube, Vimeo). Embed `embed_url` when `embeddable` is not false; otherwise link `url`. Present before, during and after the event; null = none known.",
+                            "properties": {
+                              "provider": {
+                                "type": "string",
+                                "enum": [
+                                  "youtube",
+                                  "vimeo"
+                                ],
+                                "description": "Video platform"
+                              },
+                              "video_id": {
+                                "type": "string",
+                                "description": "The platform's video id"
+                              },
+                              "url": {
+                                "type": "string",
+                                "description": "Watch page"
+                              },
+                              "embed_url": {
+                                "type": "string",
+                                "description": "Privacy-enhanced player URL (YouTube: youtube-nocookie.com; Vimeo: dnt=1)"
+                              },
+                              "title": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Video title"
+                              },
+                              "channel": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Channel or account that published it"
+                              },
+                              "thumbnail_url": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Thumbnail image"
+                              },
+                              "embeddable": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "false = the owner disabled or restricted embedding (link `url`); null = not checked yet"
+                              }
+                            }
+                          },
                           "observations": {
                             "type": "array",
                             "description": "Date / time observations, oldest first (at most 50)",
@@ -15342,7 +15621,8 @@
                       "has_slides": false,
                       "has_press_release": false,
                       "has_documents": false,
-                      "webcast_url": null
+                      "webcast_url": null,
+                      "video": null
                     }
                   ],
                   "next_url": "https://api.data.invinite.com/v1/earnings-calls/events?identifier=MSFT&offset=50&limit=50"
@@ -15456,6 +15736,7 @@
                           "has_press_release",
                           "has_documents",
                           "webcast_url",
+                          "video",
                           "live_channel",
                           "live_audio",
                           "live_prices"
@@ -15606,6 +15887,63 @@
                             "nullable": true,
                             "description": "Webcast page of an upcoming dated call; null once published"
                           },
+                          "video": {
+                            "type": "object",
+                            "nullable": true,
+                            "required": [
+                              "provider",
+                              "video_id",
+                              "url",
+                              "embed_url",
+                              "title",
+                              "channel",
+                              "thumbnail_url",
+                              "embeddable"
+                            ],
+                            "description": "The company's public broadcast on a video platform (YouTube, Vimeo). Embed `embed_url` when `embeddable` is not false; otherwise link `url`. Present before, during and after the event; null = none known.",
+                            "properties": {
+                              "provider": {
+                                "type": "string",
+                                "enum": [
+                                  "youtube",
+                                  "vimeo"
+                                ],
+                                "description": "Video platform"
+                              },
+                              "video_id": {
+                                "type": "string",
+                                "description": "The platform's video id"
+                              },
+                              "url": {
+                                "type": "string",
+                                "description": "Watch page"
+                              },
+                              "embed_url": {
+                                "type": "string",
+                                "description": "Privacy-enhanced player URL (YouTube: youtube-nocookie.com; Vimeo: dnt=1)"
+                              },
+                              "title": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Video title"
+                              },
+                              "channel": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Channel or account that published it"
+                              },
+                              "thumbnail_url": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Thumbnail image"
+                              },
+                              "embeddable": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "false = the owner disabled or restricted embedding (link `url`); null = not checked yet"
+                              }
+                            }
+                          },
                           "live_channel": {
                             "type": "string",
                             "enum": [
@@ -15657,6 +15995,7 @@
                       "has_press_release": true,
                       "has_documents": false,
                       "webcast_url": "https://edge.media-server.com/mmc/p/in3893v2",
+                      "video": null,
                       "live_channel": "earnings-calls.live",
                       "live_audio": true,
                       "live_prices": true
@@ -15945,7 +16284,7 @@
             "name": "event_id",
             "required": true,
             "description": "Event identifier (event_id of any earnings-calls response)",
-            "example": "cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c"
+            "example": "9655a5db-8968-40be-8c79-7cd1a8aed8e9"
           }
         ],
         "security": [
@@ -16017,7 +16356,8 @@
                     "has_slides",
                     "has_press_release",
                     "has_documents",
-                    "webcast_url"
+                    "webcast_url",
+                    "video"
                   ],
                   "properties": {
                     "event_id": {
@@ -16166,6 +16506,63 @@
                       "nullable": true,
                       "description": "Webcast page of an upcoming dated call; null once published"
                     },
+                    "video": {
+                      "type": "object",
+                      "nullable": true,
+                      "required": [
+                        "provider",
+                        "video_id",
+                        "url",
+                        "embed_url",
+                        "title",
+                        "channel",
+                        "thumbnail_url",
+                        "embeddable"
+                      ],
+                      "description": "The company's public broadcast on a video platform (YouTube, Vimeo). Embed `embed_url` when `embeddable` is not false; otherwise link `url`. Present before, during and after the event; null = none known.",
+                      "properties": {
+                        "provider": {
+                          "type": "string",
+                          "enum": [
+                            "youtube",
+                            "vimeo"
+                          ],
+                          "description": "Video platform"
+                        },
+                        "video_id": {
+                          "type": "string",
+                          "description": "The platform's video id"
+                        },
+                        "url": {
+                          "type": "string",
+                          "description": "Watch page"
+                        },
+                        "embed_url": {
+                          "type": "string",
+                          "description": "Privacy-enhanced player URL (YouTube: youtube-nocookie.com; Vimeo: dnt=1)"
+                        },
+                        "title": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "Video title"
+                        },
+                        "channel": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "Channel or account that published it"
+                        },
+                        "thumbnail_url": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "Thumbnail image"
+                        },
+                        "embeddable": {
+                          "type": "boolean",
+                          "nullable": true,
+                          "description": "false = the owner disabled or restricted embedding (link `url`); null = not checked yet"
+                        }
+                      }
+                    },
                     "observations": {
                       "type": "array",
                       "description": "Date / time observations, oldest first (at most 50)",
@@ -16216,17 +16613,17 @@
                   }
                 },
                 "example": {
-                  "event_id": "cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c",
+                  "event_id": "9655a5db-8968-40be-8c79-7cd1a8aed8e9",
                   "source": "us",
-                  "cik": "0000789019",
-                  "symbol": "MSFT",
-                  "company_name": "Microsoft Corp",
+                  "cik": "0001045810",
+                  "symbol": "NVDA",
+                  "company_name": "Nvidia Corp",
                   "exchange": "NASDAQ",
-                  "event_type": "earnings_call",
-                  "event_title": null,
-                  "fiscal_year": 2026,
-                  "fiscal_quarter": 4,
-                  "scheduled_at": "2026-07-29T00:00:00.000Z",
+                  "event_type": "conference",
+                  "event_title": "GTC Berlin 2026 Keynote",
+                  "fiscal_year": null,
+                  "fiscal_quarter": null,
+                  "scheduled_at": "2026-10-21T00:00:00.000Z",
                   "tz": "America/Los_Angeles",
                   "date_status": "confirmed",
                   "call_time_source": null,
@@ -16234,15 +16631,25 @@
                   "session": null,
                   "started_at": null,
                   "ended_at": null,
-                  "results_released_at": "2026-07-29T20:04:53.000Z",
+                  "results_released_at": null,
                   "capture_status": "published",
                   "reschedule_count": 0,
                   "has_transcript": true,
                   "has_audio": true,
-                  "has_slides": true,
-                  "has_press_release": true,
-                  "has_documents": true,
-                  "webcast_url": null
+                  "has_slides": false,
+                  "has_press_release": false,
+                  "has_documents": false,
+                  "webcast_url": null,
+                  "video": {
+                    "provider": "youtube",
+                    "video_id": "v-NGxyPjcrE",
+                    "url": "https://www.youtube.com/watch?v=v-NGxyPjcrE",
+                    "embed_url": "https://www.youtube-nocookie.com/embed/v-NGxyPjcrE",
+                    "title": "NVIDIA GTC Berlin 2026 Keynote With CEO Jensen Huang",
+                    "channel": "NVIDIA",
+                    "thumbnail_url": "https://i.ytimg.com/vi/v-NGxyPjcrE/hqdefault.jpg",
+                    "embeddable": true
+                  }
                 }
               }
             }
@@ -16445,7 +16852,8 @@
                         "has_slides",
                         "has_press_release",
                         "has_documents",
-                        "webcast_url"
+                        "webcast_url",
+                        "video"
                       ],
                       "properties": {
                         "event_id": {
@@ -16593,6 +17001,63 @@
                           "type": "string",
                           "nullable": true,
                           "description": "Webcast page of an upcoming dated call; null once published"
+                        },
+                        "video": {
+                          "type": "object",
+                          "nullable": true,
+                          "required": [
+                            "provider",
+                            "video_id",
+                            "url",
+                            "embed_url",
+                            "title",
+                            "channel",
+                            "thumbnail_url",
+                            "embeddable"
+                          ],
+                          "description": "The company's public broadcast on a video platform (YouTube, Vimeo). Embed `embed_url` when `embeddable` is not false; otherwise link `url`. Present before, during and after the event; null = none known.",
+                          "properties": {
+                            "provider": {
+                              "type": "string",
+                              "enum": [
+                                "youtube",
+                                "vimeo"
+                              ],
+                              "description": "Video platform"
+                            },
+                            "video_id": {
+                              "type": "string",
+                              "description": "The platform's video id"
+                            },
+                            "url": {
+                              "type": "string",
+                              "description": "Watch page"
+                            },
+                            "embed_url": {
+                              "type": "string",
+                              "description": "Privacy-enhanced player URL (YouTube: youtube-nocookie.com; Vimeo: dnt=1)"
+                            },
+                            "title": {
+                              "type": "string",
+                              "nullable": true,
+                              "description": "Video title"
+                            },
+                            "channel": {
+                              "type": "string",
+                              "nullable": true,
+                              "description": "Channel or account that published it"
+                            },
+                            "thumbnail_url": {
+                              "type": "string",
+                              "nullable": true,
+                              "description": "Thumbnail image"
+                            },
+                            "embeddable": {
+                              "type": "boolean",
+                              "nullable": true,
+                              "description": "false = the owner disabled or restricted embedding (link `url`); null = not checked yet"
+                            }
+                          }
                         }
                       }
                     },
@@ -16676,7 +17141,8 @@
                     "has_slides": true,
                     "has_press_release": true,
                     "has_documents": true,
-                    "webcast_url": null
+                    "webcast_url": null,
+                    "video": null
                   },
                   "version": 6,
                   "version_kind": "corrected",
@@ -21380,7 +21846,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "The slide deck of one earnings call (PRO): the deck PDF and each page image as signed URLs, page titles and, with `include=markdown`, each page's text.\n\n### Files\n\n- Files are served as short-lived signed URLs (see `expires_at`), never proxied; request a fresh response after expiry.\n\n### Errors\n\n- `404 slides_unavailable` when no deck is available.\n\n- `503 media_unavailable` while media signing is not configured.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
+        "description": "The slide deck of one earnings call (PRO): the deck PDF and each page image as signed URLs, page titles and, with `include=markdown`, each page's text.\n\n### Files\n\n- Files are served as short-lived signed URLs (see `expires_at`), never proxied; request a fresh response after expiry.\n\n- `timeline`: the slides shown in the webcast player, keyed to the call audio (`at_ms` from the start of the recording the audio route serves; the whole call, whatever `pages` asks).\n\n### Errors\n\n- `404 slides_unavailable` when no deck is available.\n\n- `503 media_unavailable` while media signing is not configured.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -21499,7 +21965,8 @@
                   "required": [
                     "event",
                     "deck",
-                    "slides"
+                    "slides",
+                    "timeline"
                   ],
                   "properties": {
                     "event": {
@@ -21612,6 +22079,27 @@
                           }
                         }
                       }
+                    },
+                    "timeline": {
+                      "type": "array",
+                      "description": "Player slides keyed to the call audio (ms from the audio's start), ascending; [] when the webcast player showed no slides",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "at_ms",
+                          "image_url"
+                        ],
+                        "properties": {
+                          "at_ms": {
+                            "type": "integer",
+                            "description": "When the slide appeared, in ms from the start of the event's audio file"
+                          },
+                          "image_url": {
+                            "type": "string",
+                            "description": "Signed URL of the slide screenshot (same expiry as the deck)"
+                          }
+                        }
+                      }
                     }
                   }
                 },
@@ -21635,6 +22123,12 @@
                       "page": 1,
                       "title": null,
                       "image_url": "https://invinite-prod.r2.cloudflarestorage.com/earnings_events/us/789019/2026-07-29/slides/q4-fy2026-earnings-presentation/page-001.webp?X-Amz-Signature=…"
+                    }
+                  ],
+                  "timeline": [
+                    {
+                      "at_ms": 312000,
+                      "image_url": "https://invinite-prod.r2.cloudflarestorage.com/earnings_events/us/789019/2026-07-29/slides/player/0b6f4c1e-5a7d-4f0e-9a51-2f7c3b8d1e64/312000.webp?X-Amz-Signature=…"
                     }
                   ]
                 }
@@ -23114,7 +23608,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Semantic search over the page text of investor documents: the documents of earnings calls (CFO commentary, shareholder letters, data sheets, the company's own transcripts) and companies' IR libraries (annual reports, proxy statements, ESG reports, investor-day decks).\n\n### What you get\n\n- Up to 20 passages from company-published documents, with page numbers — not verified facts — and a signed URL of the file (open it at `#page=<page>`).\n\n- Filter by company (`identifier`), kind, IR section, year or table.\n\n- Each hit names the document's folder of the company's document tree (`group`, e.g. `earnings/fy2027/q2`, `group_label`, `category`).\n\n### Errors\n\n- `429 upstream_rate_limited` and `503 search_unavailable` carry `Retry-After`.\n\n- `503 search_disabled` while search is switched off.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
+        "description": "Search the page text of investor documents by keywords (default `mode=lexical`), exact text (`literal`), meaning (`semantic`) or both (`hybrid`): the documents of earnings calls (CFO commentary, shareholder letters, data sheets, the company's own transcripts) and companies' IR libraries (annual reports, proxy statements, ESG reports, investor-day decks).\n\n### What you get\n\n- Up to 20 passages from company-published documents, with page numbers — not verified facts — and a signed URL of the file (open it at `#page=<page>`).\n\n- Filter by company (`identifier`), kind, IR section, year or table.\n\n- Each hit names the document's folder of the company's document tree (`group`, e.g. `earnings/fy2027/q2`, `group_label`, `category`), how it matched (`match`); the response says how much of the searched documents is indexed (`coverage`).\n\n### Search modes\n\n- `lexical` (default): keyword search — English full text with stemming; quoted phrases, `OR` and `-word` work (`websearch_to_tsquery`); ranked by `ts_rank_cd`. Finance tokens such as `FY2027`, `10-K`, `Q3` or `EBITDA` match as written.\n\n- `literal`: the exact characters of the passage — no stemming, no fuzzy matching, `%` / `_` / `\\` match themselves; case-sensitive unless `case_sensitive=false` (only allowed with `mode=literal`; default `true`). A pattern under 3 characters needs `identifier`. Newest first; `score` is 0.\n\n- `semantic`: meaning-based search (multilingual sentence embeddings); `score` is the cosine similarity.\n\n- `hybrid`: `lexical` and `semantic` fused by reciprocal rank (`score = Σ 1 / (60 + rank)`, equal weights, ties by passage); `match.lexical_rank` / `match.semantic_rank` give each leg's rank. Best for natural-language questions.\n\n- `match.spans` mark the matched characters in `text` (zero-based, end-exclusive Unicode code-point offsets); `text` is cut around the first match (`text_truncated`). Semantic matches carry no spans. An exact mode never expands into semantic or fuzzy results. Every mode costs the same.\n\n### Coverage\n\n- `coverage.completeness` = `complete` (every searched passage is indexed: no hits is a genuine no-result), `partial` (some passages are still being indexed or failed, or a hybrid leg was unavailable) or `unknown` (a mode's index is not built for the searched scope, e.g. `semantic_index_missing`) — read it before treating an empty list as \"not found\".\n\n- `coverage.lexical` / `coverage.semantic` count the searched transcripts or documents per index (`indexed`, `pending`, `failed`); null for a leg the mode did not use. `reasons` lists why the answer may be incomplete. The counts come from the indexing ledger: a transcript or document whose current version the index has not confirmed counts as `pending`.\n\n### Changelog\n\n- 2026-10: modes added and the default mode changed from semantic to `lexical`; pass `mode=semantic` for the previous behaviour (or `mode=hybrid` for natural-language questions).\n\n### Errors\n\n- `400` for a `mode=lexical` query of stopwords only (no searchable words), for `case_sensitive` with any mode but `literal`, and for a `mode=literal` pattern under 3 characters without a scope (see Search modes).\n\n- `429 upstream_rate_limited` and `503 search_unavailable` carry `Retry-After` (`503` also when a keyword search runs over its time limit — never an empty answer).\n\n- `503 search_disabled` while search is switched off.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -23125,8 +23619,39 @@
             "in": "query",
             "name": "q",
             "required": true,
-            "description": "The question or phrase to search for",
+            "description": "The keywords, exact text (mode=literal) or question (semantic / hybrid) to search for",
             "example": "Azure growth"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lexical",
+                "literal",
+                "semantic",
+                "hybrid"
+              ],
+              "default": "lexical"
+            },
+            "in": "query",
+            "name": "mode",
+            "required": false,
+            "description": "lexical (keywords, default), literal (exact characters), semantic (meaning) or hybrid (lexical + semantic, fused)",
+            "example": "hybrid"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ]
+            },
+            "in": "query",
+            "name": "case_sensitive",
+            "required": false,
+            "description": "mode=literal only: \"false\" matches regardless of case (default \"true\": case-sensitive)",
+            "example": "false"
           },
           {
             "schema": {
@@ -23220,6 +23745,7 @@
           "rowsPath": "hits",
           "columns": [
             "score",
+            "match.type",
             "kind",
             "year",
             "group",
@@ -23232,7 +23758,8 @@
           "flags": {
             "q": "q",
             "identifier": "i",
-            "limit": "l"
+            "limit": "l",
+            "mode": "m"
           },
           "pagination": "none"
         },
@@ -23245,6 +23772,8 @@
                   "type": "object",
                   "required": [
                     "query",
+                    "mode",
+                    "coverage",
                     "hits"
                   ],
                   "properties": {
@@ -23252,12 +23781,26 @@
                       "type": "string",
                       "description": "The query as searched"
                     },
+                    "mode": {
+                      "type": "string",
+                      "enum": [
+                        "lexical",
+                        "literal",
+                        "semantic",
+                        "hybrid"
+                      ],
+                      "description": "The mode searched"
+                    },
+                    "coverage": {
+                      "$ref": "#/components/schemas/SearchCoverage"
+                    },
                     "hits": {
                       "type": "array",
                       "items": {
                         "type": "object",
                         "required": [
                           "score",
+                          "match",
                           "document_id",
                           "table",
                           "event_id",
@@ -23269,7 +23812,9 @@
                           "period",
                           "page",
                           "heading",
+                          "chunk_index",
                           "text",
+                          "text_truncated",
                           "title",
                           "group",
                           "group_label",
@@ -23280,7 +23825,10 @@
                         "properties": {
                           "score": {
                             "type": "number",
-                            "description": "Cosine similarity (4 decimals)"
+                            "description": "Relevance per mode: lexical = ts_rank_cd (4 decimals), literal = 0 (hits are ordered newest year first), semantic = cosine similarity (4 decimals), hybrid = reciprocal-rank-fusion score (6 decimals)"
+                          },
+                          "match": {
+                            "$ref": "#/components/schemas/HitMatch"
                           },
                           "document_id": {
                             "type": "string",
@@ -23339,9 +23887,18 @@
                             "nullable": true,
                             "description": "Nearest heading above the passage"
                           },
+                          "chunk_index": {
+                            "type": "integer",
+                            "nullable": true,
+                            "description": "Position of the passage among the document's passages"
+                          },
                           "text": {
                             "type": "string",
-                            "description": "The passage (≤ 600 characters)"
+                            "description": "The passage (≤ 600 characters, cut on word boundaries around the first match)"
+                          },
+                          "text_truncated": {
+                            "type": "boolean",
+                            "description": "true = text is shorter than the passage"
                           },
                           "title": {
                             "type": "string",
@@ -23450,7 +24007,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "\"Ask this call\": semantic search over earnings-call transcripts and slide text — one call (`event_id`), one company (`identifier`) or every call (default: the last 365 days).\n\n### What you get\n\n- Up to 8 passages with speaker and `start_ms`. Cite `event_id` and `start_ms`.\n\n- On plans that include the audio and slides routes (PRO): `audio_url` opens the recording's permanent URL at the passage (`#t=<seconds>`; null while no recording is available) and `slide.image_url` (a signed URL) shows the slide.\n\n### Event types\n\n- `event_type` (default `earnings_call`; `all` = every type) selects investor days, conferences or shareholder meetings too.\n\n### Errors\n\n- `429 upstream_rate_limited` and `503 search_unavailable` carry `Retry-After`.\n\n- `503 search_disabled` while search is switched off.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for rag: STANDARD.",
+        "description": "\"Ask this call\": search earnings-call transcripts and slide text by keywords (default `mode=lexical`), exact text (`literal`), meaning (`semantic`) or both (`hybrid`) — one call (`event_id`), one company (`identifier`) or every call (default: the last 365 days).\n\n### What you get\n\n- Up to 8 passages with speaker and `start_ms`, how each matched (`match`) and the index coverage of the search (`coverage`). Cite `event_id` and `start_ms`.\n\n- On plans that include the audio and slides routes (PRO): `audio_url` opens the recording's permanent URL at the passage (`#t=<seconds>`; null while no recording is available) and `slide.image_url` (a signed URL) shows the slide.\n\n### Event types\n\n- `event_type` (default `earnings_call`; `all` = every type) selects investor days, conferences or shareholder meetings too.\n\n### Search modes\n\n- `lexical` (default): keyword search — English full text with stemming; quoted phrases, `OR` and `-word` work (`websearch_to_tsquery`); ranked by `ts_rank_cd`. Finance tokens such as `FY2027`, `10-K`, `Q3` or `EBITDA` match as written.\n\n- `literal`: the exact characters of the passage — no stemming, no fuzzy matching, `%` / `_` / `\\` match themselves; case-sensitive unless `case_sensitive=false` (only allowed with `mode=literal`; default `true`). A pattern under 3 characters needs `identifier` or `event_id`. Newest first; `score` is 0.\n\n- `semantic`: meaning-based search (multilingual sentence embeddings); `score` is the cosine similarity.\n\n- `hybrid`: `lexical` and `semantic` fused by reciprocal rank (`score = Σ 1 / (60 + rank)`, equal weights, ties by passage); `match.lexical_rank` / `match.semantic_rank` give each leg's rank. Best for natural-language questions.\n\n- `match.spans` mark the matched characters in `text` (zero-based, end-exclusive Unicode code-point offsets); `text` is cut around the first match (`text_truncated`). Semantic matches carry no spans. An exact mode never expands into semantic or fuzzy results. Every mode costs the same.\n\n### Coverage\n\n- `coverage.completeness` = `complete` (every searched passage is indexed: no hits is a genuine no-result), `partial` (some passages are still being indexed or failed, or a hybrid leg was unavailable) or `unknown` (a mode's index is not built for the searched scope, e.g. `semantic_index_missing`) — read it before treating an empty list as \"not found\".\n\n- `coverage.lexical` / `coverage.semantic` count the searched transcripts or documents per index (`indexed`, `pending`, `failed`); null for a leg the mode did not use. `reasons` lists why the answer may be incomplete. The counts come from the indexing ledger: a transcript or document whose current version the index has not confirmed counts as `pending`.\n\n### Changelog\n\n- 2026-10: modes added and the default mode changed from semantic to `lexical`; pass `mode=semantic` for the previous behaviour (or `mode=hybrid` for natural-language questions).\n\n### Errors\n\n- `400` for a `mode=lexical` query of stopwords only (no searchable words), for `case_sensitive` with any mode but `literal`, and for a `mode=literal` pattern under 3 characters without a scope (see Search modes).\n\n- `429 upstream_rate_limited` and `503 search_unavailable` carry `Retry-After` (`503` also when a keyword search runs over its time limit — never an empty answer).\n\n- `503 search_disabled` while search is switched off.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
@@ -23461,8 +24018,39 @@
             "in": "query",
             "name": "q",
             "required": true,
-            "description": "The question or phrase to search for",
+            "description": "The keywords, exact text (mode=literal) or question (semantic / hybrid) to search for",
             "example": "Azure growth"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lexical",
+                "literal",
+                "semantic",
+                "hybrid"
+              ],
+              "default": "lexical"
+            },
+            "in": "query",
+            "name": "mode",
+            "required": false,
+            "description": "lexical (keywords, default), literal (exact characters), semantic (meaning) or hybrid (lexical + semantic, fused)",
+            "example": "semantic"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ]
+            },
+            "in": "query",
+            "name": "case_sensitive",
+            "required": false,
+            "description": "mode=literal only: \"false\" matches regardless of case (default \"true\": case-sensitive)",
+            "example": "false"
           },
           {
             "schema": {
@@ -23561,6 +24149,7 @@
           "rowsPath": "hits",
           "columns": [
             "score",
+            "match.type",
             "type",
             "symbol",
             "conference_date",
@@ -23572,7 +24161,8 @@
           "flags": {
             "q": "q",
             "identifier": "i",
-            "limit": "l"
+            "limit": "l",
+            "mode": "m"
           },
           "pagination": "none"
         },
@@ -23585,12 +24175,27 @@
                   "type": "object",
                   "required": [
                     "query",
+                    "mode",
+                    "coverage",
                     "hits"
                   ],
                   "properties": {
                     "query": {
                       "type": "string",
                       "description": "The query as searched"
+                    },
+                    "mode": {
+                      "type": "string",
+                      "enum": [
+                        "lexical",
+                        "literal",
+                        "semantic",
+                        "hybrid"
+                      ],
+                      "description": "The mode searched"
+                    },
+                    "coverage": {
+                      "$ref": "#/components/schemas/SearchCoverage"
                     },
                     "hits": {
                       "type": "array",
@@ -23608,8 +24213,11 @@
                           "speaker",
                           "start_ms",
                           "end_ms",
+                          "chunk_index",
                           "text",
+                          "text_truncated",
                           "score",
+                          "match",
                           "audio_url",
                           "slide"
                         ],
@@ -23687,13 +24295,25 @@
                             "nullable": true,
                             "description": "End offset of the passage"
                           },
+                          "chunk_index": {
+                            "type": "integer",
+                            "nullable": true,
+                            "description": "Position of the passage among the call's transcript (or slide) passages; null for a passage indexed before positions were stored"
+                          },
                           "text": {
                             "type": "string",
-                            "description": "The passage, cut to at most 600 characters on a word boundary"
+                            "description": "The passage, cut to at most 600 characters on word boundaries around the first match"
+                          },
+                          "text_truncated": {
+                            "type": "boolean",
+                            "description": "true = text is shorter than the passage"
                           },
                           "score": {
                             "type": "number",
-                            "description": "Cosine similarity to the query (4 decimals)"
+                            "description": "Relevance per mode: lexical = ts_rank_cd (4 decimals), literal = 0 (hits are ordered newest call first), semantic = cosine similarity (4 decimals), hybrid = reciprocal-rank-fusion score (6 decimals)"
+                          },
+                          "match": {
+                            "$ref": "#/components/schemas/HitMatch"
                           },
                           "audio_url": {
                             "type": "string",
@@ -23727,6 +24347,18 @@
                 },
                 "example": {
                   "query": "Azure growth",
+                  "mode": "semantic",
+                  "coverage": {
+                    "completeness": "complete",
+                    "lexical": null,
+                    "semantic": {
+                      "state": "ready",
+                      "indexed": 1,
+                      "pending": 0,
+                      "failed": 0
+                    },
+                    "reasons": []
+                  },
                   "hits": [
                     {
                       "event_id": "1a7bc938-1338-4128-9ccb-99d6a9646ea2",
@@ -23743,8 +24375,16 @@
                       },
                       "start_ms": 2953487,
                       "end_ms": 2987496,
+                      "chunk_index": null,
                       "text": "you. Thanks, Mark. Let me maybe start with Azure, which given its size and its growth rates, where we've talked about acceleration from where we are, which is the guy to 39 to 40 into a bigger number in the second half of the calendar year.…",
+                      "text_truncated": true,
                       "score": 0.7056,
+                      "match": {
+                        "type": "semantic",
+                        "lexical_rank": null,
+                        "semantic_rank": 1,
+                        "spans": []
+                      },
                       "audio_url": null,
                       "slide": null
                     }
@@ -23799,7 +24439,8 @@
         "x-credits": 10,
         "x-license": "rag",
         "x-example-params": [
-          "identifier"
+          "identifier",
+          "mode"
         ]
       }
     },
@@ -27507,7 +28148,8 @@
                               "has_slides",
                               "has_press_release",
                               "has_documents",
-                              "webcast_url"
+                              "webcast_url",
+                              "video"
                             ],
                             "properties": {
                               "event_id": {
@@ -27655,6 +28297,63 @@
                                 "type": "string",
                                 "nullable": true,
                                 "description": "Webcast page of an upcoming dated call; null once published"
+                              },
+                              "video": {
+                                "type": "object",
+                                "nullable": true,
+                                "required": [
+                                  "provider",
+                                  "video_id",
+                                  "url",
+                                  "embed_url",
+                                  "title",
+                                  "channel",
+                                  "thumbnail_url",
+                                  "embeddable"
+                                ],
+                                "description": "The company's public broadcast on a video platform (YouTube, Vimeo). Embed `embed_url` when `embeddable` is not false; otherwise link `url`. Present before, during and after the event; null = none known.",
+                                "properties": {
+                                  "provider": {
+                                    "type": "string",
+                                    "enum": [
+                                      "youtube",
+                                      "vimeo"
+                                    ],
+                                    "description": "Video platform"
+                                  },
+                                  "video_id": {
+                                    "type": "string",
+                                    "description": "The platform's video id"
+                                  },
+                                  "url": {
+                                    "type": "string",
+                                    "description": "Watch page"
+                                  },
+                                  "embed_url": {
+                                    "type": "string",
+                                    "description": "Privacy-enhanced player URL (YouTube: youtube-nocookie.com; Vimeo: dnt=1)"
+                                  },
+                                  "title": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Video title"
+                                  },
+                                  "channel": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Channel or account that published it"
+                                  },
+                                  "thumbnail_url": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Thumbnail image"
+                                  },
+                                  "embeddable": {
+                                    "type": "boolean",
+                                    "nullable": true,
+                                    "description": "false = the owner disabled or restricted embedding (link `url`); null = not checked yet"
+                                  }
+                                }
                               }
                             }
                           },
@@ -27770,7 +28469,8 @@
                               "has_slides",
                               "has_press_release",
                               "has_documents",
-                              "webcast_url"
+                              "webcast_url",
+                              "video"
                             ],
                             "properties": {
                               "event_id": {
@@ -27918,6 +28618,63 @@
                                 "type": "string",
                                 "nullable": true,
                                 "description": "Webcast page of an upcoming dated call; null once published"
+                              },
+                              "video": {
+                                "type": "object",
+                                "nullable": true,
+                                "required": [
+                                  "provider",
+                                  "video_id",
+                                  "url",
+                                  "embed_url",
+                                  "title",
+                                  "channel",
+                                  "thumbnail_url",
+                                  "embeddable"
+                                ],
+                                "description": "The company's public broadcast on a video platform (YouTube, Vimeo). Embed `embed_url` when `embeddable` is not false; otherwise link `url`. Present before, during and after the event; null = none known.",
+                                "properties": {
+                                  "provider": {
+                                    "type": "string",
+                                    "enum": [
+                                      "youtube",
+                                      "vimeo"
+                                    ],
+                                    "description": "Video platform"
+                                  },
+                                  "video_id": {
+                                    "type": "string",
+                                    "description": "The platform's video id"
+                                  },
+                                  "url": {
+                                    "type": "string",
+                                    "description": "Watch page"
+                                  },
+                                  "embed_url": {
+                                    "type": "string",
+                                    "description": "Privacy-enhanced player URL (YouTube: youtube-nocookie.com; Vimeo: dnt=1)"
+                                  },
+                                  "title": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Video title"
+                                  },
+                                  "channel": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Channel or account that published it"
+                                  },
+                                  "thumbnail_url": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Thumbnail image"
+                                  },
+                                  "embeddable": {
+                                    "type": "boolean",
+                                    "nullable": true,
+                                    "description": "false = the owner disabled or restricted embedding (link `url`); null = not checked yet"
+                                  }
+                                }
                               }
                             }
                           },
@@ -28040,7 +28797,8 @@
                               "has_slides",
                               "has_press_release",
                               "has_documents",
-                              "webcast_url"
+                              "webcast_url",
+                              "video"
                             ],
                             "properties": {
                               "event_id": {
@@ -28188,6 +28946,63 @@
                                 "type": "string",
                                 "nullable": true,
                                 "description": "Webcast page of an upcoming dated call; null once published"
+                              },
+                              "video": {
+                                "type": "object",
+                                "nullable": true,
+                                "required": [
+                                  "provider",
+                                  "video_id",
+                                  "url",
+                                  "embed_url",
+                                  "title",
+                                  "channel",
+                                  "thumbnail_url",
+                                  "embeddable"
+                                ],
+                                "description": "The company's public broadcast on a video platform (YouTube, Vimeo). Embed `embed_url` when `embeddable` is not false; otherwise link `url`. Present before, during and after the event; null = none known.",
+                                "properties": {
+                                  "provider": {
+                                    "type": "string",
+                                    "enum": [
+                                      "youtube",
+                                      "vimeo"
+                                    ],
+                                    "description": "Video platform"
+                                  },
+                                  "video_id": {
+                                    "type": "string",
+                                    "description": "The platform's video id"
+                                  },
+                                  "url": {
+                                    "type": "string",
+                                    "description": "Watch page"
+                                  },
+                                  "embed_url": {
+                                    "type": "string",
+                                    "description": "Privacy-enhanced player URL (YouTube: youtube-nocookie.com; Vimeo: dnt=1)"
+                                  },
+                                  "title": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Video title"
+                                  },
+                                  "channel": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Channel or account that published it"
+                                  },
+                                  "thumbnail_url": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Thumbnail image"
+                                  },
+                                  "embeddable": {
+                                    "type": "boolean",
+                                    "nullable": true,
+                                    "description": "false = the owner disabled or restricted embedding (link `url`); null = not checked yet"
+                                  }
+                                }
                               }
                             }
                           },
@@ -28301,7 +29116,8 @@
                               "has_slides",
                               "has_press_release",
                               "has_documents",
-                              "webcast_url"
+                              "webcast_url",
+                              "video"
                             ],
                             "properties": {
                               "event_id": {
@@ -28449,6 +29265,63 @@
                                 "type": "string",
                                 "nullable": true,
                                 "description": "Webcast page of an upcoming dated call; null once published"
+                              },
+                              "video": {
+                                "type": "object",
+                                "nullable": true,
+                                "required": [
+                                  "provider",
+                                  "video_id",
+                                  "url",
+                                  "embed_url",
+                                  "title",
+                                  "channel",
+                                  "thumbnail_url",
+                                  "embeddable"
+                                ],
+                                "description": "The company's public broadcast on a video platform (YouTube, Vimeo). Embed `embed_url` when `embeddable` is not false; otherwise link `url`. Present before, during and after the event; null = none known.",
+                                "properties": {
+                                  "provider": {
+                                    "type": "string",
+                                    "enum": [
+                                      "youtube",
+                                      "vimeo"
+                                    ],
+                                    "description": "Video platform"
+                                  },
+                                  "video_id": {
+                                    "type": "string",
+                                    "description": "The platform's video id"
+                                  },
+                                  "url": {
+                                    "type": "string",
+                                    "description": "Watch page"
+                                  },
+                                  "embed_url": {
+                                    "type": "string",
+                                    "description": "Privacy-enhanced player URL (YouTube: youtube-nocookie.com; Vimeo: dnt=1)"
+                                  },
+                                  "title": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Video title"
+                                  },
+                                  "channel": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Channel or account that published it"
+                                  },
+                                  "thumbnail_url": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Thumbnail image"
+                                  },
+                                  "embeddable": {
+                                    "type": "boolean",
+                                    "nullable": true,
+                                    "description": "false = the owner disabled or restricted embedding (link `url`); null = not checked yet"
+                                  }
+                                }
                               }
                             }
                           },
@@ -28586,7 +29459,8 @@
                               "has_slides",
                               "has_press_release",
                               "has_documents",
-                              "webcast_url"
+                              "webcast_url",
+                              "video"
                             ],
                             "properties": {
                               "event_id": {
@@ -28734,6 +29608,63 @@
                                 "type": "string",
                                 "nullable": true,
                                 "description": "Webcast page of an upcoming dated call; null once published"
+                              },
+                              "video": {
+                                "type": "object",
+                                "nullable": true,
+                                "required": [
+                                  "provider",
+                                  "video_id",
+                                  "url",
+                                  "embed_url",
+                                  "title",
+                                  "channel",
+                                  "thumbnail_url",
+                                  "embeddable"
+                                ],
+                                "description": "The company's public broadcast on a video platform (YouTube, Vimeo). Embed `embed_url` when `embeddable` is not false; otherwise link `url`. Present before, during and after the event; null = none known.",
+                                "properties": {
+                                  "provider": {
+                                    "type": "string",
+                                    "enum": [
+                                      "youtube",
+                                      "vimeo"
+                                    ],
+                                    "description": "Video platform"
+                                  },
+                                  "video_id": {
+                                    "type": "string",
+                                    "description": "The platform's video id"
+                                  },
+                                  "url": {
+                                    "type": "string",
+                                    "description": "Watch page"
+                                  },
+                                  "embed_url": {
+                                    "type": "string",
+                                    "description": "Privacy-enhanced player URL (YouTube: youtube-nocookie.com; Vimeo: dnt=1)"
+                                  },
+                                  "title": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Video title"
+                                  },
+                                  "channel": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Channel or account that published it"
+                                  },
+                                  "thumbnail_url": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Thumbnail image"
+                                  },
+                                  "embeddable": {
+                                    "type": "boolean",
+                                    "nullable": true,
+                                    "description": "false = the owner disabled or restricted embedding (link `url`); null = not checked yet"
+                                  }
+                                }
                               }
                             }
                           },
@@ -28905,7 +29836,8 @@
                               "has_slides",
                               "has_press_release",
                               "has_documents",
-                              "webcast_url"
+                              "webcast_url",
+                              "video"
                             ],
                             "properties": {
                               "event_id": {
@@ -29053,6 +29985,63 @@
                                 "type": "string",
                                 "nullable": true,
                                 "description": "Webcast page of an upcoming dated call; null once published"
+                              },
+                              "video": {
+                                "type": "object",
+                                "nullable": true,
+                                "required": [
+                                  "provider",
+                                  "video_id",
+                                  "url",
+                                  "embed_url",
+                                  "title",
+                                  "channel",
+                                  "thumbnail_url",
+                                  "embeddable"
+                                ],
+                                "description": "The company's public broadcast on a video platform (YouTube, Vimeo). Embed `embed_url` when `embeddable` is not false; otherwise link `url`. Present before, during and after the event; null = none known.",
+                                "properties": {
+                                  "provider": {
+                                    "type": "string",
+                                    "enum": [
+                                      "youtube",
+                                      "vimeo"
+                                    ],
+                                    "description": "Video platform"
+                                  },
+                                  "video_id": {
+                                    "type": "string",
+                                    "description": "The platform's video id"
+                                  },
+                                  "url": {
+                                    "type": "string",
+                                    "description": "Watch page"
+                                  },
+                                  "embed_url": {
+                                    "type": "string",
+                                    "description": "Privacy-enhanced player URL (YouTube: youtube-nocookie.com; Vimeo: dnt=1)"
+                                  },
+                                  "title": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Video title"
+                                  },
+                                  "channel": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Channel or account that published it"
+                                  },
+                                  "thumbnail_url": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Thumbnail image"
+                                  },
+                                  "embeddable": {
+                                    "type": "boolean",
+                                    "nullable": true,
+                                    "description": "false = the owner disabled or restricted embedding (link `url`); null = not checked yet"
+                                  }
+                                }
                               }
                             }
                           },
@@ -29213,7 +30202,8 @@
                               "has_slides",
                               "has_press_release",
                               "has_documents",
-                              "webcast_url"
+                              "webcast_url",
+                              "video"
                             ],
                             "properties": {
                               "event_id": {
@@ -29361,6 +30351,63 @@
                                 "type": "string",
                                 "nullable": true,
                                 "description": "Webcast page of an upcoming dated call; null once published"
+                              },
+                              "video": {
+                                "type": "object",
+                                "nullable": true,
+                                "required": [
+                                  "provider",
+                                  "video_id",
+                                  "url",
+                                  "embed_url",
+                                  "title",
+                                  "channel",
+                                  "thumbnail_url",
+                                  "embeddable"
+                                ],
+                                "description": "The company's public broadcast on a video platform (YouTube, Vimeo). Embed `embed_url` when `embeddable` is not false; otherwise link `url`. Present before, during and after the event; null = none known.",
+                                "properties": {
+                                  "provider": {
+                                    "type": "string",
+                                    "enum": [
+                                      "youtube",
+                                      "vimeo"
+                                    ],
+                                    "description": "Video platform"
+                                  },
+                                  "video_id": {
+                                    "type": "string",
+                                    "description": "The platform's video id"
+                                  },
+                                  "url": {
+                                    "type": "string",
+                                    "description": "Watch page"
+                                  },
+                                  "embed_url": {
+                                    "type": "string",
+                                    "description": "Privacy-enhanced player URL (YouTube: youtube-nocookie.com; Vimeo: dnt=1)"
+                                  },
+                                  "title": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Video title"
+                                  },
+                                  "channel": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Channel or account that published it"
+                                  },
+                                  "thumbnail_url": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Thumbnail image"
+                                  },
+                                  "embeddable": {
+                                    "type": "boolean",
+                                    "nullable": true,
+                                    "description": "false = the owner disabled or restricted embedding (link `url`); null = not checked yet"
+                                  }
+                                }
                               }
                             }
                           },
@@ -29521,7 +30568,8 @@
                               "has_slides",
                               "has_press_release",
                               "has_documents",
-                              "webcast_url"
+                              "webcast_url",
+                              "video"
                             ],
                             "properties": {
                               "event_id": {
@@ -29669,6 +30717,63 @@
                                 "type": "string",
                                 "nullable": true,
                                 "description": "Webcast page of an upcoming dated call; null once published"
+                              },
+                              "video": {
+                                "type": "object",
+                                "nullable": true,
+                                "required": [
+                                  "provider",
+                                  "video_id",
+                                  "url",
+                                  "embed_url",
+                                  "title",
+                                  "channel",
+                                  "thumbnail_url",
+                                  "embeddable"
+                                ],
+                                "description": "The company's public broadcast on a video platform (YouTube, Vimeo). Embed `embed_url` when `embeddable` is not false; otherwise link `url`. Present before, during and after the event; null = none known.",
+                                "properties": {
+                                  "provider": {
+                                    "type": "string",
+                                    "enum": [
+                                      "youtube",
+                                      "vimeo"
+                                    ],
+                                    "description": "Video platform"
+                                  },
+                                  "video_id": {
+                                    "type": "string",
+                                    "description": "The platform's video id"
+                                  },
+                                  "url": {
+                                    "type": "string",
+                                    "description": "Watch page"
+                                  },
+                                  "embed_url": {
+                                    "type": "string",
+                                    "description": "Privacy-enhanced player URL (YouTube: youtube-nocookie.com; Vimeo: dnt=1)"
+                                  },
+                                  "title": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Video title"
+                                  },
+                                  "channel": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Channel or account that published it"
+                                  },
+                                  "thumbnail_url": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Thumbnail image"
+                                  },
+                                  "embeddable": {
+                                    "type": "boolean",
+                                    "nullable": true,
+                                    "description": "false = the owner disabled or restricted embedding (link `url`); null = not checked yet"
+                                  }
+                                }
                               }
                             }
                           },
@@ -29801,7 +30906,8 @@
                               "has_slides",
                               "has_press_release",
                               "has_documents",
-                              "webcast_url"
+                              "webcast_url",
+                              "video"
                             ],
                             "properties": {
                               "event_id": {
@@ -29949,6 +31055,63 @@
                                 "type": "string",
                                 "nullable": true,
                                 "description": "Webcast page of an upcoming dated call; null once published"
+                              },
+                              "video": {
+                                "type": "object",
+                                "nullable": true,
+                                "required": [
+                                  "provider",
+                                  "video_id",
+                                  "url",
+                                  "embed_url",
+                                  "title",
+                                  "channel",
+                                  "thumbnail_url",
+                                  "embeddable"
+                                ],
+                                "description": "The company's public broadcast on a video platform (YouTube, Vimeo). Embed `embed_url` when `embeddable` is not false; otherwise link `url`. Present before, during and after the event; null = none known.",
+                                "properties": {
+                                  "provider": {
+                                    "type": "string",
+                                    "enum": [
+                                      "youtube",
+                                      "vimeo"
+                                    ],
+                                    "description": "Video platform"
+                                  },
+                                  "video_id": {
+                                    "type": "string",
+                                    "description": "The platform's video id"
+                                  },
+                                  "url": {
+                                    "type": "string",
+                                    "description": "Watch page"
+                                  },
+                                  "embed_url": {
+                                    "type": "string",
+                                    "description": "Privacy-enhanced player URL (YouTube: youtube-nocookie.com; Vimeo: dnt=1)"
+                                  },
+                                  "title": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Video title"
+                                  },
+                                  "channel": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Channel or account that published it"
+                                  },
+                                  "thumbnail_url": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Thumbnail image"
+                                  },
+                                  "embeddable": {
+                                    "type": "boolean",
+                                    "nullable": true,
+                                    "description": "false = the owner disabled or restricted embedding (link `url`); null = not checked yet"
+                                  }
+                                }
                               }
                             }
                           },
@@ -30136,7 +31299,8 @@
                               "has_slides",
                               "has_press_release",
                               "has_documents",
-                              "webcast_url"
+                              "webcast_url",
+                              "video"
                             ],
                             "properties": {
                               "event_id": {
@@ -30284,6 +31448,63 @@
                                 "type": "string",
                                 "nullable": true,
                                 "description": "Webcast page of an upcoming dated call; null once published"
+                              },
+                              "video": {
+                                "type": "object",
+                                "nullable": true,
+                                "required": [
+                                  "provider",
+                                  "video_id",
+                                  "url",
+                                  "embed_url",
+                                  "title",
+                                  "channel",
+                                  "thumbnail_url",
+                                  "embeddable"
+                                ],
+                                "description": "The company's public broadcast on a video platform (YouTube, Vimeo). Embed `embed_url` when `embeddable` is not false; otherwise link `url`. Present before, during and after the event; null = none known.",
+                                "properties": {
+                                  "provider": {
+                                    "type": "string",
+                                    "enum": [
+                                      "youtube",
+                                      "vimeo"
+                                    ],
+                                    "description": "Video platform"
+                                  },
+                                  "video_id": {
+                                    "type": "string",
+                                    "description": "The platform's video id"
+                                  },
+                                  "url": {
+                                    "type": "string",
+                                    "description": "Watch page"
+                                  },
+                                  "embed_url": {
+                                    "type": "string",
+                                    "description": "Privacy-enhanced player URL (YouTube: youtube-nocookie.com; Vimeo: dnt=1)"
+                                  },
+                                  "title": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Video title"
+                                  },
+                                  "channel": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Channel or account that published it"
+                                  },
+                                  "thumbnail_url": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Thumbnail image"
+                                  },
+                                  "embeddable": {
+                                    "type": "boolean",
+                                    "nullable": true,
+                                    "description": "false = the owner disabled or restricted embedding (link `url`); null = not checked yet"
+                                  }
+                                }
                               }
                             },
                             "nullable": true,
@@ -30486,7 +31707,8 @@
                               "has_slides",
                               "has_press_release",
                               "has_documents",
-                              "webcast_url"
+                              "webcast_url",
+                              "video"
                             ],
                             "properties": {
                               "event_id": {
@@ -30634,6 +31856,63 @@
                                 "type": "string",
                                 "nullable": true,
                                 "description": "Webcast page of an upcoming dated call; null once published"
+                              },
+                              "video": {
+                                "type": "object",
+                                "nullable": true,
+                                "required": [
+                                  "provider",
+                                  "video_id",
+                                  "url",
+                                  "embed_url",
+                                  "title",
+                                  "channel",
+                                  "thumbnail_url",
+                                  "embeddable"
+                                ],
+                                "description": "The company's public broadcast on a video platform (YouTube, Vimeo). Embed `embed_url` when `embeddable` is not false; otherwise link `url`. Present before, during and after the event; null = none known.",
+                                "properties": {
+                                  "provider": {
+                                    "type": "string",
+                                    "enum": [
+                                      "youtube",
+                                      "vimeo"
+                                    ],
+                                    "description": "Video platform"
+                                  },
+                                  "video_id": {
+                                    "type": "string",
+                                    "description": "The platform's video id"
+                                  },
+                                  "url": {
+                                    "type": "string",
+                                    "description": "Watch page"
+                                  },
+                                  "embed_url": {
+                                    "type": "string",
+                                    "description": "Privacy-enhanced player URL (YouTube: youtube-nocookie.com; Vimeo: dnt=1)"
+                                  },
+                                  "title": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Video title"
+                                  },
+                                  "channel": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Channel or account that published it"
+                                  },
+                                  "thumbnail_url": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Thumbnail image"
+                                  },
+                                  "embeddable": {
+                                    "type": "boolean",
+                                    "nullable": true,
+                                    "description": "false = the owner disabled or restricted embedding (link `url`); null = not checked yet"
+                                  }
+                                }
                               }
                             }
                           },

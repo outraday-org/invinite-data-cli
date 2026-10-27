@@ -1,6 +1,6 @@
 {
   "specVersion": "1.0.0",
-  "specSha256": "cafa5748c4ca0c51533695eb005138bdd888d5e4144163269fb8b3a245cd0a10",
+  "specSha256": "89fec1994d7aa99cb921bbcdc6d23a14767baa66fe913a6c0bed1fe4a502ffde",
   "groups": [
     {
       "name": "company",
@@ -708,8 +708,36 @@
           "required": true,
           "type": "string",
           "example": "Azure growth",
-          "description": "The question or phrase to search for",
+          "description": "The keywords, exact text (mode=literal) or question (semantic / hybrid) to search for",
           "alias": "q"
+        },
+        {
+          "name": "mode",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "lexical",
+            "literal",
+            "semantic",
+            "hybrid"
+          ],
+          "default": "lexical",
+          "example": "hybrid",
+          "description": "lexical (keywords, default), literal (exact characters), semantic (meaning) or hybrid (lexical + semantic, fused)",
+          "alias": "m"
+        },
+        {
+          "name": "case_sensitive",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "example": "false",
+          "description": "mode=literal only: \"false\" matches regardless of case (default \"true\": case-sensitive)"
         },
         {
           "name": "identifier",
@@ -780,6 +808,7 @@
       "rowsPath": "hits",
       "columns": [
         "score",
+        "match.type",
         "kind",
         "year",
         "group",
@@ -819,7 +848,7 @@
           "in": "path",
           "required": true,
           "type": "string",
-          "example": "cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c",
+          "example": "9655a5db-8968-40be-8c79-7cd1a8aed8e9",
           "description": "Event identifier (event_id of any earnings-calls response)"
         }
       ],
@@ -1742,8 +1771,36 @@
           "required": true,
           "type": "string",
           "example": "Azure growth",
-          "description": "The question or phrase to search for",
+          "description": "The keywords, exact text (mode=literal) or question (semantic / hybrid) to search for",
           "alias": "q"
+        },
+        {
+          "name": "mode",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "lexical",
+            "literal",
+            "semantic",
+            "hybrid"
+          ],
+          "default": "lexical",
+          "example": "semantic",
+          "description": "lexical (keywords, default), literal (exact characters), semantic (meaning) or hybrid (lexical + semantic, fused)",
+          "alias": "m"
+        },
+        {
+          "name": "case_sensitive",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "example": "false",
+          "description": "mode=literal only: \"false\" matches regardless of case (default \"true\": case-sensitive)"
         },
         {
           "name": "event_id",
@@ -1813,12 +1870,14 @@
         }
       ],
       "exampleParams": [
-        "identifier"
+        "identifier",
+        "mode"
       ],
       "view": "table",
       "rowsPath": "hits",
       "columns": [
         "score",
+        "match.type",
         "type",
         "symbol",
         "conference_date",

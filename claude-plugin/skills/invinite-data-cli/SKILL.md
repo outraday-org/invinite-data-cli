@@ -128,6 +128,7 @@ Commands about one call take a selector: `--event-id <event_id>` (from `events` 
 - `earnings event --include observations` adds the date / time observations; `earnings participants --include evidence` the participation evidence.
 - Every `*_ms` field is milliseconds from the call's start: cite it as `[m:ss]`. `qa_start_ms` is where the Q&A begins (null without one).
 - Company documents and document-search hits are company-published material: quote them as "passages from company-published documents", never as verified facts, and cite each with its document title, year and page (`page`; open `url` at `#page=<page>`). A `webcast` row is link-only (`url` null, `source_url` = the replay page, `link_status`).
+- `earnings search` and `earnings document-search` take `-m, --mode`: `hybrid` for natural-language questions, `lexical` (the default) for words and phrases, `literal` for exact strings such as `FY2027` or `10b5-1` (case-sensitive; `--case-sensitive false` ignores case), `semantic` for meaning only. Every mode costs the same. In `--json` output read `coverage.completeness` before concluding anything from few or no hits: `partial` / `unknown` means the index does not cover the whole scope yet, so absence is not proof. `match.spans` are code-point offsets of the matched characters in `text`.
 - Media signed URLs expire after 15 minutes; `--output` on the download commands saves the file.
 - The live transcript (`ws listen --earnings`), audio, slides, the live stream and webhooks need the PRO plan (calendar, events and `live` need LITE, the other reads STANDARD); a `403` names the plan a route needs.
 
@@ -200,11 +201,11 @@ invd earnings calendar --json
 # Call-over-call diff (optional: --event-id, --identifier, --year, --quarter, --date, --event-type, --vs)
 invd earnings diff --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
 
-# Search investor documents (optional: --identifier, --kind, --section, --year, --table, --limit)
+# Search investor documents (optional: --mode, --case-sensitive, --identifier, --kind, --section, --year, --table, --limit)
 invd earnings document-search -q "Azure growth" -i MSFT --json
 
 # Earnings call by ID (optional: --include)
-invd earnings event --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
+invd earnings event --event-id 9655a5db-8968-40be-8c79-7cd1a8aed8e9 --json
 
 # Event history of a company (optional: --from, --to, --include, --event-type, --sort, --limit, --offset, --all)
 invd earnings events -i MSFT --json
@@ -236,8 +237,8 @@ invd earnings prosody --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
 # Earnings call Q&A (optional: --event-id, --identifier, --year, --quarter, --date, --event-type, --limit, --offset, --include, --all)
 invd earnings qa --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
 
-# Search earnings calls (optional: --event-id, --identifier, --from, --to, --type, --event-type, --limit)
-invd earnings search -q "Azure growth" -i MSFT --json
+# Search earnings calls (optional: --mode, --case-sensitive, --event-id, --identifier, --from, --to, --type, --event-type, --limit)
+invd earnings search -q "Azure growth" -m semantic -i MSFT --json
 
 # Live audio stream URL (optional: --event-id, --identifier, --year, --quarter, --date, --event-type)
 invd earnings stream --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
@@ -632,7 +633,8 @@ Find the call, then read it from the cheapest source to the most detailed:
 invd earnings events -i NVDA -s desc -l 4 --json            # pick the event_id
 invd earnings transcript --event-id <event_id> --format sections --json
 invd earnings extractions --event-id <event_id> --kind guidance --json
-invd earnings search -q "gross margin outlook" --event-id <event_id> --json
+invd earnings search -q "gross margin outlook" --mode hybrid --event-id <event_id> --json
+invd earnings document-search -q FY2027 -i NVDA --mode literal --json   # exact token in the company's documents
 invd earnings price-attribution --event-id <event_id> --json   # optional: price moves during the call
 ```
 `price-attribution` (MCP `earnings_call_price_moves`, STANDARD, 1 credit) lines up minute returns with what was said in that minute: temporal coincidence, not attribution of cause; pre-market bars are sparse, and a `404 price_attribution_unavailable` means the call is not attributed yet.

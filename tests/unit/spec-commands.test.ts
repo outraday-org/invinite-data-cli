@@ -408,6 +408,31 @@ describe('the real manifest', () => {
     expect(url.searchParams.get('limit')).toBe('5');
   });
 
+  it('earnings document-search sends --mode literal and --case-sensitive false as query values', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    respond({ query: 'FY2027', mode: 'literal', coverage: { completeness: 'complete', lexical: null, semantic: null, reasons: [] }, hits: [] });
+    await createProgram().exitOverride().parseAsync([
+      'node', 'invd', '--json', 'earnings', 'document-search', '-q', 'FY2027', '-i', 'NVDA', '--mode', 'literal', '--case-sensitive', 'false',
+    ]);
+    const url = new URL(requestedUrl());
+    expect(url.pathname).toBe('/v1/earnings-calls/documents/search');
+    expect(url.searchParams.get('q')).toBe('FY2027');
+    expect(url.searchParams.get('identifier')).toBe('NVDA');
+    expect(url.searchParams.get('mode')).toBe('literal');
+    expect(url.searchParams.get('case_sensitive')).toBe('false');
+  });
+
+  it('earnings search takes -m for the mode and sends no mode without it (the API default applies)', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    const body = { query: 'margin', mode: 'hybrid', coverage: { completeness: 'complete', lexical: null, semantic: null, reasons: [] }, hits: [] };
+    respond(body);
+    respond(body);
+    await createProgram().exitOverride().parseAsync(['node', 'invd', '--json', 'earnings', 'search', '-q', 'margin', '-m', 'hybrid']);
+    await createProgram().exitOverride().parseAsync(['node', 'invd', '--json', 'earnings', 'search', '-q', 'margin']);
+    expect(new URL(requestedUrl(0)).searchParams.get('mode')).toBe('hybrid');
+    expect(new URL(requestedUrl(1)).searchParams.has('mode')).toBe(false);
+  });
+
   it('--show-cost still prints for a generated command', async () => {
     const out: string[] = [];
     const err: string[] = [];
