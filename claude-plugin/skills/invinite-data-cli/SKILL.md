@@ -128,7 +128,7 @@ Commands about one call take a selector: `--event-id <event_id>` (from `events` 
 - `earnings event --include observations` adds the date / time observations; `earnings participants --include evidence` the participation evidence.
 - Every `*_ms` field is milliseconds from the call's start: cite it as `[m:ss]`. `qa_start_ms` is where the Q&A begins (null without one).
 - Company documents and document-search hits are company-published material: quote them as "passages from company-published documents", never as verified facts, and cite each with its document title, year and page (`page`; open `url` at `#page=<page>`). A `webcast` row is link-only (`url` null, `source_url` = the replay page, `link_status`).
-- `earnings search` and `earnings document-search` take `-m, --mode`: `hybrid` for natural-language questions, `lexical` (the default) for words and phrases, `literal` for exact strings such as `FY2027` or `10b5-1` (case-sensitive; `--case-sensitive false` ignores case), `semantic` for meaning only. Every mode costs the same. In `--json` output read `coverage.completeness` before concluding anything from few or no hits: `partial` / `unknown` means the index does not cover the whole scope yet, so absence is not proof. `match.spans` are code-point offsets of the matched characters in `text`.
+- `earnings search` and `earnings document-search` take `-m, --mode`: `lexical` (the default) matches words and quoted phrases (stemmed; `OR` and `-word` work), `literal` matches the exact characters such as `FY2027` or `10b5-1` (case-sensitive; `--case-sensitive false` for a case-insensitive match). Search with keywords, not a whole question: scoped to one call (`--event-id`) or one company (`-i`), `earnings search` needs any of the words and returns the management answer right after a matching analyst question (its `match.spans` may be empty); without a scope, and in `document-search`, every word must match. Both modes cost the same. In `--json` output read `coverage.completeness` before concluding anything from few or no hits: `partial` / `unknown` means the index does not cover the whole scope yet, so absence is not proof. `match.spans` are code-point offsets of the matched characters in `text`.
 - Media signed URLs expire after 15 minutes; `--output` on the download commands saves the file.
 - The live transcript (`ws listen --earnings`), audio, slides, the live stream and webhooks need the PRO plan (calendar, events and `live` need LITE, the other reads STANDARD); a `403` names the plan a route needs.
 
@@ -238,7 +238,7 @@ invd earnings prosody --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
 invd earnings qa --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
 
 # Search earnings calls (optional: --mode, --case-sensitive, --event-id, --identifier, --from, --to, --type, --event-type, --limit)
-invd earnings search -q "Azure growth" -m semantic -i MSFT --json
+invd earnings search -q "Azure growth" -m lexical -i MSFT --json
 
 # Live audio stream URL (optional: --event-id, --identifier, --year, --quarter, --date, --event-type)
 invd earnings stream --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
@@ -633,7 +633,8 @@ Find the call, then read it from the cheapest source to the most detailed:
 invd earnings events -i NVDA -s desc -l 4 --json            # pick the event_id
 invd earnings transcript --event-id <event_id> --format sections --json
 invd earnings extractions --event-id <event_id> --kind guidance --json
-invd earnings search -q "gross margin outlook" --mode hybrid --event-id <event_id> --json
+invd earnings search -q "gross margin outlook" --event-id <event_id> --json
+invd earnings search -q "data center revenue" --mode literal --event-id <event_id> --json   # exact quote in the call
 invd earnings document-search -q FY2027 -i NVDA --mode literal --json   # exact token in the company's documents
 invd earnings price-attribution --event-id <event_id> --json   # optional: price moves during the call
 ```

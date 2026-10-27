@@ -1,6 +1,6 @@
 {
   "specVersion": "1.0.0",
-  "specSha256": "9f4094202acf89ee7a89a522e9825beac9df8a364d2d4b0f59710dc05d986cc5",
+  "specSha256": "d632bccc5d4a587bdf30590211ef565f5503e2f50502a0fffa5a9fc2e8891717",
   "groups": [
     {
       "name": "company",
@@ -708,7 +708,7 @@
           "required": true,
           "type": "string",
           "example": "Azure growth",
-          "description": "The keywords, exact text (mode=literal) or question (semantic / hybrid) to search for",
+          "description": "The keywords or phrases (mode=lexical) or exact text (mode=literal) to search for",
           "alias": "q"
         },
         {
@@ -718,13 +718,11 @@
           "type": "string",
           "enum": [
             "lexical",
-            "literal",
-            "semantic",
-            "hybrid"
+            "literal"
           ],
           "default": "lexical",
-          "example": "hybrid",
-          "description": "lexical (keywords, default), literal (exact characters), semantic (meaning) or hybrid (lexical + semantic, fused)",
+          "example": "lexical",
+          "description": "lexical (keywords and phrases, default) or literal (exact characters)",
           "alias": "m"
         },
         {
@@ -1771,7 +1769,7 @@
           "required": true,
           "type": "string",
           "example": "Azure growth",
-          "description": "The keywords, exact text (mode=literal) or question (semantic / hybrid) to search for",
+          "description": "The keywords or phrases (mode=lexical) or exact text (mode=literal) to search for",
           "alias": "q"
         },
         {
@@ -1781,13 +1779,11 @@
           "type": "string",
           "enum": [
             "lexical",
-            "literal",
-            "semantic",
-            "hybrid"
+            "literal"
           ],
           "default": "lexical",
-          "example": "semantic",
-          "description": "lexical (keywords, default), literal (exact characters), semantic (meaning) or hybrid (lexical + semantic, fused)",
+          "example": "lexical",
+          "description": "lexical (keywords and phrases, default) or literal (exact characters)",
           "alias": "m"
         },
         {
