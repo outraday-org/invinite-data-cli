@@ -1554,7 +1554,7 @@
                 },
                 "example": {
                   "status": "ok",
-                  "timestamp": "2026-10-21T16:11:57.458Z"
+                  "timestamp": "2026-10-28T23:19:50.469Z"
                 }
               }
             }
@@ -1632,7 +1632,7 @@
                   }
                 },
                 "example": {
-                  "count": 6207,
+                  "count": 6217,
                   "companies": [
                     {
                       "cik": "0001090872",
@@ -1780,7 +1780,7 @@
                   }
                 },
                 "example": {
-                  "count": 748,
+                  "count": 752,
                   "companies": [
                     {
                       "cik": "0000320193",
@@ -2135,12 +2135,12 @@
                       "is_delisted": false,
                       "list_date": "1980-12-12",
                       "employees": 166000,
-                      "market_cap": 4991209560000,
+                      "market_cap": 5081985359600,
                       "shares_outstanding": 14594180000,
                       "insider_own_pct": 0.06,
-                      "insider_own_shares": 9342562,
-                      "inst_own_pct": 0.13,
-                      "inst_own_shares": 19413713,
+                      "insider_own_shares": 9340163,
+                      "inst_own_pct": 36.79,
+                      "inst_own_shares": 5368744192,
                       "short_float_pct": 0.83,
                       "short_float_shares": 120763539,
                       "homepage_url": "https://www.apple.com",
@@ -4955,7 +4955,6 @@
                           "period_end": "2025-09-27",
                           "facts": {
                             "cfs_cash_from_operating_activities": 111482000000,
-                            "cfs_cash_from_operating_activities_continuing_operations": -2100000000,
                             "cfs_income_incl_noncontrolling_interest": 112010000000,
                             "cfs_adjustments_to_reconcile_net_income_to_cash": 21190000000,
                             "cfs_depreciation_depletion_and_amortization": 11698000000,
@@ -4965,7 +4964,8 @@
                             "cfs_other_noncash_income_expense": -89000000,
                             "cfs_other_adjustments_to_net_income": 0,
                             "cfs_changes_in_operating_capital": -25000000000,
-                            "cfs_changes_in_operating_assets": -14826000000
+                            "cfs_changes_in_operating_assets": -14826000000,
+                            "cfs_changes_in_receivables": -7029000000
                           }
                         }
                       ],
@@ -5367,12 +5367,6 @@
                               "accession_number": "0000320193-25-000079",
                               "html_tag_id": "f-307"
                             },
-                            "cfs_cash_from_operating_activities_continuing_operations": {
-                              "value": -2100000000,
-                              "parent_id": "cfs_cash_from_operating_activities",
-                              "accession_number": "0000320193-25-000079",
-                              "html_tag_id": null
-                            },
                             "cfs_income_incl_noncontrolling_interest": {
                               "value": 112010000000,
                               "parent_id": "cfs_cash_from_operating_activities",
@@ -5430,6 +5424,12 @@
                             "cfs_changes_in_operating_assets": {
                               "value": -14826000000,
                               "parent_id": "cfs_changes_in_operating_capital",
+                              "accession_number": "0000320193-25-000079",
+                              "html_tag_id": null
+                            },
+                            "cfs_changes_in_receivables": {
+                              "value": -7029000000,
+                              "parent_id": "cfs_changes_in_operating_assets",
                               "accession_number": "0000320193-25-000079",
                               "html_tag_id": null
                             }
@@ -5674,8 +5674,8 @@
                               "value": 111482000000,
                               "children": [
                                 {
-                                  "metric_id": "cfs_cash_from_operating_activities_continuing_operations",
-                                  "value": -2100000000
+                                  "metric_id": "cfs_income_incl_noncontrolling_interest",
+                                  "value": 112010000000
                                 }
                               ]
                             }
@@ -5960,7 +5960,6 @@
                         "cash_flow_statement": {
                           "facts": {
                             "cfs_cash_from_operating_activities": 111482000000,
-                            "cfs_cash_from_operating_activities_continuing_operations": -2100000000,
                             "cfs_income_incl_noncontrolling_interest": 112010000000,
                             "cfs_adjustments_to_reconcile_net_income_to_cash": 21190000000,
                             "cfs_depreciation_depletion_and_amortization": 11698000000,
@@ -5970,7 +5969,8 @@
                             "cfs_other_noncash_income_expense": -89000000,
                             "cfs_other_adjustments_to_net_income": 0,
                             "cfs_changes_in_operating_capital": -25000000000,
-                            "cfs_changes_in_operating_assets": -14826000000
+                            "cfs_changes_in_operating_assets": -14826000000,
+                            "cfs_changes_in_receivables": -7029000000
                           }
                         }
                       }
@@ -6820,12 +6820,6 @@
                               "accession_number": "0000320193-25-000079",
                               "html_tag_id": "f-307"
                             },
-                            "cfs_cash_from_operating_activities_continuing_operations": {
-                              "value": -2100000000,
-                              "parent_id": "cfs_cash_from_operating_activities",
-                              "accession_number": "0000320193-25-000079",
-                              "html_tag_id": null
-                            },
                             "cfs_income_incl_noncontrolling_interest": {
                               "value": 112010000000,
                               "parent_id": "cfs_cash_from_operating_activities",
@@ -6883,6 +6877,12 @@
                             "cfs_changes_in_operating_assets": {
                               "value": -14826000000,
                               "parent_id": "cfs_changes_in_operating_capital",
+                              "accession_number": "0000320193-25-000079",
+                              "html_tag_id": null
+                            },
+                            "cfs_changes_in_receivables": {
+                              "value": -7029000000,
+                              "parent_id": "cfs_changes_in_operating_assets",
                               "accession_number": "0000320193-25-000079",
                               "html_tag_id": null
                             }
@@ -7175,8 +7175,8 @@
                               "value": 111482000000,
                               "children": [
                                 {
-                                  "metric_id": "cfs_cash_from_operating_activities_continuing_operations",
-                                  "value": -2100000000
+                                  "metric_id": "cfs_income_incl_noncontrolling_interest",
+                                  "value": 112010000000
                                 }
                               ]
                             }
@@ -11963,39 +11963,39 @@
                           "period_end": "2025-09-27",
                           "facts": {
                             "3": {
-                              "cagr_cash_from_operating_activities": -3,
-                              "cagr_total_revenue": 1.81,
                               "cagr_total_assets": 0.61,
-                              "cagr_cash_from_investing_activities": -56.04,
+                              "cagr_total_revenue": 1.81,
+                              "cagr_cash_from_operating_activities": -3,
                               "cagr_total_liabilities": -1.86,
+                              "cagr_cash_from_investing_activities": -56.04,
                               "cagr_gross_profit": 4.56,
-                              "cagr_total_equity": 13.32,
-                              "cagr_ebitda": 3.5,
                               "cagr_cash_from_financing_activities": 2.91,
+                              "cagr_ebitda": 3.5,
+                              "cagr_total_equity": 13.32,
                               "cagr_shareholders_equity": 13.32,
-                              "cagr_free_cash_flow": -3.95,
                               "cagr_operating_income_ebit": 3.66,
-                              "cagr_ebt": 3.68,
+                              "cagr_free_cash_flow": -3.95,
                               "cagr_dividend_per_share": 4.07,
+                              "cagr_ebt": 3.68,
                               "cagr_net_income": 3.92,
                               "cagr_basic_eps": 6.79,
                               "cagr_diluted_eps": 6.88
                             },
                             "5": {
                               "cagr_total_assets": 2.09,
-                              "cagr_cash_from_operating_activities": 6.68,
                               "cagr_total_revenue": 8.68,
-                              "cagr_total_liabilities": 2,
-                              "cagr_gross_profit": 13.21,
+                              "cagr_cash_from_operating_activities": 6.68,
                               "cagr_cash_from_investing_activities": 4.19,
+                              "cagr_gross_profit": 13.21,
+                              "cagr_total_liabilities": 2,
+                              "cagr_cash_from_financing_activities": 6.81,
                               "cagr_ebitda": 13.35,
                               "cagr_total_equity": 2.45,
-                              "cagr_cash_from_financing_activities": 6.81,
-                              "cagr_free_cash_flow": 6.13,
                               "cagr_shareholders_equity": 2.45,
                               "cagr_operating_income_ebit": 14.95,
-                              "cagr_dividend_per_share": 4.92,
+                              "cagr_free_cash_flow": 6.13,
                               "cagr_ebt": 14.62,
+                              "cagr_dividend_per_share": 4.92,
                               "cagr_net_income": 14.3,
                               "cagr_basic_eps": 17.74,
                               "cagr_diluted_eps": 17.86
@@ -12005,13 +12005,13 @@
                               "cagr_total_revenue": 5.94,
                               "cagr_cash_from_operating_activities": 3.21,
                               "cagr_cash_from_investing_activities": -16.57,
-                              "cagr_gross_profit": 7.62,
                               "cagr_total_liabilities": 5.25,
+                              "cagr_gross_profit": 7.62,
                               "cagr_ebitda": 7.15,
-                              "cagr_total_equity": -4.7,
                               "cagr_cash_from_financing_activities": 21.15,
-                              "cagr_shareholders_equity": -4.7,
+                              "cagr_total_equity": -4.7,
                               "cagr_free_cash_flow": 3.5,
+                              "cagr_shareholders_equity": -4.7,
                               "cagr_operating_income_ebit": 6.45,
                               "cagr_dividend_per_share": 7.46,
                               "cagr_ebt": 6.23,
@@ -13234,29 +13234,34 @@
                 "example": {
                   "ipos": [
                     {
-                      "listing_date": "2026-10-16",
-                      "announced_date": "2026-09-25",
+                      "listing_date": "2026-10-30",
+                      "announced_date": "2026-10-09",
                       "currency_code": "USD",
-                      "final_issue_price": 10,
-                      "highest_offer_price": 10,
-                      "ipo_status": "history",
-                      "isin": "KYG870821066",
+                      "final_issue_price": null,
+                      "highest_offer_price": 21,
+                      "ipo_status": "pending",
+                      "isin": "US68348G1022",
                       "issue_end_date": null,
                       "issue_start_date": null,
-                      "issuer_name": "TCGX Acquisition Corp. II",
-                      "last_updated": "2026-10-19T00:00:00.000Z",
+                      "issuer_name": "OPay Ltd.",
+                      "last_updated": "2026-10-28T00:00:00.000Z",
                       "lot_size": 100,
-                      "lowest_offer_price": 10,
-                      "max_shares_offered": 10000000,
+                      "lowest_offer_price": 19,
+                      "max_shares_offered": 16000000,
                       "min_shares_offered": null,
-                      "primary_exchange": "XNAS",
-                      "security_description": "Ordinary Shares - Class A",
-                      "security_type": "CS",
-                      "shares_outstanding": 12950000,
-                      "ticker": "TCXB",
-                      "total_offer_size": 100000000,
-                      "us_code": "G87082106",
-                      "registration": null
+                      "primary_exchange": "XNYS",
+                      "security_description": "ADR",
+                      "security_type": "ADRC",
+                      "shares_outstanding": null,
+                      "ticker": "OPAY",
+                      "total_offer_size": 336000000,
+                      "us_code": "68348G102",
+                      "registration": {
+                        "cik": "0002103076",
+                        "track_key": "333-299385",
+                        "stage": "exchange_approved",
+                        "final_offer_price": null
+                      }
                     }
                   ],
                   "next_url": "https://api.data.invinite.com/v1/ipos?offset=100&limit=100"
@@ -13681,55 +13686,54 @@
                 "example": {
                   "registrations": [
                     {
-                      "cik": "0001997038",
-                      "company_name": "Iambic Therapeutics, Inc.",
-                      "track_key": "333-299057",
+                      "cik": "0002049977",
+                      "company_name": "Starton Holdings, Inc.",
+                      "track_key": "333-292059",
                       "form_family": "S-1",
-                      "stage": "priced",
+                      "stage": "price_range",
                       "is_spac": false,
                       "proposed_symbols": [
                         {
-                          "symbol": "IAM",
+                          "symbol": "STA",
                           "exchange": "NASDAQ",
                           "security_class": "common",
                           "source": "regex",
                           "ipo_calendar_match": true
                         }
                       ],
-                      "exchange": "NASDAQ",
-                      "price_range_low": "15.0000",
-                      "price_range_high": "17.0000",
-                      "shares_offered": 9375000,
-                      "final_offer_price": "16.0000",
-                      "final_shares_offered": 9375000,
-                      "first_public_at": "2026-09-21T20:26:02.000Z",
-                      "price_range_at": "2026-10-08T11:09:26.000Z",
-                      "exchange_approved_at": "2026-10-13T20:00:02.000Z",
-                      "effective_at": "2026-10-14T20:00:00.000Z",
-                      "priced_at": "2026-10-15T20:05:01.000Z",
+                      "exchange": null,
+                      "price_range_low": "5.0000",
+                      "price_range_high": "7.0000",
+                      "shares_offered": 5000000,
+                      "final_offer_price": null,
+                      "final_shares_offered": null,
+                      "first_public_at": "2026-10-28T21:21:40.000Z",
+                      "price_range_at": "2026-10-28T21:21:40.000Z",
+                      "exchange_approved_at": null,
+                      "effective_at": null,
+                      "priced_at": null,
                       "withdrawn_at": null,
                       "first_trade_date": null,
                       "massive": {
-                        "ticker": "IAM",
+                        "ticker": "STA",
                         "ipo_status": "pending",
-                        "listing_date": "2026-10-15",
-                        "price_low": "15.0000",
-                        "price_high": "17.0000",
+                        "listing_date": null,
+                        "price_low": "5.0000",
+                        "price_high": "7.0000",
                         "final_price": null
                       },
                       "filings": [
                         {
-                          "accession_number": "0001193125-26-396704",
-                          "form_type": "S-1",
+                          "accession_number": "0001213900-26-113388",
+                          "form_type": "S-1/A",
                           "signal": "registration",
-                          "filed_at": "2026-09-21T20:26:02.000Z",
-                          "filing_date": "2026-09-21",
-                          "html_url": "https://storage-prod.invinite.com/filing_htmls/1997038_0001193125-26-396704_S-1_2026-09-21.html"
+                          "filed_at": "2026-10-28T21:21:40.000Z",
+                          "filing_date": "2026-10-28",
+                          "html_url": "https://storage-prod.invinite.com/filing_htmls/2049977_0001213900-26-113388_S-1/A_2026-10-28.html"
                         }
                       ]
                     }
-                  ],
-                  "next_url": "https://api.data.invinite.com/v1/ipos/registrations?offset=100&limit=100"
+                  ]
                 }
               }
             }
@@ -13997,9 +14001,9 @@
                       "period_end": "2026-03-31",
                       "shares_or_principal_amount": 227917808,
                       "shares_or_principal_amount_type": "SH",
-                      "cik_company": null,
+                      "cik_company": "0000320193",
                       "name_company": "APPLE INC",
-                      "ticker_company": null,
+                      "ticker_company": "AAPL",
                       "name_institution": "BERKSHIRE HATHAWAY INC",
                       "investment_discretion": "DFND",
                       "put_call": null,
@@ -14285,26 +14289,26 @@
                   "cik": "0000320193",
                   "holdings": [
                     {
-                      "accession_number": "0001546007-26-000008",
-                      "calendar_quarter": 3,
-                      "calendar_year": 2026,
+                      "accession_number": "0000102909-26-000031",
+                      "calendar_quarter": 4,
+                      "calendar_year": 2025,
                       "cusip_company": "037833100",
-                      "cik_institution": "0001546007",
-                      "dollar_value": 6431933627,
-                      "filing_date": "2026-10-15",
-                      "link_to_filing_details": "https://www.sec.gov/Archives/edgar/data/1546007/000154600726000008/primary_doc.xml",
-                      "period_end": "2026-09-30",
-                      "shares_or_principal_amount": 19313956,
+                      "cik_institution": "0000102909",
+                      "dollar_value": 387749544852,
+                      "filing_date": "2026-01-29",
+                      "link_to_filing_details": "https://www.sec.gov/Archives/edgar/data/102909/000010290926000031/primary_doc.xml",
+                      "period_end": "2025-12-31",
+                      "shares_or_principal_amount": 1426283914,
                       "shares_or_principal_amount_type": "SH",
                       "cik_company": "0000320193",
                       "name_company": "APPLE INC",
                       "ticker_company": "AAPL",
-                      "name_institution": "Assenagon Asset Management S.A.",
-                      "investment_discretion": "SOLE",
+                      "name_institution": "VANGUARD GROUP INC",
+                      "investment_discretion": "DFND",
                       "put_call": null,
-                      "voting_authority_none": null,
+                      "voting_authority_none": 233,
                       "voting_authority_shared": null,
-                      "voting_authority_sole": 19313956
+                      "voting_authority_sole": null
                     }
                   ]
                 }
@@ -14664,29 +14668,29 @@
                   "transactions": [
                     {
                       "cik_institution": "0001067983",
-                      "cusip_company": "02005N100",
-                      "type": "reduced",
-                      "change_dollar_value": -7726500,
-                      "change_shares_or_principal_amount_absolute": 0,
-                      "change_shares_or_principal_amount_percent": 0,
-                      "shares_or_principal_amount_new": 1275000,
-                      "shares_or_principal_amount_old": 1275000,
+                      "cusip_company": "512816109",
+                      "type": "sold_out",
+                      "change_dollar_value": -152201058,
+                      "change_shares_or_principal_amount_absolute": -1202410,
+                      "change_shares_or_principal_amount_percent": -1,
+                      "shares_or_principal_amount_new": 0,
+                      "shares_or_principal_amount_old": 1202410,
                       "accession_number": "0001193125-26-226661",
                       "calendar_quarter": 1,
                       "calendar_year": 2026,
-                      "dollar_value": 50018250,
+                      "dollar_value": 0,
                       "filing_date": "2026-05-15",
                       "period_end": "2026-03-31",
                       "shares_or_principal_amount_type": "SH",
                       "name_institution": "BERKSHIRE HATHAWAY INC",
                       "cik_company": null,
-                      "name_company": "ALLY FINL INC",
+                      "name_company": "LAMAR ADVERTISING CO NEW",
                       "ticker_company": null,
-                      "investment_discretion": "DFND",
+                      "investment_discretion": null,
                       "put_call": null,
                       "voting_authority_none": null,
                       "voting_authority_shared": null,
-                      "voting_authority_sole": 1275000
+                      "voting_authority_sole": null
                     }
                   ],
                   "next_url": "https://api.data.invinite.com/v1/institutional-ownership/transactions?cik=1067983&offset=100&limit=100"
@@ -15186,11 +15190,11 @@
                   "cik": "0000320193",
                   "transactions": [
                     {
-                      "id": "27f42c3b0f912489509b4b8cc5626ca8:f7578de3e8794e12add8:0",
-                      "accession_number": "0001140361-26-040127",
+                      "id": "34c0a2968c321a49eaf256c3037300fb:8fc5165120fc4e82cf77:0",
+                      "accession_number": "0001140361-26-040540",
                       "cik": "0000320193",
-                      "filed_at": "2026-10-19T22:32:55.000Z",
-                      "reporting_person_name": "Borders Ben",
+                      "filed_at": "2026-10-22T22:32:20.000Z",
+                      "reporting_person_name": "Newstead Jennifer",
                       "reporting_person_is_director": false,
                       "reporting_person_is_officer": true,
                       "reporting_person_is_ten_percent_owner": false,
@@ -15198,14 +15202,14 @@
                       "security_title": "Common Stock",
                       "acquired_disposed": "D",
                       "coding_code": "S",
-                      "shares": 151,
-                      "share_price": 343.08,
-                      "total": 51806,
-                      "shares_owned_following_transaction": 39417,
-                      "period_of_report": "2026-10-15",
-                      "reporting_person_officer_title": "Principal Accounting Officer",
+                      "shares": 2399,
+                      "share_price": 339.62,
+                      "total": 814749,
+                      "shares_owned_following_transaction": 34795,
+                      "period_of_report": "2026-10-20",
+                      "reporting_person_officer_title": "SVP, GC and Government Affairs",
                       "reporting_person_other_text": null,
-                      "shares_owned_before_transaction": 39568
+                      "shares_owned_before_transaction": 37194
                     }
                   ]
                 }
@@ -15665,41 +15669,41 @@
                   }
                 },
                 "example": {
-                  "from": "2026-10-21",
-                  "to": "2026-11-04",
+                  "from": "2026-10-28",
+                  "to": "2026-11-11",
                   "events": [
                     {
-                      "event_id": "30b4bfbf-cbee-4bc0-9b05-db29769a0432",
+                      "event_id": "d5a84ec6-8d82-4163-8ead-c02e54521919",
                       "source": "us",
-                      "cik": "0001176334",
-                      "symbol": "MMLP",
-                      "company_name": "Martin Midstream Partners LP",
-                      "exchange": "NASDAQ",
+                      "cik": "0001019849",
+                      "symbol": "PAG",
+                      "company_name": "Penske Automotive Group, Inc.",
+                      "exchange": "NYSE",
                       "event_type": "earnings_call",
                       "event_title": null,
                       "fiscal_year": 2026,
                       "fiscal_quarter": 3,
-                      "scheduled_at": "2026-10-21T00:00:00.000Z",
+                      "scheduled_at": "2026-10-28T00:00:00.000Z",
                       "tz": "America/New_York",
-                      "date_status": "confirmed",
+                      "date_status": "unconfirmed",
                       "call_time_source": null,
                       "call_time_confidence": null,
                       "session": null,
                       "started_at": null,
                       "ended_at": null,
-                      "results_released_at": null,
-                      "capture_status": "pending",
+                      "results_released_at": "2026-10-28T13:04:27.000Z",
+                      "capture_status": "expired",
                       "reschedule_count": 0,
                       "has_transcript": false,
                       "has_audio": false,
                       "has_slides": false,
-                      "has_press_release": false,
+                      "has_press_release": true,
                       "has_documents": false,
                       "webcast_url": null,
                       "video": null
                     }
                   ],
-                  "next_url": "https://api.data.invinite.com/v1/earnings-calls/calendar?offset=100&limit=100&from=2026-10-21&to=2026-11-04"
+                  "next_url": "https://api.data.invinite.com/v1/earnings-calls/calendar?offset=100&limit=100&from=2026-10-28&to=2026-11-11"
                 }
               }
             }
@@ -16194,22 +16198,22 @@
                   "covered": true,
                   "events": [
                     {
-                      "event_id": "e9eb6e9e-21e8-41d7-8d9e-da648e0002a1",
+                      "event_id": "1a191870-5d98-4711-9211-ba8aa7a79b7d",
                       "source": "us",
                       "cik": "0000789019",
                       "symbol": "MSFT",
                       "company_name": "Microsoft Corp",
                       "exchange": "NASDAQ",
-                      "event_type": "earnings_call",
-                      "event_title": null,
-                      "fiscal_year": 2027,
-                      "fiscal_quarter": 1,
-                      "scheduled_at": "2026-10-28T21:30:00.000Z",
+                      "event_type": "agm",
+                      "event_title": "Microsoft 2026 Annual Shareholders Meeting (virtual)",
+                      "fiscal_year": null,
+                      "fiscal_quarter": null,
+                      "scheduled_at": "2026-12-08T00:00:00.000Z",
                       "tz": "America/Los_Angeles",
                       "date_status": "confirmed",
-                      "call_time_source": "wire",
-                      "call_time_confidence": "high",
-                      "session": "amc",
+                      "call_time_source": null,
+                      "call_time_confidence": null,
+                      "session": null,
                       "started_at": null,
                       "ended_at": null,
                       "results_released_at": null,
@@ -16220,7 +16224,7 @@
                       "has_slides": false,
                       "has_press_release": false,
                       "has_documents": false,
-                      "webcast_url": null,
+                      "webcast_url": "https://microsoft.com/en-us/investor/annual-meeting",
                       "video": null
                     }
                   ],
@@ -22409,6 +22413,19 @@
                       "description": "How the audio was captured"
                     }
                   }
+                },
+                "example": {
+                  "event": {
+                    "event_id": "cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c",
+                    "cik": "0000789019",
+                    "symbol": "MSFT",
+                    "conference_date": "2026-07-29T00:00:00.000Z"
+                  },
+                  "url": "https://storage-prod.invinite.com/earnings_events/us/789019/earnings/fy2026/q4/audio/q4-fy2026-earnings-call-510kqr.mp3",
+                  "duration_seconds": 3919,
+                  "bytes": 31350117,
+                  "codec": "mp3",
+                  "capture_path": "browser_audio"
                 }
               }
             }
@@ -22710,8 +22727,8 @@
                     "conference_date": "2026-07-29T00:00:00.000Z"
                   },
                   "deck": {
-                    "url": "https://invinite-prod.r2.cloudflarestorage.com/earnings_events/us/789019/2026-07-29/slides/q4-fy2026-earnings-presentation.pdf?X-Amz-Signature=…",
-                    "expires_at": "2026-10-21T16:27:16.031Z",
+                    "url": "https://invinite-prod.r2.cloudflarestorage.com/earnings_events/us/789019/earnings/fy2026/q4/q4-fy2026-earnings-presentation.pdf?X-Amz-Signature=…",
+                    "expires_at": "2026-10-28T23:35:08.866Z",
                     "pages": 23,
                     "origin": "ir_page",
                     "source_url": "https://cdn-dynmedia-1.microsoft.com/is/content/microsoftcorp/SlidesFY26Q4.pptx",
@@ -22721,15 +22738,10 @@
                     {
                       "page": 1,
                       "title": null,
-                      "image_url": "https://invinite-prod.r2.cloudflarestorage.com/earnings_events/us/789019/2026-07-29/slides/q4-fy2026-earnings-presentation/page-001.webp?X-Amz-Signature=…"
+                      "image_url": "https://invinite-prod.r2.cloudflarestorage.com/earnings_events/us/789019/earnings/fy2026/q4/slides/q4-fy2026-earnings-presentation/page-001.webp?X-Amz-Signature=…"
                     }
                   ],
-                  "timeline": [
-                    {
-                      "at_ms": 312000,
-                      "image_url": "https://invinite-prod.r2.cloudflarestorage.com/earnings_events/us/789019/2026-07-29/slides/player/0b6f4c1e-5a7d-4f0e-9a51-2f7c3b8d1e64/312000.webp?X-Amz-Signature=…"
-                    }
-                  ]
+                  "timeline": []
                 }
               }
             }
@@ -23159,8 +23171,8 @@
                       "source_label": null,
                       "source_url": "https://cdn-dynmedia-1.microsoft.com/is/content/microsoftcorp/OutlookFY27Q1",
                       "accession_number": null,
-                      "url": "https://invinite-prod.r2.cloudflarestorage.com/earnings_events/us/789019/2026-07-29/documents/cfo-commentary/q4-fy2026-cfo-commentary.pdf?X-Amz-Signature=…",
-                      "expires_at": "2026-10-21T16:27:16.218Z",
+                      "url": "https://invinite-prod.r2.cloudflarestorage.com/earnings_events/us/789019/earnings/fy2026/q4/q4-fy2026-cfo-commentary.pdf?X-Amz-Signature=…",
+                      "expires_at": "2026-10-28T23:35:09.071Z",
                       "content_type": "application/pdf",
                       "bytes": 487074,
                       "pages": 6,
@@ -23723,35 +23735,35 @@
                   },
                   "documents": [
                     {
-                      "document_id": "f06b3e8d-169d-4142-a558-435c93a02232",
+                      "document_id": "065c2cc6-51f2-4cfb-be36-477de01fe6dc",
                       "source": "company",
                       "section": "esg",
                       "kind": "esg_report",
-                      "year": 2030,
-                      "period": null,
-                      "group": "esg/2030",
-                      "group_label": "ESG 2030",
+                      "year": 2026,
+                      "period": "FY",
+                      "group": "esg/2026",
+                      "group_label": "ESG 2026",
                       "category": "esg",
                       "event_id": null,
                       "event_type": null,
                       "event_date": null,
-                      "title": "Microsoft datacenters in Finland",
-                      "source_label": "Learn more",
-                      "source_url": "https://local.microsoft.com/wp-content/uploads/2025/10/Microsoft-datacenters-in-Finland.pdf",
-                      "page_url": "https://www.microsoft.com/en-us/corporate-responsibility/topics/sustainability/",
-                      "origin": "html_page",
+                      "title": "2026 Environmental Sustainability Data Factsheet",
+                      "source_label": null,
+                      "source_url": "https://cdn-dynmedia-1.microsoft.com/is/content/microsoftcorp/microsoft/msc/documents/presentations/CSR/2026-Microsoft-Environmental-Data-Fact-Sheet-PDF.pdf",
+                      "page_url": "https://www.microsoft.com/en-us/corporate-responsibility/reports-hub",
+                      "origin": "agent",
                       "producer": null,
                       "confidence": "medium",
                       "trust_tier": "confirmed_domain",
                       "content_type": "application/pdf",
-                      "bytes": 11966273,
-                      "pages": 5,
+                      "bytes": 3912081,
+                      "pages": 28,
                       "link_status": null,
-                      "url": "https://invinite-prod.r2.cloudflarestorage.com/earnings_events/us/789019/documents/esg/2030/microsoft-datacenters-in-finland.pdf?X-Amz-Signature=…",
-                      "pages_url": "https://invinite-prod.r2.cloudflarestorage.com/earnings_events/us/789019/documents/esg/2030/microsoft-datacenters-in-finland.pdf.pages.json?X-Amz-Signature=…",
-                      "expires_at": "2026-10-21T16:27:16.389Z",
-                      "created_at": "2026-10-16T20:46:08.960Z",
-                      "updated_at": "2026-10-21T13:18:13.882Z"
+                      "url": "https://invinite-prod.r2.cloudflarestorage.com/earnings_events/us/789019/esg/2026/2026-environmental-sustainability-data-factsheet.pdf?X-Amz-Signature=…",
+                      "pages_url": "https://invinite-prod.r2.cloudflarestorage.com/earnings_events/us/789019/esg/2026/text/2026-environmental-sustainability-data-factsheet.pdf.pages.json?X-Amz-Signature=…",
+                      "expires_at": "2026-10-28T23:35:09.298Z",
+                      "created_at": "2026-10-14T07:39:24.133Z",
+                      "updated_at": "2026-10-21T19:15:32.574Z"
                     }
                   ],
                   "next_url": "https://api.data.invinite.com/v1/earnings-calls/company-documents?identifier=MSFT&offset=50&limit=50"
@@ -24544,6 +24556,57 @@
                       "description": "Passages, best first"
                     }
                   }
+                },
+                "example": {
+                  "query": "Azure growth",
+                  "mode": "lexical",
+                  "coverage": {
+                    "completeness": "partial",
+                    "lexical": {
+                      "state": "partial",
+                      "indexed": 484,
+                      "pending": 23,
+                      "failed": 0
+                    },
+                    "reasons": [
+                      "lexical_backfill_pending"
+                    ]
+                  },
+                  "hits": [
+                    {
+                      "score": 0.1403,
+                      "match": {
+                        "type": "lexical",
+                        "lexical_rank": 1,
+                        "spans": [
+                          {
+                            "start": 25,
+                            "end": 30
+                          }
+                        ]
+                      },
+                      "document_id": "bd3ef3aa-751a-40e8-9a1a-98af4602dcee",
+                      "table": "company_documents",
+                      "event_id": null,
+                      "cik": "0000789019",
+                      "symbol": "MSFT",
+                      "kind": "proxy_statement",
+                      "section": "proxy",
+                      "year": 2025,
+                      "period": "FY",
+                      "page": 45,
+                      "heading": null,
+                      "chunk_index": 1174,
+                      "text": "FY24 PSA Metrics Weights Azure and Other Cloud Services Revenue Growth 35% Microsoft Cloud Revenue Growth, excluding Azure and Other Cloud Services 35% Search and News Advertising Revenue (ex TAC) Growth 10% Xbox Content and Services Revenu…",
+                      "text_truncated": false,
+                      "title": "2025 Proxy Statement",
+                      "group": "reports/2025",
+                      "group_label": "Reports 2025",
+                      "category": "reports",
+                      "url": "https://invinite-prod.r2.cloudflarestorage.com/earnings_events/us/789019/reports/2025/2025-proxy-statement.pdf?X-Amz-Signature=…",
+                      "expires_at": "2026-10-28T23:35:10.228Z"
+                    }
+                  ]
                 }
               }
             }
@@ -24920,7 +24983,7 @@
                     "completeness": "complete",
                     "lexical": {
                       "state": "ready",
-                      "indexed": 1,
+                      "indexed": 4,
                       "pending": 0,
                       "failed": 0
                     },
@@ -24928,39 +24991,35 @@
                   },
                   "hits": [
                     {
-                      "event_id": "1a7bc938-1338-4128-9ccb-99d6a9646ea2",
+                      "event_id": "947e3f21-47e0-4076-b83d-099a1b36c7a9",
                       "cik": "0000789019",
                       "symbol": "MSFT",
-                      "conference_date": "2026-04-29T00:00:00.000Z",
+                      "conference_date": "2026-01-28T00:00:00.000Z",
                       "fiscal_year": 2026,
-                      "fiscal_quarter": 3,
+                      "fiscal_quarter": 2,
                       "type": "qa",
                       "speaker": {
-                        "label": "spk06",
-                        "name": "Unknown speaker 2",
+                        "label": "spk05",
+                        "name": "Keith Weiss",
                         "title": null
                       },
-                      "start_ms": 2953487,
-                      "end_ms": 2987496,
-                      "chunk_index": 41,
-                      "text": "you. Thanks, Mark. Let me maybe start with Azure, which given its size and its growth rates, where we've talked about acceleration from where we are, which is the guy to 39 to 40 into a bigger number in the second half of the calendar year.…",
-                      "text_truncated": true,
-                      "score": 0.3125,
+                      "start_ms": 2161066,
+                      "end_ms": 2188702,
+                      "chunk_index": 74,
+                      "text": "And I think that fundamentally comes down to a concern on the ROI on this CapEx spend over time. So I was hoping you guys could help us fill in some of the blanks a little bit in terms of how should we think about capacity expansion and wha…",
+                      "text_truncated": false,
+                      "score": 3.8458,
                       "match": {
                         "type": "lexical",
                         "lexical_rank": 1,
                         "spans": [
                           {
-                            "start": 43,
-                            "end": 48
-                          },
-                          {
-                            "start": 79,
-                            "end": 85
+                            "start": 269,
+                            "end": 274
                           }
                         ]
                       },
-                      "audio_url": null,
+                      "audio_url": "https://storage-prod.invinite.com/earnings_events/us/789019/earnings/fy2026/q2/audio/q2-fy2026-earnings-call-2vvlfp.mp3#t=2161",
                       "slide": null
                     }
                   ]
@@ -26579,19 +26638,19 @@
                   "companies": [
                     {
                       "ticker": "AAPL",
-                      "cik": "320193",
+                      "cik": "0000320193",
                       "filings": [
                         {
-                          "accession_number": "0001140361-26-040127",
+                          "accession_number": "0001140361-26-040540",
                           "calendar_quarter": 4,
                           "calendar_year": 2026,
                           "cik": "0000320193",
-                          "filing_date": "2026-10-19",
+                          "filing_date": "2026-10-22",
                           "fiscal_quarter": null,
                           "fiscal_year": null,
                           "form_type": "4",
-                          "html_url": "https://storage-prod.invinite.com/filing_htmls/320193_0001140361-26-040127_4_2026-10-19.html",
-                          "period_end": "2026-10-15",
+                          "html_url": "https://storage-prod.invinite.com/filing_htmls/320193_0001140361-26-040540_4_2026-10-22.html",
+                          "period_end": "2026-10-20",
                           "proposed_symbols": null
                         }
                       ],
@@ -26735,14 +26794,14 @@
                   ]
                 },
                 "example": {
-                  "text": "Apple’s main risk factors, as disclosed in its latest available Form 10-K for fiscal year ended September 27, 2025, are:\n\n- **Intense competition and rapid technological change:** Apple operates in highly competitive markets with aggressive…",
+                  "text": "Apple’s principal risk factors, as disclosed in its SEC filings for **CIK 0000320193 (AAPL)**, are:\n\n- **Intense competition and rapid technological change:** Apple operates in highly competitive markets with frequent product launches, shor…",
                   "sources": [
                     {
                       "cik": "0000320193",
-                      "accession_number": "0000320193-25-000079",
-                      "html_url": "https://storage-prod.invinite.com/filing_htmls/320193_0000320193-25-000079_10-K_2025-10-31.html",
+                      "accession_number": "0000320193-24-000123",
+                      "html_url": "https://storage-prod.invinite.com/filing_htmls/320193_0000320193-24-000123_10-K_2024-11-01.html",
                       "ticker": "AAPL",
-                      "filing_date": "2025-10-31",
+                      "filing_date": "2024-11-01",
                       "form_type": "10-K"
                     }
                   ]
@@ -26988,7 +27047,7 @@
                   "companies": [
                     {
                       "ticker": "AAPL",
-                      "cik": "320193",
+                      "cik": "0000320193",
                       "sections": [
                         {
                           "accession_number": "0000320193-25-000079",
@@ -27721,13 +27780,13 @@
                   "period": {
                     "tier": "pro",
                     "included_credits": 4000000,
-                    "used_credits": 4311,
-                    "resets_at": "2026-11-18T18:05:27.000Z",
+                    "used_credits": 2634,
+                    "resets_at": "2026-11-28T12:43:10.000Z",
                     "prepaid_balance_usd": 0
                   },
                   "daily": [
                     {
-                      "date": "2026-09-22",
+                      "date": "2026-09-29",
                       "requests": 0,
                       "credits": 0,
                       "errors": {
@@ -27739,23 +27798,8 @@
                       }
                     }
                   ],
-                  "by_family": [
-                    {
-                      "family": "company",
-                      "label": "Company",
-                      "requests": 1099,
-                      "credits": 1108
-                    }
-                  ],
-                  "by_key": [
-                    {
-                      "caller": "key",
-                      "label": "spec examples smoke",
-                      "key_hint": "invd_3f2...a91c",
-                      "requests": 433,
-                      "credits": 1260
-                    }
-                  ],
+                  "by_family": [],
+                  "by_key": [],
                   "truncated": false
                 }
               }
@@ -27912,21 +27956,21 @@
                   }
                 },
                 "example": {
-                  "generated_at": "2026-10-21T16:12:28.575Z",
+                  "generated_at": "2026-10-28T23:20:19.527Z",
                   "services": [
                     {
                       "family": "company",
                       "status": "operational",
-                      "uptime_7d": 0.991,
+                      "uptime_7d": 0.989,
                       "uptime_30d": 0.989,
                       "uptime_90d": 0.989
                     }
                   ],
                   "universe": {
-                    "companies": 6204,
+                    "companies": 6214,
                     "earnings_calls": {
                       "scope": "all",
-                      "companies": 5540
+                      "companies": 5544
                     }
                   }
                 }
@@ -28323,10 +28367,10 @@
                     }
                   ],
                   "universe": {
-                    "companies": 6204,
+                    "companies": 6214,
                     "earnings_calls": {
                       "scope": "all",
-                      "companies": 5540
+                      "companies": 5544
                     }
                   }
                 }
