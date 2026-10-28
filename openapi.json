@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Invinite API",
-    "description": "Invinite financial data API. Each endpoint has a base credit cost: `x-credits` is the base cost; responses add 1 credit per started 1,000 rows beyond the first 1,000; `X-Credits-Charged` reports the final debit and `X-Credits-Included-Remaining` what is left of the plan's included credits. `GET /v1/account/usage` returns your account's usage by day, endpoint family and key (it costs no credits). SEC filing search has a 100-credit base cost.\n\n## Webhooks\n\nAccounts on LITE and above subscribe with `POST /v1/earnings-calls/webhooks` to the `earnings_call.*` lifecycle events (filtered by CIK); see `x-webhooks` for each `data` object. What a subscription may hold depends on the plan (a create / update beyond it is refused with the plan's limit; `ping` needs no subscription — the test route and the disabled notice send it to any subscription):\n\n| Plan | Webhooks | Events | CIKs per webhook | Keywords per webhook |\n|---|---|---|---|---|\n| FREE | 0 | — | — | — |\n| LITE | 5 | `.scheduled`, `.rescheduled`, `.started`, `.ended`, `.transcript_ready`, `.assets_ready` | ≤ 10 | — |\n| STANDARD | 15 | LITE + `.transcript_provisional`, `.transcript_corrected`, `.documents_updated` | ≤ 25 | — |\n| PRO / ENTERPRISE | 50 | STANDARD + `.guidance_flash`, `.keyword_hit` | ≤ 100 | ≤ 20 (on ≤ 10 webhooks) |\n\nEvery delivery is a `POST` with `Content-Type: application/json`, `X-Invinite-Event`, `X-Invinite-Delivery` and `X-Invinite-Signature: t=<unix seconds>,v1=<hex>` where `v1` = HMAC-SHA256(secret, `<t>.<raw body>`); during a secret rotation the header carries one `v1` per valid secret. Reject a signature older than 5 minutes. Any 2xx within 10 s acknowledges; redirects are not followed. A failed delivery is retried after 1 min, 5 min, 30 min, 2 h, 6 h, 12 h, 24 h (8 attempts in all, the same delivery id each time). A subscription is disabled after 8 consecutive dead-lettered deliveries (a final `ping` with `notice: subscription_disabled` is sent). Deliveries are at-least-once and unordered: dedupe on the delivery id, order by `created_at`.\n\n## Licensing\n\n| Tier | display | redistribute | rag | train | audio | resell |\n| --- | --- | --- | --- | --- | --- | --- |\n| FREE | ✓ | – | – | – | – | – |\n| LITE | ✓ | – | – | – | – | – |\n| STANDARD | ✓ | – | ✓ | – | – | – |\n| PRO | ✓ | ✓ | ✓ | – | ✓ | – |\n\nInvinite data may be shown and, from PRO, redistributed inside the licensee's own product with attribution (\"Source: Invinite\" on screen or in the API response that carries it). It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.\n\nPolicy version: 2026-10-draft. Draft — pending counsel sign-off.\n\nAudio files carry a forensic watermark that identifies the recording. Audio is subject to per-company takedown and may not be re-hosted.\n\nSEC data: Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.\n\nEvery `/v1/*` data operation carries `x-license`, the minimum use right its data ships with; `GET /status/licensing` serves the same matrix per route, rendered at [data.invinite.com/docs/licensing](https://data.invinite.com/docs/licensing). `/v1/account/usage` serves no licensed data and carries none.\n\n## Status\n\n[`/status`](/status) reports whether each product family works (a status and its uptime over 7, 30 and 90 days); [`/status/licensing`](/status/licensing) serves the licensing matrix per route. The status routes need no API key and are cached for 5 minutes. The public status page is [status.data.invinite.com](https://status.data.invinite.com): a snapshot of `/status` every 15 minutes plus an external reachability probe of the API.\n\nUptime is the share of requests answered without a server error, measured by the API per product family; a window with too little traffic to judge shows no figure. Status reflects the last 24 hours.\n\nProduct families: Company, Financials, SEC Filings, Insider Trades, Institutional Ownership, IPOs, Market, Metadata, Earnings Calls, WebSocket, Account.",
+    "description": "Invinite financial data API. Each endpoint has a base credit cost: `x-credits` is the base cost; responses add 1 credit per started 1,000 rows beyond the first 1,000; `X-Credits-Charged` reports the final debit and `X-Credits-Included-Remaining` what is left of the plan's included credits. `GET /v1/account/usage` returns your account's usage by day, endpoint family and key (it costs no credits). SEC filing search has a 100-credit base cost.\n\n**Coverage.** Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404. A known company with no data in a family (for example no statements yet) answers 404 with `code: not_covered`; an empty page of a covered company stays 200 with an empty list. `GET /v1/company/available-companies` lists every known company.\n\n## Webhooks\n\nAccounts on LITE and above subscribe with `POST /v1/earnings-calls/webhooks` to the `earnings_call.*` lifecycle events (filtered by CIK); see `x-webhooks` for each `data` object. What a subscription may hold depends on the plan (a create / update beyond it is refused with the plan's limit; `ping` needs no subscription — the test route and the disabled notice send it to any subscription):\n\n| Plan | Webhooks | Events | CIKs per webhook | Keywords per webhook |\n|---|---|---|---|---|\n| FREE | 0 | — | — | — |\n| LITE | 5 | `.scheduled`, `.rescheduled`, `.started`, `.ended`, `.transcript_ready`, `.assets_ready` | ≤ 10 | — |\n| STANDARD | 15 | LITE + `.transcript_provisional`, `.transcript_corrected`, `.documents_updated` | ≤ 25 | — |\n| PRO / ENTERPRISE | 50 | STANDARD + `.guidance_flash`, `.keyword_hit` | ≤ 100 | ≤ 20 (on ≤ 10 webhooks) |\n\nEvery delivery is a `POST` with `Content-Type: application/json`, `X-Invinite-Event`, `X-Invinite-Delivery` and `X-Invinite-Signature: t=<unix seconds>,v1=<hex>` where `v1` = HMAC-SHA256(secret, `<t>.<raw body>`); during a secret rotation the header carries one `v1` per valid secret. Reject a signature older than 5 minutes. Any 2xx within 10 s acknowledges; redirects are not followed. A failed delivery is retried after 1 min, 5 min, 30 min, 2 h, 6 h, 12 h, 24 h (8 attempts in all, the same delivery id each time). A subscription is disabled after 8 consecutive dead-lettered deliveries (a final `ping` with `notice: subscription_disabled` is sent). Deliveries are at-least-once and unordered: dedupe on the delivery id, order by `created_at`.\n\n## Licensing\n\n| Tier | display | redistribute | rag | train | audio | resell |\n| --- | --- | --- | --- | --- | --- | --- |\n| FREE | ✓ | – | – | – | – | – |\n| LITE | ✓ | – | – | – | – | – |\n| STANDARD | ✓ | – | ✓ | – | – | – |\n| PRO | ✓ | ✓ | ✓ | – | ✓ | – |\n\nInvinite data may be shown and, from PRO, redistributed inside the licensee's own product with attribution (\"Source: Invinite\" on screen or in the API response that carries it). It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.\n\nPolicy version: 2026-10-draft. Draft — pending counsel sign-off.\n\nAudio files carry a forensic watermark that identifies the recording. Audio is subject to per-company takedown and may not be re-hosted.\n\nSEC data: Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.\n\nEvery `/v1/*` data operation carries `x-license`, the minimum use right its data ships with; `GET /status/licensing` serves the same matrix per route, rendered at [data.invinite.com/docs/licensing](https://data.invinite.com/docs/licensing). `/v1/account/usage` serves no licensed data and carries none.\n\n## Status\n\n[`/status`](/status) reports whether each product family works (a status and its uptime over 7, 30 and 90 days); [`/status/licensing`](/status/licensing) serves the licensing matrix per route. The status routes need no API key and are cached for 5 minutes. The public status page is [status.data.invinite.com](https://status.data.invinite.com): a snapshot of `/status` every 15 minutes plus an external reachability probe of the API.\n\nUptime is the share of requests answered without a server error, measured by the API per product family; a window with too little traffic to judge shows no figure. Status reflects the last 24 hours.\n\nProduct families: Company, Financials, SEC Filings, Insider Trades, Institutional Ownership, IPOs, Market, Metadata, Earnings Calls, WebSocket, Account.",
     "version": "1.0.0"
   },
   "components": {
@@ -224,6 +224,13 @@
             "type": "string",
             "example": "No valid company found for identifier",
             "description": "Detailed error message"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "not_covered"
+            ],
+            "description": "Set only for `not_covered`: the company is known, but this data family holds no data for it (financial data covers SEC registrants and US listings)"
           }
         },
         "required": [
@@ -1536,7 +1543,8 @@
                     },
                     "timestamp": {
                       "type": "string",
-                      "description": "Current server time"
+                      "format": "date-time",
+                      "description": "Current server time (ISO 8601, UTC)"
                     }
                   },
                   "required": [
@@ -1817,7 +1825,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           }
         ],
@@ -2186,7 +2194,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -2425,7 +2433,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -2625,7 +2633,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -2816,7 +2824,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -3066,7 +3074,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -3271,18 +3279,21 @@
                                                     },
                                                     "start_date": {
                                                       "type": "string",
+                                                      "format": "date",
                                                       "nullable": true,
-                                                      "description": "Start date (ISO format)"
+                                                      "description": "Start date (YYYY-MM-DD)"
                                                     },
                                                     "end_date": {
                                                       "type": "string",
+                                                      "format": "date",
                                                       "nullable": true,
-                                                      "description": "End date (ISO format)"
+                                                      "description": "End date (YYYY-MM-DD)"
                                                     },
                                                     "instant_date": {
                                                       "type": "string",
+                                                      "format": "date",
                                                       "nullable": true,
-                                                      "description": "Instant date (ISO format)"
+                                                      "description": "Instant date (YYYY-MM-DD)"
                                                     },
                                                     "segment": {
                                                       "type": "object",
@@ -3530,7 +3541,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -3776,7 +3787,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -4025,7 +4036,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -4230,18 +4241,21 @@
                                                     },
                                                     "start_date": {
                                                       "type": "string",
+                                                      "format": "date",
                                                       "nullable": true,
-                                                      "description": "Start date (ISO format)"
+                                                      "description": "Start date (YYYY-MM-DD)"
                                                     },
                                                     "end_date": {
                                                       "type": "string",
+                                                      "format": "date",
                                                       "nullable": true,
-                                                      "description": "End date (ISO format)"
+                                                      "description": "End date (YYYY-MM-DD)"
                                                     },
                                                     "instant_date": {
                                                       "type": "string",
+                                                      "format": "date",
                                                       "nullable": true,
-                                                      "description": "Instant date (ISO format)"
+                                                      "description": "Instant date (YYYY-MM-DD)"
                                                     },
                                                     "segment": {
                                                       "type": "object",
@@ -4489,7 +4503,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -4747,7 +4761,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -4996,7 +5010,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -5201,18 +5215,21 @@
                                                     },
                                                     "start_date": {
                                                       "type": "string",
+                                                      "format": "date",
                                                       "nullable": true,
-                                                      "description": "Start date (ISO format)"
+                                                      "description": "Start date (YYYY-MM-DD)"
                                                     },
                                                     "end_date": {
                                                       "type": "string",
+                                                      "format": "date",
                                                       "nullable": true,
-                                                      "description": "End date (ISO format)"
+                                                      "description": "End date (YYYY-MM-DD)"
                                                     },
                                                     "instant_date": {
                                                       "type": "string",
+                                                      "format": "date",
                                                       "nullable": true,
-                                                      "description": "Instant date (ISO format)"
+                                                      "description": "Instant date (YYYY-MM-DD)"
                                                     },
                                                     "segment": {
                                                       "type": "object",
@@ -5460,7 +5477,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -5706,7 +5723,7 @@
             "in": "query",
             "name": "identifiers",
             "required": true,
-            "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers)",
+            "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers). Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL,MSFT"
           },
           {
@@ -5997,7 +6014,7 @@
             "in": "query",
             "name": "identifiers",
             "required": true,
-            "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers)",
+            "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers). Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL,MSFT"
           },
           {
@@ -6183,18 +6200,21 @@
                                                       },
                                                       "start_date": {
                                                         "type": "string",
+                                                        "format": "date",
                                                         "nullable": true,
-                                                        "description": "Start date (ISO format)"
+                                                        "description": "Start date (YYYY-MM-DD)"
                                                       },
                                                       "end_date": {
                                                         "type": "string",
+                                                        "format": "date",
                                                         "nullable": true,
-                                                        "description": "End date (ISO format)"
+                                                        "description": "End date (YYYY-MM-DD)"
                                                       },
                                                       "instant_date": {
                                                         "type": "string",
+                                                        "format": "date",
                                                         "nullable": true,
-                                                        "description": "Instant date (ISO format)"
+                                                        "description": "Instant date (YYYY-MM-DD)"
                                                       },
                                                       "segment": {
                                                         "type": "object",
@@ -6338,18 +6358,21 @@
                                                       },
                                                       "start_date": {
                                                         "type": "string",
+                                                        "format": "date",
                                                         "nullable": true,
-                                                        "description": "Start date (ISO format)"
+                                                        "description": "Start date (YYYY-MM-DD)"
                                                       },
                                                       "end_date": {
                                                         "type": "string",
+                                                        "format": "date",
                                                         "nullable": true,
-                                                        "description": "End date (ISO format)"
+                                                        "description": "End date (YYYY-MM-DD)"
                                                       },
                                                       "instant_date": {
                                                         "type": "string",
+                                                        "format": "date",
                                                         "nullable": true,
-                                                        "description": "Instant date (ISO format)"
+                                                        "description": "Instant date (YYYY-MM-DD)"
                                                       },
                                                       "segment": {
                                                         "type": "object",
@@ -6493,18 +6516,21 @@
                                                       },
                                                       "start_date": {
                                                         "type": "string",
+                                                        "format": "date",
                                                         "nullable": true,
-                                                        "description": "Start date (ISO format)"
+                                                        "description": "Start date (YYYY-MM-DD)"
                                                       },
                                                       "end_date": {
                                                         "type": "string",
+                                                        "format": "date",
                                                         "nullable": true,
-                                                        "description": "End date (ISO format)"
+                                                        "description": "End date (YYYY-MM-DD)"
                                                       },
                                                       "instant_date": {
                                                         "type": "string",
+                                                        "format": "date",
                                                         "nullable": true,
-                                                        "description": "Instant date (ISO format)"
+                                                        "description": "Instant date (YYYY-MM-DD)"
                                                       },
                                                       "segment": {
                                                         "type": "object",
@@ -6903,7 +6929,7 @@
             "in": "query",
             "name": "identifiers",
             "required": true,
-            "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers)",
+            "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers). Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL,MSFT"
           },
           {
@@ -7197,7 +7223,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -7341,6 +7367,7 @@
                                 },
                                 "period_end": {
                                   "type": "string",
+                                  "format": "date",
                                   "description": "Period end date (YYYY-MM-DD)"
                                 },
                                 "facts": {
@@ -7375,7 +7402,7 @@
                           "calendar_year": 2025,
                           "calendar_quarter": 3,
                           "fiscal_period_type": "annual",
-                          "period_end": "2025-09-27 00:00:00",
+                          "period_end": "2025-09-27",
                           "facts": {
                             "RevenueFromContractWithCustomerExcludingAssessedTax": 416161000000,
                             "CostOfGoodsAndServicesSold": 220960000000,
@@ -7436,7 +7463,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -7595,6 +7622,7 @@
                                 },
                                 "period_end": {
                                   "type": "string",
+                                  "format": "date",
                                   "description": "Period end date (YYYY-MM-DD)"
                                 },
                                 "facts": {
@@ -7643,18 +7671,21 @@
                                                     },
                                                     "start_date": {
                                                       "type": "string",
+                                                      "format": "date",
                                                       "nullable": true,
-                                                      "description": "Start date (ISO format)"
+                                                      "description": "Start date (YYYY-MM-DD)"
                                                     },
                                                     "end_date": {
                                                       "type": "string",
+                                                      "format": "date",
                                                       "nullable": true,
-                                                      "description": "End date (ISO format)"
+                                                      "description": "End date (YYYY-MM-DD)"
                                                     },
                                                     "instant_date": {
                                                       "type": "string",
+                                                      "format": "date",
                                                       "nullable": true,
-                                                      "description": "Instant date (ISO format)"
+                                                      "description": "Instant date (YYYY-MM-DD)"
                                                     },
                                                     "segment": {
                                                       "type": "object",
@@ -7759,7 +7790,7 @@
                           "calendar_year": 2025,
                           "calendar_quarter": 3,
                           "fiscal_period_type": "annual",
-                          "period_end": "2025-09-27 00:00:00",
+                          "period_end": "2025-09-27",
                           "facts": {
                             "RevenueFromContractWithCustomerExcludingAssessedTax": {
                               "value": 416161000000,
@@ -7895,7 +7926,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -8039,6 +8070,7 @@
                                 },
                                 "period_end": {
                                   "type": "string",
+                                  "format": "date",
                                   "description": "Period end date (YYYY-MM-DD)"
                                 },
                                 "facts": {
@@ -8071,7 +8103,7 @@
                           "calendar_year": 2025,
                           "calendar_quarter": 3,
                           "fiscal_period_type": "annual",
-                          "period_end": "2025-09-27 00:00:00",
+                          "period_end": "2025-09-27",
                           "facts": [
                             {
                               "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
@@ -8123,7 +8155,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -8267,6 +8299,7 @@
                                 },
                                 "period_end": {
                                   "type": "string",
+                                  "format": "date",
                                   "description": "Period end date (YYYY-MM-DD)"
                                 },
                                 "facts": {
@@ -8301,7 +8334,7 @@
                           "calendar_year": 2025,
                           "calendar_quarter": 3,
                           "fiscal_period_type": "annual",
-                          "period_end": "2025-09-27 00:00:00",
+                          "period_end": "2025-09-27",
                           "facts": {
                             "CashAndCashEquivalentsAtCarryingValue": 35934000000,
                             "MarketableSecuritiesCurrent": 18763000000,
@@ -8359,7 +8392,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -8518,6 +8551,7 @@
                                 },
                                 "period_end": {
                                   "type": "string",
+                                  "format": "date",
                                   "description": "Period end date (YYYY-MM-DD)"
                                 },
                                 "facts": {
@@ -8566,18 +8600,21 @@
                                                     },
                                                     "start_date": {
                                                       "type": "string",
+                                                      "format": "date",
                                                       "nullable": true,
-                                                      "description": "Start date (ISO format)"
+                                                      "description": "Start date (YYYY-MM-DD)"
                                                     },
                                                     "end_date": {
                                                       "type": "string",
+                                                      "format": "date",
                                                       "nullable": true,
-                                                      "description": "End date (ISO format)"
+                                                      "description": "End date (YYYY-MM-DD)"
                                                     },
                                                     "instant_date": {
                                                       "type": "string",
+                                                      "format": "date",
                                                       "nullable": true,
-                                                      "description": "Instant date (ISO format)"
+                                                      "description": "Instant date (YYYY-MM-DD)"
                                                     },
                                                     "segment": {
                                                       "type": "object",
@@ -8682,7 +8719,7 @@
                           "calendar_year": 2025,
                           "calendar_quarter": 3,
                           "fiscal_period_type": "annual",
-                          "period_end": "2025-09-27 00:00:00",
+                          "period_end": "2025-09-27",
                           "facts": {
                             "CashAndCashEquivalentsAtCarryingValue": {
                               "value": 35934000000,
@@ -8800,7 +8837,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -8944,6 +8981,7 @@
                                 },
                                 "period_end": {
                                   "type": "string",
+                                  "format": "date",
                                   "description": "Period end date (YYYY-MM-DD)"
                                 },
                                 "facts": {
@@ -8976,7 +9014,7 @@
                           "calendar_year": 2025,
                           "calendar_quarter": 3,
                           "fiscal_period_type": "annual",
-                          "period_end": "2025-09-27 00:00:00",
+                          "period_end": "2025-09-27",
                           "facts": [
                             {
                               "concept": "AssetsAbstract",
@@ -9042,7 +9080,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -9186,6 +9224,7 @@
                                 },
                                 "period_end": {
                                   "type": "string",
+                                  "format": "date",
                                   "description": "Period end date (YYYY-MM-DD)"
                                 },
                                 "facts": {
@@ -9220,7 +9259,7 @@
                           "calendar_year": 2025,
                           "calendar_quarter": 3,
                           "fiscal_period_type": "annual",
-                          "period_end": "2025-09-27 00:00:00",
+                          "period_end": "2025-09-27",
                           "facts": {
                             "NetIncomeLoss": 112010000000,
                             "DepreciationDepletionAndAmortization": 11698000000,
@@ -9278,7 +9317,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -9437,6 +9476,7 @@
                                 },
                                 "period_end": {
                                   "type": "string",
+                                  "format": "date",
                                   "description": "Period end date (YYYY-MM-DD)"
                                 },
                                 "facts": {
@@ -9485,18 +9525,21 @@
                                                     },
                                                     "start_date": {
                                                       "type": "string",
+                                                      "format": "date",
                                                       "nullable": true,
-                                                      "description": "Start date (ISO format)"
+                                                      "description": "Start date (YYYY-MM-DD)"
                                                     },
                                                     "end_date": {
                                                       "type": "string",
+                                                      "format": "date",
                                                       "nullable": true,
-                                                      "description": "End date (ISO format)"
+                                                      "description": "End date (YYYY-MM-DD)"
                                                     },
                                                     "instant_date": {
                                                       "type": "string",
+                                                      "format": "date",
                                                       "nullable": true,
-                                                      "description": "Instant date (ISO format)"
+                                                      "description": "Instant date (YYYY-MM-DD)"
                                                     },
                                                     "segment": {
                                                       "type": "object",
@@ -9601,7 +9644,7 @@
                           "calendar_year": 2025,
                           "calendar_quarter": 3,
                           "fiscal_period_type": "annual",
-                          "period_end": "2025-09-27 00:00:00",
+                          "period_end": "2025-09-27",
                           "facts": {
                             "NetIncomeLoss": {
                               "value": 112010000000,
@@ -9719,7 +9762,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -9863,6 +9906,7 @@
                                 },
                                 "period_end": {
                                   "type": "string",
+                                  "format": "date",
                                   "description": "Period end date (YYYY-MM-DD)"
                                 },
                                 "facts": {
@@ -9895,7 +9939,7 @@
                           "calendar_year": 2025,
                           "calendar_quarter": 3,
                           "fiscal_period_type": "annual",
-                          "period_end": "2025-09-27 00:00:00",
+                          "period_end": "2025-09-27",
                           "facts": [
                             {
                               "concept": "NetCashProvidedByUsedInOperatingActivitiesContinuingOperationsAbstract",
@@ -9954,7 +9998,7 @@
             "in": "query",
             "name": "identifiers",
             "required": true,
-            "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers)",
+            "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers). Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL,MSFT"
           },
           {
@@ -10245,7 +10289,7 @@
             "in": "query",
             "name": "identifiers",
             "required": true,
-            "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers)",
+            "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers). Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL,MSFT"
           },
           {
@@ -10429,18 +10473,21 @@
                                                       },
                                                       "start_date": {
                                                         "type": "string",
+                                                        "format": "date",
                                                         "nullable": true,
-                                                        "description": "Start date (ISO format)"
+                                                        "description": "Start date (YYYY-MM-DD)"
                                                       },
                                                       "end_date": {
                                                         "type": "string",
+                                                        "format": "date",
                                                         "nullable": true,
-                                                        "description": "End date (ISO format)"
+                                                        "description": "End date (YYYY-MM-DD)"
                                                       },
                                                       "instant_date": {
                                                         "type": "string",
+                                                        "format": "date",
                                                         "nullable": true,
-                                                        "description": "Instant date (ISO format)"
+                                                        "description": "Instant date (YYYY-MM-DD)"
                                                       },
                                                       "segment": {
                                                         "type": "object",
@@ -10574,18 +10621,21 @@
                                                       },
                                                       "start_date": {
                                                         "type": "string",
+                                                        "format": "date",
                                                         "nullable": true,
-                                                        "description": "Start date (ISO format)"
+                                                        "description": "Start date (YYYY-MM-DD)"
                                                       },
                                                       "end_date": {
                                                         "type": "string",
+                                                        "format": "date",
                                                         "nullable": true,
-                                                        "description": "End date (ISO format)"
+                                                        "description": "End date (YYYY-MM-DD)"
                                                       },
                                                       "instant_date": {
                                                         "type": "string",
+                                                        "format": "date",
                                                         "nullable": true,
-                                                        "description": "Instant date (ISO format)"
+                                                        "description": "Instant date (YYYY-MM-DD)"
                                                       },
                                                       "segment": {
                                                         "type": "object",
@@ -10719,18 +10769,21 @@
                                                       },
                                                       "start_date": {
                                                         "type": "string",
+                                                        "format": "date",
                                                         "nullable": true,
-                                                        "description": "Start date (ISO format)"
+                                                        "description": "Start date (YYYY-MM-DD)"
                                                       },
                                                       "end_date": {
                                                         "type": "string",
+                                                        "format": "date",
                                                         "nullable": true,
-                                                        "description": "End date (ISO format)"
+                                                        "description": "End date (YYYY-MM-DD)"
                                                       },
                                                       "instant_date": {
                                                         "type": "string",
+                                                        "format": "date",
                                                         "nullable": true,
-                                                        "description": "Instant date (ISO format)"
+                                                        "description": "Instant date (YYYY-MM-DD)"
                                                       },
                                                       "segment": {
                                                         "type": "object",
@@ -11139,7 +11192,7 @@
             "in": "query",
             "name": "identifiers",
             "required": true,
-            "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers)",
+            "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers). Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL,MSFT"
           },
           {
@@ -11430,7 +11483,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -11714,7 +11767,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -12010,7 +12063,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -12284,7 +12337,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -12568,7 +12621,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -12997,23 +13050,30 @@
                         "properties": {
                           "listing_date": {
                             "type": "string",
-                            "description": "IPO listing date (YYYY-MM-DD)"
+                            "format": "date",
+                            "nullable": true,
+                            "description": "IPO listing date (YYYY-MM-DD); null when Massive has no value"
                           },
                           "announced_date": {
                             "type": "string",
-                            "description": "IPO announcement date (YYYY-MM-DD)"
+                            "format": "date",
+                            "nullable": true,
+                            "description": "IPO announcement date (YYYY-MM-DD); null when Massive has no value"
                           },
                           "currency_code": {
                             "type": "string",
-                            "description": "Currency code (e.g., USD)"
+                            "nullable": true,
+                            "description": "Currency code (e.g., USD); null when Massive has no value"
                           },
                           "final_issue_price": {
                             "type": "number",
-                            "description": "Final issue price"
+                            "nullable": true,
+                            "description": "Final issue price; null when Massive has no value"
                           },
                           "highest_offer_price": {
                             "type": "number",
-                            "description": "Highest offer price"
+                            "nullable": true,
+                            "description": "Highest offer price; null when Massive has no value"
                           },
                           "ipo_status": {
                             "type": "string",
@@ -13021,15 +13081,20 @@
                           },
                           "isin": {
                             "type": "string",
-                            "description": "ISIN identifier"
+                            "nullable": true,
+                            "description": "ISIN identifier; null when Massive has no value"
                           },
                           "issue_end_date": {
                             "type": "string",
-                            "description": "Issue end date (YYYY-MM-DD)"
+                            "format": "date",
+                            "nullable": true,
+                            "description": "Issue end date (YYYY-MM-DD); null when Massive has no value"
                           },
                           "issue_start_date": {
                             "type": "string",
-                            "description": "Issue start date (YYYY-MM-DD)"
+                            "format": "date",
+                            "nullable": true,
+                            "description": "Issue start date (YYYY-MM-DD); null when Massive has no value"
                           },
                           "issuer_name": {
                             "type": "string",
@@ -13037,31 +13102,38 @@
                           },
                           "last_updated": {
                             "type": "string",
-                            "description": "Last updated timestamp"
+                            "format": "date-time",
+                            "description": "Last update of the row (ISO 8601, UTC)"
                           },
                           "lot_size": {
                             "type": "number",
-                            "description": "Lot size"
+                            "nullable": true,
+                            "description": "Lot size; null when Massive has no value"
                           },
                           "lowest_offer_price": {
                             "type": "number",
-                            "description": "Lowest offer price"
+                            "nullable": true,
+                            "description": "Lowest offer price; null when Massive has no value"
                           },
                           "max_shares_offered": {
                             "type": "number",
-                            "description": "Maximum shares offered"
+                            "nullable": true,
+                            "description": "Maximum shares offered; null when Massive has no value"
                           },
                           "min_shares_offered": {
                             "type": "number",
-                            "description": "Minimum shares offered"
+                            "nullable": true,
+                            "description": "Minimum shares offered; null when Massive has no value"
                           },
                           "primary_exchange": {
                             "type": "string",
-                            "description": "Primary exchange"
+                            "nullable": true,
+                            "description": "Primary exchange; null when Massive has no value"
                           },
                           "security_description": {
                             "type": "string",
-                            "description": "Security description"
+                            "nullable": true,
+                            "description": "Security description; null when Massive has no value"
                           },
                           "security_type": {
                             "type": "string",
@@ -13069,7 +13141,8 @@
                           },
                           "shares_outstanding": {
                             "type": "number",
-                            "description": "Shares outstanding"
+                            "nullable": true,
+                            "description": "Shares outstanding; null when Massive has no value"
                           },
                           "ticker": {
                             "type": "string",
@@ -13077,11 +13150,13 @@
                           },
                           "total_offer_size": {
                             "type": "number",
-                            "description": "Total offer size"
+                            "nullable": true,
+                            "description": "Total offer size; null when Massive has no value"
                           },
                           "us_code": {
                             "type": "string",
-                            "description": "Country code"
+                            "nullable": true,
+                            "description": "CUSIP; null when Massive has no value"
                           },
                           "registration": {
                             "type": "object",
@@ -13159,21 +13234,21 @@
                 "example": {
                   "ipos": [
                     {
-                      "listing_date": "2026-10-16 00:00:00",
-                      "announced_date": "2026-09-25 00:00:00",
+                      "listing_date": "2026-10-16",
+                      "announced_date": "2026-09-25",
                       "currency_code": "USD",
                       "final_issue_price": 10,
                       "highest_offer_price": 10,
                       "ipo_status": "history",
                       "isin": "KYG870821066",
-                      "issue_end_date": "1970-01-01 00:00:00",
-                      "issue_start_date": "1970-01-01 00:00:00",
+                      "issue_end_date": null,
+                      "issue_start_date": null,
                       "issuer_name": "TCGX Acquisition Corp. II",
-                      "last_updated": "2026-10-19 00:00:00",
+                      "last_updated": "2026-10-19T00:00:00.000Z",
                       "lot_size": 100,
                       "lowest_offer_price": 10,
                       "max_shares_offered": 10000000,
-                      "min_shares_offered": 0,
+                      "min_shares_offered": null,
                       "primary_exchange": "XNAS",
                       "security_description": "Ordinary Shares - Class A",
                       "security_type": "CS",
@@ -13857,6 +13932,7 @@
                           },
                           "filing_date": {
                             "type": "string",
+                            "format": "date",
                             "description": "Filing date (YYYY-MM-DD)"
                           },
                           "investment_discretion": {
@@ -13870,6 +13946,7 @@
                           },
                           "period_end": {
                             "type": "string",
+                            "format": "date",
                             "description": "Period end date (YYYY-MM-DD)"
                           },
                           "put_call": {
@@ -13915,9 +13992,9 @@
                       "cusip_company": "037833100",
                       "cik_institution": "0001067983",
                       "dollar_value": 57843260493,
-                      "filing_date": "2026-05-15 00:00:00",
+                      "filing_date": "2026-05-15",
                       "link_to_filing_details": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526226661/primary_doc.xml",
-                      "period_end": "2026-03-31 00:00:00",
+                      "period_end": "2026-03-31",
                       "shares_or_principal_amount": 227917808,
                       "shares_or_principal_amount_type": "SH",
                       "cik_company": null,
@@ -13969,7 +14046,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Company ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -14153,6 +14230,7 @@
                           },
                           "filing_date": {
                             "type": "string",
+                            "format": "date",
                             "description": "Filing date (YYYY-MM-DD)"
                           },
                           "investment_discretion": {
@@ -14166,6 +14244,7 @@
                           },
                           "period_end": {
                             "type": "string",
+                            "format": "date",
                             "description": "Period end date (YYYY-MM-DD)"
                           },
                           "put_call": {
@@ -14212,9 +14291,9 @@
                       "cusip_company": "037833100",
                       "cik_institution": "0001546007",
                       "dollar_value": 6431933627,
-                      "filing_date": "2026-10-15 00:00:00",
+                      "filing_date": "2026-10-15",
                       "link_to_filing_details": "https://www.sec.gov/Archives/edgar/data/1546007/000154600726000008/primary_doc.xml",
-                      "period_end": "2026-09-30 00:00:00",
+                      "period_end": "2026-09-30",
                       "shares_or_principal_amount": 19313956,
                       "shares_or_principal_amount_type": "SH",
                       "cik_company": "0000320193",
@@ -14276,7 +14355,7 @@
             "in": "query",
             "name": "identifier",
             "required": false,
-            "description": "Company ticker symbol or CIK (at least one of cik or identifier required)",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404. At least one of cik or identifier is required.",
             "example": "AAPL"
           },
           {
@@ -14539,6 +14618,7 @@
                           },
                           "filing_date": {
                             "type": "string",
+                            "format": "date",
                             "description": "Filing date (YYYY-MM-DD)"
                           },
                           "investment_discretion": {
@@ -14548,6 +14628,7 @@
                           },
                           "period_end": {
                             "type": "string",
+                            "format": "date",
                             "description": "Period end date (YYYY-MM-DD)"
                           },
                           "put_call": {
@@ -14594,8 +14675,8 @@
                       "calendar_quarter": 1,
                       "calendar_year": 2026,
                       "dollar_value": 50018250,
-                      "filing_date": "2026-05-15 00:00:00",
-                      "period_end": "2026-03-31 00:00:00",
+                      "filing_date": "2026-05-15",
+                      "period_end": "2026-03-31",
                       "shares_or_principal_amount_type": "SH",
                       "name_institution": "BERKSHIRE HATHAWAY INC",
                       "cik_company": null,
@@ -14843,7 +14924,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Company ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -15023,12 +15104,14 @@
                           },
                           "filed_at": {
                             "type": "string",
-                            "description": "Filing timestamp (ISO string)"
+                            "format": "date-time",
+                            "description": "Filing time (ISO 8601, UTC)"
                           },
                           "period_of_report": {
                             "type": "string",
+                            "format": "date",
                             "nullable": true,
-                            "description": "Period of report (ISO date)"
+                            "description": "Period of report (YYYY-MM-DD)"
                           },
                           "reporting_person_name": {
                             "type": "string",
@@ -15051,9 +15134,9 @@
                             "description": "Insider flagged as other"
                           },
                           "reporting_person_officer_title": {
-                            "type": "boolean",
+                            "type": "string",
                             "nullable": true,
-                            "description": "Officer title flag (if applicable)"
+                            "description": "Officer title as reported (e.g. Chief Executive Officer)"
                           },
                           "reporting_person_other_text": {
                             "type": "string",
@@ -15106,7 +15189,7 @@
                       "id": "27f42c3b0f912489509b4b8cc5626ca8:f7578de3e8794e12add8:0",
                       "accession_number": "0001140361-26-040127",
                       "cik": "0000320193",
-                      "filed_at": "2026-10-19 22:32:55",
+                      "filed_at": "2026-10-19T22:32:55.000Z",
                       "reporting_person_name": "Borders Ben",
                       "reporting_person_is_director": false,
                       "reporting_person_is_officer": true,
@@ -15119,8 +15202,8 @@
                       "share_price": 343.08,
                       "total": 51806,
                       "shares_owned_following_transaction": 39417,
-                      "period_of_report": "2026-10-15 00:00:00",
-                      "reporting_person_officer_title": true,
+                      "period_of_report": "2026-10-15",
+                      "reporting_person_officer_title": "Principal Accounting Officer",
                       "reporting_person_other_text": null,
                       "shares_owned_before_transaction": 39568
                     }
@@ -15154,7 +15237,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Upcoming and past earnings calls of all covered US companies in a window of days (default today + 14 days, at most 92). Each day is a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date. `event_type=all` returns every event type.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
+        "description": "Upcoming and past earnings calls of all covered US companies in a window of days (default today + 14 days, at most 92). Each day is a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date. `event_type=all` returns every event type.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -15646,7 +15729,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Event history of one US company (ticker or CIK): every event type unless `event_type` narrows it.\n\nAn out-of-scope company answers `covered: false`.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
+        "description": "Event history of one US company (ticker or CIK): every event type unless `event_type` narrows it.\n\nAn out-of-scope company answers `covered: false`.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -16171,7 +16254,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Earnings calls being captured live right now, with the WebSocket channel of their live transcript.\n\nA call appears within seconds of its start and disappears when it ends; an empty list means nothing is live.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
+        "description": "Earnings calls being captured live right now, with the WebSocket channel of their live transcript.\n\nA call appears within seconds of its start and disappears when it ends; an empty list means nothing is live.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for display: FREE.",
         "security": [
           {
             "bearerAuth": []
@@ -16546,7 +16629,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "A temporary HLS playlist URL of an earnings call's live audio (PRO). The stream is watermarked.\n\n### Using the URL\n\n- The URL works until `expires_at` (2 hours by default) and is minted fresh on every request: request a new one before it expires.\n\n- Play it with hls.js, Safari or VLC. The playlist is an EVENT playlist, so seek to 0 for the start of the call.\n\n- `call_t0` is the wall clock of call ms 0: `#EXT-X-PROGRAM-DATE-TIME` minus `call_t0` = the `start_ms` of the live transcript (WebSocket channel `live_channel`).\n\n### No stream and errors\n\n- `status` `not_started` / `disabled` answer `url: null`.\n\n- `403 audio_unavailable` when the company's audio is not licensed for delivery.\n\n- `503 media_unavailable` while live streaming is not configured.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
+        "description": "A temporary HLS playlist URL of an earnings call's live audio (PRO). The stream is watermarked.\n\n### Using the URL\n\n- The URL works until `expires_at` (2 hours by default) and is minted fresh on every request: request a new one before it expires.\n\n- Play it with hls.js, Safari or VLC. The playlist is an EVENT playlist, so seek to 0 for the start of the call.\n\n- `call_t0` is the wall clock of call ms 0: `#EXT-X-PROGRAM-DATE-TIME` minus `call_t0` = the `start_ms` of the live transcript (WebSocket channel `live_channel`).\n\n### No stream and errors\n\n- `status` `not_started` / `disabled` answer `url: null`.\n\n- `403 audio_unavailable` when the company's audio is not licensed for delivery.\n\n- `503 media_unavailable` while live streaming is not configured.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -16771,7 +16854,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "One earnings call by `event_id`; `include=observations` adds the date / time observations behind its call time.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
+        "description": "One earnings call by `event_id`; `include=observations` adds the date / time observations behind its call time.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -17195,7 +17278,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Transcript of one earnings call in five formats: any published version (`version`) or the version current at a point in time (`as_of`).\n\n### Credits\n\n- Costs 5 credits; `format=words` is weighted by turn count.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Calls without a recording\n\n- A call without a recording may carry the company's own transcript (`stt_provider` `company_document`): it is untimed (`null` timings) and has no cleaned layer.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for rag: STANDARD.",
+        "description": "Transcript of one earnings call in five formats: any published version (`version`) or the version current at a point in time (`as_of`).\n\n### Credits\n\n- Costs 5 credits; `format=words` is weighted by turn count.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Calls without a recording\n\n- A call without a recording may carry the company's own transcript (`stt_provider` `company_document`): it is untimed (`null` timings) and has no cleaned layer.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
@@ -17740,7 +17823,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Every published transcript version of one earnings call (`live`, `final`, `corrected`), ascending, without the text.\n\nA final version replaced by the next final (the pipeline's speaker-naming pass) is not a version here and cannot be requested.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for rag: STANDARD.",
+        "description": "Every published transcript version of one earnings call (`live`, `final`, `corrected`), ascending, without the text.\n\nA final version replaced by the next final (the pipeline's speaker-naming pass) is not a version here and cannot be requested.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
@@ -17958,7 +18041,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Word-level diff between two transcript versions of one earnings call (over the cleaned text when both versions have it, else the verbatim text), each change anchored to the start of its speaker turn.\n\n### Credits\n\n- Costs 5 credits; computed per request (versions are immutable).\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Calls without a recording\n\n- A call without a recording may carry the company's own transcript (`stt_provider` `company_document`): it is untimed (`null` timings) and has no cleaned layer.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for rag: STANDARD.",
+        "description": "Word-level diff between two transcript versions of one earnings call (over the cleaned text when both versions have it, else the verbatim text), each change anchored to the start of its speaker turn.\n\n### Credits\n\n- Costs 5 credits; computed per request (versions are immutable).\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Calls without a recording\n\n- A call without a recording may carry the company's own transcript (`stt_provider` `company_document`): it is untimed (`null` timings) and has no cleaned layer.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
@@ -18231,7 +18314,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Structured Q&A of one earnings call: each analyst question with the analyst's identity and firm, the answering executives and the answer.\n\n### What you get\n\n- `pairs` is `[]` until the Q&A has been derived.\n\n- `include=scores` adds each pair's descriptive scores (where the analyst sat in the question order, the question's tone and difficulty, whether the answer addressed it) — descriptive features of the exchange, not a forecast.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Calls without a recording\n\n- A call without a recording may carry the company's own transcript (`stt_provider` `company_document`): it is untimed (`null` timings) and has no cleaned layer.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for rag: STANDARD.",
+        "description": "Structured Q&A of one earnings call: each analyst question with the analyst's identity and firm, the answering executives and the answer.\n\n### What you get\n\n- `pairs` is `[]` until the Q&A has been derived.\n\n- `include=scores` adds each pair's descriptive scores (where the analyst sat in the question order, the question's tone and difficulty, whether the answer addressed it) — descriptive features of the exchange, not a forecast.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Calls without a recording\n\n- A call without a recording may carry the company's own transcript (`stt_provider` `company_document`): it is untimed (`null` timings) and has no cleaned layer.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
@@ -18647,7 +18730,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Speakers of one earnings call (name, title, firm, role, cross-call `person_id`) and its participation flags vs the prior call (`cfo_absent`, `ceo_no_questions`, `new_cfo`, …).\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Calls without a recording\n\n- A call without a recording may carry the company's own transcript (`stt_provider` `company_document`): it is untimed (`null` timings) and has no cleaned layer.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for rag: STANDARD.",
+        "description": "Speakers of one earnings call (name, title, firm, role, cross-call `person_id`) and its participation flags vs the prior call (`cfo_absent`, `ceo_no_questions`, `new_cfo`, …).\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Calls without a recording\n\n- A call without a recording may carry the company's own transcript (`stt_provider` `company_document`): it is untimed (`null` timings) and has no cleaned layer.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
@@ -18959,7 +19042,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Sell-side analysts who asked questions on one US company's earnings calls, with appearance and question counts and the mean difficulty of their scored questions (a descriptive feature, not a rating).\n\nAn out-of-scope company answers an empty list.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for rag: STANDARD.",
+        "description": "Sell-side analysts who asked questions on one US company's earnings calls, with appearance and question counts and the mean difficulty of their scored questions (a descriptive feature, not a rating).\n\nAn out-of-scope company answers an empty list.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
@@ -19155,7 +19238,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "One person (executive or analyst) across every served earnings call: identity, appearances and participation flags.\n\nA merged duplicate id answers `301` to the canonical id.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for rag: STANDARD.",
+        "description": "One person (executive or analyst) across every served earnings call: identity, appearances and participation flags.\n\nA merged duplicate id answers `301` to the canonical id.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
@@ -19464,7 +19547,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "The results press release of one earnings call (EDGAR 8-K exhibit, wire release or IR page).\n\n### What you get\n\n- Title, publication time, origin, source URL and trust tier.\n\n- With `include=body`, the issuer's text (display licence only).\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
+        "description": "The results press release of one earnings call (EDGAR 8-K exhibit, wire release or IR page).\n\n### What you get\n\n- Title, publication time, origin, source URL and trust tier.\n\n- With `include=body`, the issuer's text (display licence only).\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -19705,7 +19788,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Forward guidance or every reported KPI figure of one earnings call.\n\n### What you get\n\n- `kind=guidance`: one consolidated item per metric, period and basis, with verbatim citations.\n\n- `kind=kpi`: every reported KPI figure.\n\n- The list is empty until the call has been derived.\n\n### How far to trust it\n\n- Guidance items are cross-validated between the call and the press release; `cross_validated=false` items come from one source only.\n\n- `confidence` is calibrated on large-cap spot checks, not a probability.\n\n### Links to SEC filings\n\n- `filing_link` points at the SEC filing that carries the same figure: the results 8-K's press release (`target=press_release`, matched on the text) or, once the 10-Q / 10-K is on EDGAR, its XBRL fact (`target=periodic_filing`, `concept`), which replaces the 8-K link.\n\n- `match_kind=rounded` means the filing's value rounds to the figure as spoken.\n\n### Paging\n\n- A page can hold fewer than `limit` items while `next_url` is still set: items (and KPI mentions) that only a press release no longer served supports are dropped after paging.\n\n- Follow `next_url` until it is null.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for redistribute: PRO.",
+        "description": "Forward guidance or every reported KPI figure of one earnings call.\n\n### What you get\n\n- `kind=guidance`: one consolidated item per metric, period and basis, with verbatim citations.\n\n- `kind=kpi`: every reported KPI figure.\n\n- The list is empty until the call has been derived.\n\n### How far to trust it\n\n- Guidance items are cross-validated between the call and the press release; `cross_validated=false` items come from one source only.\n\n- `confidence` is calibrated on large-cap spot checks, not a probability.\n\n### Links to SEC filings\n\n- `filing_link` points at the SEC filing that carries the same figure: the results 8-K's press release (`target=press_release`, matched on the text) or, once the 10-Q / 10-K is on EDGAR, its XBRL fact (`target=periodic_filing`, `concept`), which replaces the 8-K link.\n\n- `match_kind=rounded` means the filing's value rounds to the figure as spoken.\n\n### Paging\n\n- A page can hold fewer than `limit` items while `next_url` is still set: items (and KPI mentions) that only a press release no longer served supports are dropped after paging.\n\n- Follow `next_url` until it is null.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -20388,7 +20471,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "How a company's guidance for one metric evolved across its earnings calls: one entry per guidance item (a call usually guides several periods), newest call first, with the change versus the prior call's item.\n\n### Metrics\n\n- `metric` is matched against the normalized vocabulary: `revenue`, `eps_gaap`, `eps_non_gaap`, `operating_margin`, `operating_income`, `gross_margin`, `opex`, `capex`, `fcf`, `tax_rate`, `share_count`, `ebitda`, `net_income`, `other`, plus dynamic `segment:<slug>` metrics.\n\n- An unknown metric returns an empty series.\n\n### How far to trust it\n\n- Guidance items are cross-validated between the call and the press release; `cross_validated=false` items come from one source only.\n\n- `confidence` is calibrated on large-cap spot checks, not a probability.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for redistribute: PRO.",
+        "description": "How a company's guidance for one metric evolved across its earnings calls: one entry per guidance item (a call usually guides several periods), newest call first, with the change versus the prior call's item.\n\n### Metrics\n\n- `metric` is matched against the normalized vocabulary: `revenue`, `eps_gaap`, `eps_non_gaap`, `operating_margin`, `operating_income`, `gross_margin`, `opex`, `capex`, `fcf`, `tax_rate`, `share_count`, `ebitda`, `net_income`, `other`, plus dynamic `segment:<slug>` metrics.\n\n- An unknown metric returns an empty series.\n\n### How far to trust it\n\n- Guidance items are cross-validated between the call and the press release; `cross_validated=false` items come from one source only.\n\n- `confidence` is calibrated on large-cap spot checks, not a probability.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -20698,7 +20781,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "How one earnings call differs from the company's prior call: semantic similarity, new and dropped topics with verbatim evidence, hedging / uncertainty / numeric-specificity levels and their change, tone shift and the slide-deck diff.\n\n### Reading the signals\n\n- Levels (hedging, uncertainty, numeric specificity) are the better-supported signal; the literature finds the *change* from the prior call is a weaker predictor. Both are provided; do not over-weight the change.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` alone (latest call with a diff), or\n\n- by `identifier` with `year` + `quarter` or `date`.\n\n### Errors\n\n- `404 diff_unavailable` for a company's first call or a call not derived yet.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
+        "description": "How one earnings call differs from the company's prior call: semantic similarity, new and dropped topics with verbatim evidence, hedging / uncertainty / numeric-specificity levels and their change, tone shift and the slide-deck diff.\n\n### Reading the signals\n\n- Levels (hedging, uncertainty, numeric specificity) are the better-supported signal; the literature finds the *change* from the prior call is a weaker predictor. Both are provided; do not over-weight the change.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` alone (latest call with a diff), or\n\n- by `identifier` with `year` + `quarter` or `date`.\n\n### Errors\n\n- `404 diff_unavailable` for a company's first call or a call not derived yet.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -21154,7 +21237,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Call metadata of one earnings call: length, prepared remarks vs Q&A, release-to-call gap, question and analyst counts, management's share of the Q&A and speaker coverage.\n\n### Errors\n\n- `404 metrics_unavailable` until the call has been derived.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for redistribute: PRO.",
+        "description": "Call metadata of one earnings call: length, prepared remarks vs Q&A, release-to-call gap, question and analyst counts, management's share of the Q&A and speaker coverage.\n\n### Errors\n\n- `404 metrics_unavailable` until the call has been derived.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -21428,7 +21511,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Per-speaker delivery features of one earnings call: speech rate, pauses, fillers, time to answer and, when the audio was analysed, pitch and energy.\n\n### Reading the signals\n\n- Prosody features are a volatility and risk signal, not a direction signal. Acoustic fields (`pitch_*`, `energy_*`) are null when `acoustic_available` is false.\n\n### Errors\n\n- `404 prosody_unavailable` until the call has been derived.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
+        "description": "Per-speaker delivery features of one earnings call: speech rate, pauses, fillers, time to answer and, when the audio was analysed, pitch and energy.\n\n### Reading the signals\n\n- Prosody features are a volatility and risk signal, not a direction signal. Acoustic fields (`pitch_*`, `energy_*`) are null when `acoustic_available` is false.\n\n### Errors\n\n- `404 prosody_unavailable` until the call has been derived.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -21794,7 +21877,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Minute-level price moves aligned to what was being said at the time. This is temporal coincidence, not attribution of cause; pre-market bars are sparse.\n\n### During a live call\n\n- The minute rows arrive as each minute closes (`live: true`, `settled: false`; the summary fields are null).\n\n- The post-call run replaces them.\n\n### Errors\n\n- `404 price_attribution_unavailable` until the first minute row exists.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
+        "description": "Minute-level price moves aligned to what was being said at the time. This is temporal coincidence, not attribution of cause; pre-market bars are sparse.\n\n### During a live call\n\n- The minute rows arrive as each minute closes (`live: true`, `settled: false`; the summary fields are null).\n\n- The post-call run replaces them.\n\n### Errors\n\n- `404 price_attribution_unavailable` until the first minute row exists.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -22165,7 +22248,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "The recording of one earnings call at its permanent public URL (PRO). The file carries one forensic watermark that identifies the recording.\n\n### Getting the file\n\n- `url` does not expire; download it or play it directly. Audio may not be re-hosted.\n\n### Errors\n\n- `403 audio_unavailable` when the company's audio is not licensed for delivery or no recording is available yet (one answer for both).\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
+        "description": "The recording of one earnings call at its permanent public URL (PRO). The file carries one forensic watermark that identifies the recording.\n\n### Getting the file\n\n- `url` does not expire; download it or play it directly. Audio may not be re-hosted.\n\n### Errors\n\n- `403 audio_unavailable` when the company's audio is not licensed for delivery or no recording is available yet (one answer for both).\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -22362,7 +22445,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "The slide deck of one earnings call (PRO): the deck PDF and each page image as signed URLs, page titles and, with `include=markdown`, each page's text.\n\n### Files\n\n- Files are served as short-lived signed URLs (see `expires_at`), never proxied; request a fresh response after expiry.\n\n- `timeline`: the slides shown in the webcast player, keyed to the call audio (`at_ms` from the start of the recording the audio route serves; the whole call, whatever `pages` asks).\n\n### Errors\n\n- `404 slides_unavailable` when no deck is available.\n\n- `503 media_unavailable` while media signing is not configured.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
+        "description": "The slide deck of one earnings call (PRO): the deck PDF and each page image as signed URLs, page titles and, with `include=markdown`, each page's text.\n\n### Files\n\n- Files are served as short-lived signed URLs (see `expires_at`), never proxied; request a fresh response after expiry.\n\n- `timeline`: the slides shown in the webcast player, keyed to the call audio (`at_ms` from the start of the recording the audio route serves; the whole call, whatever `pages` asks).\n\n### Errors\n\n- `404 slides_unavailable` when no deck is available.\n\n- `503 media_unavailable` while media signing is not configured.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -22682,7 +22765,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Further investor documents of one earnings call, ordered by kind: CFO commentary, financial data sheets, shareholder letters, fact sheets, the company's own transcript, its prepared remarks / call script, 10-Q / 10-K links. Infographics are stored as fact sheets.\n\n### What you get\n\n- Stored files come as signed URLs; link-only rows (`sec_filing`) have `url` null and point to EDGAR through `source_url`.\n\n- Files are served as short-lived signed URLs (see `expires_at`), never proxied; request a fresh response after expiry.\n\n- Each document carries its `trust_tier` and its folder of the company's document tree (`group`, `group_label`, `category`; filter with `category` / `group`). A call's own files sit in its earnings folder, e.g. `earnings/fy2027/q2`.\n\n### The document tree\n\nEvery stored document sits in one folder of the company's document tree: `group` (its path) under one of eight `category` spine folders, in this order: `earnings` (`earnings/fy2027/q2` = one fiscal quarter's call: release, deck, CFO commentary, data sheets, transcript; `earnings/cy2026/08-26` = a call without a fiscal period), `events` (`events/2026/09-10-<event>` = a conference, investor day or shareholder meeting; its `group_label` reads the event's date and name, e.g. \"May 18, 2025 · GTC Taipei 2025\"), `reports` (`reports/2025`: annual reports, proxy statements, annual letters), `presentations` (`presentations/2024`), `governance`, `esg` (`esg/2025`), `shareholder` (`shareholder/tax`, `shareholder/dividends`, `shareholder/stock`) and `other` (`other/faq`, `other/fact-sheets`, `other/financial-data[/2025]`, `other/web-pages`, `other/documents`). `…/undated` = no date could be read. `group` and `category` are null while a document has not been placed yet.\n\n- `documents` is `[]` for a call without further documents (`has_documents` tells ahead).\n\n### Errors\n\n- `503 media_unavailable` while media signing is not configured.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
+        "description": "Further investor documents of one earnings call, ordered by kind: CFO commentary, financial data sheets, shareholder letters, fact sheets, the company's own transcript, its prepared remarks / call script, 10-Q / 10-K links. Infographics are stored as fact sheets.\n\n### What you get\n\n- Stored files come as signed URLs; link-only rows (`sec_filing`) have `url` null and point to EDGAR through `source_url`.\n\n- Files are served as short-lived signed URLs (see `expires_at`), never proxied; request a fresh response after expiry.\n\n- Each document carries its `trust_tier` and its folder of the company's document tree (`group`, `group_label`, `category`; filter with `category` / `group`). A call's own files sit in its earnings folder, e.g. `earnings/fy2027/q2`.\n\n### The document tree\n\nEvery stored document sits in one folder of the company's document tree: `group` (its path) under one of eight `category` spine folders, in this order: `earnings` (`earnings/fy2027/q2` = one fiscal quarter's call: release, deck, CFO commentary, data sheets, transcript; `earnings/cy2026/08-26` = a call without a fiscal period), `events` (`events/2026/09-10-<event>` = a conference, investor day or shareholder meeting; its `group_label` reads the event's date and name, e.g. \"May 18, 2025 · GTC Taipei 2025\"), `reports` (`reports/2025`: annual reports, proxy statements, annual letters), `presentations` (`presentations/2024`), `governance`, `esg` (`esg/2025`), `shareholder` (`shareholder/tax`, `shareholder/dividends`, `shareholder/stock`) and `other` (`other/faq`, `other/fact-sheets`, `other/financial-data[/2025]`, `other/web-pages`, `other/documents`). `…/undated` = no date could be read. `group` and `category` are null while a document has not been placed yet.\n\n- `documents` is `[]` for a call without further documents (`has_documents` tells ahead).\n\n### Errors\n\n- `503 media_unavailable` while media signing is not configured.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -22957,7 +23040,8 @@
                               "ir_listing",
                               "json_feed",
                               "playbook_pattern",
-                              "agent_archive"
+                              "agent_archive",
+                              "ir_site"
                             ],
                             "description": "Where the document was found"
                           },
@@ -23121,7 +23205,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "A company's investor-relations documents, newest year first: annual reports, proxy statements, ESG / governance documents, investor-day and conference decks, shareholder letters, fact sheets, and link-only webcast replay pages. By default the IR library outside its earnings calls' folders; `include=calls` adds the documents of every earnings call (CFO commentary, data sheets, letters, the company's own transcript, prepared remarks, 10-Q / 10-K links) to the same list, marked `source: call` with the call's `event_id`, so one paged list holds the company's whole document tree.\n\nFilter by IR section, kind, year, period or event, or by the document tree: `category`, `group` (a folder and everything below it) and `fiscal_year` / `fiscal_quarter` (the earnings folder `earnings/fy<YYYY>/q<N>`). On a call document `year` / `period` are the call's fiscal year / quarter; a `section` filter matches IR-library rows only. Documents of one earnings call alone are on `/v1/earnings-calls/documents`; a call's press release and slide deck are on `/v1/earnings-calls/press-release` and `/v1/earnings-calls/slides`.\n\n### Order and paging\n\n- Without `include`: newest year first, then IR section, kind and title. With `include=calls`: newest year first, then folder (`group`), kind, title and id, one total order over both sources, so `offset` pages never skip or repeat a document.\n\n### The document tree\n\nEvery stored document sits in one folder of the company's document tree: `group` (its path) under one of eight `category` spine folders, in this order: `earnings` (`earnings/fy2027/q2` = one fiscal quarter's call: release, deck, CFO commentary, data sheets, transcript; `earnings/cy2026/08-26` = a call without a fiscal period), `events` (`events/2026/09-10-<event>` = a conference, investor day or shareholder meeting; its `group_label` reads the event's date and name, e.g. \"May 18, 2025 · GTC Taipei 2025\"), `reports` (`reports/2025`: annual reports, proxy statements, annual letters), `presentations` (`presentations/2024`), `governance`, `esg` (`esg/2025`), `shareholder` (`shareholder/tax`, `shareholder/dividends`, `shareholder/stock`) and `other` (`other/faq`, `other/fact-sheets`, `other/financial-data[/2025]`, `other/web-pages`, `other/documents`). `…/undated` = no date could be read. `group` and `category` are null while a document has not been placed yet.\n\n### What you get\n\n- Company-published material: displayed as published, not verified facts.\n\n- Stored files come as signed URLs; `pages_url` is the per-page text (JSON). A link-only row (webcast) has `url` null and `link_status`.\n\n- Files are served as short-lived signed URLs (see `expires_at`), never proxied; request a fresh response after expiry.\n\n### Errors\n\n- `503 media_unavailable` while media signing is not configured.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
+        "description": "A company's investor-relations documents, newest year first: annual reports, proxy statements, ESG / governance documents, investor-day and conference decks, shareholder letters, fact sheets, and link-only webcast replay pages. By default the IR library outside its earnings calls' folders; `include=calls` adds the documents of every earnings call (CFO commentary, data sheets, letters, the company's own transcript, prepared remarks, 10-Q / 10-K links) to the same list, marked `source: call` with the call's `event_id`, so one paged list holds the company's whole document tree.\n\nFilter by IR section, kind, year, period or event, or by the document tree: `category`, `group` (a folder and everything below it) and `fiscal_year` / `fiscal_quarter` (the earnings folder `earnings/fy<YYYY>/q<N>`). On a call document `year` / `period` are the call's fiscal year / quarter; a `section` filter matches IR-library rows only. Documents of one earnings call alone are on `/v1/earnings-calls/documents`; a call's press release and slide deck are on `/v1/earnings-calls/press-release` and `/v1/earnings-calls/slides`.\n\n### Order and paging\n\n- Without `include`: newest year first, then IR section, kind and title. With `include=calls`: newest year first, then folder (`group`), kind, title and id, one total order over both sources, so `offset` pages never skip or repeat a document.\n\n### The document tree\n\nEvery stored document sits in one folder of the company's document tree: `group` (its path) under one of eight `category` spine folders, in this order: `earnings` (`earnings/fy2027/q2` = one fiscal quarter's call: release, deck, CFO commentary, data sheets, transcript; `earnings/cy2026/08-26` = a call without a fiscal period), `events` (`events/2026/09-10-<event>` = a conference, investor day or shareholder meeting; its `group_label` reads the event's date and name, e.g. \"May 18, 2025 · GTC Taipei 2025\"), `reports` (`reports/2025`: annual reports, proxy statements, annual letters), `presentations` (`presentations/2024`), `governance`, `esg` (`esg/2025`), `shareholder` (`shareholder/tax`, `shareholder/dividends`, `shareholder/stock`) and `other` (`other/faq`, `other/fact-sheets`, `other/financial-data[/2025]`, `other/web-pages`, `other/documents`). `…/undated` = no date could be read. `group` and `category` are null while a document has not been placed yet.\n\n### What you get\n\n- Company-published material: displayed as published, not verified facts.\n\n- Stored files come as signed URLs; `pages_url` is the per-page text (JSON). A link-only row (webcast) has `url` null and `link_status`.\n\n- Files are served as short-lived signed URLs (see `expires_at`), never proxied; request a fresh response after expiry.\n\n### Errors\n\n- `503 media_unavailable` while media signing is not configured.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -23535,7 +23619,8 @@
                               "edgar_filing",
                               "ir_listing",
                               "playbook_pattern",
-                              "agent_archive"
+                              "agent_archive",
+                              "ir_site"
                             ],
                             "description": "How the IR section was read (a call document: where it was found)"
                           },
@@ -23702,7 +23787,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "One company document by `document_id` (from `/v1/earnings-calls/company-documents` or a document search hit with `table` `company_documents`): signed URLs of the file and its per-page text.\n\n### What you get\n\n- `include=pages` returns the per-page text inline when it is at most 2 MB (else only `pages_url`).\n\n- Company-published material, not verified facts.\n\n- Files are served as short-lived signed URLs (see `expires_at`), never proxied; request a fresh response after expiry.\n\n### Errors\n\n- `503 media_unavailable` while media signing is not configured.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
+        "description": "One company document by `document_id` (from `/v1/earnings-calls/company-documents` or a document search hit with `table` `company_documents`): signed URLs of the file and its per-page text.\n\n### What you get\n\n- `include=pages` returns the per-page text inline when it is at most 2 MB (else only `pages_url`).\n\n- Company-published material, not verified facts.\n\n- Files are served as short-lived signed URLs (see `expires_at`), never proxied; request a fresh response after expiry.\n\n### Errors\n\n- `503 media_unavailable` while media signing is not configured.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -23966,7 +24051,8 @@
                             "edgar_filing",
                             "ir_listing",
                             "playbook_pattern",
-                            "agent_archive"
+                            "agent_archive",
+                            "ir_site"
                           ],
                           "description": "How the IR section was read (a call document: where it was found)"
                         },
@@ -24124,7 +24210,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Search the page text of investor documents by keywords (default `mode=lexical`) or exact text (`literal`): the documents of earnings calls (CFO commentary, shareholder letters, data sheets, the company's own transcripts) and companies' IR libraries (annual reports, proxy statements, ESG reports, investor-day decks).\n\n### What you get\n\n- Up to 20 passages from company-published documents, with page numbers — not verified facts — and a signed URL of the file (open it at `#page=<page>`).\n\n- Filter by company (`identifier`), kind, IR section, year or table.\n\n- Each hit names the document's folder of the company's document tree (`group`, e.g. `earnings/fy2027/q2`, `group_label`, `category`), how it matched (`match`); the response says how much of the searched documents is indexed (`coverage`).\n\n### Search modes\n\n- `lexical` (default): keyword search — English full text with stemming; quoted phrases, `OR` and `-word` work; every word must match; ranked by `ts_rank_cd` (`websearch_to_tsquery`). Finance tokens such as `FY2027`, `10-K`, `Q3` or `EBITDA` match as written.\n\n- `literal`: the exact characters of the passage — no stemming, no fuzzy matching, `%` / `_` / `\\` match themselves; case-sensitive unless `case_sensitive=false` (only allowed with `mode=literal`; default `true`). A pattern under 3 characters needs `identifier`. Newest first; `score` is 0.\n\n- `match.spans` mark the matched characters in `text` (zero-based, end-exclusive Unicode code-point offsets); `text` is cut around the first match (`text_truncated`); `match.lexical_rank` is the hit's 1-based rank. Neither mode expands into fuzzy results. Both modes cost the same.\n\n### Coverage\n\n- `coverage.completeness` = `complete` (every searched passage is indexed: no hits is a genuine no-result), `partial` (some passages are still being indexed or failed) or `unknown` (nothing of the searched scope is indexed yet, or the counts could not be read) — read it before treating an empty list as \"not found\".\n\n- `coverage.lexical` counts the searched transcripts or documents in the text index (`indexed`, `pending`, `failed`). `reasons` lists why the answer may be incomplete. The counts come from the indexing ledger: a transcript or document whose current version the index has not confirmed counts as `pending`; when they cannot be read, the hits are still returned with `completeness: unknown`, `lexical` null and `coverage_unavailable`.\n\n### Changelog\n\n- 2026-10: modes added and the default mode changed from semantic to `lexical`.\n\n- 2026-11: modes `semantic` and `hybrid` removed; vector search is gone, pass `mode=lexical` (default) or `literal`.\n\n### Errors\n\n- `400` for a `mode=lexical` query of stopwords only (no searchable words), for `case_sensitive` with any mode but `literal`, and for a `mode=literal` pattern under 3 characters without a scope (see Search modes).\n\n- `503 search_unavailable` (a search over its time limit — never an empty answer) carries `Retry-After`.\n\n- `503 search_disabled` while search is switched off.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for display: FREE.",
+        "description": "Search the page text of investor documents by keywords (default `mode=lexical`) or exact text (`literal`): the documents of earnings calls (CFO commentary, shareholder letters, data sheets, the company's own transcripts) and companies' IR libraries (annual reports, proxy statements, ESG reports, investor-day decks).\n\n### What you get\n\n- Up to 20 passages from company-published documents, with page numbers — not verified facts — and a signed URL of the file (open it at `#page=<page>`).\n\n- Filter by company (`identifier`), kind, IR section, year or table.\n\n- Each hit names the document's folder of the company's document tree (`group`, e.g. `earnings/fy2027/q2`, `group_label`, `category`), how it matched (`match`); the response says how much of the searched documents is indexed (`coverage`).\n\n### Search modes\n\n- `lexical` (default): keyword search — English full text with stemming; quoted phrases, `OR` and `-word` work; every word must match; ranked by `ts_rank_cd` (`websearch_to_tsquery`). Without `identifier`, at most 5,000 matching passages are ranked, split evenly between earnings-call documents and IR-library documents (each the first matches in index order, not the best) — add `identifier` to rank every match of one company. Finance tokens such as `FY2027`, `10-K`, `Q3` or `EBITDA` match as written.\n\n- `literal`: the exact characters of the passage — no stemming, no fuzzy matching, `%` / `_` / `\\` match themselves; case-sensitive unless `case_sensitive=false` (only allowed with `mode=literal`; default `true`). A pattern under 3 characters needs `identifier`. Newest first; `score` is 0.\n\n- `match.spans` mark the matched characters in `text` (zero-based, end-exclusive Unicode code-point offsets); `text` is cut around the first match (`text_truncated`); `match.lexical_rank` is the hit's 1-based rank. Neither mode expands into fuzzy results. Both modes cost the same.\n\n### Coverage\n\n- `coverage.completeness` = `complete` (every searched passage is indexed: no hits is a genuine no-result), `partial` (some passages are still being indexed or failed) or `unknown` (nothing of the searched scope is indexed yet, or the counts could not be read) — read it before treating an empty list as \"not found\".\n\n- `coverage.lexical` counts the searched transcripts or documents in the text index (`indexed`, `pending`, `failed`). `reasons` lists why the answer may be incomplete. The counts come from the indexing ledger: a transcript or document whose current version the index has not confirmed counts as `pending`; when they cannot be read, the hits are still returned with `completeness: unknown`, `lexical` null and `coverage_unavailable`.\n\n### Changelog\n\n- 2026-10: modes added and the default mode changed from semantic to `lexical`.\n\n- 2026-11: modes `semantic` and `hybrid` removed; vector search is gone, pass `mode=lexical` (default) or `literal`.\n\n### Errors\n\n- `400` for a `mode=lexical` query of stopwords only (no searchable words), for `case_sensitive` with any mode but `literal`, and for a `mode=literal` pattern under 3 characters without a scope (see Search modes).\n\n- `503 search_unavailable` (a search over its time limit — never an empty answer) carries `Retry-After`.\n\n- `503 search_disabled` while search is switched off.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -24493,7 +24579,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "\"Ask this call\": search earnings-call transcripts and slide text by keywords (default `mode=lexical`) or exact text (`literal`) — one call (`event_id`), one company (`identifier`) or every call (default: the last 365 days).\n\n### What you get\n\n- Up to 8 passages with speaker and `start_ms`, how each matched (`match`) and the index coverage of the search (`coverage`). Cite `event_id` and `start_ms`.\n\n- On plans that include the audio and slides routes (PRO): `audio_url` opens the recording's permanent URL at the passage (`#t=<seconds>`; null while no recording is available) and `slide.image_url` (a signed URL) shows the slide.\n\n### Event types\n\n- `event_type` (default `earnings_call`; `all` = every type) selects investor days, conferences or shareholder meetings too.\n\n### Search modes\n\n- `lexical` (default): keyword search — English full text with stemming; quoted phrases, `OR` and `-word` work; scoped by `identifier` or `event_id`, a passage needs any of the words, ranked by BM25 (rarer words weigh more), and the answer to a matching analyst question follows right after it (its `match.spans` may be empty); without a scope every word must match, ranked by `ts_rank_cd`. Finance tokens such as `FY2027`, `10-K`, `Q3` or `EBITDA` match as written.\n\n- `literal`: the exact characters of the passage — no stemming, no fuzzy matching, `%` / `_` / `\\` match themselves; case-sensitive unless `case_sensitive=false` (only allowed with `mode=literal`; default `true`). A pattern under 3 characters needs `identifier` or `event_id`. Newest first; `score` is 0.\n\n- `match.spans` mark the matched characters in `text` (zero-based, end-exclusive Unicode code-point offsets); `text` is cut around the first match (`text_truncated`); `match.lexical_rank` is the hit's 1-based rank. Neither mode expands into fuzzy results. Both modes cost the same.\n\n### Coverage\n\n- `coverage.completeness` = `complete` (every searched passage is indexed: no hits is a genuine no-result), `partial` (some passages are still being indexed or failed) or `unknown` (nothing of the searched scope is indexed yet, or the counts could not be read) — read it before treating an empty list as \"not found\".\n\n- `coverage.lexical` counts the searched transcripts or documents in the text index (`indexed`, `pending`, `failed`). `reasons` lists why the answer may be incomplete. The counts come from the indexing ledger: a transcript or document whose current version the index has not confirmed counts as `pending`; when they cannot be read, the hits are still returned with `completeness: unknown`, `lexical` null and `coverage_unavailable`.\n\n### Changelog\n\n- 2026-10: modes added and the default mode changed from semantic to `lexical`.\n\n- 2026-11: modes `semantic` and `hybrid` removed; vector search is gone, pass `mode=lexical` (default) or `literal`.\n\n### Errors\n\n- `400` for a `mode=lexical` query of stopwords only (no searchable words), for `case_sensitive` with any mode but `literal`, and for a `mode=literal` pattern under 3 characters without a scope (see Search modes).\n\n- `503 search_unavailable` (a search over its time limit — never an empty answer) carries `Retry-After`.\n\n- `503 search_disabled` while search is switched off.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served.\n\nMinimum tier for rag: STANDARD.",
+        "description": "\"Ask this call\": search earnings-call transcripts and slide text by keywords (default `mode=lexical`) or exact text (`literal`) — one call (`event_id`), one company (`identifier`) or every call (default: the last 365 days).\n\n### What you get\n\n- Up to 8 passages with speaker and `start_ms`, how each matched (`match`) and the index coverage of the search (`coverage`). Cite `event_id` and `start_ms`.\n\n- On plans that include the audio and slides routes (PRO): `audio_url` opens the recording's permanent URL at the passage (`#t=<seconds>`; null while no recording is available) and `slide.image_url` (a signed URL) shows the slide.\n\n### Event types\n\n- `event_type` (default `earnings_call`; `all` = every type) selects investor days, conferences or shareholder meetings too.\n\n### Search modes\n\n- `lexical` (default): keyword search — English full text with stemming; quoted phrases, `OR` and `-word` work; scoped by `identifier` or `event_id`, a passage needs any of the words, ranked by BM25 (rarer words weigh more), and the answer to a matching analyst question follows right after it (its `match.spans` may be empty); without a scope every word must match, ranked by `ts_rank_cd`. Finance tokens such as `FY2027`, `10-K`, `Q3` or `EBITDA` match as written.\n\n- `literal`: the exact characters of the passage — no stemming, no fuzzy matching, `%` / `_` / `\\` match themselves; case-sensitive unless `case_sensitive=false` (only allowed with `mode=literal`; default `true`). A pattern under 3 characters needs `identifier` or `event_id`. Newest first; `score` is 0.\n\n- `match.spans` mark the matched characters in `text` (zero-based, end-exclusive Unicode code-point offsets); `text` is cut around the first match (`text_truncated`); `match.lexical_rank` is the hit's 1-based rank. Neither mode expands into fuzzy results. Both modes cost the same.\n\n### Coverage\n\n- `coverage.completeness` = `complete` (every searched passage is indexed: no hits is a genuine no-result), `partial` (some passages are still being indexed or failed) or `unknown` (nothing of the searched scope is indexed yet, or the counts could not be read) — read it before treating an empty list as \"not found\".\n\n- `coverage.lexical` counts the searched transcripts or documents in the text index (`indexed`, `pending`, `failed`). `reasons` lists why the answer may be incomplete. The counts come from the indexing ledger: a transcript or document whose current version the index has not confirmed counts as `pending`; when they cannot be read, the hits are still returned with `completeness: unknown`, `lexical` null and `coverage_unavailable`.\n\n### Changelog\n\n- 2026-10: modes added and the default mode changed from semantic to `lexical`.\n\n- 2026-11: modes `semantic` and `hybrid` removed; vector search is gone, pass `mode=lexical` (default) or `literal`.\n\n### Errors\n\n- `400` for a `mode=lexical` query of stopwords only (no searchable words), for `case_sensitive` with any mode but `literal`, and for a `mode=literal` pattern under 3 characters without a scope (see Search modes).\n\n- `503 search_unavailable` (a search over its time limit — never an empty answer) carries `Retry-After`.\n\n- `503 search_disabled` while search is switched off.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
@@ -26698,7 +26784,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
             "example": "AAPL"
           },
           {
@@ -26723,7 +26809,7 @@
             "in": "query",
             "name": "section_id",
             "required": false,
-            "description": "Optional section ID. If not specified, all sections from the filing are returned.",
+            "description": "Optional section ID. If not specified, all sections from the filing are returned. A section the filing does not have answers 404 with the section IDs it has.",
             "example": "part_i-item_1a"
           },
           {
@@ -27135,13 +27221,15 @@
                           },
                           "start_time": {
                             "type": "string",
+                            "format": "date-time",
                             "nullable": true,
-                            "description": "Market open time (if partial day)"
+                            "description": "Market open on a partial day (ISO 8601, UTC); null when closed all day"
                           },
                           "end_time": {
                             "type": "string",
+                            "format": "date-time",
                             "nullable": true,
-                            "description": "Market close time (if partial day)"
+                            "description": "Market close on a partial day (ISO 8601, UTC); null when closed all day"
                           }
                         }
                       }

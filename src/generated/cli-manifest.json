@@ -1,6 +1,6 @@
 {
   "specVersion": "1.0.0",
-  "specSha256": "587da531928006a2a7259d0f0ca16b340afffbf652b13603890f4579dcacea59",
+  "specSha256": "29791b1feb50cba08c83146dd9e871f7a1abdad2a9b72cb52451b83a462d8374",
   "groups": [
     {
       "name": "company",
@@ -79,7 +79,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         }
       ],
@@ -139,7 +139,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -223,7 +223,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -358,7 +358,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -2298,7 +2298,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -2320,7 +2320,7 @@
           "required": false,
           "type": "string",
           "example": "part_i-item_1a",
-          "description": "Optional section ID. If not specified, all sections from the filing are returned."
+          "description": "Optional section ID. If not specified, all sections from the filing are returned. A section the filing does not have answers 404 with the section IDs it has."
         },
         {
           "name": "accession_number",
@@ -2368,7 +2368,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -2441,7 +2441,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -2527,7 +2527,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -2600,7 +2600,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -2673,7 +2673,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -2759,7 +2759,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -2832,7 +2832,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -2905,7 +2905,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -2991,7 +2991,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -3064,7 +3064,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL,MSFT",
-          "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers)",
+          "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers). Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -3117,7 +3117,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL,MSFT",
-          "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers)",
+          "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers). Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -3183,7 +3183,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL,MSFT",
-          "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers)",
+          "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers). Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -3236,7 +3236,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -3309,7 +3309,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -3395,7 +3395,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -3468,7 +3468,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -3541,7 +3541,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -3627,7 +3627,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -3700,7 +3700,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -3773,7 +3773,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -3859,7 +3859,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -3932,7 +3932,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL,MSFT",
-          "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers)",
+          "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers). Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -3985,7 +3985,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL,MSFT",
-          "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers)",
+          "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers). Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -4051,7 +4051,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL,MSFT",
-          "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers)",
+          "description": "Comma-separated list of ticker symbols or CIKs (1-10 identifiers). Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -4120,7 +4120,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Company ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -4501,7 +4501,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -4572,7 +4572,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -4657,7 +4657,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -4744,7 +4744,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Company ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -4989,7 +4989,7 @@
           "required": false,
           "type": "string",
           "example": "AAPL",
-          "description": "Company ticker symbol or CIK (at least one of cik or identifier required)",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404. At least one of cik or identifier is required.",
           "alias": "i"
         },
         {
@@ -5123,7 +5123,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
@@ -5213,7 +5213,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.",
           "alias": "i"
         },
         {
