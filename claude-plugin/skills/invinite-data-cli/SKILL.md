@@ -24,10 +24,11 @@ Use the connected Invinite Data API MCP tools when available. Fall back to the `
 | As-reported statements/snapshots | `as_reported_financial_statement`, `as_reported_financial_snapshot` | `invd financials as-reported-<statement>…`, `invd financials as-reported-snapshot…` |
 | Ratios/growth/CAGR | `financial_ratios`, `financial_growth`, `financial_cagr` | `invd metrics ratios\|growth\|cagr` |
 | Segment data | `segmented_financials` | `invd segments list\|list-detailed` |
-| SEC filings/search/sections | `sec_filings`, `sec_filings_search`, `sec_filing_sections` | `invd filings list\|search\|sections` |
+| SEC filings/search/sections (a CIK also finds a not-yet-listed company; registration filings carry `proposed_symbols`) | `sec_filings`, `sec_filings_search`, `sec_filing_sections` | `invd filings list\|search\|sections` |
 | Filing and metric discovery | `sec_available_form_types`, `list_available_section_ids`, `list_available_metrics` | `invd filings form-types`, `invd metadata section-ids\|metrics` |
 | Institutional ownership | `holdings_by_company`, `holdings_by_investor`, `institutional_investors`, `institutional_transactions` | `invd ownership …` |
 | Insider trades/IPOs/holidays | `insider_trades`, `ipos`, `market_holidays` | `invd insider-trades list`, `invd ipos list`, `invd market holidays` |
+| Upcoming IPOs from SEC registrations (S-1 / F-1, by CIK, weeks before the IPO calendar; stage, proposed ticker, price range, final price) | `ipo_registrations` | `invd ipos registrations` |
 | Earnings call calendar/events/live | `earnings_call_calendar`, `earnings_call_events`, `earnings_call_live` | `invd earnings calendar\|events\|live` |
 | Call transcript/Q&A/participants | `earnings_call_transcript`, `earnings_call_qa`, `earnings_call_participants` | `invd earnings transcript\|qa\|participants` |
 | Call guidance/KPIs, diff vs prior call | `earnings_call_guidance`, `earnings_call_diff` | `invd earnings extractions\|guidance-history\|diff` |
@@ -433,6 +434,9 @@ Initial public offerings
 ```bash
 # List IPOs (optional: --start-date, --end-date, --sort, --limit, --offset, --all)
 invd ipos list --json
+
+# List IPO registrations (SEC) (optional: --start-date, --end-date, --stage, --is-spac, --sort, --limit, --offset, --all)
+invd ipos registrations --json
 ```
 
 ### login

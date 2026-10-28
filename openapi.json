@@ -470,8 +470,46 @@
         },
         "title": "SearchCoverage"
       },
+      "ProposedSymbol": {
+        "type": "object",
+        "description": "A ticker the registration statement says the issuer applied, intends or was approved to list under",
+        "required": [
+          "symbol",
+          "exchange",
+          "security_class",
+          "source",
+          "ipo_calendar_match"
+        ],
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "description": "Proposed ticker, upper case (`ABCD.WS` for warrants)"
+          },
+          "exchange": {
+            "type": "string",
+            "nullable": true,
+            "description": "NASDAQ, NYSE, NYSE American, NYSE Arca or Cboe BZX; null when the prospectus names none"
+          },
+          "security_class": {
+            "type": "string",
+            "nullable": true,
+            "description": "common, ads, units, warrants, rights, preferred or other"
+          },
+          "source": {
+            "type": "string",
+            "nullable": true,
+            "description": "How it was read: regex or llm"
+          },
+          "ipo_calendar_match": {
+            "type": "boolean",
+            "description": "The ticker and issuer name are also on the Massive IPO calendar (GET /v1/ipos) — a hint, not an identity"
+          }
+        },
+        "title": "ProposedSymbol"
+      },
       "WebSocketFiling": {
         "type": "object",
+        "description": "A new SEC filing, the same fields as a GET /v1/sec-filings/filings row plus `ticker`. Until 2026-10 the frame forwarded the upstream camelCase envelope (`schemaVersion`, `eventKey`, `filing.accessionNumber`, …) instead of this documented shape; it now is exactly this object",
         "required": [
           "accession_number",
           "calendar_quarter",
@@ -482,7 +520,9 @@
           "fiscal_year",
           "form_type",
           "html_url",
-          "period_end"
+          "period_end",
+          "ticker",
+          "proposed_symbols"
         ],
         "properties": {
           "accession_number": {
@@ -530,6 +570,19 @@
             "format": "date",
             "nullable": true,
             "description": "Period end date"
+          },
+          "ticker": {
+            "type": "string",
+            "nullable": true,
+            "description": "Ticker of the company's primary listing; null for a company that is not listed yet (pre-IPO)"
+          },
+          "proposed_symbols": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/ProposedSymbol"
+            },
+            "description": "Tickers a registration statement (S-1, S-1/A, F-1, F-1/A) proposes; null when the filing carries none"
           }
         }
       },
@@ -12831,7 +12884,7 @@
         "tags": [
           "IPOs"
         ],
-        "description": "List all IPOs. Minimum tier for redistribute: PRO.",
+        "description": "List all IPOs of the Massive IPO calendar, keyed by ticker; rows usually appear near pricing. `registration` links a row to the SEC-sourced registration track (`GET /v1/ipos/registrations`) Massive matched to the same ticker, or is null. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -13029,6 +13082,45 @@
                           "us_code": {
                             "type": "string",
                             "description": "Country code"
+                          },
+                          "registration": {
+                            "type": "object",
+                            "nullable": true,
+                            "description": "The SEC registration track (GET /v1/ipos/registrations) matched to this ticker; null when none is",
+                            "required": [
+                              "cik",
+                              "track_key",
+                              "stage",
+                              "final_offer_price"
+                            ],
+                            "properties": {
+                              "cik": {
+                                "type": "string",
+                                "description": "10-digit CIK of the issuer"
+                              },
+                              "track_key": {
+                                "type": "string",
+                                "description": "The registration's track key"
+                              },
+                              "stage": {
+                                "type": "string",
+                                "enum": [
+                                  "registered",
+                                  "price_range",
+                                  "exchange_approved",
+                                  "effective",
+                                  "priced",
+                                  "trading",
+                                  "withdrawn"
+                                ],
+                                "description": "The registration's stage"
+                              },
+                              "final_offer_price": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Final offering price from the SEC final prospectus (decimal string)"
+                              }
+                            }
                           }
                         },
                         "required": [
@@ -13053,7 +13145,8 @@
                           "shares_outstanding",
                           "ticker",
                           "total_offer_size",
-                          "us_code"
+                          "us_code",
+                          "registration"
                         ]
                       }
                     },
@@ -13087,10 +13180,481 @@
                       "shares_outstanding": 12950000,
                       "ticker": "TCXB",
                       "total_offer_size": 100000000,
-                      "us_code": "G87082106"
+                      "us_code": "G87082106",
+                      "registration": null
                     }
                   ],
                   "next_url": "https://api.data.invinite.com/v1/ipos?offset=100&limit=100"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        },
+        "x-tier": "standard",
+        "x-credits": 1,
+        "x-license": "redistribute"
+      }
+    },
+    "/v1/ipos/registrations": {
+      "get": {
+        "operationId": "iposRegistrationsList",
+        "summary": "List IPO registrations (SEC)",
+        "tags": [
+          "IPOs"
+        ],
+        "description": "The SEC-sourced IPO calendar: one row per registration statement of a company that is not listed yet, from its first public S-1 or F-1 until it trades or is withdrawn, keyed by CIK. Each row carries the stage, the proposed ticker(s), the price range and final price from the prospectus, the SEC timestamps of every step, and the filings that moved it.\n\n`GET /v1/ipos` is a different source: the Massive IPO calendar, keyed by ticker, whose rows usually appear only near pricing. A registration shows up weeks earlier. `massive` holds the Massive row matched to a registration (by ticker and issuer name), `proposed_symbols[].ipo_calendar_match` flags a proposed ticker that is on that calendar, and each `GET /v1/ipos` row links back through `registration`.\n\nPre-IPO companies have no ticker yet: read their filings with `GET /v1/sec-filings/filings?identifier=<cik>`.\n\nMinimum tier for redistribute: PRO.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "query",
+            "name": "start_date",
+            "required": false,
+            "description": "Registrations first made public on or after this day (YYYY-MM-DD, UTC)",
+            "example": "2026-09-01"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "query",
+            "name": "end_date",
+            "required": false,
+            "description": "Registrations first made public on or before this day (YYYY-MM-DD, UTC)",
+            "example": "2026-10-31"
+          },
+          {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "registered",
+                  "price_range",
+                  "exchange_approved",
+                  "effective",
+                  "priced",
+                  "trading",
+                  "withdrawn"
+                ]
+              }
+            },
+            "in": "query",
+            "name": "stage",
+            "required": false,
+            "description": "Filter by stage (repeatable). Default: every stage",
+            "example": [
+              "priced",
+              "trading"
+            ]
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ]
+            },
+            "in": "query",
+            "name": "is_spac",
+            "required": false,
+            "description": "true = blank-check companies (SPACs) only, false = no SPACs. Default: both",
+            "example": "false"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc"
+            },
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "description": "Sort direction by first_public_at",
+            "example": "desc"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 100
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "description": "Maximum number of registrations to return",
+            "example": 5
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "description": "Number of registrations to skip for pagination",
+            "example": 0
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-cli": {
+          "group": "ipos",
+          "action": "registrations",
+          "view": "table",
+          "rowsPath": "registrations",
+          "columns": [
+            "first_public_at",
+            "stage",
+            "company_name",
+            "cik",
+            "exchange",
+            "price_range_low",
+            "price_range_high",
+            "final_offer_price",
+            "first_trade_date"
+          ],
+          "flags": {
+            "sort": "s",
+            "limit": "l"
+          },
+          "pagination": "top"
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "registrations"
+                  ],
+                  "properties": {
+                    "registrations": {
+                      "type": "array",
+                      "description": "IPO registrations, one per registration statement track",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "cik",
+                          "company_name",
+                          "track_key",
+                          "form_family",
+                          "stage",
+                          "is_spac",
+                          "proposed_symbols",
+                          "exchange",
+                          "price_range_low",
+                          "price_range_high",
+                          "shares_offered",
+                          "final_offer_price",
+                          "final_shares_offered",
+                          "first_public_at",
+                          "price_range_at",
+                          "exchange_approved_at",
+                          "effective_at",
+                          "priced_at",
+                          "withdrawn_at",
+                          "first_trade_date",
+                          "massive",
+                          "filings"
+                        ],
+                        "properties": {
+                          "cik": {
+                            "type": "string",
+                            "description": "10-digit CIK of the issuer"
+                          },
+                          "company_name": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "Issuer name (SEC)"
+                          },
+                          "track_key": {
+                            "type": "string",
+                            "description": "The registration: its Securities Act file number (333-…), else the accession of its first registration statement"
+                          },
+                          "form_family": {
+                            "type": "string",
+                            "enum": [
+                              "S-1",
+                              "F-1"
+                            ],
+                            "description": "S-1 (domestic) or F-1 (foreign issuer)"
+                          },
+                          "stage": {
+                            "type": "string",
+                            "enum": [
+                              "registered",
+                              "price_range",
+                              "exchange_approved",
+                              "effective",
+                              "priced",
+                              "trading",
+                              "withdrawn"
+                            ],
+                            "description": "registered → price_range (an amendment states the range) → exchange_approved (8-A12B / exchange certification) → effective (SEC EFFECT) → priced (final prospectus 424B4 / 424B1) → trading (a listing appeared); withdrawn (RW) ends a track"
+                          },
+                          "is_spac": {
+                            "type": "boolean",
+                            "nullable": true,
+                            "description": "Blank-check company (\"blank check company\" on the cover or SIC 6770)"
+                          },
+                          "proposed_symbols": {
+                            "type": "array",
+                            "nullable": true,
+                            "items": {
+                              "$ref": "#/components/schemas/ProposedSymbol"
+                            },
+                            "description": "Tickers the registration statement proposes (S-1, S-1/A, F-1, F-1/A only). null = not a registration form (or not read), [] = none found"
+                          },
+                          "exchange": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "Exchange the issuer applied to (NASDAQ, NYSE, NYSE American, NYSE Arca, Cboe BZX)"
+                          },
+                          "price_range_low": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "Low end of the price range per share, ADS or unit (decimal string)"
+                          },
+                          "price_range_high": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "High end of the price range (decimal string)"
+                          },
+                          "shares_offered": {
+                            "type": "integer",
+                            "nullable": true,
+                            "description": "Shares offered at the price range"
+                          },
+                          "final_offer_price": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "Final offering price (final prospectus) (decimal string)"
+                          },
+                          "final_shares_offered": {
+                            "type": "integer",
+                            "nullable": true,
+                            "description": "Shares sold at the final price"
+                          },
+                          "first_public_at": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "SEC acceptance time of the first public registration statement (ISO 8601 UTC)"
+                          },
+                          "price_range_at": {
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true,
+                            "description": "When the price range was first filed (ISO 8601 UTC)"
+                          },
+                          "exchange_approved_at": {
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true,
+                            "description": "When the exchange approval was filed (ISO 8601 UTC)"
+                          },
+                          "effective_at": {
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true,
+                            "description": "When the registration became effective (ISO 8601 UTC)"
+                          },
+                          "priced_at": {
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true,
+                            "description": "When the final prospectus was filed (ISO 8601 UTC)"
+                          },
+                          "withdrawn_at": {
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true,
+                            "description": "When the withdrawal was filed (ISO 8601 UTC)"
+                          },
+                          "first_trade_date": {
+                            "type": "string",
+                            "format": "date",
+                            "nullable": true,
+                            "description": "First trading day of the listing (YYYY-MM-DD); set at stage trading"
+                          },
+                          "massive": {
+                            "type": "object",
+                            "nullable": true,
+                            "description": "The matching row of the Massive IPO calendar (GET /v1/ipos, by ticker and issuer name); null when none matched. Its values never overwrite the SEC ones",
+                            "required": [
+                              "ticker",
+                              "ipo_status",
+                              "listing_date",
+                              "price_low",
+                              "price_high",
+                              "final_price"
+                            ],
+                            "properties": {
+                              "ticker": {
+                                "type": "string",
+                                "description": "Ticker on the Massive calendar (the `ticker` of GET /v1/ipos)"
+                              },
+                              "ipo_status": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Massive IPO status (pending, new, history, withdrawn, …)"
+                              },
+                              "listing_date": {
+                                "type": "string",
+                                "format": "date",
+                                "nullable": true,
+                                "description": "Expected or actual listing day (YYYY-MM-DD)"
+                              },
+                              "price_low": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Low end of the Massive price range (decimal string)"
+                              },
+                              "price_high": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "High end of the Massive price range (decimal string)"
+                              },
+                              "final_price": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Massive final issue price (decimal string)"
+                              }
+                            }
+                          },
+                          "filings": {
+                            "type": "array",
+                            "description": "The filings that moved this registration, in the order they were applied",
+                            "items": {
+                              "type": "object",
+                              "required": [
+                                "accession_number",
+                                "form_type",
+                                "signal",
+                                "filed_at",
+                                "filing_date",
+                                "html_url"
+                              ],
+                              "properties": {
+                                "accession_number": {
+                                  "type": "string",
+                                  "description": "SEC accession number"
+                                },
+                                "form_type": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "SEC form type (S-1, S-1/A, F-1, F-1/A, 8-A12B, CERT, EFFECT, 424B4, 424B1, RW)"
+                                },
+                                "signal": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "What the filing meant for the registration: registration, exchange_approval, effective, priced or withdrawn"
+                                },
+                                "filed_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "nullable": true,
+                                  "description": "SEC acceptance time (ISO 8601 UTC)"
+                                },
+                                "filing_date": {
+                                  "type": "string",
+                                  "format": "date",
+                                  "nullable": true,
+                                  "description": "Filing date (YYYY-MM-DD); null when the filing is not archived"
+                                },
+                                "html_url": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "URL to the archived filing HTML; null when the filing is not archived"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "next_url": {
+                      "type": "string",
+                      "description": "URL for the next page (includes next offset and same limit). Omitted when no next page exists."
+                    }
+                  }
+                },
+                "example": {
+                  "registrations": [
+                    {
+                      "cik": "0001997038",
+                      "company_name": "Iambic Therapeutics, Inc.",
+                      "track_key": "333-299057",
+                      "form_family": "S-1",
+                      "stage": "priced",
+                      "is_spac": false,
+                      "proposed_symbols": [
+                        {
+                          "symbol": "IAM",
+                          "exchange": "NASDAQ",
+                          "security_class": "common",
+                          "source": "regex",
+                          "ipo_calendar_match": true
+                        }
+                      ],
+                      "exchange": "NASDAQ",
+                      "price_range_low": "15.0000",
+                      "price_range_high": "17.0000",
+                      "shares_offered": 9375000,
+                      "final_offer_price": "16.0000",
+                      "final_shares_offered": 9375000,
+                      "first_public_at": "2026-09-21T20:26:02.000Z",
+                      "price_range_at": "2026-10-08T11:09:26.000Z",
+                      "exchange_approved_at": "2026-10-13T20:00:02.000Z",
+                      "effective_at": "2026-10-14T20:00:00.000Z",
+                      "priced_at": "2026-10-15T20:05:01.000Z",
+                      "withdrawn_at": null,
+                      "first_trade_date": null,
+                      "massive": {
+                        "ticker": "IAM",
+                        "ipo_status": "pending",
+                        "listing_date": "2026-10-15",
+                        "price_low": "15.0000",
+                        "price_high": "17.0000",
+                        "final_price": null
+                      },
+                      "filings": [
+                        {
+                          "accession_number": "0001193125-26-396704",
+                          "form_type": "S-1",
+                          "signal": "registration",
+                          "filed_at": "2026-09-21T20:26:02.000Z",
+                          "filing_date": "2026-09-21",
+                          "html_url": "https://storage-prod.invinite.com/filing_htmls/1997038_0001193125-26-396704_S-1_2026-09-21.html"
+                        }
+                      ]
+                    }
+                  ],
+                  "next_url": "https://api.data.invinite.com/v1/ipos/registrations?offset=100&limit=100"
                 }
               }
             }
@@ -25717,7 +26281,7 @@
         "tags": [
           "SEC Filings"
         ],
-        "description": "Fetch SEC filings for a company. Minimum tier for display: FREE.",
+        "description": "Fetch SEC filings for a company. `identifier` is a ticker or a CIK; a CIK also resolves a company that is not listed yet (a pre-IPO registrant), whose `ticker` is null. Registration statements (S-1, S-1/A, F-1, F-1/A) carry the `proposed_symbols` the prospectus names. Minimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -25726,7 +26290,7 @@
             "in": "query",
             "name": "identifier",
             "required": true,
-            "description": "Ticker symbol or CIK",
+            "description": "Ticker symbol or CIK. A CIK also finds a registrant that is not listed yet (pre-IPO).",
             "example": "AAPL"
           },
           {
@@ -25833,7 +26397,8 @@
                         "properties": {
                           "ticker": {
                             "type": "string",
-                            "description": "Ticker symbol"
+                            "nullable": true,
+                            "description": "Ticker symbol; null for a company that is not listed yet (pre-IPO)"
                           },
                           "cik": {
                             "type": "string",
@@ -25854,7 +26419,8 @@
                                 "fiscal_year",
                                 "form_type",
                                 "html_url",
-                                "period_end"
+                                "period_end",
+                                "proposed_symbols"
                               ],
                               "properties": {
                                 "accession_number": {
@@ -25902,6 +26468,14 @@
                                   "format": "date",
                                   "nullable": true,
                                   "description": "Period end date"
+                                },
+                                "proposed_symbols": {
+                                  "type": "array",
+                                  "nullable": true,
+                                  "items": {
+                                    "$ref": "#/components/schemas/ProposedSymbol"
+                                  },
+                                  "description": "Tickers the registration statement proposes (S-1, S-1/A, F-1, F-1/A only). null = not a registration form (or not read), [] = none found"
                                 }
                               }
                             }
@@ -25931,7 +26505,8 @@
                           "fiscal_year": null,
                           "form_type": "4",
                           "html_url": "https://storage-prod.invinite.com/filing_htmls/320193_0001140361-26-040127_4_2026-10-19.html",
-                          "period_end": "2026-10-15"
+                          "period_end": "2026-10-15",
+                          "proposed_symbols": null
                         }
                       ],
                       "next_url": "https://api.data.invinite.com/v1/sec-filings/filings?identifier=AAPL&offset=40&limit=40"
@@ -27680,7 +28255,7 @@
       "ws": {
         "operationId": "websocketConnect",
         "summary": "WebSocket filings stream and live earnings-call transcripts",
-        "description": "One WebSocket connection streams new SEC filings as they are published and follows earnings calls live. Authenticate with your API key. WebSocket sessions cost no credits (hence no `x-credits`).\n\n### Filings\n\n- New SEC filings arrive as `new_filing` frames. The connection needs the STANDARD plan.\n\n### Follow an earnings call live\n\nLive transcripts use the channel `earnings-calls.live`, which requires the PRO plan.\n\n1. Send a `subscribe` frame with an `event_id` or a `cik`. You receive `subscribed`.\n\n2. `transcript_segment` frames arrive while the call is spoken; `speaker_names` snapshots name the speakers.\n\n3. Lifecycle frames tell you where the call is: `call_started`, `call_ended`, `transcript_provisional`, `transcript_ready`, `rescheduled`.\n\n4. The subscription ends with `unsubscribed` (its `reason` says why) after `transcript_ready` or `rescheduled`, 2 h after `call_ended` (the call produces nothing more), or 12 h after the scheduled start.\n\n### Missed segments and reconnects\n\n- Final segments arrive in `seq` order. A `gap` frame reports a range that did not arrive within 1.5 s; a late final may still follow.\n\n- After a reconnect, subscribe again with `since_seq` set to the last final `seq` you hold: the missed finals are replayed, then live delivery continues. `resume_unavailable` means the call cannot be replayed.\n\n- An `error` frame with code `unavailable` reports a server-side failure. The connection always stays open.\n\n### Keyword alerts\n\n- Add `keywords` (up to 20) to a subscription and every final segment that contains one also sends a `keyword_hit` frame. `keyword_match` is `exact` or `stem`; `speaker_roles` keeps, for example, management's words only.\n\n- A hit carries the speaker's provisional name and role, the previous final segment as context, and `latency_ms`: the relay time inside the API process minus the segment's own end time (your network is not included).\n\n### Guidance flashes\n\n- Every subscription to a call receives `guidance_flash` frames: forward-looking numbers, extracted seconds after they are spoken.\n\n### All live calls in one subscription\n\n- `scope: all_live` with `keywords` (and no `event_id` or `cik`) follows every call being captured live for one subscription slot. It receives keyword hits only, never segments. `min_rank` limits the companies; `events` can add `guidance_flash`.\n\n- A `warning` frame (`global_scope_degraded`) says a new call was not attached.\n\n- At `transcript_ready` it also receives the final transcript's hits once (`layer: final`), without those a live hit already covered within ± 5 s.\n\n### Live prices\n\n- `prices: true` on a per-call subscription adds `price_tick` frames (at most one per second): that second's OHLC and volume, the return in bp since the last trade before the call started and since the previous close, and `call_ms` on the transcript clock.\n\n- A tick shows what happened at the same time, not what caused it. Pre-market and after-hours bars are sparse.\n\n- `prices` with `scope: all_live` is refused (`bad_message`). `GET /v1/earnings-calls/live` says `live_prices: true` while ticks flow.\n\nMinimum tier for display: FREE.",
+        "description": "One WebSocket connection streams new SEC filings as they are published and follows earnings calls live. Authenticate with your API key. WebSocket sessions cost no credits (hence no `x-credits`).\n\n### Filings\n\n- New SEC filings arrive as `new_filing` frames. The connection needs the STANDARD plan.\n\n- `filing` is the snake_case `WebSocketFiling`: the filing's index fields, `ticker` (null for a company that is not listed yet) and `proposed_symbols` (tickers an S-1 / F-1 registration statement proposes).\n\n- Shape correction (2026-10): the frame used to forward the upstream camelCase envelope (`schemaVersion`, `eventKey`, `filing.accessionNumber`, …), not the documented object. It now sends exactly `WebSocketFiling`; a client that read the envelope must switch to the snake_case fields.\n\n### Follow an earnings call live\n\nLive transcripts use the channel `earnings-calls.live`, which requires the PRO plan.\n\n1. Send a `subscribe` frame with an `event_id` or a `cik`. You receive `subscribed`.\n\n2. `transcript_segment` frames arrive while the call is spoken; `speaker_names` snapshots name the speakers.\n\n3. Lifecycle frames tell you where the call is: `call_started`, `call_ended`, `transcript_provisional`, `transcript_ready`, `rescheduled`.\n\n4. The subscription ends with `unsubscribed` (its `reason` says why) after `transcript_ready` or `rescheduled`, 2 h after `call_ended` (the call produces nothing more), or 12 h after the scheduled start.\n\n### Missed segments and reconnects\n\n- Final segments arrive in `seq` order. A `gap` frame reports a range that did not arrive within 1.5 s; a late final may still follow.\n\n- After a reconnect, subscribe again with `since_seq` set to the last final `seq` you hold: the missed finals are replayed, then live delivery continues. `resume_unavailable` means the call cannot be replayed.\n\n- An `error` frame with code `unavailable` reports a server-side failure. The connection always stays open.\n\n### Keyword alerts\n\n- Add `keywords` (up to 20) to a subscription and every final segment that contains one also sends a `keyword_hit` frame. `keyword_match` is `exact` or `stem`; `speaker_roles` keeps, for example, management's words only.\n\n- A hit carries the speaker's provisional name and role, the previous final segment as context, and `latency_ms`: the relay time inside the API process minus the segment's own end time (your network is not included).\n\n### Guidance flashes\n\n- Every subscription to a call receives `guidance_flash` frames: forward-looking numbers, extracted seconds after they are spoken.\n\n### All live calls in one subscription\n\n- `scope: all_live` with `keywords` (and no `event_id` or `cik`) follows every call being captured live for one subscription slot. It receives keyword hits only, never segments. `min_rank` limits the companies; `events` can add `guidance_flash`.\n\n- A `warning` frame (`global_scope_degraded`) says a new call was not attached.\n\n- At `transcript_ready` it also receives the final transcript's hits once (`layer: final`), without those a live hit already covered within ± 5 s.\n\n### Live prices\n\n- `prices: true` on a per-call subscription adds `price_tick` frames (at most one per second): that second's OHLC and volume, the return in bp since the last trade before the call started and since the previous close, and `call_ms` on the transcript clock.\n\n- A tick shows what happened at the same time, not what caused it. Pre-market and after-hours bars are sparse.\n\n- `prices` with `scope: all_live` is refused (`bad_message`). `GET /v1/earnings-calls/live` says `live_prices: true` while ticks flow.\n\nMinimum tier for display: FREE.",
         "tags": [
           "WebSocket"
         ],

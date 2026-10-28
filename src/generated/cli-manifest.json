@@ -1,6 +1,6 @@
 {
   "specVersion": "1.0.0",
-  "specSha256": "d632bccc5d4a587bdf30590211ef565f5503e2f50502a0fffa5a9fc2e8891717",
+  "specSha256": "587da531928006a2a7259d0f0ca16b340afffbf652b13603890f4579dcacea59",
   "groups": [
     {
       "name": "company",
@@ -2178,7 +2178,7 @@
           "required": true,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker symbol or CIK",
+          "description": "Ticker symbol or CIK. A CIK also finds a registrant that is not listed yet (pre-IPO).",
           "alias": "i"
         },
         {
@@ -4289,6 +4289,116 @@
       "pagination": "top",
       "allItemsPath": [
         "ipos"
+      ]
+    },
+    {
+      "operationId": "iposRegistrationsList",
+      "group": "ipos",
+      "action": "registrations",
+      "method": "get",
+      "path": "/v1/ipos/registrations",
+      "auth": true,
+      "summary": "List IPO registrations (SEC)",
+      "params": [
+        {
+          "name": "start_date",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-09-01",
+          "description": "Registrations first made public on or after this day (YYYY-MM-DD, UTC)"
+        },
+        {
+          "name": "end_date",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-10-31",
+          "description": "Registrations first made public on or before this day (YYYY-MM-DD, UTC)"
+        },
+        {
+          "name": "stage",
+          "in": "query",
+          "required": false,
+          "type": "array",
+          "items": "string",
+          "enum": [
+            "registered",
+            "price_range",
+            "exchange_approved",
+            "effective",
+            "priced",
+            "trading",
+            "withdrawn"
+          ],
+          "example": [
+            "priced",
+            "trading"
+          ],
+          "description": "Filter by stage (repeatable). Default: every stage"
+        },
+        {
+          "name": "is_spac",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "example": "false",
+          "description": "true = blank-check companies (SPACs) only, false = no SPACs. Default: both"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "example": "desc",
+          "description": "Sort direction by first_public_at",
+          "alias": "s"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 100,
+          "example": 5,
+          "description": "Maximum number of registrations to return",
+          "alias": "l"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 0,
+          "example": 0,
+          "description": "Number of registrations to skip for pagination"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "registrations",
+      "columns": [
+        "first_public_at",
+        "stage",
+        "company_name",
+        "cik",
+        "exchange",
+        "price_range_low",
+        "price_range_high",
+        "final_offer_price",
+        "first_trade_date"
+      ],
+      "pagination": "top",
+      "allItemsPath": [
+        "registrations"
       ]
     },
     {
