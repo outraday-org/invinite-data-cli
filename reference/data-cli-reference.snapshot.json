@@ -21,7 +21,7 @@
       "src/client/api-client.ts": "42857862c38a3cdbd51fd45a13752108b468a937b2e1ef91b11c02b163654ba7",
       "src/client/download.ts": "98433fed77e89357a916690fc01dcd0982b0dc0f732bc240c6114284663573e2",
       "src/client/earnings-live.ts": "ec7695211e9e8caa51988d3bca0b87da6e370be6621045783876bb537bf91a4c",
-      "src/client/news-live.ts": "90cba1c21adedb34bdca06fea81e30967d411b9ea5036072040afd25e4065231",
+      "src/client/news-live.ts": "fdfd88e178bbbd3c290aa9f8c528269461fde6411ce881340e209658bc6c7a61",
       "src/client/pagination.ts": "d9ffa4af81e6dab59f7fb3b8afb7e1805fc6b542d673bb3e28f97eecd970a454",
       "src/client/websocket-client.ts": "6938d699e2794d9bde27441fb25402f910462e1959e3f18bd915208e859cf4e5",
       "src/commands/config.ts": "f2f9a8b9c2eee46abf29e887b99837e10bd061416825d0b7eb84d043ae0a01ca",
@@ -47,8 +47,8 @@
       "src/spec-manifest.ts": "5ea901757d497900b968c4badb7ed1086def58afb719f19a8a89a5bbba27925c"
     },
     "specSha256": "6c548f91ff9a962b3dd46e4059a57540f1bee64691c69d704d6de35cef78190b",
-    "revision": "b3ebc43b8407d20ef80e37a18d8bbb5847846414",
-    "fingerprint": "919b20a10410a1e23415093faafd0ef1817e38cf425e371a86784823faadbcf5"
+    "revision": "86227d9a24892c9df77470bc497b857ab5a0cc0e",
+    "fingerprint": "3bbb1cd217200eec9c5a07f041c73f420ec26da3cfbd5450b0a9bcd255baa38d"
   },
   "globalOptions": [
     {
