@@ -4,17 +4,17 @@
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-api",
     "version": "1.0.0",
-    "specSha256": "e2b8dfb1d787c57144a713e3a36f6d3e419cdbf85f41f092f2d89b8647d535fa",
+    "specSha256": "6c548f91ff9a962b3dd46e4059a57540f1bee64691c69d704d6de35cef78190b",
     "sourceHashes": {
-      "openapi.json": "e2b8dfb1d787c57144a713e3a36f6d3e419cdbf85f41f092f2d89b8647d535fa",
+      "openapi.json": "6c548f91ff9a962b3dd46e4059a57540f1bee64691c69d704d6de35cef78190b",
       "package.json": "4a5073b2938513090fed491a155bddd54c95e668bef3d1d6e63646d6005510ac",
       "scripts/export-reference.ts": "8a59e536c1c63d57f764626d63b6579e495a5775def0b6cf8825d5035434e36d",
       "scripts/generate-openapi.ts": "fd07fe65502eb0b2a29c8851ee1d26b802e0898d8b3be4f28b3bae39be061fb3",
-      "scripts/operation-ids.snapshot.json": "0be25b8c74777f8d26c381d401cfc918d0301cc202499c45f3bb031c9b7ff3db",
+      "scripts/operation-ids.snapshot.json": "1d6cbf3467ed4e2ff6f9f79ec8fdf265686404805ced1691817c61fedbc09dfc",
       "scripts/reference-artifacts.ts": "0ef8e67cb5454a3f50f43de77b0be1aebb7897164ddf3f5288b58dc7d0f47255",
       "scripts/reference-env.ts": "59b36f9391f2f383e307ac48ed2ab19e599d78b6b31cac528367b918374c93bc"
     },
-    "revision": "dbcb0ac494ed85e7d43ddc3922ea0760b643ed9a",
-    "fingerprint": "1afa68c83148c8b08e1bbdccd7c4cdc190ec0941a9bc75429e5184af0ab4912c"
+    "revision": "d6574d828f21e84a1cd58d140d9b0273b378f228",
+    "fingerprint": "403e98db935b1578853b4aa3400ef508ab4747719597e608b34bffd59b707b4a"
   }
 }

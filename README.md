@@ -214,7 +214,7 @@ command. A handful of commands are hand-written because they do more than one ca
 | `segments` | `list`, `list-detailed` |
 | `filings` | List, natural-language search, sections, form types |
 | `earnings` | Calendar, events, live calls, transcripts, Q&A, participants, analysts, guidance and KPI extractions, diff, metrics, prosody, price moves during the call, media, documents, search, company IR documents |
-| `news` | News of US companies from SEC filings and their own newsrooms: `list` (cursor-paged), `get` (full text + attribution), `text` (citable blocks), `developments`, `asset-download` |
+| `news` | News of US companies from SEC filings and their own newsrooms: `list` (cursor-paged), `get` (full text + attribution), `text` (citable blocks), `developments`, `search` (passages; off until the API enables it), `asset-download` |
 | `ownership` | 13F holdings by company / investor, institutions, transactions |
 | `insider-trades`, `ipos`, `market`, `metadata` | Insider transactions, IPOs, market holidays, available metric and filing-section ids |
 | `webhooks` | Earnings-call and `news.published` webhook subscriptions |
@@ -329,6 +329,7 @@ invd news list --publisher 1045810 --publication-type press_release --from 2026-
 invd news get --id <id> --json
 invd news text --id <id> --all --json
 invd news developments --publisher 1045810 --topic product_launch --json
+invd news search -q "data center revenue" -t NVDA --json
 invd ws listen --news --tickers NVDA
 ```
 

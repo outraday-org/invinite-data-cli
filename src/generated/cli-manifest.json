@@ -1,6 +1,6 @@
 {
   "specVersion": "1.0.0",
-  "specSha256": "e2b8dfb1d787c57144a713e3a36f6d3e419cdbf85f41f092f2d89b8647d535fa",
+  "specSha256": "6c548f91ff9a962b3dd46e4059a57540f1bee64691c69d704d6de35cef78190b",
   "groups": [
     {
       "name": "company",
@@ -5080,6 +5080,164 @@
       "allItemsPath": [
         "items"
       ]
+    },
+    {
+      "operationId": "newsSearch",
+      "group": "news",
+      "action": "search",
+      "method": "get",
+      "path": "/v1/news/search",
+      "auth": true,
+      "summary": "Search news",
+      "params": [
+        {
+          "name": "q",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "example": "data center revenue",
+          "description": "The keywords or phrases (mode=lexical) or exact text (mode=literal) to search for",
+          "alias": "q"
+        },
+        {
+          "name": "mode",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "lexical",
+            "literal"
+          ],
+          "default": "lexical",
+          "example": "lexical",
+          "description": "lexical (keywords and phrases, default) or literal (exact characters)",
+          "alias": "m"
+        },
+        {
+          "name": "case_sensitive",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "example": "false",
+          "description": "mode=literal only: \"false\" matches regardless of case (default \"true\": case-sensitive)"
+        },
+        {
+          "name": "field",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "title",
+            "body",
+            "any"
+          ],
+          "default": "any",
+          "example": "any",
+          "description": "title = headlines and ledes, body = the item text, any = both"
+        },
+        {
+          "name": "ticker",
+          "in": "query",
+          "required": false,
+          "type": "array",
+          "items": "string",
+          "example": [
+            "NVDA"
+          ],
+          "description": "Items mentioning these tickers (≤ 20, comma-separated or repeated). `BRK.B` and `BRK-B` both match; responses carry the stored dash spelling. With `cik`, either matches",
+          "alias": "t"
+        },
+        {
+          "name": "cik",
+          "in": "query",
+          "required": false,
+          "type": "array",
+          "items": "string",
+          "example": [
+            "1045810"
+          ],
+          "description": "Items mentioning these companies by CIK (padded or not, ≤ 20). With `ticker`, either matches"
+        },
+        {
+          "name": "publisher",
+          "in": "query",
+          "required": false,
+          "type": "array",
+          "items": "string",
+          "example": [
+            "1045810"
+          ],
+          "description": "Published by these companies (CIK, padded or not; ≤ 20): an item with a verified issuer-newsroom publication of one of them — not a mention, not the item's first source. The CIK namespace is the SEC's"
+        },
+        {
+          "name": "kind",
+          "in": "query",
+          "required": false,
+          "type": "array",
+          "items": "string",
+          "example": [
+            "earnings_results"
+          ],
+          "description": "Only these kinds, comma-separated or repeated: earnings_results, results_date, call_announcement, event_announcement, guidance, m_and_a, material_agreement, management_change, dividend, capital_markets, legal_spam, promo, other"
+        },
+        {
+          "name": "topic",
+          "in": "query",
+          "required": false,
+          "type": "array",
+          "items": "string",
+          "example": [
+            "product_launch"
+          ],
+          "description": "Only these topics (any of them), comma-separated or repeated: product_launch, product_update, availability, partnership, customer_contract, capacity_expansion, regulatory, research, other"
+        },
+        {
+          "name": "from",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-07-01",
+          "description": "Start of the publication window: an ISO 8601 instant or a day (YYYY-MM-DD, from its UTC midnight). Default: `to` minus 365 days"
+        },
+        {
+          "name": "to",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-10-29",
+          "description": "End of the publication window: an ISO 8601 instant (exclusive) or a day (inclusive). Default: now. At most 731 days after `from` (400 otherwise)"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 5,
+          "example": 5,
+          "description": "Maximum number of passages (at most 8)",
+          "alias": "l"
+        }
+      ],
+      "exampleParams": [
+        "ticker",
+        "mode"
+      ],
+      "view": "table",
+      "rowsPath": "hits",
+      "columns": [
+        "score",
+        "match.type",
+        "field",
+        "item.published_at",
+        "item.symbols",
+        "item.title",
+        "text"
+      ],
+      "pagination": "none"
     },
     {
       "operationId": "newsItemText",

@@ -29449,6 +29449,730 @@
         "x-license": "display"
       }
     },
+    "/v1/news/search": {
+      "get": {
+        "operationId": "newsSearch",
+        "summary": "Search news",
+        "tags": [
+          "News"
+        ],
+        "description": "Search the headlines, ledes and text of news items (SEC filings and the companies' own newsroom publications) by keywords (default `mode=lexical`) or exact text (`literal`).\n\n### What you get\n\n- Up to 8 passages, each with its news item (the `/v1/news` list item, incl. `attribution`), where it matched (`field`: `title`, `lede` or `body`), the text block it is from (`block`, see `/v1/news/{id}/text`) and how it matched (`match`); the response says how much of the searched news is indexed (`coverage`).\n\n- Filter by `ticker` / `cik` (mentions, either matches), `publisher`, `kind`, `topic`, `field` and the publication window (`from` / `to`, default the last 365 days).\n\n- A source whose owner reserved reuse keeps its headline searchable, never its lede or text; `model_processing_allowed: false` = do not pass the passage to a model.\n\n### Search modes\n\n- `lexical` (default): keyword search — English full text with stemming; quoted phrases, `OR` and `-word` work; every word must match; ranked by `ts_rank_cd` (`websearch_to_tsquery`). Finance tokens such as `FY2027`, `10-K`, `Q3` or `EBITDA` match as written.\n\n- `literal`: the exact characters of the passage — no stemming, no fuzzy matching, `%` / `_` / `\\` match themselves; case-sensitive unless `case_sensitive=false` (only allowed with `mode=literal`; default `true`). A pattern under 3 characters needs `ticker`, `cik` or `publisher`. Newest first; `score` is 0.\n\n- `match.spans` mark the matched characters in `text` (zero-based, end-exclusive Unicode code-point offsets); `text` is cut around the first match (`text_truncated`); `match.lexical_rank` is the hit's 1-based rank. Neither mode expands into fuzzy results. Both modes cost the same.\n\n### Coverage\n\n- `coverage.completeness` = `complete` (every searched passage is indexed: no hits is a genuine no-result), `partial` (some passages are still being indexed or failed) or `unknown` (nothing of the searched scope is indexed yet, or the counts could not be read) — read it before treating an empty list as \"not found\".\n\n- `coverage.lexical` counts the searched transcripts or documents in the text index (`indexed`, `pending`, `failed`). `reasons` lists why the answer may be incomplete. The counts come from the indexing ledger: a transcript or document whose current version the index has not confirmed counts as `pending`; when they cannot be read, the hits are still returned with `completeness: unknown`, `lexical` null and `coverage_unavailable`.\n\n### Changelog\n\n- 2026-10: modes added and the default mode changed from semantic to `lexical`.\n\n- 2026-11: modes `semantic` and `hybrid` removed; vector search is gone, pass `mode=lexical` (default) or `literal`.\n\n### Errors\n\n- `400` for a `mode=lexical` query of stopwords only (no searchable words), for `case_sensitive` with any mode but `literal`, and for a `mode=literal` pattern under 3 characters without a scope (see Search modes).\n\n- `503 search_unavailable` (a search over its time limit — never an empty answer) carries `Retry-After`.\n\n- `503 search_disabled` while search is switched off.\n\n### Sources and rights\n\n- Items come from SEC EDGAR filings (`rights: public_record`) and the companies' own newsrooms (`rights: issuer`); wire services are never a source.\n\n- Issuer and SEC text is served in full with its attribution: wherever you show the text, show `attribution.publisher`, `attribution.source_url` and `attribution.published_at` next to it (and the EDGAR form and accession for a filing). You may forward the text unmodified; you may not resell it.\n\n- A company that opted out, and a source whose owner reserved reuse, are not served (a reserved source keeps its headline, without text).\n\nMinimum tier for display: FREE.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 500
+            },
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "description": "The keywords or phrases (mode=lexical) or exact text (mode=literal) to search for",
+            "example": "data center revenue"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lexical",
+                "literal"
+              ],
+              "default": "lexical"
+            },
+            "in": "query",
+            "name": "mode",
+            "required": false,
+            "description": "lexical (keywords and phrases, default) or literal (exact characters)",
+            "example": "lexical"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ]
+            },
+            "in": "query",
+            "name": "case_sensitive",
+            "required": false,
+            "description": "mode=literal only: \"false\" matches regardless of case (default \"true\": case-sensitive)",
+            "example": "false"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "title",
+                "body",
+                "any"
+              ],
+              "default": "any"
+            },
+            "in": "query",
+            "name": "field",
+            "required": false,
+            "description": "title = headlines and ledes, body = the item text, any = both",
+            "example": "any"
+          },
+          {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "in": "query",
+            "name": "ticker",
+            "required": false,
+            "description": "Items mentioning these tickers (≤ 20, comma-separated or repeated). `BRK.B` and `BRK-B` both match; responses carry the stored dash spelling. With `cik`, either matches",
+            "example": [
+              "NVDA"
+            ]
+          },
+          {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "in": "query",
+            "name": "cik",
+            "required": false,
+            "description": "Items mentioning these companies by CIK (padded or not, ≤ 20). With `ticker`, either matches",
+            "example": [
+              "1045810"
+            ]
+          },
+          {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "in": "query",
+            "name": "publisher",
+            "required": false,
+            "description": "Published by these companies (CIK, padded or not; ≤ 20): an item with a verified issuer-newsroom publication of one of them — not a mention, not the item's first source. The CIK namespace is the SEC's",
+            "example": [
+              "1045810"
+            ]
+          },
+          {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "in": "query",
+            "name": "kind",
+            "required": false,
+            "description": "Only these kinds, comma-separated or repeated: earnings_results, results_date, call_announcement, event_announcement, guidance, m_and_a, material_agreement, management_change, dividend, capital_markets, legal_spam, promo, other",
+            "example": [
+              "earnings_results"
+            ]
+          },
+          {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "in": "query",
+            "name": "topic",
+            "required": false,
+            "description": "Only these topics (any of them), comma-separated or repeated: product_launch, product_update, availability, partnership, customer_contract, capacity_expansion, regulatory, research, other",
+            "example": [
+              "product_launch"
+            ]
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "description": "Start of the publication window: an ISO 8601 instant or a day (YYYY-MM-DD, from its UTC midnight). Default: `to` minus 365 days",
+            "example": "2026-07-01"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "description": "End of the publication window: an ISO 8601 instant (exclusive) or a day (inclusive). Default: now. At most 731 days after `from` (400 otherwise)",
+            "example": "2026-10-29"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 8,
+              "default": 5
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "description": "Maximum number of passages (at most 8)",
+            "example": 5
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-cli": {
+          "group": "news",
+          "action": "search",
+          "view": "table",
+          "rowsPath": "hits",
+          "columns": [
+            "score",
+            "match.type",
+            "field",
+            "item.published_at",
+            "item.symbols",
+            "item.title",
+            "text"
+          ],
+          "flags": {
+            "q": "q",
+            "ticker": "t",
+            "limit": "l",
+            "mode": "m"
+          },
+          "pagination": "none"
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "query",
+                    "mode",
+                    "coverage",
+                    "hits"
+                  ],
+                  "properties": {
+                    "query": {
+                      "type": "string",
+                      "description": "The query as searched"
+                    },
+                    "mode": {
+                      "type": "string",
+                      "enum": [
+                        "lexical",
+                        "literal"
+                      ],
+                      "description": "The mode searched"
+                    },
+                    "coverage": {
+                      "$ref": "#/components/schemas/SearchCoverage"
+                    },
+                    "hits": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "item",
+                          "field",
+                          "score",
+                          "match",
+                          "text",
+                          "text_truncated",
+                          "block",
+                          "chunk_index",
+                          "model_processing_allowed"
+                        ],
+                        "properties": {
+                          "item": {
+                            "type": "object",
+                            "required": [
+                              "id",
+                              "title",
+                              "description",
+                              "url",
+                              "published_at",
+                              "first_seen_at",
+                              "source",
+                              "kind",
+                              "topics",
+                              "rights",
+                              "is_earnings_news",
+                              "earnings",
+                              "symbols",
+                              "ciks",
+                              "revision",
+                              "supersedes_id",
+                              "publications",
+                              "publications_truncated",
+                              "model_processing_allowed",
+                              "attribution"
+                            ],
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Stable item id (a correction is a new item, see supersedes_id)"
+                              },
+                              "title": {
+                                "type": "string",
+                                "description": "Headline"
+                              },
+                              "description": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Lede of the text (the publisher's, verbatim); null for an item without readable text or whose publisher reserved reuse"
+                              },
+                              "url": {
+                                "type": "string",
+                                "description": "Canonical URL of the item (the first publication)"
+                              },
+                              "published_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "Publication time (ISO 8601 UTC)"
+                              },
+                              "first_seen_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "When Invinite first saw it"
+                              },
+                              "source": {
+                                "type": "object",
+                                "required": [
+                                  "id",
+                                  "name",
+                                  "host"
+                                ],
+                                "description": "The item's first source",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "description": "`edgar` or `ir` (a company newsroom)"
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Source label"
+                                  },
+                                  "host": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "The newsroom host of an `ir` source; null otherwise"
+                                  }
+                                }
+                              },
+                              "kind": {
+                                "type": "string",
+                                "enum": [
+                                  "earnings_results",
+                                  "results_date",
+                                  "call_announcement",
+                                  "event_announcement",
+                                  "guidance",
+                                  "m_and_a",
+                                  "material_agreement",
+                                  "management_change",
+                                  "dividend",
+                                  "capital_markets",
+                                  "legal_spam",
+                                  "promo",
+                                  "other"
+                                ],
+                                "description": "What the item is about"
+                              },
+                              "topics": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "enum": [
+                                    "product_launch",
+                                    "product_update",
+                                    "availability",
+                                    "partnership",
+                                    "customer_contract",
+                                    "capacity_expansion",
+                                    "regulatory",
+                                    "research",
+                                    "other"
+                                  ]
+                                },
+                                "description": "Development topics found in the text"
+                              },
+                              "rights": {
+                                "type": "string",
+                                "enum": [
+                                  "public_record",
+                                  "issuer"
+                                ],
+                                "description": "public_record = an SEC filing; issuer = the company's own publication"
+                              },
+                              "is_earnings_news": {
+                                "type": "boolean",
+                                "description": "Results, results date, call announcement or guidance"
+                              },
+                              "earnings": {
+                                "type": "object",
+                                "nullable": true,
+                                "description": "The fiscal period an earnings item belongs to; null when none was found",
+                                "required": [
+                                  "fiscal_year",
+                                  "fiscal_quarter",
+                                  "conference_date"
+                                ],
+                                "properties": {
+                                  "fiscal_year": {
+                                    "type": "integer",
+                                    "nullable": true,
+                                    "description": "Fiscal year"
+                                  },
+                                  "fiscal_quarter": {
+                                    "type": "integer",
+                                    "nullable": true,
+                                    "description": "Fiscal quarter"
+                                  },
+                                  "conference_date": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "description": "The results call it announces or follows",
+                                    "nullable": true
+                                  }
+                                }
+                              },
+                              "symbols": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "description": "Tickers mentioned (stored dash spelling, `BRK-B`)"
+                              },
+                              "ciks": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "description": "10-digit CIKs mentioned"
+                              },
+                              "revision": {
+                                "type": "integer",
+                                "description": "Text revision (grows when the publisher corrects the text)"
+                              },
+                              "supersedes_id": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "The older item this one corrects"
+                              },
+                              "publications": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "required": [
+                                    "source_id",
+                                    "publisher",
+                                    "url",
+                                    "publication_type",
+                                    "published_at",
+                                    "modified_at",
+                                    "categories",
+                                    "tags"
+                                  ],
+                                  "properties": {
+                                    "source_id": {
+                                      "type": "string",
+                                      "description": "The newsroom source (`ir:<host>`)"
+                                    },
+                                    "publisher": {
+                                      "type": "object",
+                                      "required": [
+                                        "cik",
+                                        "symbol",
+                                        "name"
+                                      ],
+                                      "properties": {
+                                        "cik": {
+                                          "type": "string",
+                                          "nullable": true,
+                                          "description": "10-digit CIK of the publishing company"
+                                        },
+                                        "symbol": {
+                                          "type": "string",
+                                          "nullable": true,
+                                          "description": "Ticker of the publishing company"
+                                        },
+                                        "name": {
+                                          "type": "string",
+                                          "nullable": true,
+                                          "description": "Name the newsroom publishes under"
+                                        }
+                                      }
+                                    },
+                                    "url": {
+                                      "type": "string",
+                                      "description": "The company's own publication"
+                                    },
+                                    "publication_type": {
+                                      "type": "string",
+                                      "description": "press_release, company_blog, company_update or unknown"
+                                    },
+                                    "published_at": {
+                                      "type": "string",
+                                      "format": "date-time",
+                                      "description": "Publication time the newsroom states (else when we first saw it)"
+                                    },
+                                    "modified_at": {
+                                      "type": "string",
+                                      "format": "date-time",
+                                      "description": "Last modification the newsroom states",
+                                      "nullable": true
+                                    },
+                                    "categories": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "required": [
+                                          "id",
+                                          "label",
+                                          "url"
+                                        ],
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "nullable": true,
+                                            "description": "The newsroom's own id of the label, when it has one"
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "description": "The label as the newsroom shows it"
+                                          },
+                                          "url": {
+                                            "type": "string",
+                                            "nullable": true,
+                                            "description": "The newsroom's page of the label"
+                                          }
+                                        }
+                                      },
+                                      "description": "The newsroom's own categories"
+                                    },
+                                    "tags": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "required": [
+                                          "id",
+                                          "label",
+                                          "url"
+                                        ],
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "nullable": true,
+                                            "description": "The newsroom's own id of the label, when it has one"
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "description": "The label as the newsroom shows it"
+                                          },
+                                          "url": {
+                                            "type": "string",
+                                            "nullable": true,
+                                            "description": "The newsroom's page of the label"
+                                          }
+                                        }
+                                      },
+                                      "description": "The newsroom's own tags"
+                                    }
+                                  }
+                                },
+                                "description": "The companies' own verified publications of the item, oldest first (at most 10)"
+                              },
+                              "publications_truncated": {
+                                "type": "boolean",
+                                "description": "More than 10 publications exist (the detail lists every sighting)"
+                              },
+                              "model_processing_allowed": {
+                                "type": "boolean",
+                                "description": "Whether the publisher's text (lede, body) may be processed by AI models; API access alone does not authorize forwarding text into models"
+                              },
+                              "attribution": {
+                                "type": "object",
+                                "description": "Who published the text, where and when (show publisher, source URL and date wherever you show the text)",
+                                "required": [
+                                  "publisher",
+                                  "publisher_host",
+                                  "source_url",
+                                  "published_at",
+                                  "rights",
+                                  "edgar",
+                                  "statement"
+                                ],
+                                "properties": {
+                                  "publisher": {
+                                    "type": "string",
+                                    "description": "Publisher (and © holder) of the text: the company, or SEC EDGAR for a filing"
+                                  },
+                                  "publisher_host": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Host of the original URL"
+                                  },
+                                  "source_url": {
+                                    "type": "string",
+                                    "description": "The original publication the text was read from"
+                                  },
+                                  "published_at": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "description": "Publication time (ISO 8601 UTC)"
+                                  },
+                                  "rights": {
+                                    "type": "string",
+                                    "enum": [
+                                      "public_record",
+                                      "issuer"
+                                    ],
+                                    "description": "public_record = an SEC filing; issuer = the company's own publication"
+                                  },
+                                  "edgar": {
+                                    "type": "object",
+                                    "nullable": true,
+                                    "description": "The filing of an SEC item; null otherwise",
+                                    "required": [
+                                      "form",
+                                      "accession"
+                                    ],
+                                    "properties": {
+                                      "form": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "description": "SEC form type (8-K, 6-K, …)"
+                                      },
+                                      "accession": {
+                                        "type": "string",
+                                        "description": "SEC accession number"
+                                      }
+                                    }
+                                  },
+                                  "statement": {
+                                    "type": "string",
+                                    "enum": [
+                                      "Reproduced verbatim from the publisher; © the publisher. Source and date above."
+                                    ],
+                                    "description": "The attribution sentence to carry with the text"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "field": {
+                            "type": "string",
+                            "enum": [
+                              "title",
+                              "lede",
+                              "body"
+                            ],
+                            "description": "Where it matched: the headline, the lede or a passage of the text"
+                          },
+                          "score": {
+                            "type": "number",
+                            "description": "Relevance per mode: lexical = ts_rank_cd (4 decimals), literal = 0 (newest first)"
+                          },
+                          "match": {
+                            "$ref": "#/components/schemas/HitMatch"
+                          },
+                          "text": {
+                            "type": "string",
+                            "description": "The matched passage (≤ 600 characters, cut on word boundaries around the first match)"
+                          },
+                          "text_truncated": {
+                            "type": "boolean",
+                            "description": "true = text is shorter than the passage"
+                          },
+                          "block": {
+                            "type": "object",
+                            "nullable": true,
+                            "required": [
+                              "id",
+                              "index",
+                              "heading",
+                              "page"
+                            ],
+                            "description": "The text block the passage is from (see /v1/news/{id}/text); null for a headline or lede",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Block id (`blocks[].block_id` of the text route)"
+                              },
+                              "index": {
+                                "type": "integer",
+                                "description": "Position of the block in the item's text"
+                              },
+                              "heading": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Nearest heading above the block"
+                              },
+                              "page": {
+                                "type": "integer",
+                                "nullable": true,
+                                "description": "Page, when the text has pages"
+                              }
+                            }
+                          },
+                          "chunk_index": {
+                            "type": "integer",
+                            "description": "Position of the passage among the item's passages (-1 for a headline or lede)"
+                          },
+                          "model_processing_allowed": {
+                            "type": "boolean",
+                            "description": "false = the publisher reserved text and data mining: do not pass the text to a model"
+                          }
+                        }
+                      },
+                      "description": "Passages, best first"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailableError"
+          }
+        },
+        "x-tier": "standard",
+        "x-credits": 10,
+        "x-license": "display",
+        "x-example-params": [
+          "ticker",
+          "mode"
+        ]
+      }
+    },
     "/v1/sec-filings/filings": {
       "get": {
         "operationId": "secFilingsList",
