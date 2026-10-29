@@ -452,4 +452,34 @@ describe('the real manifest', () => {
     expect(requestedUrl()).toBe('https://api.example.com/status');
     expect(err).toEqual(['credits: 0 · included left: 7']);
   });
+
+  it('news get prints the attribution block before the body; news list --all follows the cursor next_url', async () => {
+    const out: string[] = [];
+    vi.spyOn(console, 'log').mockImplementation((line?: unknown) => { out.push(String(line ?? '')); });
+    const id = '4c1d9e62-3b7a-4f2e-8d1c-9e0a7b6c5d4f';
+    respond({
+      id, published_at: '2026-10-28T20:05:10Z', title: 'NVIDIA Results — Q3 FY2027', kind: 'earnings_results', source: { id: 'edgar' },
+      url: 'https://www.sec.gov/x', content_status: 'available', body_text: 'SANTA CLARA — NVIDIA reported …',
+      attribution: {
+        publisher: 'NVIDIA Corporation', publisher_host: null, source_url: 'https://www.sec.gov/x', published_at: '2026-10-28T20:05:10Z',
+        rights: 'public_record', edgar: { form: '8-K', accession: '0001045810-26-000123' }, statement: 'Reproduced verbatim from the publisher; © the publisher. Source and date above.',
+      },
+    });
+    await createProgram().exitOverride().parseAsync(['node', 'invd', 'news', 'get', '--id', id]);
+    expect(requestedUrl(0)).toBe(`https://api.example.com/v1/news/${id}`);
+    const text = out.join('\n').replace(/\x1b\[[0-9;]*m/g, '');
+    for (const key of ['attribution.publisher', 'attribution.source_url', 'attribution.published_at', 'attribution.edgar.form', 'attribution.edgar.accession', 'attribution.statement']) {
+      expect(text.indexOf(key), key).toBeGreaterThanOrEqual(0);
+      expect(text.indexOf(key), key).toBeLessThan(text.indexOf('body_text'));
+    }
+    expect(text).toContain('0001045810-26-000123');
+
+    const row = (n: number) => ({ id: `id-${n}`, published_at: '2026-10-29T13:03:22Z', source: { id: 'edgar' }, kind: 'other', is_earnings_news: false, symbols: ['NVDA'], title: `t${n}`, attribution: { publisher: 'NVIDIA Corporation' } });
+    respond({ items: [row(1)], next_cursor: 'c1', next_url: 'https://api.example.com/v1/news?ticker=NVDA&cursor=c1&from=2026-10-22&to=2026-10-29' });
+    respond({ items: [row(2)], next_cursor: null, next_url: null });
+    out.length = 0;
+    await createProgram().exitOverride().parseAsync(['node', 'invd', '--json', '--all', 'news', 'list', '--ticker', 'NVDA']);
+    expect(new URL(requestedUrl(2)).searchParams.get('cursor')).toBe('c1');
+    expect(JSON.parse(out.join('\n')).items.map((item: { id: string }) => item.id)).toEqual(['id-1', 'id-2']);
+  });
 });

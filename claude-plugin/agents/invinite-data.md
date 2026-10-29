@@ -1,6 +1,6 @@
 ---
 name: invinite-data
-description: Fetches financial data from the Invinite Data API for analysis. Use this agent whenever you need company financials, SEC filings, institutional ownership, insider trades, financial ratios, growth metrics, earnings calls (calendar, transcripts, guidance and KPIs, Q&A, press releases, slides), or any stock/company data. Delegate to this agent when the user asks for financial data retrieval, company research, or comparative financial analysis — even if they don't mention "Invinite" explicitly. This agent knows how to efficiently query the right endpoints, combine data from multiple sources, and return structured results ready for analysis.
+description: Fetches financial data from the Invinite Data API for analysis. Use this agent whenever you need company financials, SEC filings, institutional ownership, insider trades, financial ratios, growth metrics, earnings calls (calendar, transcripts, guidance and KPIs, Q&A, press releases, slides), company news (SEC filings and the companies' own newsroom announcements), or any stock/company data. Delegate to this agent when the user asks for financial data retrieval, company research, or comparative financial analysis — even if they don't mention "Invinite" explicitly. This agent knows how to efficiently query the right endpoints, combine data from multiple sources, and return structured results ready for analysis.
 tools: Bash(invd *), Read, Glob, Grep
 skills:
   - invinite-data-cli
@@ -44,6 +44,7 @@ Common multi-step patterns:
 - **Comparative analysis**: metadata metrics (first) + financials snapshot with multiple tickers + metrics ratios for each
 - **Earnings call review**: earnings events (first, for the `event_id`) → then in parallel press-release + extractions `--kind guidance` + extractions `--kind kpi` + qa + diff (+ optionally price-attribution: minute price moves next to what was said — temporal coincidence, not cause)
 - **Guidance tracking**: earnings guidance-history `--metric <metric>` across calls + extractions of the latest call
+- **Company announcements**: news list `--publisher <cik>` (what the company published itself; `--ticker` = items mentioning it) → news get `--id <id>` for `body_text` + news developments `--publisher <cik>`; keep each item's `attribution` (publisher, `source_url`, `published_at`, EDGAR form + accession) in the results so the caller can cite it
 
 ## Output format
 

@@ -1,6 +1,6 @@
 {
   "specVersion": "1.0.0",
-  "specSha256": "80e6d6761969f235e4cb63a120e21b0955b65992a901e661517b88305a32d502",
+  "specSha256": "e2b8dfb1d787c57144a713e3a36f6d3e419cdbf85f41f092f2d89b8647d535fa",
   "groups": [
     {
       "name": "company",
@@ -41,6 +41,10 @@
     {
       "name": "metrics",
       "description": "Ratios, growth and CAGR derived from the statements"
+    },
+    {
+      "name": "news",
+      "description": "News of US companies from SEC filings and their own newsrooms: items, full text with attribution, developments and files"
     },
     {
       "name": "ownership",
@@ -1136,8 +1140,8 @@
           "in": "query",
           "required": true,
           "type": "string",
-          "example": "revenue",
-          "description": "Normalized metric (e.g. revenue, eps_non_gaap, segment:iphone)"
+          "example": "revenue_growth",
+          "description": "Normalized metric (e.g. revenue, eps_non_gaap, revenue_growth, segment:iphone)"
         },
         {
           "name": "period_kind",
@@ -4727,6 +4731,410 @@
       "pagination": "perCompany",
       "allItemsPath": [
         "periods"
+      ]
+    },
+    {
+      "operationId": "newsAssetDownload",
+      "group": "news",
+      "action": "asset-download",
+      "method": "get",
+      "path": "/v1/news/{id}/assets/{asset_id}/download",
+      "auth": true,
+      "summary": "Get a short-lived URL of a news image or file",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "4c1d9e62-3b7a-4f2e-8d1c-9e0a7b6c5d4f",
+          "description": "News item id"
+        },
+        {
+          "name": "asset_id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "7e2f0c19-5a8b-4d3e-9f1a-2b6c8d0e4a7b",
+          "description": "Asset id (`assets[].id` of the item)"
+        }
+      ],
+      "view": "keyValue",
+      "columns": [
+        "purpose",
+        "url",
+        "expires_at",
+        "content_type",
+        "credit"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "newsDevelopments",
+      "group": "news",
+      "action": "developments",
+      "method": "get",
+      "path": "/v1/news/developments",
+      "auth": true,
+      "summary": "List company developments from news",
+      "params": [
+        {
+          "name": "publisher",
+          "in": "query",
+          "required": false,
+          "type": "array",
+          "items": "string",
+          "example": [
+            "1045810"
+          ],
+          "description": "Published by these companies (CIK, padded or not; ≤ 20): an item with a verified issuer-newsroom publication of one of them — not a mention, not the item's first source. The CIK namespace is the SEC's"
+        },
+        {
+          "name": "topic",
+          "in": "query",
+          "required": false,
+          "type": "array",
+          "items": "string",
+          "example": [
+            "product_launch"
+          ],
+          "description": "Only these topics, comma-separated or repeated: product_launch, product_update, availability, partnership, customer_contract, capacity_expansion, regulatory, research"
+        },
+        {
+          "name": "item_id",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "4c1d9e62-3b7a-4f2e-8d1c-9e0a7b6c5d4f",
+          "description": "Only the developments of this news item"
+        },
+        {
+          "name": "from",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-10-22",
+          "description": "Start of the announcement window: an ISO 8601 instant or a day (YYYY-MM-DD, from its UTC midnight). Default: `to` minus 7 days"
+        },
+        {
+          "name": "to",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-10-29",
+          "description": "End of the announcement window: an ISO 8601 instant (exclusive) or a day (inclusive). Default: now. At most 92 days after `from` (400 otherwise)"
+        },
+        {
+          "name": "effective_from",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-10-01",
+          "description": "Effective on or after this day (developments without an effective date are left out)"
+        },
+        {
+          "name": "effective_to",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-12-31",
+          "description": "Effective on or before this day (developments without an effective date are left out)"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 50,
+          "example": 20,
+          "description": "Developments per page"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "WyIyMDI2LTEwLTI5VDIwOjMwOjA1LjEyMzQ1NloiLCI0YzFkOWU2Mi0zYjdhLTRmMmUtOGQxYy05ZTBhN2I2YzVkNGYiXQ",
+          "description": "`next_cursor` of the previous page (with the same filters); an altered or foreign cursor is a 400 `invalid_cursor`"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "developments",
+      "columns": [
+        "announced_at",
+        "topic",
+        "claim_status",
+        "title",
+        "item.attribution.publisher"
+      ],
+      "pagination": "top",
+      "allItemsPath": [
+        "developments"
+      ]
+    },
+    {
+      "operationId": "newsItem",
+      "group": "news",
+      "action": "get",
+      "method": "get",
+      "path": "/v1/news/{id}",
+      "auth": true,
+      "summary": "Get a news item",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "4c1d9e62-3b7a-4f2e-8d1c-9e0a7b6c5d4f",
+          "description": "News item id"
+        }
+      ],
+      "view": "keyValue",
+      "columns": [
+        "id",
+        "published_at",
+        "title",
+        "kind",
+        "source.id",
+        "url",
+        "content_status",
+        "attribution.publisher",
+        "attribution.publisher_host",
+        "attribution.source_url",
+        "attribution.published_at",
+        "attribution.rights",
+        "attribution.edgar.form",
+        "attribution.edgar.accession",
+        "attribution.statement",
+        "body_text"
+      ],
+      "pagination": "none"
+    },
+    {
+      "operationId": "newsItems",
+      "group": "news",
+      "action": "list",
+      "method": "get",
+      "path": "/v1/news",
+      "auth": true,
+      "summary": "List news items",
+      "params": [
+        {
+          "name": "ticker",
+          "in": "query",
+          "required": false,
+          "type": "array",
+          "items": "string",
+          "example": [
+            "NVDA"
+          ],
+          "description": "Items mentioning these tickers (≤ 20, comma-separated or repeated). `BRK.B` and `BRK-B` both match; responses carry the stored dash spelling. With `cik`, either matches"
+        },
+        {
+          "name": "cik",
+          "in": "query",
+          "required": false,
+          "type": "array",
+          "items": "string",
+          "example": [
+            "1045810"
+          ],
+          "description": "Items mentioning these companies by CIK (padded or not, ≤ 20). With `ticker`, either matches"
+        },
+        {
+          "name": "from",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-10-22",
+          "description": "Start of the publication window: an ISO 8601 instant or a day (YYYY-MM-DD, from its UTC midnight). Default: `to` minus 7 days"
+        },
+        {
+          "name": "to",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-10-29",
+          "description": "End of the publication window: an ISO 8601 instant (exclusive) or a day (inclusive). Default: now. At most 92 days after `from` (400 otherwise)"
+        },
+        {
+          "name": "source",
+          "in": "query",
+          "required": false,
+          "type": "array",
+          "items": "string",
+          "example": [
+            "edgar"
+          ],
+          "description": "The item's FIRST source: `edgar` (an SEC filing) or `ir` (any company newsroom), comma-separated or repeated"
+        },
+        {
+          "name": "kind",
+          "in": "query",
+          "required": false,
+          "type": "array",
+          "items": "string",
+          "example": [
+            "earnings_results"
+          ],
+          "description": "Only these kinds, comma-separated or repeated: earnings_results, results_date, call_announcement, event_announcement, guidance, m_and_a, material_agreement, management_change, dividend, capital_markets, legal_spam, promo, other"
+        },
+        {
+          "name": "topic",
+          "in": "query",
+          "required": false,
+          "type": "array",
+          "items": "string",
+          "example": [
+            "product_launch"
+          ],
+          "description": "Only these topics (any of them), comma-separated or repeated: product_launch, product_update, availability, partnership, customer_contract, capacity_expansion, regulatory, research, other"
+        },
+        {
+          "name": "earnings",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "example": "true",
+          "description": "true = only earnings news (results, results dates, call announcements, guidance); false = none of it"
+        },
+        {
+          "name": "publisher",
+          "in": "query",
+          "required": false,
+          "type": "array",
+          "items": "string",
+          "example": [
+            "1045810"
+          ],
+          "description": "Published by these companies (CIK, padded or not; ≤ 20): an item with a verified issuer-newsroom publication of one of them — not a mention, not the item's first source. The CIK namespace is the SEC's"
+        },
+        {
+          "name": "publication_type",
+          "in": "query",
+          "required": false,
+          "type": "array",
+          "items": "string",
+          "example": [
+            "press_release"
+          ],
+          "description": "Only these publication types of the issuer's own publication, comma-separated or repeated: press_release, company_blog, company_update"
+        },
+        {
+          "name": "issuer_category",
+          "in": "query",
+          "required": false,
+          "type": "array",
+          "items": "string",
+          "example": [
+            "Press Releases"
+          ],
+          "description": "The publisher's own newsroom category, by exact label or by the publisher's category id (≤ 10); needs exactly one `publisher` — labels and ids are per newsroom"
+        },
+        {
+          "name": "issuer_tag",
+          "in": "query",
+          "required": false,
+          "type": "array",
+          "items": "string",
+          "example": [
+            "Data Center"
+          ],
+          "description": "The publisher's own newsroom tag, by exact label or id (≤ 10); needs exactly one `publisher`"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 50,
+          "example": 20,
+          "description": "Items per page"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "WyIyMDI2LTEwLTI5VDIwOjMwOjA1LjEyMzQ1NloiLCI0YzFkOWU2Mi0zYjdhLTRmMmUtOGQxYy05ZTBhN2I2YzVkNGYiXQ",
+          "description": "`next_cursor` of the previous page (with the same filters); an altered or foreign cursor is a 400 `invalid_cursor`"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "items",
+      "columns": [
+        "published_at",
+        "source.id",
+        "kind",
+        "is_earnings_news",
+        "symbols",
+        "title",
+        "attribution.publisher"
+      ],
+      "pagination": "top",
+      "allItemsPath": [
+        "items"
+      ]
+    },
+    {
+      "operationId": "newsItemText",
+      "group": "news",
+      "action": "text",
+      "method": "get",
+      "path": "/v1/news/{id}/text",
+      "auth": true,
+      "summary": "Get a news item's text in blocks",
+      "params": [
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 10,
+          "example": 20,
+          "description": "Blocks per page"
+        },
+        {
+          "name": "max_chars",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 12000,
+          "example": 12000,
+          "description": "Unicode code points per page; a block is never split (the minimum is the largest block)"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "WyIyMDI2LTEwLTI5VDIwOjMwOjA1LjEyMzQ1NloiLCI0YzFkOWU2Mi0zYjdhLTRmMmUtOGQxYy05ZTBhN2I2YzVkNGYiXQ",
+          "description": "`next_cursor` of the previous page (with the same filters); an altered or foreign cursor is a 400 `invalid_cursor`"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "4c1d9e62-3b7a-4f2e-8d1c-9e0a7b6c5d4f",
+          "description": "News item id"
+        }
+      ],
+      "view": "table",
+      "rowsPath": "blocks",
+      "columns": [
+        "index",
+        "heading",
+        "text"
+      ],
+      "pagination": "top",
+      "allItemsPath": [
+        "blocks"
       ]
     },
     {

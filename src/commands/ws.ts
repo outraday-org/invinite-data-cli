@@ -9,6 +9,7 @@ import {
   parseTarget,
   type KeywordOptions,
 } from '../client/earnings-live.js';
+import { parseCiks, parseNewsKinds, parseNewsSources, parseTickers, type NewsListenOptions } from '../client/news-live.js';
 import { withErrorHandling } from '../shared/errors.js';
 
 export interface ListenOptions {
@@ -22,6 +23,46 @@ export interface ListenOptions {
   keywordMatch?: string;
   speakerRoles?: string;
   minRank?: string;
+  news?: boolean;
+  tickers?: string;
+  ciks?: string;
+  newsKinds?: string;
+  newsSources?: string;
+  earningsNews?: boolean;
+}
+
+const NEWS_FLAGS = ['tickers', 'ciks', 'newsKinds', 'newsSources', 'earningsNews'] as const;
+
+const EARNINGS_FLAGS = ['sinceSeq', 'partials', 'names', 'prices', 'keywords', 'keywordMatch', 'speakerRoles', 'minRank'] as const;
+
+/**
+ * `ws listen` options → the `news.live` subscription, or null when `--news` is absent. Refused before connecting:
+ * `--news` with `--earnings` / `--all-live` or any live-call flag, and the news filters without `--news`.
+ */
+export function buildNewsOptions(cmdOpts: ListenOptions, json: boolean): NewsListenOptions | null {
+  if (!cmdOpts.news) {
+    if (NEWS_FLAGS.some(key => cmdOpts[key] !== undefined)) {
+      throw new Error('--tickers, --ciks, --news-kinds, --news-sources and --earnings-news need --news');
+    }
+    return null;
+  }
+  if (cmdOpts.earnings !== undefined) throw new Error('--news and --earnings exclude each other');
+  if (cmdOpts.allLive) throw new Error('--news and --all-live exclude each other');
+  if (EARNINGS_FLAGS.some(key => cmdOpts[key] !== undefined)) {
+    throw new Error('--since-seq, --partials, --names, --prices, --keywords, --keyword-match, --speaker-roles and --min-rank follow a live call; not with --news');
+  }
+  const tickers = parseTickers(cmdOpts.tickers);
+  const ciks = parseCiks(cmdOpts.ciks);
+  const kinds = parseNewsKinds(cmdOpts.newsKinds);
+  const sources = parseNewsSources(cmdOpts.newsSources);
+  return {
+    ...(tickers ? { tickers } : {}),
+    ...(ciks ? { ciks } : {}),
+    ...(kinds ? { kinds } : {}),
+    ...(sources ? { sources } : {}),
+    earningsOnly: Boolean(cmdOpts.earningsNews),
+    json,
+  };
 }
 
 /**
@@ -74,7 +115,7 @@ export function registerWsCommands(program: Command): void {
 
   ws
     .command('listen')
-    .description('Listen to real-time SEC filing stream, or with --earnings follow a live earnings call transcript (with --keywords: keyword alerts; --all-live: keyword alerts across every live call)')
+    .description('Listen to real-time SEC filing stream, or with --earnings follow a live earnings call transcript (with --keywords: keyword alerts; --all-live: keyword alerts across every live call), or with --news new news items')
     .option('--earnings <event_id|cik>', 'Follow a live earnings call transcript (PRO): event ID (UUID) or CIK')
     .option('--all-live', 'Keyword alerts across every live call (PRO; needs --keywords)')
     .option('--since-seq <n>', 'Replay finals after this seq (default -1 = the whole call so far)')
@@ -85,8 +126,20 @@ export function registerWsCommands(program: Command): void {
     .option('--keyword-match <mode>', 'exact (default) or stem (tariff also hits "tariffs")')
     .option('--speaker-roles <list>', 'Only hits by these speakers: executive, ir_host, analyst, operator')
     .option('--min-rank <n>', 'With --all-live: only companies ranked ≤ n by market cap')
+    .option('--news', 'New news items (SEC filings and company newsrooms) as they are published (STANDARD); one line each, NDJSON with --json')
+    .option('--tickers <list>', 'With --news: items mentioning these tickers (≤ 50; with --ciks either matches). Default: every company')
+    .option('--ciks <list>', 'With --news: items mentioning these CIKs (≤ 50, padded or not)')
+    .option('--news-kinds <list>', 'With --news: only these kinds (earnings_results, guidance, m_and_a, dividend, …)')
+    .option('--news-sources <list>', 'With --news: edgar (SEC filings) and / or ir (company newsrooms)')
+    .option('--earnings-news', 'With --news: earnings news only (results, results dates, call announcements, guidance)')
     .action(withErrorHandling(async (cmdOpts: ListenOptions) => {
-      const earnings = buildListenOptions(cmdOpts, Boolean(program.opts().json));
+      const json = Boolean(program.opts().json);
+      const news = buildNewsOptions(cmdOpts, json);
+      if (news) {
+        await connectWebSocket({ news });
+        return;
+      }
+      const earnings = buildListenOptions(cmdOpts, json);
       await connectWebSocket(earnings ? { earnings } : {});
     }));
 }

@@ -214,9 +214,10 @@ command. A handful of commands are hand-written because they do more than one ca
 | `segments` | `list`, `list-detailed` |
 | `filings` | List, natural-language search, sections, form types |
 | `earnings` | Calendar, events, live calls, transcripts, Q&A, participants, analysts, guidance and KPI extractions, diff, metrics, prosody, price moves during the call, media, documents, search, company IR documents |
+| `news` | News of US companies from SEC filings and their own newsrooms: `list` (cursor-paged), `get` (full text + attribution), `text` (citable blocks), `developments`, `asset-download` |
 | `ownership` | 13F holdings by company / investor, institutions, transactions |
 | `insider-trades`, `ipos`, `market`, `metadata` | Insider transactions, IPOs, market holidays, available metric and filing-section ids |
-| `webhooks` | Earnings-call webhook subscriptions (PRO) |
+| `webhooks` | Earnings-call and `news.published` webhook subscriptions |
 | `usage`, `health`, `status` | Your account's usage (free), API liveness and status (no key) |
 
 ```bash
@@ -308,9 +309,34 @@ coincidence, not attribution of cause.
 
 ---
 
+### news
+
+News of US companies from SEC EDGAR filings (`rights: public_record`) and the companies' own newsrooms
+(`rights: issuer`); wire services are never a source. `--ticker` / `--cik` = items that mention a company,
+`--publisher <cik>` = items the company published itself (`--publication-type`, `--issuer-category`, `--issuer-tag`
+narrow its own publications). The list is cursor-paged: `--all` follows `next_url`, or pass `next_cursor` as
+`--cursor` with the same filters; the default window is the last 7 days (`--from` / `--to`, ≤ 92 days).
+
+Every item carries `attribution` (publisher, `source_url`, `published_at`, EDGAR form + accession, `statement`):
+wherever you show a headline or text, show its publisher, link and date with it. `news get` (STANDARD) has the
+`body_text` (`content_status: no_text` = headline and link only); `news text` serves it in blocks (a `409
+revision_changed` = the item was corrected; start again without `--cursor`). Process text with an AI model only when
+`model_processing_allowed` is `true`. `news asset-download` returns a URL valid for at most 60 seconds.
+
+```bash
+invd news list --ticker NVDA --json
+invd news list --publisher 1045810 --publication-type press_release --from 2026-10-01 --all --json
+invd news get --id <id> --json
+invd news text --id <id> --all --json
+invd news developments --publisher 1045810 --topic product_launch --json
+invd ws listen --news --tickers NVDA
+```
+
+---
+
 ### webhooks
 
-Earnings-call webhook subscriptions (PRO): signed, retried `POST`s of the call lifecycle to your HTTPS endpoint. Events: `earnings_call.scheduled`, `.rescheduled`, `.started`, `.ended`, `.transcript_provisional`, `.transcript_ready`, `.transcript_corrected`, `.assets_ready`, `.keyword_hit` (one delivery per mention of one of the subscription's keywords on a live call, with the speaker, `start_ms` and the sentence), `.guidance_flash` (a guidance number spoken live, before the final transcript), and `ping`. Deliveries carry `X-Invinite-Signature: t=…,v1=…` (HMAC-SHA256 of `<t>.<raw body>` with the secret) and are retried after 1 min, 5 min, 30 min, 2 h, 6 h, 12 h and 24 h.
+Earnings-call webhook subscriptions (PRO): signed, retried `POST`s of the call lifecycle to your HTTPS endpoint. Events: `earnings_call.scheduled`, `.rescheduled`, `.started`, `.ended`, `.transcript_provisional`, `.transcript_ready`, `.transcript_corrected`, `.assets_ready`, `.keyword_hit` (one delivery per mention of one of the subscription's keywords on a live call, with the speaker, `start_ms` and the sentence), `.guidance_flash` (a guidance number spoken live, before the final transcript), `news.published` (STANDARD and above: one delivery per new news item, `data.item` = a `news list` row, filtered by the CIKs it mentions), and `ping`. Deliveries carry `X-Invinite-Signature: t=…,v1=…` (HMAC-SHA256 of `<t>.<raw body>` with the secret) and are retried after 1 min, 5 min, 30 min, 2 h, 6 h, 12 h and 24 h.
 
 `webhooks create` and `webhooks update` take the request body as `--body '<json>'` or `--body-file <path>` (`-` reads
 stdin); the other commands take the subscription as `--id`. `create` **prints the signing secret once**; `rotate-secret`
@@ -320,6 +346,7 @@ prints a new one (the old one stays valid for 5 minutes); `test` queues a signed
 ```bash
 invd webhooks create --body '{"url":"https://hooks.example.com/invinite","events":["earnings_call.transcript_ready","earnings_call.started"],"filters":{"ciks":["320193"]}}'
 invd webhooks create --body '{"url":"https://hooks.example.com/alerts","events":["earnings_call.keyword_hit"],"filters":{"keywords":["tariffs","buyback"]}}'   # every company
+invd webhooks create --body '{"url":"https://hooks.example.com/news","events":["news.published"],"filters":{"ciks":["1045810"]}}'
 invd webhooks update --id <id> --body '{"keywords":["tariffs","china","buyback"]}'
 invd webhooks update --id <id> --body '{"active":false}'
 invd webhooks test --id <id>
@@ -334,7 +361,7 @@ Real-time WebSocket streaming.
 
 #### `ws listen`
 
-Listen to real-time SEC filing notifications, or with `--earnings` follow one earnings call's live transcript (PRO), or with `--all-live --keywords` get keyword alerts across every live call. Automatically reconnects on disconnection with exponential backoff.
+Listen to real-time SEC filing notifications, or with `--earnings` follow one earnings call's live transcript (PRO), or with `--all-live --keywords` get keyword alerts across every live call, or with `--news` get new news items as they are published (STANDARD). Automatically reconnects on disconnection with exponential backoff.
 
 | Option | Description |
 |--------|-------------|
@@ -348,6 +375,12 @@ Listen to real-time SEC filing notifications, or with `--earnings` follow one ea
 | `--keyword-match exact\|stem` | `exact` (default) matches the word; `stem` also its inflections (`tariff` hits "tariffs") |
 | `--speaker-roles <list>` | Only hits by these speakers: `executive`, `ir_host`, `analyst`, `operator` |
 | `--min-rank <n>` | With `--all-live`: only companies ranked ≤ n by market cap |
+| `--news` | New news items (channel `news.live`); excludes `--earnings`, `--all-live` and the live-call flags |
+| `--tickers <list>` | With `--news`: items mentioning these tickers (≤ 50; `BRK.B` = `BRK-B`; with `--ciks` either matches). Default: every company |
+| `--ciks <list>` | With `--news`: items mentioning these CIKs (≤ 50, padded or not) |
+| `--news-kinds <list>` | With `--news`: only these kinds (`earnings_results`, `results_date`, `call_announcement`, `event_announcement`, `guidance`, `m_and_a`, `material_agreement`, `management_change`, `dividend`, `capital_markets`, `legal_spam`, `promo`, `other`) |
+| `--news-sources <list>` | With `--news`: `edgar` (SEC filings) and / or `ir` (company newsrooms) |
+| `--earnings-news` | With `--news`: earnings news only |
 
 ```bash
 invd ws listen
@@ -377,6 +410,14 @@ invd ws listen --all-live --keywords tariffs --json | jq -r 'select(.type=="keyw
 
 ```bash
 invd ws listen --earnings <event_id> --prices
+```
+
+**Live news.** `--news` subscribes to `news.live` and prints one line per new item — publication time (UTC), source (`SEC EDGAR` or the newsroom's host), tickers, headline, link — and ignores the filing broadcasts; `--json` emits every news frame as one JSON line (`news_item.item` = a `news list` row with its `attribution`). Items published while disconnected are not replayed: `invd news list` has them. A plan without the channel ends the run (`news.live needs the STANDARD plan`).
+
+```bash
+invd ws listen --news --tickers NVDA
+# 2026-10-29 13:03:22Z  nvidianews.nvidia.com  NVDA  NVIDIA Announces Rubin Platform  https://nvidianews.nvidia.com/news/…
+invd ws listen --news --ciks 1045810 --news-sources ir --json | jq -r 'select(.type=="news_item") | .item.title'
 ```
 
 Finals are named from the newest speaker-name snapshot (`Speaker A` until a name is known). A `gap` line marks a seq range with no final yet (a late final may still follow on the same subscription, so finals can print slightly out of order); `resume_unavailable` means missed finals cannot be replayed right now — live delivery continues and the API back-fills them once it can. Neither needs a re-subscribe. After a reconnect the listener resumes after the last final it printed; it exits once the final transcript is ready (`invd earnings transcript --event-id <id>`). With `--json` every frame is one JSON line (NDJSON), e.g. `invd ws listen --earnings 320193 --json | jq -r 'select(.type=="transcript_segment") | .text'`.

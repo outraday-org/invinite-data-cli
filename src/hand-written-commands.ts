@@ -9,7 +9,7 @@ export const HAND_WRITTEN_COMMANDS = [
   { command: 'logout', reason: 'clears the local credential store' },
   { command: 'config', reason: 'local settings (API key, API host)' },
   { command: 'plugin', reason: 'copies the bundled Claude plugin into agent config dirs' },
-  { command: 'ws', reason: 'WebSocket stream (/v1/ws); --earnings is the live transcript (src/client/earnings-live.ts)' },
+  { command: 'ws', reason: 'WebSocket stream (/v1/ws); --earnings is the live transcript (src/client/earnings-live.ts), --news the news.live channel (src/client/news-live.ts)' },
   { command: 'earnings transcript', reason: 'renders the transcript as text and saves it with -o' },
   { command: 'earnings press-release', reason: 'prints the release text with --body and saves it with -o' },
   { command: 'earnings audio', reason: 'downloads the recording from its URL with -o' },

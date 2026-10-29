@@ -11,6 +11,7 @@ import {
   type LiveState,
   type LiveTarget,
 } from './earnings-live.js';
+import { isNewsFrame, newsStep, newsSubscribeFrame, type NewsListenOptions } from './news-live.js';
 
 export interface EarningsListenOptions {
   target: LiveTarget;
@@ -30,13 +31,16 @@ const PERMANENT_CLOSE_CODES = new Set([4001, 4003, 4029]);
 
 const CLEAR_LINE = '\r\x1b[2K';
 
-export async function connectWebSocket(opts: { earnings?: EarningsListenOptions } = {}): Promise<void> {
+/** `earnings` and `news` exclude each other (`ws listen` refuses both); neither = the filing stream. */
+export async function connectWebSocket(opts: { earnings?: EarningsListenOptions; news?: NewsListenOptions } = {}): Promise<void> {
   const apiKey = await getApiKey();
   const base = getBaseUrl().replace(/\/+$/, '').replace(/^http/, 'ws');
   const url = `${base}/v1/ws?api_key=${encodeURIComponent(apiKey)}`;
   const earnings = opts.earnings;
+  const news = opts.news;
+  const ndjson = Boolean(earnings?.json || news?.json);
   const status = (line: string) => {
-    if (!earnings?.json) console.log(line);
+    if (!ndjson) console.log(line);
   };
 
   let reconnectDelay = 1000;
@@ -88,6 +92,23 @@ export async function connectWebSocket(opts: { earnings?: EarningsListenOptions 
       }
     }
 
+    function handleNews(ws: WebSocket, data: Record<string, any>) {
+      if (!news) return;
+      if (news.json) console.log(JSON.stringify(data));
+      const step = newsStep(data);
+      if (!news.json) for (const line of step.lines) console.log(line);
+      if (step.end) {
+        if (step.end.code === 0) {
+          status(chalk.dim(step.end.message));
+          finish();
+        } else {
+          finish(new Error(step.end.message));
+        }
+      } else if (step.reconnect) {
+        ws.close();
+      }
+    }
+
     function connect() {
       status(chalk.dim('Connecting to WebSocket...'));
       const ws = new WebSocket(url);
@@ -102,6 +123,10 @@ export async function connectWebSocket(opts: { earnings?: EarningsListenOptions 
           status(chalk.green(`Connected; subscribing to ${what}`));
           // A reconnect resumes after the last printed final (the API replays the gap).
           ws.send(JSON.stringify(subscribeFrame(earnings.target, live.lastSeq, earnings.partials, earnings.keywords, earnings.prices)));
+        } else if (news) {
+          status(chalk.green('Connected; subscribing to news.live'));
+          // Items published while disconnected are not replayed: `invd news list` has them.
+          ws.send(JSON.stringify(newsSubscribeFrame(news)));
         } else {
           console.log(chalk.green('Connected to filing stream'));
         }
@@ -111,7 +136,10 @@ export async function connectWebSocket(opts: { earnings?: EarningsListenOptions 
         try {
           const data = JSON.parse(String(event.data));
           if (data.type === 'ping') return;
-          if (earnings) {
+          if (news) {
+            // Only news frames: the filing broadcasts on the same socket are not what --news asked for.
+            if (isNewsFrame(data)) handleNews(ws, data);
+          } else if (earnings) {
             handleEarnings(ws, data);
           } else if (data.type === 'new_filing') {
             const f = data.filing;
@@ -121,7 +149,7 @@ export async function connectWebSocket(opts: { earnings?: EarningsListenOptions 
             console.log(JSON.stringify(data, null, 2));
           }
         } catch {
-          if (!earnings) console.log(String(event.data));
+          if (!earnings && !news) console.log(String(event.data));
         }
       });
 
@@ -138,7 +166,7 @@ export async function connectWebSocket(opts: { earnings?: EarningsListenOptions 
       });
 
       ws.addEventListener('error', (error) => {
-        if (!earnings?.json) console.error(chalk.red('WebSocket error:'), error);
+        if (!ndjson) console.error(chalk.red('WebSocket error:'), error);
       });
     }
 

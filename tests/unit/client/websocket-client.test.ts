@@ -163,3 +163,73 @@ describe('connectWebSocket --earnings', () => {
     expect(FakeSocket.instances).toHaveLength(1);
   });
 });
+
+describe('connectWebSocket --news', () => {
+  let logs: string[];
+
+  beforeEach(() => {
+    FakeSocket.instances = [];
+    vi.stubGlobal('WebSocket', FakeSocket);
+    logs = [];
+    vi.spyOn(console, 'log').mockImplementation((line?: unknown) => {
+      logs.push(String(line));
+    });
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.mocked(console.log).mockRestore();
+    vi.mocked(console.error).mockRestore();
+  });
+
+  const ITEM = {
+    id: '4c1d9e62-3b7a-4f2e-8d1c-9e0a7b6c5d4f',
+    title: 'NVIDIA Announces Rubin Platform',
+    url: 'https://nvidianews.nvidia.com/news/rubin',
+    published_at: '2026-10-29T13:03:22.000Z',
+    symbols: ['NVDA'],
+    source: { id: 'ir:nvidianews.nvidia.com' },
+    is_earnings_news: false,
+  };
+
+  it('subscribes with the filters, prints one line per item before any other branch, ignores filings', async () => {
+    const done = connectWebSocket({ news: { tickers: ['NVDA'], earningsOnly: false, json: false } });
+    await vi.waitFor(() => expect(FakeSocket.instances).toHaveLength(1));
+    const socket = FakeSocket.instances[0];
+    socket.emit('open');
+    expect(socket.sent).toEqual([{ type: 'subscribe', channel: 'news.live', tickers: ['NVDA'] }]);
+    socket.frame({ type: 'subscribed', channel: 'news.live', filters: { tickers: ['NVDA'], ciks: [], earnings_only: false, kinds: [], sources: [] } });
+    socket.frame({ type: 'new_filing', filing: { form_type: '8-K', cik: '1045810', filing_date: '2026-10-29' } });
+    socket.frame({ type: 'news_item', channel: 'news.live', item: ITEM });
+    socket.frame({ type: 'unsubscribed', channel: 'news.live' });
+    await done;
+    const out = logs.join('\n');
+    expect(out).toContain('news.live · tickers NVDA');
+    expect(out).toMatch(/2026-10-29 13:03:22Z\s+nvidianews\.nvidia\.com\s+.*NVDA.*NVIDIA Announces Rubin Platform/);
+    expect(out).not.toContain('8-K');
+  });
+
+  it('prints NDJSON only under --json', async () => {
+    const done = connectWebSocket({ news: { earningsOnly: true, json: true } });
+    await vi.waitFor(() => expect(FakeSocket.instances).toHaveLength(1));
+    const socket = FakeSocket.instances[0];
+    socket.emit('open');
+    expect(socket.sent).toEqual([{ type: 'subscribe', channel: 'news.live', earnings_only: true }]);
+    const frame = { type: 'news_item', channel: 'news.live', item: ITEM };
+    socket.frame(frame);
+    socket.frame({ type: 'unsubscribed', channel: 'news.live' });
+    await done;
+    expect(logs).toEqual([JSON.stringify(frame), JSON.stringify({ type: 'unsubscribed', channel: 'news.live' })]);
+  });
+
+  it('a news error frame ends the run; the earnings error of the same type is not read as news', async () => {
+    const done = connectWebSocket({ news: { earningsOnly: false, json: false } });
+    await vi.waitFor(() => expect(FakeSocket.instances).toHaveLength(1));
+    const socket = FakeSocket.instances[0];
+    socket.emit('open');
+    socket.frame({ type: 'error', code: 'not_live', message: 'earnings' });
+    socket.frame({ type: 'error', channel: 'news.live', code: 'forbidden_tier', message: 'Requires STANDARD' });
+    await expect(done).rejects.toThrow('news.live needs the STANDARD plan');
+  });
+});
