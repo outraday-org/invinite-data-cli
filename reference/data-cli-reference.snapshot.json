@@ -11,8 +11,8 @@
     },
     "verifiedOn": "2026-10-29",
     "sourceHashes": {
-      "api-contract.json": "5324bed890543f52ee502db6a53e0b319b34d97fddc588d9d5bc0b94f4b1f697",
-      "openapi.json": "e2b8dfb1d787c57144a713e3a36f6d3e419cdbf85f41f092f2d89b8647d535fa",
+      "api-contract.json": "1c8c3361703b8128deec8851a1721769f1d4665c07234cf83cf451aad314ef80",
+      "openapi.json": "6c548f91ff9a962b3dd46e4059a57540f1bee64691c69d704d6de35cef78190b",
       "package.json": "51d2a7d6f4fb6467cc9af90c20c496c568b8243bcfc369c9794c07890e40706f",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
@@ -35,7 +35,7 @@
       "src/formatters/json-formatter.ts": "0fa8904f4a31c7e0d10ac5eb6c4947c5d56079216e3c93349583ed02ef21b833",
       "src/formatters/table-formatter.ts": "56edfc931457289b4314107971d0021e237430131831199828a8bfd7b3e35c40",
       "src/formatters/time.ts": "f4d4e7c28b2f4610553a82cfdc55b585090c0f1cc6788f84acd6824b29e6bd0a",
-      "src/generated/cli-manifest.json": "286734df3cacfddba782e2cb7b199fb07e5f1b3da227e5779b788081a204423f",
+      "src/generated/cli-manifest.json": "e8631976acd16c26df0a631c4332d70bf7ab54e17812fa363ee7a5fabade4e42",
       "src/hand-written-commands.ts": "a629ceeb75c163aa0d2fbc31e019598c5d16490e4997854cd19e53c3bfeabc06",
       "src/shared/errors.ts": "3c379b53515a950fae853b9411bf456d3dfb21bcca4237d5730204045dca7097",
       "src/shared/options.ts": "6783cfa83b301857903bbde46edc238cd7adf80f05f0f33a7a883136de8a27b8",
@@ -46,9 +46,9 @@
       "src/spec-flags.ts": "ce66ba5acced7a6a295d4ad53ccfd62ebad713b6523ff5ccf98d892a53f49d37",
       "src/spec-manifest.ts": "5ea901757d497900b968c4badb7ed1086def58afb719f19a8a89a5bbba27925c"
     },
-    "specSha256": "e2b8dfb1d787c57144a713e3a36f6d3e419cdbf85f41f092f2d89b8647d535fa",
-    "revision": "78a202c9e0337daf31b15b90d3574d0854655cc4",
-    "fingerprint": "3ab097810ff18176a0ab03ccd491958bca60fbdd38beadfa7ae53eae99296245"
+    "specSha256": "6c548f91ff9a962b3dd46e4059a57540f1bee64691c69d704d6de35cef78190b",
+    "revision": "7cbf39ae44edd5f842bc57fa4e7844151f000598",
+    "fingerprint": "ab670787d0968fa6941fe303d97785032ecf40fbeae99279982104cc9033bded"
   },
   "globalOptions": [
     {
@@ -3978,6 +3978,95 @@
         {
           "flags": "--cursor <value>",
           "description": "`next_cursor` of the previous page (with the same filters); an altered or foreign cursor is a 400 `invalid_cursor` (e.g. WyIyMDI2LTEwLTI5VDIwOjMwOjA1LjEyMzQ1NloiLCI0YzFkOWU2Mi0zYjdhLTRmMmUtOGQxYy05ZTBhN2I2YzVkNGYiXQ)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "news search",
+      "group": "news",
+      "origin": "spec",
+      "description": "Search news",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/news/search"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-q, --q <value>",
+          "description": "The keywords or phrases (mode=lexical) or exact text (mode=literal) to search for (e.g. data center revenue)",
+          "required": true
+        },
+        {
+          "flags": "-m, --mode <value>",
+          "description": "lexical (keywords and phrases, default) or literal (exact characters) (default: \"lexical\"; e.g. lexical)",
+          "required": false,
+          "choices": [
+            "lexical",
+            "literal"
+          ]
+        },
+        {
+          "flags": "--case-sensitive <value>",
+          "description": "mode=literal only: \"false\" matches regardless of case (default \"true\": case-sensitive) (e.g. false)",
+          "required": false,
+          "choices": [
+            "true",
+            "false"
+          ]
+        },
+        {
+          "flags": "--field <value>",
+          "description": "title = headlines and ledes, body = the item text, any = both (default: \"any\"; e.g. any)",
+          "required": false,
+          "choices": [
+            "title",
+            "body",
+            "any"
+          ]
+        },
+        {
+          "flags": "-t, --ticker <list>",
+          "description": "Items mentioning these tickers (≤ 20, comma-separated or repeated). `BRK.B` and `BRK-B` both match; responses carry the stored dash spelling. With `cik`, either matches (comma-separated; e.g. NVDA)",
+          "required": false
+        },
+        {
+          "flags": "--cik <list>",
+          "description": "Items mentioning these companies by CIK (padded or not, ≤ 20). With `ticker`, either matches (comma-separated; e.g. 1045810)",
+          "required": false
+        },
+        {
+          "flags": "--publisher <list>",
+          "description": "Published by these companies (CIK, padded or not; ≤ 20): an item with a verified issuer-newsroom publication of one of them — not a mention, not the item's first source. The CIK namespace is the SEC's (comma-separated; e.g. 1045810)",
+          "required": false
+        },
+        {
+          "flags": "--kind <list>",
+          "description": "Only these kinds, comma-separated or repeated: earnings_results, results_date, call_announcement, event_announcement, guidance, m_and_a, material_agreement, management_change, dividend, capital_markets, legal_spam, promo, other (comma-separated; e.g. earnings_results)",
+          "required": false
+        },
+        {
+          "flags": "--topic <list>",
+          "description": "Only these topics (any of them), comma-separated or repeated: product_launch, product_update, availability, partnership, customer_contract, capacity_expansion, regulatory, research, other (comma-separated; e.g. product_launch)",
+          "required": false
+        },
+        {
+          "flags": "--from <value>",
+          "description": "Start of the publication window: an ISO 8601 instant or a day (YYYY-MM-DD, from its UTC midnight). Default: `to` minus 365 days (e.g. 2026-07-01)",
+          "required": false
+        },
+        {
+          "flags": "--to <value>",
+          "description": "End of the publication window: an ISO 8601 instant (exclusive) or a day (inclusive). Default: now. At most 731 days after `from` (400 otherwise) (e.g. 2026-10-29)",
+          "required": false
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Maximum number of passages (at most 8) (default: 5; e.g. 5)",
           "required": false
         }
       ]
