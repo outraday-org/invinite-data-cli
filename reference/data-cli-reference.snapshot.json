@@ -9,10 +9,10 @@
     "engines": {
       "node": ">=20"
     },
-    "verifiedOn": "2026-10-28",
+    "verifiedOn": "2026-10-29",
     "sourceHashes": {
-      "api-contract.json": "33c38298001a6ad4beb26424d16fb6adf2c44dace81ef6136f6e22f72994f1eb",
-      "openapi.json": "80e6d6761969f235e4cb63a120e21b0955b65992a901e661517b88305a32d502",
+      "api-contract.json": "5324bed890543f52ee502db6a53e0b319b34d97fddc588d9d5bc0b94f4b1f697",
+      "openapi.json": "e2b8dfb1d787c57144a713e3a36f6d3e419cdbf85f41f092f2d89b8647d535fa",
       "package.json": "51d2a7d6f4fb6467cc9af90c20c496c568b8243bcfc369c9794c07890e40706f",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
@@ -21,21 +21,22 @@
       "src/client/api-client.ts": "42857862c38a3cdbd51fd45a13752108b468a937b2e1ef91b11c02b163654ba7",
       "src/client/download.ts": "98433fed77e89357a916690fc01dcd0982b0dc0f732bc240c6114284663573e2",
       "src/client/earnings-live.ts": "ec7695211e9e8caa51988d3bca0b87da6e370be6621045783876bb537bf91a4c",
+      "src/client/news-live.ts": "90cba1c21adedb34bdca06fea81e30967d411b9ea5036072040afd25e4065231",
       "src/client/pagination.ts": "d9ffa4af81e6dab59f7fb3b8afb7e1805fc6b542d673bb3e28f97eecd970a454",
-      "src/client/websocket-client.ts": "3c219df00c898fa2ba64482c25a1fa7e663cc20863cc88a1313bf6e12be24d37",
+      "src/client/websocket-client.ts": "6938d699e2794d9bde27441fb25402f910462e1959e3f18bd915208e859cf4e5",
       "src/commands/config.ts": "f2f9a8b9c2eee46abf29e887b99837e10bd061416825d0b7eb84d043ae0a01ca",
       "src/commands/earnings.ts": "10cbcf5bdace6f0cf5c5c02ac8887b74780def966eccce77d3c9295d87e78800",
       "src/commands/login.ts": "639b5c47ce2f61c94f4c6be581711b80a51f446f2c1fa86f7d5f09f35e478e87",
       "src/commands/plugin.ts": "953f279105a682c5659c698f5145822c079d51497882f9d64cc54e4255a617b6",
-      "src/commands/ws.ts": "790bfee917b125138533b20f3f9aaa0a93d6c6d38b61d92194ca2096d19a575d",
+      "src/commands/ws.ts": "bd2690934a6e0eb1727f81397c04b8aa74f4a01db8345fb6ccc3d937868a3d5e",
       "src/config/auth.ts": "25780335aca7caa5f659164270f0588755d85f29be166ab42bc50771d879be44",
       "src/config/config-manager.ts": "8e492cb5dd9170899ef9474703f3d710da063db3318cdadf79c3f97dc210238d",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
       "src/formatters/json-formatter.ts": "0fa8904f4a31c7e0d10ac5eb6c4947c5d56079216e3c93349583ed02ef21b833",
       "src/formatters/table-formatter.ts": "56edfc931457289b4314107971d0021e237430131831199828a8bfd7b3e35c40",
       "src/formatters/time.ts": "f4d4e7c28b2f4610553a82cfdc55b585090c0f1cc6788f84acd6824b29e6bd0a",
-      "src/generated/cli-manifest.json": "9440e5f9f589d21ad1410169514fcb40b61028fab068cd4aa6fe58c639e1068b",
-      "src/hand-written-commands.ts": "e2dd13ba3fe1783b3152f399c543ab992dade024b9bd42d07e71983ccb1c884d",
+      "src/generated/cli-manifest.json": "286734df3cacfddba782e2cb7b199fb07e5f1b3da227e5779b788081a204423f",
+      "src/hand-written-commands.ts": "a629ceeb75c163aa0d2fbc31e019598c5d16490e4997854cd19e53c3bfeabc06",
       "src/shared/errors.ts": "3c379b53515a950fae853b9411bf456d3dfb21bcca4237d5730204045dca7097",
       "src/shared/options.ts": "6783cfa83b301857903bbde46edc238cd7adf80f05f0f33a7a883136de8a27b8",
       "src/shared/output.ts": "613b3573aa7d3e11e9a98ac427db4d15ec895e1f242baf154e0cd6ff5f030ff0",
@@ -45,9 +46,9 @@
       "src/spec-flags.ts": "ce66ba5acced7a6a295d4ad53ccfd62ebad713b6523ff5ccf98d892a53f49d37",
       "src/spec-manifest.ts": "5ea901757d497900b968c4badb7ed1086def58afb719f19a8a89a5bbba27925c"
     },
-    "specSha256": "80e6d6761969f235e4cb63a120e21b0955b65992a901e661517b88305a32d502",
-    "revision": "d61a09c3ca9544c1f4362f2c8440aa7acc46b4cb",
-    "fingerprint": "a10a2ad85c092443a6680a974d589b75be342de4c46a5ae9439c334f73abb0fa"
+    "specSha256": "e2b8dfb1d787c57144a713e3a36f6d3e419cdbf85f41f092f2d89b8647d535fa",
+    "revision": "78a202c9e0337daf31b15b90d3574d0854655cc4",
+    "fingerprint": "3ab097810ff18176a0ab03ccd491958bca60fbdd38beadfa7ae53eae99296245"
   },
   "globalOptions": [
     {
@@ -123,6 +124,10 @@
     {
       "id": "metrics",
       "description": "Ratios, growth and CAGR derived from the statements"
+    },
+    {
+      "id": "news",
+      "description": "News of US companies from SEC filings and their own newsrooms: items, full text with attribution, developments and files"
     },
     {
       "id": "ownership",
@@ -1104,7 +1109,7 @@
         },
         {
           "flags": "--metric <value>",
-          "description": "Normalized metric (e.g. revenue, eps_non_gaap, segment:iphone) (e.g. revenue)",
+          "description": "Normalized metric (e.g. revenue, eps_non_gaap, revenue_growth, segment:iphone) (e.g. revenue_growth)",
           "required": true
         },
         {
@@ -3780,6 +3785,240 @@
       ]
     },
     {
+      "command": "news asset-download",
+      "group": "news",
+      "origin": "spec",
+      "description": "Get a short-lived URL of a news image or file",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/news/{id}/assets/{asset_id}/download"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--id <value>",
+          "description": "News item id (e.g. 4c1d9e62-3b7a-4f2e-8d1c-9e0a7b6c5d4f)",
+          "required": true
+        },
+        {
+          "flags": "--asset-id <value>",
+          "description": "Asset id (`assets[].id` of the item) (e.g. 7e2f0c19-5a8b-4d3e-9f1a-2b6c8d0e4a7b)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "command": "news developments",
+      "group": "news",
+      "origin": "spec",
+      "description": "List company developments from news",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/news/developments"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--publisher <list>",
+          "description": "Published by these companies (CIK, padded or not; ≤ 20): an item with a verified issuer-newsroom publication of one of them — not a mention, not the item's first source. The CIK namespace is the SEC's (comma-separated; e.g. 1045810)",
+          "required": false
+        },
+        {
+          "flags": "--topic <list>",
+          "description": "Only these topics, comma-separated or repeated: product_launch, product_update, availability, partnership, customer_contract, capacity_expansion, regulatory, research (comma-separated; e.g. product_launch)",
+          "required": false
+        },
+        {
+          "flags": "--item-id <value>",
+          "description": "Only the developments of this news item (e.g. 4c1d9e62-3b7a-4f2e-8d1c-9e0a7b6c5d4f)",
+          "required": false
+        },
+        {
+          "flags": "--from <value>",
+          "description": "Start of the announcement window: an ISO 8601 instant or a day (YYYY-MM-DD, from its UTC midnight). Default: `to` minus 7 days (e.g. 2026-10-22)",
+          "required": false
+        },
+        {
+          "flags": "--to <value>",
+          "description": "End of the announcement window: an ISO 8601 instant (exclusive) or a day (inclusive). Default: now. At most 92 days after `from` (400 otherwise) (e.g. 2026-10-29)",
+          "required": false
+        },
+        {
+          "flags": "--effective-from <value>",
+          "description": "Effective on or after this day (developments without an effective date are left out) (e.g. 2026-10-01)",
+          "required": false
+        },
+        {
+          "flags": "--effective-to <value>",
+          "description": "Effective on or before this day (developments without an effective date are left out) (e.g. 2026-12-31)",
+          "required": false
+        },
+        {
+          "flags": "--limit <value>",
+          "description": "Developments per page (default: 50; e.g. 20)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "`next_cursor` of the previous page (with the same filters); an altered or foreign cursor is a 400 `invalid_cursor` (e.g. WyIyMDI2LTEwLTI5VDIwOjMwOjA1LjEyMzQ1NloiLCI0YzFkOWU2Mi0zYjdhLTRmMmUtOGQxYy05ZTBhN2I2YzVkNGYiXQ)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "news get",
+      "group": "news",
+      "origin": "spec",
+      "description": "Get a news item",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/news/{id}"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--id <value>",
+          "description": "News item id (e.g. 4c1d9e62-3b7a-4f2e-8d1c-9e0a7b6c5d4f)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "command": "news list",
+      "group": "news",
+      "origin": "spec",
+      "description": "List news items",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/news"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--ticker <list>",
+          "description": "Items mentioning these tickers (≤ 20, comma-separated or repeated). `BRK.B` and `BRK-B` both match; responses carry the stored dash spelling. With `cik`, either matches (comma-separated; e.g. NVDA)",
+          "required": false
+        },
+        {
+          "flags": "--cik <list>",
+          "description": "Items mentioning these companies by CIK (padded or not, ≤ 20). With `ticker`, either matches (comma-separated; e.g. 1045810)",
+          "required": false
+        },
+        {
+          "flags": "--from <value>",
+          "description": "Start of the publication window: an ISO 8601 instant or a day (YYYY-MM-DD, from its UTC midnight). Default: `to` minus 7 days (e.g. 2026-10-22)",
+          "required": false
+        },
+        {
+          "flags": "--to <value>",
+          "description": "End of the publication window: an ISO 8601 instant (exclusive) or a day (inclusive). Default: now. At most 92 days after `from` (400 otherwise) (e.g. 2026-10-29)",
+          "required": false
+        },
+        {
+          "flags": "--source <list>",
+          "description": "The item's FIRST source: `edgar` (an SEC filing) or `ir` (any company newsroom), comma-separated or repeated (comma-separated; e.g. edgar)",
+          "required": false
+        },
+        {
+          "flags": "--kind <list>",
+          "description": "Only these kinds, comma-separated or repeated: earnings_results, results_date, call_announcement, event_announcement, guidance, m_and_a, material_agreement, management_change, dividend, capital_markets, legal_spam, promo, other (comma-separated; e.g. earnings_results)",
+          "required": false
+        },
+        {
+          "flags": "--topic <list>",
+          "description": "Only these topics (any of them), comma-separated or repeated: product_launch, product_update, availability, partnership, customer_contract, capacity_expansion, regulatory, research, other (comma-separated; e.g. product_launch)",
+          "required": false
+        },
+        {
+          "flags": "--earnings <value>",
+          "description": "true = only earnings news (results, results dates, call announcements, guidance); false = none of it (e.g. true)",
+          "required": false,
+          "choices": [
+            "true",
+            "false"
+          ]
+        },
+        {
+          "flags": "--publisher <list>",
+          "description": "Published by these companies (CIK, padded or not; ≤ 20): an item with a verified issuer-newsroom publication of one of them — not a mention, not the item's first source. The CIK namespace is the SEC's (comma-separated; e.g. 1045810)",
+          "required": false
+        },
+        {
+          "flags": "--publication-type <list>",
+          "description": "Only these publication types of the issuer's own publication, comma-separated or repeated: press_release, company_blog, company_update (comma-separated; e.g. press_release)",
+          "required": false
+        },
+        {
+          "flags": "--issuer-category <list>",
+          "description": "The publisher's own newsroom category, by exact label or by the publisher's category id (≤ 10); needs exactly one `publisher` — labels and ids are per newsroom (comma-separated; e.g. Press Releases)",
+          "required": false
+        },
+        {
+          "flags": "--issuer-tag <list>",
+          "description": "The publisher's own newsroom tag, by exact label or id (≤ 10); needs exactly one `publisher` (comma-separated; e.g. Data Center)",
+          "required": false
+        },
+        {
+          "flags": "--limit <value>",
+          "description": "Items per page (default: 50; e.g. 20)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "`next_cursor` of the previous page (with the same filters); an altered or foreign cursor is a 400 `invalid_cursor` (e.g. WyIyMDI2LTEwLTI5VDIwOjMwOjA1LjEyMzQ1NloiLCI0YzFkOWU2Mi0zYjdhLTRmMmUtOGQxYy05ZTBhN2I2YzVkNGYiXQ)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "news text",
+      "group": "news",
+      "origin": "spec",
+      "description": "Get a news item's text in blocks",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/news/{id}/text"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--limit <value>",
+          "description": "Blocks per page (default: 10; e.g. 20)",
+          "required": false
+        },
+        {
+          "flags": "--max-chars <value>",
+          "description": "Unicode code points per page; a block is never split (the minimum is the largest block) (default: 12000; e.g. 12000)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "`next_cursor` of the previous page (with the same filters); an altered or foreign cursor is a 400 `invalid_cursor` (e.g. WyIyMDI2LTEwLTI5VDIwOjMwOjA1LjEyMzQ1NloiLCI0YzFkOWU2Mi0zYjdhLTRmMmUtOGQxYy05ZTBhN2I2YzVkNGYiXQ)",
+          "required": false
+        },
+        {
+          "flags": "--id <value>",
+          "description": "News item id (e.g. 4c1d9e62-3b7a-4f2e-8d1c-9e0a7b6c5d4f)",
+          "required": true
+        }
+      ]
+    },
+    {
       "command": "ownership holdings-by-company",
       "group": "ownership",
       "origin": "spec",
@@ -4418,7 +4657,7 @@
       "command": "ws listen",
       "group": "ws",
       "origin": "hand",
-      "description": "Listen to real-time SEC filing stream, or with --earnings follow a live earnings call transcript (with --keywords: keyword alerts; --all-live: keyword alerts across every live call)",
+      "description": "Listen to real-time SEC filing stream, or with --earnings follow a live earnings call transcript (with --keywords: keyword alerts; --all-live: keyword alerts across every live call), or with --news new news items",
       "source": "src/commands/ws.ts",
       "operations": [
         {
@@ -4476,6 +4715,36 @@
         {
           "flags": "--min-rank <n>",
           "description": "With --all-live: only companies ranked ≤ n by market cap",
+          "required": false
+        },
+        {
+          "flags": "--news",
+          "description": "New news items (SEC filings and company newsrooms) as they are published (STANDARD); one line each, NDJSON with --json",
+          "required": false
+        },
+        {
+          "flags": "--tickers <list>",
+          "description": "With --news: items mentioning these tickers (≤ 50; with --ciks either matches). Default: every company",
+          "required": false
+        },
+        {
+          "flags": "--ciks <list>",
+          "description": "With --news: items mentioning these CIKs (≤ 50, padded or not)",
+          "required": false
+        },
+        {
+          "flags": "--news-kinds <list>",
+          "description": "With --news: only these kinds (earnings_results, guidance, m_and_a, dividend, …)",
+          "required": false
+        },
+        {
+          "flags": "--news-sources <list>",
+          "description": "With --news: edgar (SEC filings) and / or ir (company newsrooms)",
+          "required": false
+        },
+        {
+          "flags": "--earnings-news",
+          "description": "With --news: earnings news only (results, results dates, call announcements, guidance)",
           "required": false
         }
       ]
