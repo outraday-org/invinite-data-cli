@@ -40,8 +40,9 @@ describe('news-live', () => {
   it('formats one line: time (µs dropped), source, tickers, headline (Unicode kept), url', () => {
     const line = strip(formatNewsItem(ITEM));
     expect(line).toBe(`2026-10-28 20:05:10Z  SEC EDGAR  NVDA  ${ITEM.title} [earnings]  ${ITEM.url}`);
-    expect(strip(formatNewsItem({ ...ITEM, symbols: [], source: { id: 'ir:nvidianews.nvidia.com' }, is_earnings_news: false })))
+    expect(strip(formatNewsItem({ ...ITEM, symbols: [], source: { id: 'ir', host: 'nvidianews.nvidia.com' }, is_earnings_news: false })))
       .toContain('nvidianews.nvidia.com  —  ');
+    expect(strip(formatNewsItem({ ...ITEM, source: { id: 'ir', host: null } }))).toContain('company newsroom  NVDA');
   });
 
   it('steps through the channel frames', () => {

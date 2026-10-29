@@ -189,7 +189,7 @@ describe('connectWebSocket --news', () => {
     url: 'https://nvidianews.nvidia.com/news/rubin',
     published_at: '2026-10-29T13:03:22.000Z',
     symbols: ['NVDA'],
-    source: { id: 'ir:nvidianews.nvidia.com' },
+    source: { id: 'ir', name: null, host: 'nvidianews.nvidia.com' },
     is_earnings_news: false,
   };
 

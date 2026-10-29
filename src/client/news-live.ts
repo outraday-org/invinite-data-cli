@@ -38,7 +38,8 @@ export interface NewsItemRow {
   url: string;
   published_at: string;
   symbols: string[];
-  source: { id: string };
+  /** IDA `publicSource`: `edgar`, or `ir` with the newsroom's host in `host`. */
+  source: { id: string; host?: string | null };
   is_earnings_news?: boolean;
   attribution?: { publisher?: string };
 }
@@ -98,10 +99,10 @@ export function isNewsFrame(frame: Record<string, any>): boolean {
   return frame.channel === NEWS_LIVE_CHANNEL || frame.type === 'news_item';
 }
 
-/** `edgar` → `SEC EDGAR`, `ir:<host>` → the newsroom's host. */
-function sourceName(id: string): string {
-  if (id === 'edgar') return 'SEC EDGAR';
-  return id.startsWith('ir:') ? id.slice(3) : id;
+/** `edgar` → `SEC EDGAR`, `ir` → the newsroom's host (`source.host`). */
+function sourceName(source: NewsItemRow['source']): string {
+  if (source.id === 'edgar') return 'SEC EDGAR';
+  return source.id === 'ir' ? (source.host ?? 'company newsroom') : source.id;
 }
 
 /**
@@ -112,7 +113,7 @@ export function formatNewsItem(item: NewsItemRow): string {
   const at = item.published_at.replace('T', ' ').replace(/\.\d+Z$/, 'Z');
   const tickers = item.symbols.length ? item.symbols.join(',') : '—';
   const earnings = item.is_earnings_news ? ` ${chalk.yellow('[earnings]')}` : '';
-  return `${chalk.dim(at)}  ${sourceName(item.source.id)}  ${chalk.bold(tickers)}  ${item.title}${earnings}  ${chalk.dim(item.url)}`;
+  return `${chalk.dim(at)}  ${sourceName(item.source)}  ${chalk.bold(tickers)}  ${item.title}${earnings}  ${chalk.dim(item.url)}`;
 }
 
 export interface NewsStep {
