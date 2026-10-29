@@ -1,6 +1,6 @@
 {
   "name": "@invinite-org/invinite-data-cli",
-  "version": "0.9.1",
+  "version": "0.10.0",
   "type": "module",
   "description": "CLI for the Invinite Data API",
   "publishConfig": {
