@@ -38,8 +38,8 @@
   },
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "0.10.0",
-    "specSha256": "a12fb349056b8c60725ae6b4eb6b2116c434aef4399a17483a42b4f383fa35ce",
+    "version": "0.11.0",
+    "specSha256": "1a5f94194ffc83e3b6c9bb4606f58c84fb0db18323bb6d111d0044d6f2ec6abb",
     "sourceHashes": {
       "claude-plugin/.claude-plugin/plugin.json": "1876def11b5c07e2cb9828f2db74b5fedcb440db72d3d485b78df2ea06cbdcc4",
       "claude-plugin/.mcp.json": "a473ef1b56c55c29434aa2864d3bc0b250b4954890af437308ff9d66bc85d0d5",
@@ -50,12 +50,12 @@
       "claude-plugin/commands/financial-research.md": "63e6e0aaa3043d8192d600fc8e8bd7f6bbe67f86bc32ccfea23f3507c6800e2e",
       "claude-plugin/commands/ownership-review.md": "d52c2d234645fcc313e9430de08394545da57082980272198b8d5d5f5675bb08",
       "claude-plugin/skills/invinite-data-cli/SKILL.md": "69020a2b4e82fceec85ce8c84c33b882c8baf1b553d36131e30c8a8a13989dfc",
-      "package.json": "78e4fe12225970068746657d34ca6d0743d1fa34a74b68a22b544e9bc0ac02d3",
+      "package.json": "2bda53e1e6d8f18bc9dbacee8377d0e27141da4f49661c40fa2219ffbd492301",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-plugin-packaging.ts": "98945657178e4d4468963f9ef9b7d85025fde6c25444dbc3adb1c2334aac899e",
       "src/commands/plugin.ts": "953f279105a682c5659c698f5145822c079d51497882f9d64cc54e4255a617b6"
     },
-    "revision": "1c44dc3f115bf1b553c718daac6ff0e4d7ae28ec",
-    "fingerprint": "fbe5b271a5011e379209b8035111ffe392e40e3c996d9dcc430211f264a79785"
+    "revision": "4384c4c98f8d11cd3c98057f2e3f057dc5640b24",
+    "fingerprint": "60db55118bdc62594786dee60f097e3d89745976b622df6041af5784b3c55686"
   }
 }
