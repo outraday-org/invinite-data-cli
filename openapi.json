@@ -875,7 +875,7 @@
           "start_ms": {
             "type": "integer",
             "nullable": true,
-            "description": "Offset from the start of the recording"
+            "description": "live: milliseconds from call_t0; final: offset from the start of the recording"
           },
           "end_ms": {
             "type": "integer",
@@ -918,7 +918,7 @@
           "latency_ms": {
             "type": "integer",
             "nullable": true,
-            "description": "live only: relay time inside the API process minus the segment's own end time (excludes the client's network); null when the call's clock is unknown"
+            "description": "live only: relay time inside the API process minus the segment's own end time, so it includes the transcript's release hold of about 8 s (excludes the client's network); null when the call's clock is unknown"
           }
         }
       },
@@ -1022,7 +1022,7 @@
           },
           "start_ms": {
             "type": "integer",
-            "description": "Offset of the sentence from the start of the recording"
+            "description": "Milliseconds of the sentence from call_t0"
           }
         }
       },
@@ -1174,7 +1174,7 @@
       },
       "WebSocketTranscriptSegmentEvent": {
         "type": "object",
-        "description": "One live transcript segment. seq is strictly increasing per call but not contiguous; a partial carries the seq its final will get",
+        "description": "One live transcript segment. seq is strictly increasing per call but not contiguous; a partial carries the seq its final will get. Finals and partials are released about 8 s after recognition, a quality hold (https://data.invinite.com/docs/live-sync)",
         "required": [
           "type",
           "subscription_id",
@@ -1207,10 +1207,11 @@
           },
           "start_ms": {
             "type": "integer",
-            "description": "Offset from the start of the recording"
+            "description": "Milliseconds from call_t0 (GET /v1/earnings-calls/live/stream), the audio's clock"
           },
           "end_ms": {
-            "type": "integer"
+            "type": "integer",
+            "description": "Milliseconds from call_t0"
           },
           "speaker_label": {
             "type": "string",
@@ -17235,7 +17236,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "A temporary HLS playlist URL of an earnings call's live audio (PRO). The stream is watermarked.\n\n### Using the URL\n\n- The URL works until `expires_at` (2 hours by default) and is minted fresh on every request: request a new one before it expires.\n\n- Play it with hls.js, Safari or VLC. The playlist is an EVENT playlist, so seek to 0 for the start of the call.\n\n- `call_t0` is the wall clock of call ms 0: `#EXT-X-PROGRAM-DATE-TIME` minus `call_t0` = the `start_ms` of the live transcript (WebSocket channel `live_channel`).\n\n### No stream and errors\n\n- `status` `not_started` / `disabled` answer `url: null`.\n\n- `403 audio_unavailable` when the company's audio is not licensed for delivery.\n\n- `503 media_unavailable` while live streaming is not configured.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for display: FREE.",
+        "description": "A temporary HLS playlist URL of an earnings call's live audio (PRO). The stream is watermarked.\n\n### Using the URL\n\n- The URL works until `expires_at` (2 hours by default) and is minted fresh on every request: request a new one before it expires.\n\n- Play it with hls.js, Safari or VLC. The playlist is an EVENT playlist, so seek to 0 for the start of the call.\n\n- `call_t0` is the wall clock of call ms 0: `#EXT-X-PROGRAM-DATE-TIME` minus `call_t0` = the `start_ms` of the live transcript (WebSocket channel `live_channel`).\n\n- The audio is released as live as possible, a few seconds behind our capture. Transcript segments are released about 8 s after recognition, a quality hold, so the text trails the audio: [Live audio and transcript sync](https://data.invinite.com/docs/live-sync) has the timing and how to play both in sync.\n\n### No stream and errors\n\n- `status` `not_started` / `disabled` answer `url: null`.\n\n- `403 audio_unavailable` when the company's audio is not licensed for delivery.\n\n- `503 media_unavailable` while live streaming is not configured.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -32577,7 +32578,7 @@
       "ws": {
         "operationId": "websocketConnect",
         "summary": "WebSocket filings stream, live earnings-call transcripts and live news",
-        "description": "One WebSocket connection streams new SEC filings as they are published, follows earnings calls live and pushes new news items. Authenticate with your API key. WebSocket sessions cost no credits (hence no `x-credits`).\n\n### Filings\n\n- New SEC filings arrive as `new_filing` frames. The connection needs the STANDARD plan.\n\n- `filing` is the snake_case `WebSocketFiling`: the filing's index fields, `ticker` (null for a company that is not listed yet) and `proposed_symbols` (tickers an S-1 / F-1 registration statement proposes).\n\n- Shape correction (2026-10): the frame used to forward the upstream camelCase envelope (`schemaVersion`, `eventKey`, `filing.accessionNumber`, …), not the documented object. It now sends exactly `WebSocketFiling`; a client that read the envelope must switch to the snake_case fields.\n\n### Follow an earnings call live\n\nLive transcripts use the channel `earnings-calls.live`, which requires the PRO plan.\n\n1. Send a `subscribe` frame with an `event_id` or a `cik`. You receive `subscribed`.\n\n2. `transcript_segment` frames arrive while the call is spoken; `speaker_names` snapshots name the speakers.\n\n3. Lifecycle frames tell you where the call is: `call_started`, `call_ended`, `transcript_provisional`, `transcript_ready`, `rescheduled`.\n\n4. The subscription ends with `unsubscribed` (its `reason` says why) after `transcript_ready` or `rescheduled`, 2 h after `call_ended` (the call produces nothing more), or 12 h after the scheduled start.\n\n### Missed segments and reconnects\n\n- Final segments arrive in `seq` order. A `gap` frame reports a range that did not arrive within 1.5 s; a late final may still follow.\n\n- After a reconnect, subscribe again with `since_seq` set to the last final `seq` you hold: the missed finals are replayed, then live delivery continues. `resume_unavailable` means the call cannot be replayed.\n\n- An `error` frame with code `unavailable` reports a server-side failure. The connection always stays open.\n\n### Keyword alerts\n\n- Add `keywords` (up to 20) to a subscription and every final segment that contains one also sends a `keyword_hit` frame. `keyword_match` is `exact` or `stem`; `speaker_roles` keeps, for example, management's words only.\n\n- A hit carries the speaker's provisional name and role, the previous final segment as context, and `latency_ms`: the relay time inside the API process minus the segment's own end time (your network is not included).\n\n### Guidance flashes\n\n- Every subscription to a call receives `guidance_flash` frames: forward-looking numbers, extracted seconds after they are spoken.\n\n### All live calls in one subscription\n\n- `scope: all_live` with `keywords` (and no `event_id` or `cik`) follows every call being captured live for one subscription slot. It receives keyword hits only, never segments. `min_rank` limits the companies; `events` can add `guidance_flash`.\n\n- A `warning` frame (`global_scope_degraded`) says a new call was not attached.\n\n- At `transcript_ready` it also receives the final transcript's hits once (`layer: final`), without those a live hit already covered within ± 5 s.\n\n### Live prices\n\n- `prices: true` on a per-call subscription adds `price_tick` frames (at most one per second): that second's OHLC and volume, the return in bp since the last trade before the call started and since the previous close, and `call_ms` on the transcript clock.\n\n- A tick shows what happened at the same time, not what caused it. Pre-market and after-hours bars are sparse.\n\n- `prices` with `scope: all_live` is refused (`bad_message`). `GET /v1/earnings-calls/live` says `live_prices: true` while ticks flow.\n\n### Live news\n\nLive news uses the channel `news.live`, which requires the STANDARD plan.\n\n1. Send `subscribe` with `channel: news.live` and optional filters: `tickers`, `ciks` (either matches), `earnings_only`, `kinds`, `sources` (`edgar`, `ir`). No filter = every item. You receive `subscribed` with the normalised filters; a second `subscribe` replaces them.\n\n2. Every new item arrives once as a `news_item` frame: the same object as a `GET /v1/news` row, with its `attribution` (publisher, original URL, date, rights) — show it with the text.\n\n3. `unsubscribe` with `channel: news.live` stops it (`unsubscribed`). `error` frames of the channel carry `channel: news.live`; `channel_unavailable` means live news is switched off.\n\n- Push covers new items only: corrections (a new revision), later enrichment (developments, media) and items without a ticker are not pushed, and an item missed during a disconnect is not replayed — `GET /v1/news` (with `from`) has every item.\n\nMinimum tier for display: FREE.",
+        "description": "One WebSocket connection streams new SEC filings as they are published, follows earnings calls live and pushes new news items. Authenticate with your API key. WebSocket sessions cost no credits (hence no `x-credits`).\n\n### Filings\n\n- New SEC filings arrive as `new_filing` frames. The connection needs the STANDARD plan.\n\n- `filing` is the snake_case `WebSocketFiling`: the filing's index fields, `ticker` (null for a company that is not listed yet) and `proposed_symbols` (tickers an S-1 / F-1 registration statement proposes).\n\n- Shape correction (2026-10): the frame used to forward the upstream camelCase envelope (`schemaVersion`, `eventKey`, `filing.accessionNumber`, …), not the documented object. It now sends exactly `WebSocketFiling`; a client that read the envelope must switch to the snake_case fields.\n\n### Follow an earnings call live\n\nLive transcripts use the channel `earnings-calls.live`, which requires the PRO plan.\n\n1. Send a `subscribe` frame with an `event_id` or a `cik`. You receive `subscribed`.\n\n2. `transcript_segment` frames arrive while the call is spoken, about 8 s after recognition (a quality hold), so the text trails the live audio: [Live audio and transcript sync](https://data.invinite.com/docs/live-sync); `speaker_names` snapshots name the speakers.\n\n3. Lifecycle frames tell you where the call is: `call_started`, `call_ended`, `transcript_provisional`, `transcript_ready`, `rescheduled`.\n\n4. The subscription ends with `unsubscribed` (its `reason` says why) after `transcript_ready` or `rescheduled`, 2 h after `call_ended` (the call produces nothing more), or 12 h after the scheduled start.\n\n### Missed segments and reconnects\n\n- Final segments arrive in `seq` order. A `gap` frame reports a range that did not arrive within 1.5 s; a late final may still follow.\n\n- After a reconnect, subscribe again with `since_seq` set to the last final `seq` you hold: the missed finals are replayed, then live delivery continues. `resume_unavailable` means the call cannot be replayed.\n\n- An `error` frame with code `unavailable` reports a server-side failure. The connection always stays open.\n\n### Keyword alerts\n\n- Add `keywords` (up to 20) to a subscription and every final segment that contains one also sends a `keyword_hit` frame. `keyword_match` is `exact` or `stem`; `speaker_roles` keeps, for example, management's words only.\n\n- A hit carries the speaker's provisional name and role, the previous final segment as context, and `latency_ms`: the relay time inside the API process minus the segment's own end time, so it includes the release hold of about 8 s (your network is not included).\n\n### Guidance flashes\n\n- Every subscription to a call receives `guidance_flash` frames: forward-looking numbers, extracted after the transcript's release hold of about 8 s.\n\n### All live calls in one subscription\n\n- `scope: all_live` with `keywords` (and no `event_id` or `cik`) follows every call being captured live for one subscription slot. It receives keyword hits only, never segments. `min_rank` limits the companies; `events` can add `guidance_flash`.\n\n- A `warning` frame (`global_scope_degraded`) says a new call was not attached.\n\n- At `transcript_ready` it also receives the final transcript's hits once (`layer: final`), without those a live hit already covered within ± 5 s.\n\n### Live prices\n\n- `prices: true` on a per-call subscription adds `price_tick` frames (at most one per second): that second's OHLC and volume, the return in bp since the last trade before the call started and since the previous close, and `call_ms` on the transcript clock.\n\n- A tick shows what happened at the same time, not what caused it. Pre-market and after-hours bars are sparse.\n\n- `prices` with `scope: all_live` is refused (`bad_message`). `GET /v1/earnings-calls/live` says `live_prices: true` while ticks flow.\n\n### Live news\n\nLive news uses the channel `news.live`, which requires the STANDARD plan.\n\n1. Send `subscribe` with `channel: news.live` and optional filters: `tickers`, `ciks` (either matches), `earnings_only`, `kinds`, `sources` (`edgar`, `ir`). No filter = every item. You receive `subscribed` with the normalised filters; a second `subscribe` replaces them.\n\n2. Every new item arrives once as a `news_item` frame: the same object as a `GET /v1/news` row, with its `attribution` (publisher, original URL, date, rights) — show it with the text.\n\n3. `unsubscribe` with `channel: news.live` stops it (`unsubscribed`). `error` frames of the channel carry `channel: news.live`; `channel_unavailable` means live news is switched off.\n\n- Push covers new items only: corrections (a new revision), later enrichment (developments, media) and items without a ticker are not pushed, and an item missed during a disconnect is not replayed — `GET /v1/news` (with `from`) has every item.\n\nMinimum tier for display: FREE.",
         "tags": [
           "WebSocket"
         ],
@@ -36018,7 +36019,7 @@
                               },
                               "start_ms": {
                                 "type": "integer",
-                                "description": "Offset of the sentence from the start of the recording"
+                                "description": "Milliseconds of the sentence from call_t0"
                               }
                             }
                           },
@@ -36803,7 +36804,7 @@
                                 "start_ms": {
                                   "type": "integer",
                                   "nullable": true,
-                                  "description": "Offset from the start of the recording"
+                                  "description": "live: milliseconds from call_t0; final: offset from the start of the recording"
                                 },
                                 "end_ms": {
                                   "type": "integer",
@@ -36846,7 +36847,7 @@
                                 "latency_ms": {
                                   "type": "integer",
                                   "nullable": true,
-                                  "description": "live only: relay time inside the API process minus the segment's own end time (excludes the client's network); null when the call's clock is unknown"
+                                  "description": "live only: relay time inside the API process minus the segment's own end time, so it includes the transcript's release hold of about 8 s (excludes the client's network); null when the call's clock is unknown"
                                 }
                               }
                             }
