@@ -9,10 +9,10 @@
     "engines": {
       "node": ">=20"
     },
-    "verifiedOn": "2026-10-29",
+    "verifiedOn": "2026-10-31",
     "sourceHashes": {
-      "api-contract.json": "1c8c3361703b8128deec8851a1721769f1d4665c07234cf83cf451aad314ef80",
-      "openapi.json": "6c548f91ff9a962b3dd46e4059a57540f1bee64691c69d704d6de35cef78190b",
+      "api-contract.json": "84b03c68494a1f6c55ffc31fc717b61372ba8a6404768708bebafb1347b77f6a",
+      "openapi.json": "80c143e74f4178f25e423beb8be6b087e95a081c3e3357f3d53f258f0b6994c4",
       "package.json": "78e4fe12225970068746657d34ca6d0743d1fa34a74b68a22b544e9bc0ac02d3",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
@@ -35,7 +35,7 @@
       "src/formatters/json-formatter.ts": "0fa8904f4a31c7e0d10ac5eb6c4947c5d56079216e3c93349583ed02ef21b833",
       "src/formatters/table-formatter.ts": "56edfc931457289b4314107971d0021e237430131831199828a8bfd7b3e35c40",
       "src/formatters/time.ts": "f4d4e7c28b2f4610553a82cfdc55b585090c0f1cc6788f84acd6824b29e6bd0a",
-      "src/generated/cli-manifest.json": "e8631976acd16c26df0a631c4332d70bf7ab54e17812fa363ee7a5fabade4e42",
+      "src/generated/cli-manifest.json": "3c09be9b8abea878eebac5058a69a8789d5ab08171995cc5d56fb01174b9913d",
       "src/hand-written-commands.ts": "a629ceeb75c163aa0d2fbc31e019598c5d16490e4997854cd19e53c3bfeabc06",
       "src/shared/errors.ts": "3c379b53515a950fae853b9411bf456d3dfb21bcca4237d5730204045dca7097",
       "src/shared/options.ts": "6783cfa83b301857903bbde46edc238cd7adf80f05f0f33a7a883136de8a27b8",
@@ -43,12 +43,12 @@
       "src/shared/spinner.ts": "3474f6c55ca5c854a067248092d820ee5f51673fb4a8e3d9d4c300e66c28cd38",
       "src/shared/types.ts": "9a9ab55519aa4f3de2cd020118091315530ecdb6e05a557a5b5ec2e5b1592b78",
       "src/spec-commands.ts": "3cedc9570dfb0eee8028e6395f1610f4175f9f274b3be4f377bcb51583085a7a",
-      "src/spec-flags.ts": "ce66ba5acced7a6a295d4ad53ccfd62ebad713b6523ff5ccf98d892a53f49d37",
+      "src/spec-flags.ts": "779f80591b5eabe265023e5717e82de71b45ad385d84784f7e4304959ca2d83a",
       "src/spec-manifest.ts": "5ea901757d497900b968c4badb7ed1086def58afb719f19a8a89a5bbba27925c"
     },
-    "specSha256": "6c548f91ff9a962b3dd46e4059a57540f1bee64691c69d704d6de35cef78190b",
-    "revision": "86227d9a24892c9df77470bc497b857ab5a0cc0e",
-    "fingerprint": "3bbb1cd217200eec9c5a07f041c73f420ec26da3cfbd5450b0a9bcd255baa38d"
+    "specSha256": "80c143e74f4178f25e423beb8be6b087e95a081c3e3357f3d53f258f0b6994c4",
+    "revision": "2dd896473a676208dbac17bbd7dbf9aeee1d6ec0",
+    "fingerprint": "5e2a2a9b69487e7cc159d0e1967f6ff58f04f46aefe2b98ef60689bbd860cbde"
   },
   "globalOptions": [
     {
@@ -3799,13 +3799,22 @@
       "arguments": [],
       "options": [
         {
+          "flags": "--purpose <value>",
+          "description": "display = an inline URL (an image with `can_display`, or a PDF with `can_download`: viewed in the browser); download = an attachment (`can_download`). Omitted: download when allowed, else display (e.g. display)",
+          "required": false,
+          "choices": [
+            "display",
+            "download"
+          ]
+        },
+        {
           "flags": "--id <value>",
-          "description": "News item id (e.g. 4c1d9e62-3b7a-4f2e-8d1c-9e0a7b6c5d4f)",
+          "description": "News item id (e.g. 13351ae7-876b-4839-ba2b-78873f6b4e00)",
           "required": true
         },
         {
           "flags": "--asset-id <value>",
-          "description": "Asset id (`assets[].id` of the item) (e.g. 7e2f0c19-5a8b-4d3e-9f1a-2b6c8d0e4a7b)",
+          "description": "Asset id (`assets[].id` of the item) (e.g. 612cd78d-b618-42c6-b3be-ff5c9df1a0f7)",
           "required": true
         }
       ]
@@ -3886,8 +3895,18 @@
       "arguments": [],
       "options": [
         {
+          "flags": "--body <value>",
+          "description": "Which text forms to return: text = `body_text` (plain, default), html = `body_html` (sanitized HTML with the images inline) instead, both = both (default: \"text\"; e.g. both)",
+          "required": false,
+          "choices": [
+            "text",
+            "html",
+            "both"
+          ]
+        },
+        {
           "flags": "--id <value>",
-          "description": "News item id (e.g. 4c1d9e62-3b7a-4f2e-8d1c-9e0a7b6c5d4f)",
+          "description": "News item id (e.g. 13351ae7-876b-4839-ba2b-78873f6b4e00)",
           "required": true
         }
       ]
@@ -3944,6 +3963,15 @@
         {
           "flags": "--earnings <value>",
           "description": "true = only earnings news (results, results dates, call announcements, guidance); false = none of it (e.g. true)",
+          "required": false,
+          "choices": [
+            "true",
+            "false"
+          ]
+        },
+        {
+          "flags": "--has-media <value>",
+          "description": "true = only items with media you can get now (`media_count` > 0: an original PDF or image to show or download); false = items without (e.g. true)",
           "required": false,
           "choices": [
             "true",
@@ -4045,6 +4073,11 @@
           "required": false
         },
         {
+          "flags": "--publisher-host <value>",
+          "description": "Items whose original URL is on this host (`attribution.publisher_host`, e.g. `nvidianews.nvidia.com` or `www.sec.gov`); exact match, case-insensitive, no wildcard (e.g. nvidianews.nvidia.com)",
+          "required": false
+        },
+        {
           "flags": "--kind <list>",
           "description": "Only these kinds, comma-separated or repeated: earnings_results, results_date, call_announcement, event_announcement, guidance, m_and_a, material_agreement, management_change, dividend, capital_markets, legal_spam, promo, other (comma-separated; e.g. earnings_results)",
           "required": false
@@ -4102,7 +4135,7 @@
         },
         {
           "flags": "--id <value>",
-          "description": "News item id (e.g. 4c1d9e62-3b7a-4f2e-8d1c-9e0a7b6c5d4f)",
+          "description": "News item id (e.g. 13351ae7-876b-4839-ba2b-78873f6b4e00)",
           "required": true
         }
       ]
