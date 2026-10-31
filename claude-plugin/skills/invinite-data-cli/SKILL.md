@@ -513,23 +513,23 @@ invd metrics ratios -i AAPL -p annual --json
 News of US companies from SEC filings and their own newsrooms: items, full text with attribution, developments and files
 
 ```bash
-# Get a short-lived URL of a news image or file
-invd news asset-download --id 4c1d9e62-3b7a-4f2e-8d1c-9e0a7b6c5d4f --asset-id 7e2f0c19-5a8b-4d3e-9f1a-2b6c8d0e4a7b --json
+# Get a short-lived URL of a news image or file (optional: --purpose)
+invd news asset-download --id 13351ae7-876b-4839-ba2b-78873f6b4e00 --asset-id 612cd78d-b618-42c6-b3be-ff5c9df1a0f7 --json
 
 # List company developments from news (optional: --publisher, --topic, --item-id, --from, --to, --effective-from, --effective-to, --limit, --cursor, --all)
 invd news developments --json
 
-# Get a news item
-invd news get --id 4c1d9e62-3b7a-4f2e-8d1c-9e0a7b6c5d4f --json
+# Get a news item (optional: --body)
+invd news get --body both --id 13351ae7-876b-4839-ba2b-78873f6b4e00 --json
 
-# List news items (optional: --ticker, --cik, --from, --to, --source, --kind, --topic, --earnings, --publisher, --publication-type, --issuer-category, --issuer-tag, --limit, --cursor, --all)
+# List news items (optional: --ticker, --cik, --from, --to, --source, --kind, --topic, --earnings, --has-media, --publisher, --publication-type, --issuer-category, --issuer-tag, --limit, --cursor, --all)
 invd news list --json
 
-# Search news (optional: --mode, --case-sensitive, --field, --ticker, --cik, --publisher, --kind, --topic, --from, --to, --limit)
+# Search news (optional: --mode, --case-sensitive, --field, --ticker, --cik, --publisher, --publisher-host, --kind, --topic, --from, --to, --limit)
 invd news search -q "data center revenue" -m lexical -t NVDA --json
 
 # Get a news item's text in blocks (optional: --limit, --max-chars, --cursor, --all)
-invd news text --id 4c1d9e62-3b7a-4f2e-8d1c-9e0a7b6c5d4f --json
+invd news text --id 13351ae7-876b-4839-ba2b-78873f6b4e00 --json
 ```
 
 ### ownership

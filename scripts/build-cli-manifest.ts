@@ -25,7 +25,7 @@ import {
   type ManifestOperation,
   type ManifestParam,
 } from '../src/spec-manifest.js';
-import { flagName, RESERVED_ALIASES, RESERVED_FLAGS } from '../src/spec-flags.js';
+import { BODY_FLAGS, flagName, RESERVED_ALIASES, RESERVED_FLAGS } from '../src/spec-flags.js';
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const DEFAULT_SPEC_PATH = resolve(REPO_ROOT, 'openapi.json');
@@ -104,7 +104,12 @@ function resolveParameter(spec: Spec, raw: unknown, where: string): SpecParamete
   return parameterSchema.parse(raw);
 }
 
-function manifestParam(parameter: SpecParameter, alias: string | undefined, where: string): ManifestParam {
+function manifestParam(
+  parameter: SpecParameter,
+  alias: string | undefined,
+  where: string,
+  hasBody: boolean,
+): ManifestParam {
   const at = `${where} parameter "${parameter.name}"`;
   if (parameter.in !== 'query' && parameter.in !== 'path') {
     throw new Error(`${at}: parameters "in: ${parameter.in}" cannot be a flag`);
@@ -112,7 +117,9 @@ function manifestParam(parameter: SpecParameter, alias: string | undefined, wher
   const schema = parameter.schema ?? {};
   if (!isParamType(schema.type)) throw new Error(`${at}: unmappable type ${JSON.stringify(schema.type)}`);
   const flag = flagName(parameter.name);
-  if (RESERVED_FLAGS.includes(flag)) throw new Error(`${at}: --${flag} collides with an invd flag of its own`);
+  if (RESERVED_FLAGS.includes(flag) || (hasBody && BODY_FLAGS.includes(flag))) {
+    throw new Error(`${at}: --${flag} collides with an invd flag of its own`);
+  }
   if (alias !== undefined && RESERVED_ALIASES.includes(alias)) {
     throw new Error(`${at}: -${alias} collides with an invd flag of its own`);
   }
@@ -157,7 +164,9 @@ export function buildManifest(rawSpec: unknown, specText: string): Manifest {
       if (!operation.operationId) throw new Error(`${where}: no operationId`);
 
       const parameters = [...shared, ...(operation.parameters ?? [])].map(raw => resolveParameter(spec, raw, where));
-      const params = parameters.map(parameter => manifestParam(parameter, cli.flags?.[parameter.name], where));
+      const params = parameters.map(parameter =>
+        manifestParam(parameter, cli.flags?.[parameter.name], where, operation.requestBody !== undefined),
+      );
 
       const view = cli.view ?? 'json';
       const out: ManifestOperation = {

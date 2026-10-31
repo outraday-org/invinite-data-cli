@@ -171,6 +171,17 @@ describe('buildManifest', () => {
     reserved.paths['/v1/things/{thing_id}'].get.parameters.push({ name: 'all', in: 'query', required: false, schema: { type: 'string' } });
     expect(() => build(reserved)).toThrow(/--all collides with an invd flag/);
 
+    // `--body` is a write's JSON-body flag: a read may name a parameter `body`, a write may not.
+    const readBody = fixture();
+    readBody.paths['/v1/things/{thing_id}'].get.parameters.push({ name: 'body', in: 'query', required: false, schema: { type: 'string' } });
+    expect(() => build(readBody)).not.toThrow();
+
+    const writeBody = fixture();
+    (writeBody.paths['/v1/hooks'].post as { parameters?: unknown[] }).parameters = [
+      { name: 'body', in: 'query', required: false, schema: { type: 'string' } },
+    ];
+    expect(() => build(writeBody)).toThrow(/--body collides with an invd flag/);
+
     const topWithoutRows = fixture();
     delete (topWithoutRows.paths['/v1/things/search'].get['x-cli'] as { rowsPath?: string }).rowsPath;
     expect(() => build(topWithoutRows)).toThrow(/a top-paginated operation needs x-cli.rowsPath or allItemsPath/);

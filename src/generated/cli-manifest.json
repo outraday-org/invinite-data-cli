@@ -1,6 +1,6 @@
 {
   "specVersion": "1.0.0",
-  "specSha256": "6c548f91ff9a962b3dd46e4059a57540f1bee64691c69d704d6de35cef78190b",
+  "specSha256": "80c143e74f4178f25e423beb8be6b087e95a081c3e3357f3d53f258f0b6994c4",
   "groups": [
     {
       "name": "company",
@@ -4743,11 +4743,23 @@
       "summary": "Get a short-lived URL of a news image or file",
       "params": [
         {
+          "name": "purpose",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "display",
+            "download"
+          ],
+          "example": "display",
+          "description": "display = an inline URL (an image with `can_display`, or a PDF with `can_download`: viewed in the browser); download = an attachment (`can_download`). Omitted: download when allowed, else display"
+        },
+        {
           "name": "id",
           "in": "path",
           "required": true,
           "type": "string",
-          "example": "4c1d9e62-3b7a-4f2e-8d1c-9e0a7b6c5d4f",
+          "example": "13351ae7-876b-4839-ba2b-78873f6b4e00",
           "description": "News item id"
         },
         {
@@ -4755,7 +4767,7 @@
           "in": "path",
           "required": true,
           "type": "string",
-          "example": "7e2f0c19-5a8b-4d3e-9f1a-2b6c8d0e4a7b",
+          "example": "612cd78d-b618-42c6-b3be-ff5c9df1a0f7",
           "description": "Asset id (`assets[].id` of the item)"
         }
       ],
@@ -4882,13 +4894,30 @@
       "summary": "Get a news item",
       "params": [
         {
+          "name": "body",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "text",
+            "html",
+            "both"
+          ],
+          "default": "text",
+          "example": "both",
+          "description": "Which text forms to return: text = `body_text` (plain, default), html = `body_html` (sanitized HTML with the images inline) instead, both = both"
+        },
+        {
           "name": "id",
           "in": "path",
           "required": true,
           "type": "string",
-          "example": "4c1d9e62-3b7a-4f2e-8d1c-9e0a7b6c5d4f",
+          "example": "13351ae7-876b-4839-ba2b-78873f6b4e00",
           "description": "News item id"
         }
+      ],
+      "exampleParams": [
+        "body"
       ],
       "view": "keyValue",
       "columns": [
@@ -4907,7 +4936,9 @@
         "attribution.edgar.form",
         "attribution.edgar.accession",
         "attribution.statement",
-        "body_text"
+        "content_formats",
+        "body_text",
+        "body_html"
       ],
       "pagination": "none"
     },
@@ -5002,6 +5033,18 @@
           ],
           "example": "true",
           "description": "true = only earnings news (results, results dates, call announcements, guidance); false = none of it"
+        },
+        {
+          "name": "has_media",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "example": "true",
+          "description": "true = only items with media you can get now (`media_count` > 0: an original PDF or image to show or download); false = items without"
         },
         {
           "name": "publisher",
@@ -5174,6 +5217,14 @@
           "description": "Published by these companies (CIK, padded or not; ≤ 20): an item with a verified issuer-newsroom publication of one of them — not a mention, not the item's first source. The CIK namespace is the SEC's"
         },
         {
+          "name": "publisher_host",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "nvidianews.nvidia.com",
+          "description": "Items whose original URL is on this host (`attribution.publisher_host`, e.g. `nvidianews.nvidia.com` or `www.sec.gov`); exact match, case-insensitive, no wildcard"
+        },
+        {
           "name": "kind",
           "in": "query",
           "required": false,
@@ -5279,7 +5330,7 @@
           "in": "path",
           "required": true,
           "type": "string",
-          "example": "4c1d9e62-3b7a-4f2e-8d1c-9e0a7b6c5d4f",
+          "example": "13351ae7-876b-4839-ba2b-78873f6b4e00",
           "description": "News item id"
         }
       ],
@@ -5287,6 +5338,7 @@
       "rowsPath": "blocks",
       "columns": [
         "index",
+        "kind",
         "heading",
         "text"
       ],

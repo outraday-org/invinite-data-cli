@@ -1677,6 +1677,7 @@
               "publications",
               "publications_truncated",
               "model_processing_allowed",
+              "media_count",
               "attribution"
             ],
             "properties": {
@@ -1963,6 +1964,11 @@
               "model_processing_allowed": {
                 "type": "boolean",
                 "description": "Whether the publisher's text (lede, body) may be processed by AI models; API access alone does not authorize forwarding text into models"
+              },
+              "media_count": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Media of the item you can get now: the assets `GET /v1/news/{id}` lists with a `download_url` (displayable or downloadable)"
               },
               "attribution": {
                 "type": "object",
@@ -27026,7 +27032,7 @@
         "tags": [
           "News"
         ],
-        "description": "News of US companies — SEC filings and the companies' own newsroom publications — newest first.\n\n### What you get\n\n- Headline, lede, publication time, canonical URL, first source, kind, topics, the companies mentioned (`symbols`, `ciks`) and the companies' own publications of the item.\n\n- Every item carries `attribution`; the full text is on `GET /v1/news/{id}`.\n\n### Filters\n\n- `ticker` / `cik` = items mentioning the company (either matches); `publisher` = items the company published itself. Several filters intersect; several values of one filter match any of them.\n\n- An unknown ticker is not an error: the list is empty.\n\n### Pagination\n\n- News is an append-heavy feed, so pages use a cursor instead of an offset: follow `next_url` (or pass `next_cursor` as `cursor` with the same filters) until it is null. An item published between two calls never shifts a page — no duplicates, no gaps.\n\n- `next_url` pins the resolved `from` / `to`, so a default window does not slide while you page.\n\n### Sources and rights\n\n- Items come from SEC EDGAR filings (`rights: public_record`) and the companies' own newsrooms (`rights: issuer`); wire services are never a source.\n\n- Issuer and SEC text is served in full with its attribution: wherever you show the text, show `attribution.publisher`, `attribution.source_url` and `attribution.published_at` next to it (and the EDGAR form and accession for a filing). You may forward the text unmodified; you may not resell it.\n\n- A company that opted out, and a source whose owner reserved reuse, are not served (a reserved source keeps its headline, without text).\n\nMinimum tier for display: FREE.",
+        "description": "News of US companies — SEC filings and the companies' own newsroom publications — newest first.\n\n### What you get\n\n- Headline, lede, publication time, canonical URL, first source, kind, topics, the companies mentioned (`symbols`, `ciks`) and the companies' own publications of the item.\n\n- Every item carries `attribution`; the full text is on `GET /v1/news/{id}`.\n\n- `media_count` = the item's media you can get now (original PDFs, images); `has_media=true` lists only those items, and `GET /v1/news/{id}` lists the files with their `download_url`.\n\n### Filters\n\n- `ticker` / `cik` = items mentioning the company (either matches); `publisher` = items the company published itself. Several filters intersect; several values of one filter match any of them.\n\n- An unknown ticker is not an error: the list is empty.\n\n### Pagination\n\n- News is an append-heavy feed, so pages use a cursor instead of an offset: follow `next_url` (or pass `next_cursor` as `cursor` with the same filters) until it is null. An item published between two calls never shifts a page — no duplicates, no gaps.\n\n- `next_url` pins the resolved `from` / `to`, so a default window does not slide while you page.\n\n### Sources and rights\n\n- Items come from SEC EDGAR filings (`rights: public_record`) and the companies' own newsrooms (`rights: issuer`); wire services are never a source.\n\n- Issuer and SEC text is served in full with its attribution: wherever you show the text, show `attribution.publisher`, `attribution.source_url` and `attribution.published_at` next to it (and the EDGAR form and accession for a filing). You may forward the text unmodified; you may not resell it.\n\n- A company that opted out, and a source whose owner reserved reuse, are not served (a reserved source keeps its headline, without text).\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -27135,6 +27141,20 @@
             "name": "earnings",
             "required": false,
             "description": "true = only earnings news (results, results dates, call announcements, guidance); false = none of it",
+            "example": "true"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ]
+            },
+            "in": "query",
+            "name": "has_media",
+            "required": false,
+            "description": "true = only items with media you can get now (`media_count` > 0: an original PDF or image to show or download); false = items without",
             "example": "true"
           },
           {
@@ -27279,6 +27299,7 @@
                           "publications",
                           "publications_truncated",
                           "model_processing_allowed",
+                          "media_count",
                           "attribution"
                         ],
                         "properties": {
@@ -27566,6 +27587,11 @@
                             "type": "boolean",
                             "description": "Whether the publisher's text (lede, body) may be processed by AI models; API access alone does not authorize forwarding text into models"
                           },
+                          "media_count": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "description": "Media of the item you can get now: the assets `GET /v1/news/{id}` lists with a `download_url` (displayable or downloadable)"
+                          },
                           "attribution": {
                             "type": "object",
                             "description": "Who published the text, where and when (show publisher, source URL and date wherever you show the text)",
@@ -27648,6 +27674,66 @@
                       "description": "The next page with every filter; null on the last page"
                     }
                   }
+                },
+                "example": {
+                  "items": [
+                    {
+                      "id": "d63e7c6e-ebeb-4f31-9b9f-eb0e0dc48b8b",
+                      "title": "A decade in the making: From progress to possibility for PepsiCo’s food and drink portfolio",
+                      "description": "How science, consumer insights and years of innovation are helping PepsiCo adapt familiar brands while keeping taste at the center. October 13, 2026 For anyone who has ever opened a bag of Doritos, poured a Pepsi or made a bowl of Quaker oa…",
+                      "url": "https://www.pepsico.com/newsroom/stories/2026/a-decade-in-the-making-from-progress-to-possibility-for-pepsicos-food-and-drink-portfolio",
+                      "published_at": "2026-10-31T00:13:33.114Z",
+                      "first_seen_at": "2026-10-31T00:13:33.114Z",
+                      "source": {
+                        "id": "ir",
+                        "name": "PepsiCo, Inc.",
+                        "host": "www.pepsico.com"
+                      },
+                      "kind": "other",
+                      "topics": [],
+                      "rights": "issuer",
+                      "is_earnings_news": false,
+                      "earnings": null,
+                      "symbols": [
+                        "PEP"
+                      ],
+                      "ciks": [
+                        "0000077476"
+                      ],
+                      "revision": 1,
+                      "supersedes_id": null,
+                      "publications": [
+                        {
+                          "source_id": "ir:www.pepsico.com",
+                          "publisher": {
+                            "cik": "0000077476",
+                            "symbol": "PEP",
+                            "name": "PepsiCo, Inc."
+                          },
+                          "url": "https://www.pepsico.com/newsroom/stories/2026/a-decade-in-the-making-from-progress-to-possibility-for-pepsicos-food-and-drink-portfolio",
+                          "publication_type": "company_update",
+                          "published_at": "2026-10-31T00:13:33.114Z",
+                          "modified_at": null,
+                          "categories": [],
+                          "tags": []
+                        }
+                      ],
+                      "publications_truncated": false,
+                      "model_processing_allowed": true,
+                      "media_count": 2,
+                      "attribution": {
+                        "publisher": "PepsiCo, Inc.",
+                        "publisher_host": "www.pepsico.com",
+                        "source_url": "https://www.pepsico.com/newsroom/stories/2026/a-decade-in-the-making-from-progress-to-possibility-for-pepsicos-food-and-drink-portfolio",
+                        "published_at": "2026-10-31T00:13:33.114Z",
+                        "rights": "issuer",
+                        "edgar": null,
+                        "statement": "Reproduced verbatim from the publisher; © the publisher. Source and date above."
+                      }
+                    }
+                  ],
+                  "next_cursor": "WyIyMDI2LTEwLTMwVDEwOjE1OjAwLjAwMDAwMFoiLCJlNjljNzQwNi02MjMzLTQxN2UtOTAzNy00ZjE2YWU5N2U4MGIiXQ",
+                  "next_url": "https://api.data.invinite.com/v1/news?from=2026-10-24T11%3A19%3A13.921Z&to=2026-10-31T11%3A19%3A13.921Z&cursor=WyIyMDI2LTEwLTMwVDEwOjE1OjAwLjAwMDAwMFoiLCJlNjljNzQwNi02MjMzLTQxN2UtOTAzNy00ZjE2YWU5N2U4MGIiXQ"
                 }
               }
             }
@@ -28148,8 +28234,24 @@
         "tags": [
           "News"
         ],
-        "description": "One news item with its full text, the companies it is about, every sighting, its images and original files, and the developments read from it.\n\n### What you get\n\n- `body_text`: the publisher's text of the current revision, verbatim (`content_status: available`); `no_text` = headline and link only.\n\n- **Attribution duty:** wherever you show `body_text` or `description`, show `attribution.publisher`, `attribution.source_url` and `attribution.published_at` with it (and `attribution.edgar` for a filing), with `attribution.statement`.\n\n- `text_url` serves the same text in citable blocks; `assets[].download_url` mints a short-lived file URL where the publisher's terms allow it.\n\n- `model_processing_allowed` says whether the text may be processed by AI models (the publisher's machine-readable reservation); API access alone does not authorize forwarding the text into models.\n\n- A corrected item names its successor in `superseded_by` and stays served under its id.\n\n### Errors\n\n- `404` for an unknown id, or an item that is no longer served (opt-out, takedown).\n\n### Sources and rights\n\n- Items come from SEC EDGAR filings (`rights: public_record`) and the companies' own newsrooms (`rights: issuer`); wire services are never a source.\n\n- Issuer and SEC text is served in full with its attribution: wherever you show the text, show `attribution.publisher`, `attribution.source_url` and `attribution.published_at` next to it (and the EDGAR form and accession for a filing). You may forward the text unmodified; you may not resell it.\n\n- A company that opted out, and a source whose owner reserved reuse, are not served (a reserved source keeps its headline, without text).\n\nMinimum tier for display: FREE.",
+        "description": "One news item with its full text (plain and / or HTML), the companies it is about, every sighting, its images and original files, and the developments read from it.\n\n### What you get\n\n- `body` picks the text forms: `text` (default) = `body_text`, the publisher's text of the current revision, verbatim — for search, indexing and models; `html` = `body_html` instead — the same text as sanitized article HTML (headings, paragraphs, lists, tables, quotes, images) for display; `both` = both. `content_formats` says which forms the item has (PDFs and older items: text only); `content_status: no_text` = headline and link only.\n\n- **Images inside the article:** in `body_html` every stored image is an `<img src>` whose URL is stable for 24 hours and needs no API key (`assets[].view_url`, the same URL); an image Invinite may only link is an \"Image at source\" link to the publisher; an image that may not be shown is removed. The hero image is not inside the HTML: it is the asset with `kind: hero_image` — place it above the headline. After 24 hours (or on an image error) fetch the item again for fresh URLs.\n\n- **Attribution duty:** wherever you show `body_text`, `body_html` or `description`, show `attribution.publisher`, `attribution.source_url` and `attribution.published_at` with it (and `attribution.edgar` for a filing), with `attribution.statement`.\n\n- `text_url` serves the same text in citable blocks with their kind and heading; `assets[].download_url` mints a URL valid ≤ 60 seconds to view (`purpose=display`) or download (`purpose=download`, where `can_download`) a file where the publisher's terms allow it.\n\n- `model_processing_allowed` says whether the text may be processed by AI models (the publisher's machine-readable reservation); API access alone does not authorize forwarding the text into models.\n\n- A corrected item names its successor in `superseded_by` and stays served under its id.\n\n### Errors\n\n- `404` for an unknown id, or an item that is no longer served (opt-out, takedown).\n\n### Sources and rights\n\n- Items come from SEC EDGAR filings (`rights: public_record`) and the companies' own newsrooms (`rights: issuer`); wire services are never a source.\n\n- Issuer and SEC text is served in full with its attribution: wherever you show the text, show `attribution.publisher`, `attribution.source_url` and `attribution.published_at` next to it (and the EDGAR form and accession for a filing). You may forward the text unmodified; you may not resell it.\n\n- A company that opted out, and a source whose owner reserved reuse, are not served (a reserved source keeps its headline, without text).\n\nMinimum tier for display: FREE.",
         "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "text",
+                "html",
+                "both"
+              ],
+              "default": "text"
+            },
+            "in": "query",
+            "name": "body",
+            "required": false,
+            "description": "Which text forms to return: text = `body_text` (plain, default), html = `body_html` (sanitized HTML with the images inline) instead, both = both",
+            "example": "both"
+          },
           {
             "schema": {
               "type": "string",
@@ -28159,7 +28261,7 @@
             "name": "id",
             "required": true,
             "description": "News item id",
-            "example": "4c1d9e62-3b7a-4f2e-8d1c-9e0a7b6c5d4f"
+            "example": "13351ae7-876b-4839-ba2b-78873f6b4e00"
           }
         ],
         "security": [
@@ -28187,7 +28289,9 @@
             "attribution.edgar.form",
             "attribution.edgar.accession",
             "attribution.statement",
-            "body_text"
+            "content_formats",
+            "body_text",
+            "body_html"
           ],
           "pagination": "none"
         },
@@ -28218,9 +28322,10 @@
                     "publications",
                     "publications_truncated",
                     "model_processing_allowed",
+                    "media_count",
                     "attribution",
-                    "body_text",
                     "content_status",
+                    "content_formats",
                     "text_url",
                     "superseded_by",
                     "companies",
@@ -28513,6 +28618,11 @@
                       "type": "boolean",
                       "description": "Whether the source text may be processed by AI models; API access alone does not authorize forwarding text into models"
                     },
+                    "media_count": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Media of the item you can get now: the assets `GET /v1/news/{id}` lists with a `download_url` (displayable or downloadable)"
+                    },
                     "attribution": {
                       "type": "object",
                       "description": "Who published the text, where and when (show publisher, source URL and date wherever you show the text)",
@@ -28584,7 +28694,16 @@
                     "body_text": {
                       "type": "string",
                       "nullable": true,
-                      "description": "The full text of the current revision (verbatim, with `attribution`); null = no readable text"
+                      "description": "With `body=text` (default) or `both`: the full text of the current revision as plain text, verbatim (paragraphs, list items and table rows separated by blank lines) — for search, indexing and models. It is the text of `body_html`'s blocks joined, so the two never differ in words. Null = no readable text"
+                    },
+                    "body_html": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "With `body=html` or `both`: the same text as sanitized article HTML for display. Allowed tags: h2, h3, h4, p, ul, ol, li, table, thead, tbody, tr, th, td, blockquote, strong, em, b, i, sup, sub, br, a, figure, figcaption, img; attributes: `a[href rel data-asset-id]` (absolute https links), `img[src alt width height loading data-asset-id]`, `td` / `th` `colspan` / `rowspan`. No class, style, id, script, form or iframe; no h1 (the title is `title`). Images are the item's stored images: `<img src>` is the image's stable view URL (valid 24 hours, see `assets[].view_url`), in a `<figure>` with the asset's caption / credit where one fits; an image Invinite may only link is `<a href=\"<original_url>\" rel=\"noopener nofollow\">Image at source</a>`; an image that may not be shown is removed. Null = no HTML for this item (see `content_formats`) or no readable text"
+                    },
+                    "images_truncated": {
+                      "type": "boolean",
+                      "description": "With `body_html`: the article held more than 40 images; the rest were removed (they stay in `assets`)"
                     },
                     "content_status": {
                       "type": "string",
@@ -28592,7 +28711,18 @@
                         "available",
                         "no_text"
                       ],
-                      "description": "available = `body_text` holds the text; no_text = headline and link only"
+                      "description": "available = the item has readable text of the current revision (in the forms `content_formats` lists); no_text = headline and link only"
+                    },
+                    "content_formats": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "text",
+                          "html"
+                        ]
+                      },
+                      "description": "The text forms this item has: text = `body_text` (every item with text), html = `body_html` (articles read from a web page; PDFs and older items may have text only); empty without text"
                     },
                     "text_url": {
                       "type": "string",
@@ -28687,19 +28817,28 @@
                           "credit",
                           "copyright_notice",
                           "original_url",
+                          "status",
                           "can_display",
                           "can_download",
-                          "download_url"
+                          "download_url",
+                          "view_url"
                         ],
                         "properties": {
                           "id": {
                             "type": "string",
                             "format": "uuid",
-                            "description": "Asset id"
+                            "description": "Asset id (`data-asset-id` of an image shown inside `body_html`)"
                           },
                           "kind": {
                             "type": "string",
-                            "description": "image, original_pdf, …"
+                            "enum": [
+                              "original_pdf",
+                              "hero_image",
+                              "gallery_image",
+                              "attachment",
+                              "archive_link"
+                            ],
+                            "description": "hero_image = the article's lead image (never inside `body_html`: place it above the headline); gallery_image = an image of the article (shown inline where the text has it); original_pdf = the publication's own PDF; attachment = a linked file; archive_link = a linked archive (link only)"
                           },
                           "content_type": {
                             "type": "string",
@@ -28751,22 +28890,38 @@
                             "nullable": true,
                             "description": "Where the publisher hosts it (link to it when it may not be shown)"
                           },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "link_only",
+                              "pending",
+                              "ready",
+                              "failed",
+                              "rejected"
+                            ],
+                            "description": "ready = stored by Invinite (deliverable within its permissions); link_only = known by its link only (the publisher's host: link to `original_url`, never embed it); pending = being fetched; failed / rejected = not stored"
+                          },
                           "can_display": {
                             "type": "boolean",
-                            "description": "May be shown (embedded) now"
+                            "description": "May be shown (embedded) now: use `view_url` (images) or `download_url?purpose=display`"
                           },
                           "can_download": {
                             "type": "boolean",
-                            "description": "May be downloaded now"
+                            "description": "May be downloaded (a copy kept) now: `download_url?purpose=download`"
                           },
                           "download_url": {
                             "type": "string",
                             "nullable": true,
-                            "description": "Our authenticated route that mints a short-lived URL; null when neither is allowed"
+                            "description": "Our authenticated route that mints a URL valid ≤ 60 seconds (`purpose=display` inline, `purpose=download` an attachment; a PDF with `can_download` also views inline); null when neither is allowed"
+                          },
+                          "view_url": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "A displayable image (`ready`, `can_display`): a stable URL to put into `<img src>`, no API key, valid 24 hours (never past the display permission) — the same URL `body_html` uses. Refetch the item after that or on an image error. Null otherwise"
                           }
                         }
                       },
-                      "description": "Images and original files of the publication"
+                      "description": "Images and original files of the publication, inline or not (an image shown inside `body_html` carries its id there as `data-asset-id`; list the others below the article)"
                     },
                     "developments": {
                       "type": "array",
@@ -28972,6 +29127,107 @@
                       "description": "Developments read from the text (medium or high confidence, at most 20)"
                     }
                   }
+                },
+                "example": {
+                  "id": "13351ae7-876b-4839-ba2b-78873f6b4e00",
+                  "title": "Build, test and optimize faster: Arm and GitHub accelerate agentic AI development",
+                  "description": "Developers can use AI coding agents to edit code, build, test, and debug within one native Arm development environment. Keeping these tasks on the target architecture can give developers earlier feedback on dependencies, test results, and r…",
+                  "url": "https://newsroom.arm.com/blog/arm-github-accelerate-agentic-ai-development",
+                  "published_at": "2026-10-29T16:02:31.000Z",
+                  "first_seen_at": "2026-10-30T17:43:54.126Z",
+                  "source": {
+                    "id": "ir",
+                    "name": "Arm Holdings plc American Depositary Shares",
+                    "host": "newsroom.arm.com"
+                  },
+                  "kind": "other",
+                  "topics": [],
+                  "rights": "issuer",
+                  "is_earnings_news": false,
+                  "earnings": null,
+                  "symbols": [
+                    "ARM"
+                  ],
+                  "ciks": [
+                    "0001973239"
+                  ],
+                  "revision": 1,
+                  "supersedes_id": null,
+                  "publications": [
+                    {
+                      "source_id": "ir:newsroom.arm.com",
+                      "publisher": {
+                        "cik": "0001973239",
+                        "symbol": "ARM",
+                        "name": "Arm Holdings plc American Depositary Shares"
+                      },
+                      "url": "https://newsroom.arm.com/blog/arm-github-accelerate-agentic-ai-development",
+                      "publication_type": "company_blog",
+                      "published_at": "2026-10-29T16:02:31.000Z",
+                      "modified_at": null,
+                      "categories": [],
+                      "tags": []
+                    }
+                  ],
+                  "publications_truncated": false,
+                  "model_processing_allowed": true,
+                  "media_count": 3,
+                  "attribution": {
+                    "publisher": "Arm Holdings plc American Depositary Shares",
+                    "publisher_host": "newsroom.arm.com",
+                    "source_url": "https://newsroom.arm.com/blog/arm-github-accelerate-agentic-ai-development",
+                    "published_at": "2026-10-29T16:02:31.000Z",
+                    "rights": "issuer",
+                    "edgar": null,
+                    "statement": "Reproduced verbatim from the publisher; © the publisher. Source and date above."
+                  },
+                  "content_status": "available",
+                  "content_formats": [
+                    "text"
+                  ],
+                  "text_url": "https://api.data.invinite.com/v1/news/13351ae7-876b-4839-ba2b-78873f6b4e00/text",
+                  "superseded_by": null,
+                  "companies": [
+                    {
+                      "cik": "0001973239",
+                      "symbol": "ARM",
+                      "match_kind": "cik",
+                      "confidence": 0.95
+                    }
+                  ],
+                  "sightings": [
+                    {
+                      "source_id": "ir:newsroom.arm.com",
+                      "url": "https://newsroom.arm.com/blog/arm-github-accelerate-agentic-ai-development",
+                      "seen_at": "2026-10-30T17:43:54.126Z",
+                      "published_at_claimed": "2026-10-29T16:02:31.000Z"
+                    }
+                  ],
+                  "assets": [
+                    {
+                      "id": "a9247c9e-9539-4cd8-9d9c-784be7138839",
+                      "kind": "hero_image",
+                      "content_type": "image/jpeg",
+                      "byte_size": 264095,
+                      "width": 1921,
+                      "height": 1080,
+                      "title": null,
+                      "caption": "AI-assisted development on Arm with GitHub Copilot CLI enables native builds, testing, code review, Arm64 CI, and performance optimization.",
+                      "alt": "Arm, GitHub, and GitHub Copilot create a connected Arm-native development workflow for building, testing, and optimizing software.",
+                      "credit": null,
+                      "copyright_notice": null,
+                      "original_url": "https://newsroom.arm.com/wp-content/uploads/2026/10/GitHub_Copilot_Arm_Newsroom_image3-1.jpg",
+                      "status": "ready",
+                      "can_display": true,
+                      "can_download": false,
+                      "download_url": "https://api.data.invinite.com/v1/news/13351ae7-876b-4839-ba2b-78873f6b4e00/assets/a9247c9e-9539-4cd8-9d9c-784be7138839/download",
+                      "view_url": "https://api.data.invinite.com/v1/news/13351ae7-876b-4839-ba2b-78873f6b4e00/assets/a9247c9e-9539-4cd8-9d9c-784be7138839/view?exp=1793530800&sig=…"
+                    }
+                  ],
+                  "developments": [],
+                  "body_text": "Developers can use AI coding agents to edit code, build, test, and debug within one native Arm development environment. Keeping these tasks on the target architecture can give developers earlier feedback on dependencies, test results, and r…",
+                  "body_html": "<p>Developers can use AI coding agents to edit code, build, test, and debug within one native Arm development environment. Keeping these tasks on the target architecture can give developers earlier feedback on dependencies, test results, an…",
+                  "images_truncated": false
                 }
               }
             }
@@ -28991,7 +29247,10 @@
         },
         "x-tier": "standard",
         "x-credits": 2,
-        "x-license": "display"
+        "x-license": "display",
+        "x-example-params": [
+          "body"
+        ]
       }
     },
     "/v1/news/{id}/text": {
@@ -29001,7 +29260,7 @@
         "tags": [
           "News"
         ],
-        "description": "The text of one news item in stable, citable blocks (paragraphs, list items, table rows), page by page.\n\n### What you get\n\n- Each block carries its stable `block_id`, heading, PDF page and Unicode code-point offsets into the full text; development evidence points at these blocks.\n\n- `max_chars` bounds a page in code points without ever splitting a block; `has_more`, `next_cursor` and `coverage` say what is left — nothing is cut silently.\n\n- A cursor belongs to one text revision: after a correction it answers `409 revision_changed`; restart without `cursor`.\n\n- An item without readable text answers `content_status: no_text` with no blocks. Show `attribution` with the text.\n\n### Errors\n\n- `404` for an unknown or no longer served item; `400 invalid_cursor` for a cursor of another item or list.\n\n### Sources and rights\n\n- Items come from SEC EDGAR filings (`rights: public_record`) and the companies' own newsrooms (`rights: issuer`); wire services are never a source.\n\n- Issuer and SEC text is served in full with its attribution: wherever you show the text, show `attribution.publisher`, `attribution.source_url` and `attribution.published_at` next to it (and the EDGAR form and accession for a filing). You may forward the text unmodified; you may not resell it.\n\n- A company that opted out, and a source whose owner reserved reuse, are not served (a reserved source keeps its headline, without text).\n\nMinimum tier for display: FREE.",
+        "description": "The text of one news item in stable, citable blocks (headings, paragraphs, lists, tables, quotes, captions), page by page — for search, retrieval and models.\n\n### What you get\n\n- Each block carries its stable `block_id`, `kind` (what it is in the article; null = guessed from plain text, as for PDFs), `heading` (the nearest heading above it), PDF page and Unicode code-point offsets into the item's `body_text` (`body_text` sliced at `start_offset`–`end_offset` is the block's text); development evidence points at these blocks.\n\n- `max_chars` bounds a page in code points without ever splitting a block; `has_more`, `next_cursor` and `coverage` say what is left — nothing is cut silently.\n\n- A cursor belongs to one text revision: after a correction it answers `409 revision_changed`; restart without `cursor`.\n\n- An item without readable text answers `content_status: no_text` with no blocks. Show `attribution` with the text.\n\n### Errors\n\n- `404` for an unknown or no longer served item; `400 invalid_cursor` for a cursor of another item or list.\n\n### Sources and rights\n\n- Items come from SEC EDGAR filings (`rights: public_record`) and the companies' own newsrooms (`rights: issuer`); wire services are never a source.\n\n- Issuer and SEC text is served in full with its attribution: wherever you show the text, show `attribution.publisher`, `attribution.source_url` and `attribution.published_at` next to it (and the EDGAR form and accession for a filing). You may forward the text unmodified; you may not resell it.\n\n- A company that opted out, and a source whose owner reserved reuse, are not served (a reserved source keeps its headline, without text).\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -29048,7 +29307,7 @@
             "name": "id",
             "required": true,
             "description": "News item id",
-            "example": "4c1d9e62-3b7a-4f2e-8d1c-9e0a7b6c5d4f"
+            "example": "13351ae7-876b-4839-ba2b-78873f6b4e00"
           }
         ],
         "security": [
@@ -29063,6 +29322,7 @@
           "rowsPath": "blocks",
           "columns": [
             "index",
+            "kind",
             "heading",
             "text"
           ],
@@ -29108,7 +29368,7 @@
                         "available",
                         "no_text"
                       ],
-                      "description": "available = `body_text` holds the text; no_text = headline and link only"
+                      "description": "available = the item has readable text of the current revision (in the forms `content_formats` lists); no_text = headline and link only"
                     },
                     "model_processing_allowed": {
                       "type": "boolean",
@@ -29190,6 +29450,7 @@
                           "block_id",
                           "index",
                           "heading",
+                          "kind",
                           "page",
                           "text",
                           "start_offset",
@@ -29208,7 +29469,20 @@
                           "heading": {
                             "type": "string",
                             "nullable": true,
-                            "description": "The heading the block sits under"
+                            "description": "The text of the nearest heading above the block (a heading block itself carries the one before it)"
+                          },
+                          "kind": {
+                            "type": "string",
+                            "nullable": true,
+                            "enum": [
+                              "heading",
+                              "paragraph",
+                              "list",
+                              "table",
+                              "quote",
+                              "figure"
+                            ],
+                            "description": "What the block is in the article: heading, paragraph, list, table (its rows as lines), quote or figure (a caption); null = guessed from plain text (PDFs, older items: a short line without closing punctuation counts as a heading)"
                           },
                           "page": {
                             "type": "integer",
@@ -29263,6 +29537,41 @@
                       "description": "The next page with every filter; null on the last page"
                     }
                   }
+                },
+                "example": {
+                  "item_id": "13351ae7-876b-4839-ba2b-78873f6b4e00",
+                  "revision": 1,
+                  "title": "Build, test and optimize faster: Arm and GitHub accelerate agentic AI development",
+                  "content_status": "available",
+                  "model_processing_allowed": true,
+                  "attribution": {
+                    "publisher": "Arm Holdings plc American Depositary Shares",
+                    "publisher_host": "newsroom.arm.com",
+                    "source_url": "https://newsroom.arm.com/blog/arm-github-accelerate-agentic-ai-development",
+                    "published_at": "2026-10-29T16:02:31.000Z",
+                    "rights": "issuer",
+                    "edgar": null,
+                    "statement": "Reproduced verbatim from the publisher; © the publisher. Source and date above."
+                  },
+                  "blocks": [
+                    {
+                      "block_id": "b57c4c7e-abaa-8985-af9d-01d7c3bd1ed7",
+                      "index": 0,
+                      "heading": null,
+                      "kind": "paragraph",
+                      "page": null,
+                      "text": "Developers can use AI coding agents to edit code, build, test, and debug within one native Arm development environment. Keeping these tasks on the target architecture can give developers earlier feedback on dependencies, test results, and r…",
+                      "start_offset": 0,
+                      "end_offset": 277
+                    }
+                  ],
+                  "coverage": {
+                    "blocks_total": 37,
+                    "blocks_through": 10
+                  },
+                  "has_more": true,
+                  "next_cursor": "WyIxMzM1MWFlNy04NzZiLTQ4MzktYmEyYi03ODg3M2Y2YjRlMDAiLDEsOV0",
+                  "next_url": "https://api.data.invinite.com/v1/news/13351ae7-876b-4839-ba2b-78873f6b4e00/text?cursor=WyIxMzM1MWFlNy04NzZiLTQ4MzktYmEyYi03ODg3M2Y2YjRlMDAiLDEsOV0"
                 }
               }
             }
@@ -29317,8 +29626,22 @@
         "tags": [
           "News"
         ],
-        "description": "A short-lived URL of one image or original file of a news item, where the publisher's terms allow delivering it.\n\n### What you get\n\n- `url` works for at most 60 seconds (never past the permission it rests on): fetch the file at once and never store or share the URL. `purpose` says whether it may be embedded (`display`) or downloaded (`download`).\n\n- Show `credit` with the file. Files are bound to the item: the asset id must be one of the item's `assets[]`.\n\n### Errors\n\n- `404` for an unknown or no longer served item or asset; `403 asset_unavailable` when the file may not be delivered (link to `original_url`); `503 media_unavailable` while file delivery is not configured.\n\n### Sources and rights\n\n- Items come from SEC EDGAR filings (`rights: public_record`) and the companies' own newsrooms (`rights: issuer`); wire services are never a source.\n\n- Issuer and SEC text is served in full with its attribution: wherever you show the text, show `attribution.publisher`, `attribution.source_url` and `attribution.published_at` next to it (and the EDGAR form and accession for a filing). You may forward the text unmodified; you may not resell it.\n\n- A company that opted out, and a source whose owner reserved reuse, are not served (a reserved source keeps its headline, without text).\n\nMinimum tier for display: FREE.",
+        "description": "A short-lived URL of one image or original file of a news item, where the publisher's terms allow delivering it.\n\n### What you get\n\n- `url` works for at most 60 seconds (never past the permission it rests on): fetch the file at once and never store or share the URL. `purpose` says whether it may be embedded (`display`) or downloaded (`download`).\n\n- `purpose=display` asks for an inline URL (`Content-Disposition: inline`, the file's own `Content-Type`), `purpose=download` for an attachment; without it, download wins when both are allowed. Display is allowed for an asset with `can_display`, and for a PDF with `can_download` (inline viewing of a downloadable original: a browser's PDF viewer renders it); a purpose the asset does not allow is `403 asset_unavailable`.\n\n- Show `credit` with the file. Files are bound to the item: the asset id must be one of the item's `assets[]`.\n\n### Errors\n\n- `404` for an unknown or no longer served item or asset; `403 asset_unavailable` when the file may not be delivered (link to `original_url`); `503 media_unavailable` while file delivery is not configured.\n\n### Sources and rights\n\n- Items come from SEC EDGAR filings (`rights: public_record`) and the companies' own newsrooms (`rights: issuer`); wire services are never a source.\n\n- Issuer and SEC text is served in full with its attribution: wherever you show the text, show `attribution.publisher`, `attribution.source_url` and `attribution.published_at` next to it (and the EDGAR form and accession for a filing). You may forward the text unmodified; you may not resell it.\n\n- A company that opted out, and a source whose owner reserved reuse, are not served (a reserved source keeps its headline, without text).\n\nMinimum tier for display: FREE.",
         "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "display",
+                "download"
+              ]
+            },
+            "in": "query",
+            "name": "purpose",
+            "required": false,
+            "description": "display = an inline URL (an image with `can_display`, or a PDF with `can_download`: viewed in the browser); download = an attachment (`can_download`). Omitted: download when allowed, else display",
+            "example": "display"
+          },
           {
             "schema": {
               "type": "string",
@@ -29328,7 +29651,7 @@
             "name": "id",
             "required": true,
             "description": "News item id",
-            "example": "4c1d9e62-3b7a-4f2e-8d1c-9e0a7b6c5d4f"
+            "example": "13351ae7-876b-4839-ba2b-78873f6b4e00"
           },
           {
             "schema": {
@@ -29339,7 +29662,7 @@
             "name": "asset_id",
             "required": true,
             "description": "Asset id (`assets[].id` of the item)",
-            "example": "7e2f0c19-5a8b-4d3e-9f1a-2b6c8d0e4a7b"
+            "example": "612cd78d-b618-42c6-b3be-ff5c9df1a0f7"
           }
         ],
         "security": [
@@ -29421,6 +29744,16 @@
                       "description": "Credit line to show with it"
                     }
                   }
+                },
+                "example": {
+                  "asset_id": "612cd78d-b618-42c6-b3be-ff5c9df1a0f7",
+                  "item_id": "13351ae7-876b-4839-ba2b-78873f6b4e00",
+                  "purpose": "display",
+                  "url": "https://invinite-news-prod.r2.cloudflarestorage.com/earnings_events/news/assets/13351ae7-876b-4839-ba2b-78873f6b4e00/612cd78d-b618-42c6-b3be-ff5c9df1a0f7/ab99180f.jpg?X-Amz-Signature=…",
+                  "expires_at": "2026-10-31T11:20:14.699Z",
+                  "content_type": "image/jpeg",
+                  "byte_size": 238875,
+                  "credit": null
                 }
               }
             }
@@ -29449,6 +29782,85 @@
         "x-license": "display"
       }
     },
+    "/v1/news/{id}/assets/{asset_id}/view": {
+      "get": {
+        "operationId": "newsAssetView",
+        "summary": "Show a news image (stable view URL)",
+        "tags": [
+          "News"
+        ],
+        "description": "The stable URL of one news image: what `assets[].view_url` and the `<img src>` of `body_html` point at. Put it straight into an `<img>`; it needs no API key.\n\n### What you get\n\n- A `302` redirect to the image itself (a storage link valid ≤ 60 seconds, `Content-Disposition: inline`). Browsers and `curl -L` follow it; never store the target.\n\n- The URL is valid for 24 hours from the item response that minted it (never past the publisher's display permission): after that, or on an image error, fetch the item again for fresh URLs.\n\n- Every load re-checks the item and the image's display permission: a withdrawn image stops loading within a minute, even through an unexpired URL.\n\n- Loading it is not metered: the credits, plan and licence were applied by the `GET /v1/news/{id}` response that minted it. Requests are rate-limited per client IP. Show the asset's `credit` with the image.\n\n### Errors\n\n- `403 view_url_expired` for an expired, altered or foreign URL (fetch the item again); `404 asset_unavailable` when the item or image is no longer served; `503 media_unavailable` while image delivery is not configured.\n\n### Sources and rights\n\n- Items come from SEC EDGAR filings (`rights: public_record`) and the companies' own newsrooms (`rights: issuer`); wire services are never a source.\n\n- Issuer and SEC text is served in full with its attribution: wherever you show the text, show `attribution.publisher`, `attribution.source_url` and `attribution.published_at` next to it (and the EDGAR form and accession for a filing). You may forward the text unmodified; you may not resell it.\n\n- A company that opted out, and a source whose owner reserved reuse, are not served (a reserved source keeps its headline, without text).\n\nMinimum tier for display: FREE.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "exp",
+            "required": true,
+            "description": "Expiry (unix seconds), as minted in `view_url`",
+            "example": "1793534400"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "sig",
+            "required": true,
+            "description": "Signature, as minted in `view_url` (never construct one)",
+            "example": "q7pVt3l0YkqzR4n1Xc8uE2bWm9sJf6hLaD5gTiNoQwY"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "News item id",
+            "example": "13351ae7-876b-4839-ba2b-78873f6b4e00"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "asset_id",
+            "required": true,
+            "description": "Asset id (`assets[].id` of the item)",
+            "example": "612cd78d-b618-42c6-b3be-ff5c9df1a0f7"
+          }
+        ],
+        "x-cli": {
+          "exclude": "invd news get (assets[].view_url): an image URL for browsers, not a CLI command"
+        },
+        "responses": {
+          "302": {
+            "description": "Redirect to the image (a storage URL valid ≤ 60 seconds; `Cache-Control: private` for less than that)"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailableError"
+          }
+        },
+        "x-tier": "standard",
+        "x-license": "display"
+      }
+    },
     "/v1/news/search": {
       "get": {
         "operationId": "newsSearch",
@@ -29456,7 +29868,7 @@
         "tags": [
           "News"
         ],
-        "description": "Search the headlines, ledes and text of news items (SEC filings and the companies' own newsroom publications) by keywords (default `mode=lexical`) or exact text (`literal`).\n\n### What you get\n\n- Up to 8 passages, each with its news item (the `/v1/news` list item, incl. `attribution`), where it matched (`field`: `title`, `lede` or `body`), the text block it is from (`block`, see `/v1/news/{id}/text`) and how it matched (`match`); the response says how much of the searched news is indexed (`coverage`).\n\n- Filter by `ticker` / `cik` (mentions, either matches), `publisher`, `kind`, `topic`, `field` and the publication window (`from` / `to`, default the last 365 days).\n\n- A source whose owner reserved reuse keeps its headline searchable, never its lede or text; `model_processing_allowed: false` = do not pass the passage to a model.\n\n### Search modes\n\n- `lexical` (default): keyword search — English full text with stemming; quoted phrases, `OR` and `-word` work; every word must match; ranked by `ts_rank_cd` (`websearch_to_tsquery`). Finance tokens such as `FY2027`, `10-K`, `Q3` or `EBITDA` match as written.\n\n- `literal`: the exact characters of the passage — no stemming, no fuzzy matching, `%` / `_` / `\\` match themselves; case-sensitive unless `case_sensitive=false` (only allowed with `mode=literal`; default `true`). A pattern under 3 characters needs `ticker`, `cik` or `publisher`. Newest first; `score` is 0.\n\n- `match.spans` mark the matched characters in `text` (zero-based, end-exclusive Unicode code-point offsets); `text` is cut around the first match (`text_truncated`); `match.lexical_rank` is the hit's 1-based rank. Neither mode expands into fuzzy results. Both modes cost the same.\n\n### Coverage\n\n- `coverage.completeness` = `complete` (every searched passage is indexed: no hits is a genuine no-result), `partial` (some passages are still being indexed or failed) or `unknown` (nothing of the searched scope is indexed yet, or the counts could not be read) — read it before treating an empty list as \"not found\".\n\n- `coverage.lexical` counts the searched transcripts or documents in the text index (`indexed`, `pending`, `failed`). `reasons` lists why the answer may be incomplete. The counts come from the indexing ledger: a transcript or document whose current version the index has not confirmed counts as `pending`; when they cannot be read, the hits are still returned with `completeness: unknown`, `lexical` null and `coverage_unavailable`.\n\n### Changelog\n\n- 2026-10: modes added and the default mode changed from semantic to `lexical`.\n\n- 2026-11: modes `semantic` and `hybrid` removed; vector search is gone, pass `mode=lexical` (default) or `literal`.\n\n### Errors\n\n- `400` for a `mode=lexical` query of stopwords only (no searchable words), for `case_sensitive` with any mode but `literal`, and for a `mode=literal` pattern under 3 characters without a scope (see Search modes).\n\n- `503 search_unavailable` (a search over its time limit — never an empty answer) carries `Retry-After`.\n\n- `503 search_disabled` while search is switched off.\n\n### Sources and rights\n\n- Items come from SEC EDGAR filings (`rights: public_record`) and the companies' own newsrooms (`rights: issuer`); wire services are never a source.\n\n- Issuer and SEC text is served in full with its attribution: wherever you show the text, show `attribution.publisher`, `attribution.source_url` and `attribution.published_at` next to it (and the EDGAR form and accession for a filing). You may forward the text unmodified; you may not resell it.\n\n- A company that opted out, and a source whose owner reserved reuse, are not served (a reserved source keeps its headline, without text).\n\nMinimum tier for display: FREE.",
+        "description": "Search the headlines, ledes and text of news items (SEC filings and the companies' own newsroom publications) by keywords (default `mode=lexical`) or exact text (`literal`).\n\n### What you get\n\n- Up to 8 passages, each with its news item (the `/v1/news` list item, incl. `attribution`), where it matched (`field`: `title`, `lede` or `body`), the text block it is from (`block`, see `/v1/news/{id}/text`) and how it matched (`match`); the response says how much of the searched news is indexed (`coverage`).\n\n- Filter by `ticker` / `cik` (mentions, either matches), `publisher`, `publisher_host` (the host of the original URL), `kind`, `topic`, `field` and the publication window (`from` / `to`, default the last 365 days).\n\n- A source whose owner reserved reuse keeps its headline searchable, never its lede or text; `model_processing_allowed: false` = do not pass the passage to a model.\n\n### Search modes\n\n- `lexical` (default): keyword search — English full text with stemming; quoted phrases, `OR` and `-word` work; every word must match; ranked by `ts_rank_cd` (`websearch_to_tsquery`). Finance tokens such as `FY2027`, `10-K`, `Q3` or `EBITDA` match as written.\n\n- `literal`: the exact characters of the passage — no stemming, no fuzzy matching, `%` / `_` / `\\` match themselves; case-sensitive unless `case_sensitive=false` (only allowed with `mode=literal`; default `true`). A pattern under 3 characters needs `ticker`, `cik` or `publisher`. Newest first; `score` is 0.\n\n- `match.spans` mark the matched characters in `text` (zero-based, end-exclusive Unicode code-point offsets); `text` is cut around the first match (`text_truncated`); `match.lexical_rank` is the hit's 1-based rank. Neither mode expands into fuzzy results. Both modes cost the same.\n\n### Coverage\n\n- `coverage.completeness` = `complete` (every searched passage is indexed: no hits is a genuine no-result), `partial` (some passages are still being indexed or failed) or `unknown` (nothing of the searched scope is indexed yet, or the counts could not be read) — read it before treating an empty list as \"not found\".\n\n- `coverage.lexical` counts the searched transcripts or documents in the text index (`indexed`, `pending`, `failed`). `reasons` lists why the answer may be incomplete. The counts come from the indexing ledger: a transcript or document whose current version the index has not confirmed counts as `pending`; when they cannot be read, the hits are still returned with `completeness: unknown`, `lexical` null and `coverage_unavailable`.\n\n### Changelog\n\n- 2026-10: modes added and the default mode changed from semantic to `lexical`.\n\n- 2026-11: modes `semantic` and `hybrid` removed; vector search is gone, pass `mode=lexical` (default) or `literal`.\n\n### Errors\n\n- `400` for a `mode=lexical` query of stopwords only (no searchable words), for `case_sensitive` with any mode but `literal`, and for a `mode=literal` pattern under 3 characters without a scope (see Search modes).\n\n- `503 search_unavailable` (a search over its time limit — never an empty answer) carries `Retry-After`.\n\n- `503 search_disabled` while search is switched off.\n\n### Sources and rights\n\n- Items come from SEC EDGAR filings (`rights: public_record`) and the companies' own newsrooms (`rights: issuer`); wire services are never a source.\n\n- Issuer and SEC text is served in full with its attribution: wherever you show the text, show `attribution.publisher`, `attribution.source_url` and `attribution.published_at` next to it (and the EDGAR form and accession for a filing). You may forward the text unmodified; you may not resell it.\n\n- A company that opted out, and a source whose owner reserved reuse, are not served (a reserved source keeps its headline, without text).\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -29559,6 +29971,17 @@
             "example": [
               "1045810"
             ]
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 253
+            },
+            "in": "query",
+            "name": "publisher_host",
+            "required": false,
+            "description": "Items whose original URL is on this host (`attribution.publisher_host`, e.g. `nvidianews.nvidia.com` or `www.sec.gov`); exact match, case-insensitive, no wildcard",
+            "example": "nvidianews.nvidia.com"
           },
           {
             "schema": {
@@ -29718,6 +30141,7 @@
                               "publications",
                               "publications_truncated",
                               "model_processing_allowed",
+                              "media_count",
                               "attribution"
                             ],
                             "properties": {
@@ -30004,6 +30428,11 @@
                               "model_processing_allowed": {
                                 "type": "boolean",
                                 "description": "Whether the publisher's text (lede, body) may be processed by AI models; API access alone does not authorize forwarding text into models"
+                              },
+                              "media_count": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "description": "Media of the item you can get now: the assets `GET /v1/news/{id}` lists with a `download_url` (displayable or downloadable)"
                               },
                               "attribution": {
                                 "type": "object",
@@ -36524,6 +36953,7 @@
                               "publications",
                               "publications_truncated",
                               "model_processing_allowed",
+                              "media_count",
                               "attribution"
                             ],
                             "properties": {
@@ -36810,6 +37240,11 @@
                               "model_processing_allowed": {
                                 "type": "boolean",
                                 "description": "Whether the publisher's text (lede, body) may be processed by AI models; API access alone does not authorize forwarding text into models"
+                              },
+                              "media_count": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "description": "Media of the item you can get now: the assets `GET /v1/news/{id}` lists with a `download_url` (displayable or downloadable)"
                               },
                               "attribution": {
                                 "type": "object",
