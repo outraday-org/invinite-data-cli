@@ -2156,7 +2156,7 @@
                 },
                 "example": {
                   "status": "ok",
-                  "timestamp": "2026-10-29T12:39:17.782Z"
+                  "timestamp": "2026-11-01T16:41:51.123Z"
                 }
               }
             }
@@ -2737,14 +2737,14 @@
                       "is_delisted": false,
                       "list_date": "1980-12-12",
                       "employees": 166000,
-                      "market_cap": 5081985359600,
+                      "market_cap": 5092055343800,
                       "shares_outstanding": 14594180000,
                       "insider_own_pct": 0.06,
-                      "insider_own_shares": 9340163,
-                      "inst_own_pct": 61.65,
-                      "inst_own_shares": 8998013800,
-                      "short_float_pct": 0.83,
-                      "short_float_shares": 120763539,
+                      "insider_own_shares": 9337764,
+                      "inst_own_pct": 62.74,
+                      "inst_own_shares": 9157104824,
+                      "short_float_pct": 0.9,
+                      "short_float_shares": 131591865,
                       "homepage_url": "https://www.apple.com",
                       "investor_relations_url": "https://www.apple.com",
                       "logo_url": "https://storage-prod.invinite.com/company_logos/AAPL.png",
@@ -13841,12 +13841,12 @@
                       "currency_code": "USD",
                       "final_issue_price": null,
                       "highest_offer_price": 21,
-                      "ipo_status": "pending",
+                      "ipo_status": "new",
                       "isin": "US68348G1022",
                       "issue_end_date": null,
                       "issue_start_date": null,
                       "issuer_name": "OPay Ltd.",
-                      "last_updated": "2026-10-28T00:00:00.000Z",
+                      "last_updated": "2026-10-30T00:00:00.000Z",
                       "lot_size": 100,
                       "lowest_offer_price": 19,
                       "max_shares_offered": 16000000,
@@ -13861,7 +13861,7 @@
                       "registration": {
                         "cik": "0002103076",
                         "track_key": "333-299385",
-                        "stage": "exchange_approved",
+                        "stage": "effective",
                         "final_offer_price": null
                       }
                     }
@@ -14288,50 +14288,35 @@
                 "example": {
                   "registrations": [
                     {
-                      "cik": "0002049977",
-                      "company_name": "Starton Holdings, Inc.",
-                      "track_key": "333-292059",
+                      "cik": "0002108121",
+                      "company_name": "Ionetix Corp / DE /",
+                      "track_key": "333-298160",
                       "form_family": "S-1",
-                      "stage": "price_range",
+                      "stage": "registered",
                       "is_spac": false,
-                      "proposed_symbols": [
-                        {
-                          "symbol": "STA",
-                          "exchange": "NASDAQ",
-                          "security_class": "common",
-                          "source": "regex",
-                          "ipo_calendar_match": true
-                        }
-                      ],
+                      "proposed_symbols": null,
                       "exchange": null,
-                      "price_range_low": "5.0000",
-                      "price_range_high": "7.0000",
-                      "shares_offered": 5000000,
+                      "price_range_low": null,
+                      "price_range_high": null,
+                      "shares_offered": null,
                       "final_offer_price": null,
                       "final_shares_offered": null,
-                      "first_public_at": "2026-10-28T21:21:40.000Z",
-                      "price_range_at": "2026-10-28T21:21:40.000Z",
+                      "first_public_at": "2026-10-30T21:23:29.000Z",
+                      "price_range_at": null,
                       "exchange_approved_at": null,
                       "effective_at": null,
                       "priced_at": null,
                       "withdrawn_at": null,
                       "first_trade_date": null,
-                      "massive": {
-                        "ticker": "STA",
-                        "ipo_status": "pending",
-                        "listing_date": null,
-                        "price_low": "5.0000",
-                        "price_high": "7.0000",
-                        "final_price": null
-                      },
+                      "massive": null,
                       "filings": [
                         {
-                          "accession_number": "0001213900-26-113388",
+                          "accession_number": "0001213900-26-114512",
                           "form_type": "S-1/A",
                           "signal": "registration",
-                          "filed_at": "2026-10-28T21:21:40.000Z",
-                          "filing_date": "2026-10-28",
-                          "html_url": "https://storage-prod.invinite.com/filing_htmls/2049977_0001213900-26-113388_S-1/A_2026-10-28.html"
+                          "filed_at": "2026-10-30T21:23:29.000Z",
+                          "filing_date": "2026-10-30",
+                          "html_url": "https://storage-prod.invinite.com/filing_htmls/2108121_0001213900-26-114512_S-1/A_2026-10-30.html"
                         }
                       ]
                     }
@@ -15793,10 +15778,10 @@
                   "cik": "0000320193",
                   "transactions": [
                     {
-                      "id": "34c0a2968c321a49eaf256c3037300fb:8fc5165120fc4e82cf77:0",
-                      "accession_number": "0001140361-26-040540",
+                      "id": "581ec101dee778aa40d27e76f6d08911:b1aa665297043dd3556f:0",
+                      "accession_number": "0001140361-26-041201",
                       "cik": "0000320193",
-                      "filed_at": "2026-10-22T22:32:20.000Z",
+                      "filed_at": "2026-10-29T22:30:14.000Z",
                       "reporting_person_name": "Newstead Jennifer",
                       "reporting_person_is_director": false,
                       "reporting_person_is_officer": true,
@@ -15806,13 +15791,13 @@
                       "acquired_disposed": "D",
                       "coding_code": "S",
                       "shares": 2399,
-                      "share_price": 339.62,
-                      "total": 814749,
-                      "shares_owned_following_transaction": 34795,
-                      "period_of_report": "2026-10-20",
+                      "share_price": 343.36,
+                      "total": 823721,
+                      "shares_owned_following_transaction": 32396,
+                      "period_of_report": "2026-10-27",
                       "reporting_person_officer_title": "SVP, GC and Government Affairs",
                       "reporting_person_other_text": null,
-                      "shares_owned_before_transaction": 37194
+                      "shares_owned_before_transaction": 34795
                     }
                   ]
                 }
@@ -16272,41 +16257,41 @@
                   }
                 },
                 "example": {
-                  "from": "2026-10-29",
-                  "to": "2026-11-12",
+                  "from": "2026-11-01",
+                  "to": "2026-11-15",
                   "events": [
                     {
-                      "event_id": "0113a5ee-e3cd-4f06-8595-96a9c9f115f3",
+                      "event_id": "e648ae53-56f7-45fe-9b69-fb54efad212a",
                       "source": "us",
-                      "cik": "0001122411",
-                      "symbol": "ASX",
-                      "company_name": "ASE Technology Holding Co., Ltd.",
+                      "cik": "0000889132",
+                      "symbol": "PKX",
+                      "company_name": "POSCO Holdings Inc. American Depositary Shares (Each representing 1/4th of a share of Common Stock)",
                       "exchange": "NYSE",
                       "event_type": "earnings_call",
                       "event_title": null,
                       "fiscal_year": 2026,
                       "fiscal_quarter": 3,
-                      "scheduled_at": "2026-10-29T00:00:00.000Z",
+                      "scheduled_at": "2026-11-02T06:00:00.000Z",
                       "tz": "America/New_York",
                       "date_status": "confirmed",
-                      "call_time_source": null,
-                      "call_time_confidence": null,
-                      "session": null,
+                      "call_time_source": "edgar",
+                      "call_time_confidence": "high",
+                      "session": "bmo",
                       "started_at": null,
                       "ended_at": null,
-                      "results_released_at": "2026-10-29T10:08:03.000Z",
+                      "results_released_at": "2026-10-20T10:02:09.000Z",
                       "capture_status": "pending",
                       "reschedule_count": 0,
                       "has_transcript": false,
                       "has_audio": false,
                       "has_slides": false,
                       "has_press_release": false,
-                      "has_documents": true,
-                      "webcast_url": "https://zoom.us/webinar/register/WN_dhsOpYJfR5--F4QQ0B7KqQ",
+                      "has_documents": false,
+                      "webcast_url": null,
                       "video": null
                     }
                   ],
-                  "next_url": "https://api.data.invinite.com/v1/earnings-calls/calendar?offset=100&limit=100&from=2026-10-29&to=2026-11-12"
+                  "next_url": "https://api.data.invinite.com/v1/earnings-calls/calendar?offset=100&limit=100&from=2026-11-01&to=2026-11-15"
                 }
               }
             }
@@ -19896,15 +19881,15 @@
                   "cik": "0000789019",
                   "analysts": [
                     {
-                      "person_id": "90b1ae97-2207-48d3-8fb4-e70f165bb4b3",
-                      "name": "Carl Kierstad",
-                      "firm": "UBS",
+                      "person_id": "ea1c3249-2f18-4e48-947b-bd2e9af45e86",
+                      "name": "Brent Phil",
+                      "firm": "Jefferies",
                       "appearances": 4,
-                      "questions": 8,
-                      "first_seen": "2025-10-29T00:00:00.000Z",
-                      "last_seen": "2026-07-29T00:00:00.000Z",
-                      "mean_difficulty": 0.358,
-                      "scored_question_count": 4
+                      "questions": 4,
+                      "first_seen": "2026-01-28T00:00:00.000Z",
+                      "last_seen": "2026-10-28T21:30:00.000Z",
+                      "mean_difficulty": 0.615,
+                      "scored_question_count": 2
                     }
                   ]
                 }
@@ -20186,22 +20171,22 @@
                   "name": "Satya Nadella",
                   "current_firm": null,
                   "current_title": "chairman and chief executive officer, Microsoft",
-                  "appearance_count": 4,
+                  "appearance_count": 5,
                   "aliases": [],
                   "appearances": [
                     {
-                      "event_id": "cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c",
+                      "event_id": "e9eb6e9e-21e8-41d7-8d9e-da648e0002a1",
                       "symbol": "MSFT",
                       "cik": "0000789019",
                       "company_name": "Microsoft Corp",
-                      "scheduled_at": "2026-07-29T00:00:00.000Z",
-                      "fiscal_year": 2026,
-                      "fiscal_quarter": 4,
-                      "speaker_label": "spk02",
+                      "scheduled_at": "2026-10-28T21:30:00.000Z",
+                      "fiscal_year": 2027,
+                      "fiscal_quarter": 1,
+                      "speaker_label": "spk01",
                       "role": "executive",
                       "title": "chairman and chief executive officer, Microsoft",
                       "firm": null,
-                      "word_count": 4174,
+                      "word_count": 3602,
                       "question_count": 0
                     }
                   ],
@@ -21433,18 +21418,18 @@
                   "metric_normalized": "revenue_growth",
                   "series": [
                     {
-                      "event_id": "cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c",
-                      "conference_date": "2026-07-29T00:00:00.000Z",
-                      "fiscal_year": 2026,
-                      "fiscal_quarter": 4,
-                      "period_label": "Q1 FY2027",
+                      "event_id": "e9eb6e9e-21e8-41d7-8d9e-da648e0002a1",
+                      "conference_date": "2026-10-28T21:30:00.000Z",
+                      "fiscal_year": 2027,
+                      "fiscal_quarter": 1,
+                      "period_label": "Q2 FY2027",
                       "period_kind": "quarter",
-                      "low": 16,
-                      "high": 17,
-                      "midpoint": 16.5,
+                      "low": null,
+                      "high": null,
+                      "midpoint": 19,
                       "unit": "pct",
                       "currency": null,
-                      "basis": "unknown",
+                      "basis": "non_gaap",
                       "direction": "new",
                       "change_vs_prior": null,
                       "confidence": 0.5
@@ -23422,7 +23407,7 @@
                   },
                   "deck": {
                     "url": "https://invinite-prod.r2.cloudflarestorage.com/earnings_events/us/789019/earnings/fy2026/q4/q4-fy2026-earnings-presentation.pdf?X-Amz-Signature=…",
-                    "expires_at": "2026-10-29T12:54:37.020Z",
+                    "expires_at": "2026-11-01T16:57:13.560Z",
                     "pages": 23,
                     "origin": "ir_page",
                     "source_url": "https://cdn-dynmedia-1.microsoft.com/is/content/microsoftcorp/SlidesFY26Q4.pptx",
@@ -23866,7 +23851,7 @@
                       "source_url": "https://cdn-dynmedia-1.microsoft.com/is/content/microsoftcorp/OutlookFY27Q1",
                       "accession_number": null,
                       "url": "https://invinite-prod.r2.cloudflarestorage.com/earnings_events/us/789019/earnings/fy2026/q4/q4-fy2026-cfo-commentary.pdf?X-Amz-Signature=…",
-                      "expires_at": "2026-10-29T12:54:37.262Z",
+                      "expires_at": "2026-11-01T16:57:13.792Z",
                       "content_type": "application/pdf",
                       "bytes": 487074,
                       "pages": 6,
@@ -24429,35 +24414,35 @@
                   },
                   "documents": [
                     {
-                      "document_id": "065c2cc6-51f2-4cfb-be36-477de01fe6dc",
+                      "document_id": "f3cdd1e0-ccba-4b6c-9075-a640a2633d2b",
                       "source": "company",
-                      "section": "esg",
-                      "kind": "esg_report",
+                      "section": "annual_reports",
+                      "kind": "annual_report",
                       "year": 2026,
                       "period": "FY",
-                      "group": "esg/2026",
-                      "group_label": "ESG 2026",
-                      "category": "esg",
+                      "group": "reports/2026",
+                      "group_label": "Reports 2026",
+                      "category": "reports",
                       "event_id": null,
                       "event_type": null,
                       "event_date": null,
-                      "title": "2026 Environmental Sustainability Data Factsheet",
-                      "source_label": null,
-                      "source_url": "https://cdn-dynmedia-1.microsoft.com/is/content/microsoftcorp/microsoft/msc/documents/presentations/CSR/2026-Microsoft-Environmental-Data-Fact-Sheet-PDF.pdf",
-                      "page_url": "https://www.microsoft.com/en-us/corporate-responsibility/reports-hub",
-                      "origin": "agent",
+                      "title": "Air India",
+                      "source_label": "Air India",
+                      "source_url": "https://microsoft.com/en/customers/story/26047-air-india-azure-openai-in-foundry-models",
+                      "page_url": "https://www.microsoft.com/investor/reports/ar26/index.html",
+                      "origin": "html_page",
                       "producer": null,
                       "confidence": "medium",
                       "trust_tier": "confirmed_domain",
-                      "content_type": "application/pdf",
-                      "bytes": 3912081,
-                      "pages": 28,
+                      "content_type": "text/html; charset=utf-8",
+                      "bytes": 212393,
+                      "pages": null,
                       "link_status": null,
-                      "url": "https://invinite-prod.r2.cloudflarestorage.com/earnings_events/us/789019/esg/2026/2026-environmental-sustainability-data-factsheet.pdf?X-Amz-Signature=…",
-                      "pages_url": "https://invinite-prod.r2.cloudflarestorage.com/earnings_events/us/789019/esg/2026/text/2026-environmental-sustainability-data-factsheet.pdf.pages.json?X-Amz-Signature=…",
-                      "expires_at": "2026-10-29T12:54:37.501Z",
-                      "created_at": "2026-10-14T07:39:24.133Z",
-                      "updated_at": "2026-10-21T19:15:32.574Z"
+                      "url": "https://invinite-prod.r2.cloudflarestorage.com/earnings_events/us/789019/reports/2026/air-india.htm?X-Amz-Signature=…",
+                      "pages_url": "https://invinite-prod.r2.cloudflarestorage.com/earnings_events/us/789019/reports/2026/text/air-india.htm.pages.json?X-Amz-Signature=…",
+                      "expires_at": "2026-11-01T16:57:14.011Z",
+                      "created_at": "2026-10-30T21:33:59.538Z",
+                      "updated_at": "2026-10-31T18:27:09.495Z"
                     }
                   ],
                   "next_url": "https://api.data.invinite.com/v1/earnings-calls/company-documents?identifier=MSFT&offset=50&limit=50"
@@ -25258,7 +25243,7 @@
                     "completeness": "partial",
                     "lexical": {
                       "state": "partial",
-                      "indexed": 484,
+                      "indexed": 486,
                       "pending": 23,
                       "failed": 0
                     },
@@ -25298,7 +25283,7 @@
                       "group_label": "Reports 2025",
                       "category": "reports",
                       "url": "https://invinite-prod.r2.cloudflarestorage.com/earnings_events/us/789019/reports/2025/2025-proxy-statement.pdf?X-Amz-Signature=…",
-                      "expires_at": "2026-10-29T12:54:38.230Z"
+                      "expires_at": "2026-11-01T16:57:14.796Z"
                     }
                   ]
                 }
@@ -25677,7 +25662,7 @@
                     "completeness": "complete",
                     "lexical": {
                       "state": "ready",
-                      "indexed": 4,
+                      "indexed": 5,
                       "pending": 0,
                       "failed": 0
                     },
@@ -25685,35 +25670,35 @@
                   },
                   "hits": [
                     {
-                      "event_id": "947e3f21-47e0-4076-b83d-099a1b36c7a9",
+                      "event_id": "e9eb6e9e-21e8-41d7-8d9e-da648e0002a1",
                       "cik": "0000789019",
                       "symbol": "MSFT",
-                      "conference_date": "2026-01-28T00:00:00.000Z",
-                      "fiscal_year": 2026,
-                      "fiscal_quarter": 2,
+                      "conference_date": "2026-10-28T21:30:00.000Z",
+                      "fiscal_year": 2027,
+                      "fiscal_quarter": 1,
                       "type": "qa",
                       "speaker": {
-                        "label": "spk05",
-                        "name": "Keith Weiss",
-                        "title": null
+                        "label": "spk09",
+                        "name": "Mark Moerdler",
+                        "title": "Analyst, Bernstein Research"
                       },
-                      "start_ms": 2161066,
-                      "end_ms": 2188702,
-                      "chunk_index": 74,
-                      "text": "And I think that fundamentally comes down to a concern on the ROI on this CapEx spend over time. So I was hoping you guys could help us fill in some of the blanks a little bit in terms of how should we think about capacity expansion and wha…",
+                      "start_ms": 2409053,
+                      "end_ms": 2428390,
+                      "chunk_index": 92,
+                      "text": "And Satya, with the strong growth of the Azure AI platform offering, can you give us color on what's driving that? Is it, again, enterprise? Is it digitally native? Obviously, it's a mix of both. But any color that shows the ramp of that en…",
                       "text_truncated": false,
-                      "score": 3.8458,
+                      "score": 4.0702,
                       "match": {
                         "type": "lexical",
                         "lexical_rank": 1,
                         "spans": [
                           {
-                            "start": 269,
-                            "end": 274
+                            "start": 27,
+                            "end": 33
                           }
                         ]
                       },
-                      "audio_url": "https://storage-prod.invinite.com/earnings_events/us/789019/earnings/fy2026/q2/audio/q2-fy2026-earnings-call-2vvlfp.mp3#t=2161",
+                      "audio_url": "https://storage-prod.invinite.com/earnings_events/us/789019/earnings/fy2027/q1/audio/q1-fy2027-earnings-call-q0szpq.mp3#t=2409",
                       "slide": null
                     }
                   ]
@@ -27770,16 +27755,16 @@
                 "example": {
                   "items": [
                     {
-                      "id": "d63e7c6e-ebeb-4f31-9b9f-eb0e0dc48b8b",
-                      "title": "A decade in the making: From progress to possibility for PepsiCo’s food and drink portfolio",
-                      "description": "How science, consumer insights and years of innovation are helping PepsiCo adapt familiar brands while keeping taste at the center. October 13, 2026 For anyone who has ever opened a bag of Doritos, poured a Pepsi or made a bowl of Quaker oa…",
-                      "url": "https://www.pepsico.com/newsroom/stories/2026/a-decade-in-the-making-from-progress-to-possibility-for-pepsicos-food-and-drink-portfolio",
-                      "published_at": "2026-10-31T00:13:33.114Z",
-                      "first_seen_at": "2026-10-31T00:13:33.114Z",
+                      "id": "20158adf-213e-441d-acf6-ba10954b71d1",
+                      "title": "TotalEnergies Strengthens Cooperation with PETRONAS SONANGOL and OIL INDIA LIMITED to Reduce Methane Emissions",
+                      "description": "Paris, November 1, 2026 – On the occasion of the meeting of the Oil and Gas Decarbonization Charter (OGDC) member companies in Abu Dhabi, TotalEnergies highlights its cooperation with National Oil & Gas Companies to reduce methane emissions…",
+                      "url": "https://totalenergies.com/newsroom/totalenergies-strengthens-cooperation-with-petronas-sonangol-and-oil-india-limited-to-reduce-methane-emissions/?lang=eng",
+                      "published_at": "2026-11-01T12:00:00.000Z",
+                      "first_seen_at": "2026-11-01T08:06:37.935Z",
                       "source": {
                         "id": "ir",
-                        "name": "PepsiCo, Inc.",
-                        "host": "www.pepsico.com"
+                        "name": "TotalEnergies SE",
+                        "host": "totalenergies.com"
                       },
                       "kind": "other",
                       "topics": [],
@@ -27787,45 +27772,45 @@
                       "is_earnings_news": false,
                       "earnings": null,
                       "symbols": [
-                        "PEP"
+                        "TTE"
                       ],
                       "ciks": [
-                        "0000077476"
+                        "0000879764"
                       ],
-                      "revision": 1,
+                      "revision": 2,
                       "supersedes_id": null,
                       "publications": [
                         {
-                          "source_id": "ir:www.pepsico.com",
+                          "source_id": "ir:totalenergies.com",
                           "publisher": {
-                            "cik": "0000077476",
-                            "symbol": "PEP",
-                            "name": "PepsiCo, Inc."
+                            "cik": "0000879764",
+                            "symbol": "TTE",
+                            "name": "TotalEnergies"
                           },
-                          "url": "https://www.pepsico.com/newsroom/stories/2026/a-decade-in-the-making-from-progress-to-possibility-for-pepsicos-food-and-drink-portfolio",
-                          "publication_type": "company_update",
-                          "published_at": "2026-10-31T00:13:33.114Z",
-                          "modified_at": null,
+                          "url": "https://totalenergies.com/newsroom/totalenergies-strengthens-cooperation-with-petronas-sonangol-and-oil-india-limited-to-reduce-methane-emissions/?lang=eng",
+                          "publication_type": "press_release",
+                          "published_at": "2026-11-01T12:00:00.000Z",
+                          "modified_at": "2026-11-01T07:11:02.000Z",
                           "categories": [],
                           "tags": []
                         }
                       ],
                       "publications_truncated": false,
                       "model_processing_allowed": true,
-                      "media_count": 2,
+                      "media_count": 1,
                       "attribution": {
-                        "publisher": "PepsiCo, Inc.",
-                        "publisher_host": "www.pepsico.com",
-                        "source_url": "https://www.pepsico.com/newsroom/stories/2026/a-decade-in-the-making-from-progress-to-possibility-for-pepsicos-food-and-drink-portfolio",
-                        "published_at": "2026-10-31T00:13:33.114Z",
+                        "publisher": "TotalEnergies",
+                        "publisher_host": "totalenergies.com",
+                        "source_url": "https://totalenergies.com/newsroom/totalenergies-strengthens-cooperation-with-petronas-sonangol-and-oil-india-limited-to-reduce-methane-emissions/?lang=eng",
+                        "published_at": "2026-11-01T12:00:00.000Z",
                         "rights": "issuer",
                         "edgar": null,
                         "statement": "Reproduced verbatim from the publisher; © the publisher. Source and date above."
                       }
                     }
                   ],
-                  "next_cursor": "WyIyMDI2LTEwLTMwVDEwOjE1OjAwLjAwMDAwMFoiLCJlNjljNzQwNi02MjMzLTQxN2UtOTAzNy00ZjE2YWU5N2U4MGIiXQ",
-                  "next_url": "https://api.data.invinite.com/v1/news?cursor=WyIyMDI2LTEwLTMwVDEwOjE1OjAwLjAwMDAwMFoiLCJlNjljNzQwNi02MjMzLTQxN2UtOTAzNy00ZjE2YWU5N2U4MGIiXQ"
+                  "next_cursor": "WyIyMDI2LTEwLTMwVDEyOjAwOjAwLjAwMDAwMFoiLCI4ZGIyZmQyMi03MTA0LTQ3OGQtOTQ1My0xOTBjNWU4ZDM0YTciXQ",
+                  "next_url": "https://api.data.invinite.com/v1/news?cursor=WyIyMDI2LTEwLTMwVDEyOjAwOjAwLjAwMDAwMFoiLCI4ZGIyZmQyMi03MTA0LTQ3OGQtOTQ1My0xOTBjNWU4ZDM0YTciXQ"
                 }
               }
             }
@@ -29333,14 +29318,21 @@
                       "can_display": true,
                       "can_download": false,
                       "download_url": "https://api.data.invinite.com/v1/news/13351ae7-876b-4839-ba2b-78873f6b4e00/assets/a9247c9e-9539-4cd8-9d9c-784be7138839/download",
-                      "view_url": "https://api.data.invinite.com/v1/news/13351ae7-876b-4839-ba2b-78873f6b4e00/assets/a9247c9e-9539-4cd8-9d9c-784be7138839/view?exp=1793530800&sig=…"
+                      "view_url": "https://api.data.invinite.com/v1/news/13351ae7-876b-4839-ba2b-78873f6b4e00/assets/a9247c9e-9539-4cd8-9d9c-784be7138839/view?exp=1793635200&sig=…"
                     }
                   ],
                   "developments": [],
+                  "pdf": {
+                    "url": "https://storage-prod.invinite.com/earnings_events/news/us/1973239/2026-10-29/13351ae7-876b-4839-ba2b-78873f6b4e00/r1-ce05e9bd.pdf",
+                    "version": 1,
+                    "sha256": "49382d4d963797da8edff046f1be2b0efd3171af3cbe3f79751fbbf32c0bfa9c",
+                    "bytes": 725653,
+                    "pages": 5,
+                    "generated_at": "2026-11-01T15:23:08.403Z"
+                  },
                   "body_text": "Developers can use AI coding agents to edit code, build, test, and debug within one native Arm development environment. Keeping these tasks on the target architecture can give developers earlier feedback on dependencies, test results, and r…",
                   "body_html": "<p>Developers can use AI coding agents to edit code, build, test, and debug within one native Arm development environment. Keeping these tasks on the target architecture can give developers earlier feedback on dependencies, test results, an…",
-                  "images_truncated": false,
-                  "pdf": null
+                  "images_truncated": false
                 }
               }
             }
@@ -29864,7 +29856,7 @@
                   "item_id": "13351ae7-876b-4839-ba2b-78873f6b4e00",
                   "purpose": "display",
                   "url": "https://invinite-news-prod.r2.cloudflarestorage.com/earnings_events/news/assets/13351ae7-876b-4839-ba2b-78873f6b4e00/612cd78d-b618-42c6-b3be-ff5c9df1a0f7/ab99180f.jpg?X-Amz-Signature=…",
-                  "expires_at": "2026-10-31T11:20:14.699Z",
+                  "expires_at": "2026-11-01T16:43:17.261Z",
                   "content_type": "image/jpeg",
                   "byte_size": 238875,
                   "credit": null
@@ -30938,16 +30930,16 @@
                       "cik": "0000320193",
                       "filings": [
                         {
-                          "accession_number": "0001140361-26-040540",
+                          "accession_number": "0001140361-26-041201",
                           "calendar_quarter": 4,
                           "calendar_year": 2026,
                           "cik": "0000320193",
-                          "filing_date": "2026-10-22",
+                          "filing_date": "2026-10-29",
                           "fiscal_quarter": null,
                           "fiscal_year": null,
                           "form_type": "4",
-                          "html_url": "https://storage-prod.invinite.com/filing_htmls/320193_0001140361-26-040540_4_2026-10-22.html",
-                          "period_end": "2026-10-20",
+                          "html_url": "https://storage-prod.invinite.com/filing_htmls/320193_0001140361-26-041201_4_2026-10-29.html",
+                          "period_end": "2026-10-27",
                           "proposed_symbols": null
                         }
                       ],
@@ -31091,14 +31083,14 @@
                   ]
                 },
                 "example": {
-                  "text": "Apple’s principal risk factors, as disclosed in its SEC filings for **CIK 0000320193 (AAPL)**, are:\n\n- **Macroeconomic and international exposure:** A majority of Apple’s sales and much of its supply chain are outside the United States, exp…",
+                  "text": "Apple’s principal risk factors, as disclosed in its **2025 Form 10-K** and subsequent 2026 filings, are:\n\n- **Macroeconomic and international exposure:** Apple has substantial sales outside the United States and depends on global economic c…",
                   "sources": [
                     {
                       "cik": "0000320193",
-                      "accession_number": "0000320193-24-000123",
-                      "html_url": "https://storage-prod.invinite.com/filing_htmls/320193_0000320193-24-000123_10-K_2024-11-01.html",
+                      "accession_number": "0000320193-25-000079",
+                      "html_url": "https://storage-prod.invinite.com/filing_htmls/320193_0000320193-25-000079_10-K_2025-10-31.html",
                       "ticker": "AAPL",
-                      "filing_date": "2024-11-01",
+                      "filing_date": "2025-10-31",
                       "form_type": "10-K"
                     }
                   ]
@@ -32077,13 +32069,13 @@
                   "period": {
                     "tier": "pro",
                     "included_credits": 4000000,
-                    "used_credits": 3089,
+                    "used_credits": 3828,
                     "resets_at": "2026-11-28T12:43:10.000Z",
                     "prepaid_balance_usd": 0
                   },
                   "daily": [
                     {
-                      "date": "2026-09-30",
+                      "date": "2026-10-03",
                       "requests": 0,
                       "credits": 0,
                       "errors": {
@@ -32095,8 +32087,23 @@
                       }
                     }
                   ],
-                  "by_family": [],
-                  "by_key": [],
+                  "by_family": [
+                    {
+                      "family": "news",
+                      "label": "News",
+                      "requests": 33,
+                      "credits": 35
+                    }
+                  ],
+                  "by_key": [
+                    {
+                      "caller": "key",
+                      "label": "test",
+                      "key_hint": "invd_3f2...a91c",
+                      "requests": 56,
+                      "credits": 44
+                    }
+                  ],
                   "truncated": false
                 }
               }
@@ -32254,12 +32261,12 @@
                   }
                 },
                 "example": {
-                  "generated_at": "2026-10-29T12:39:48.832Z",
+                  "generated_at": "2026-11-01T16:42:25.713Z",
                   "services": [
                     {
                       "family": "company",
                       "status": "operational",
-                      "uptime_7d": 0.99,
+                      "uptime_7d": 0.993,
                       "uptime_30d": 0.989,
                       "uptime_90d": 0.989
                     }
@@ -32268,7 +32275,7 @@
                     "companies": 6214,
                     "earnings_calls": {
                       "scope": "all",
-                      "companies": 5544
+                      "companies": 5545
                     }
                   }
                 }
@@ -32679,7 +32686,7 @@
                     "companies": 6214,
                     "earnings_calls": {
                       "scope": "all",
-                      "companies": 5544
+                      "companies": 5545
                     }
                   }
                 }
