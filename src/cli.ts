@@ -5,6 +5,7 @@ import { formatCreditUsage, takeCreditUsage } from './client/api-client.js';
 import { registerConfigCommands } from './commands/config.js';
 import { registerEarningsCommands } from './commands/earnings.js';
 import { registerLoginCommands } from './commands/login.js';
+import { registerNewsCommands } from './commands/news.js';
 import { registerPluginCommands } from './commands/plugin.js';
 import { registerWsCommands } from './commands/ws.js';
 import { registerSpecCommands } from './spec-commands.js';
@@ -69,6 +70,7 @@ export function createProgram(): Command {
   registerPluginCommands(program);
   registerWsCommands(program);
   registerEarningsCommands(program);
+  registerNewsCommands(program);
   registerSpecCommands(program, loadManifest());
 
   return program;

@@ -270,10 +270,11 @@ invd earnings versions --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
 
 <!-- invd:hand:earnings transcript -->
 ```bash
-# Transcript (formats: speakers, text, words, sections, cleaned); --output saves it as text
+# Transcript (formats: speakers, text, words, sections, cleaned); --output saves it as text; --pdf prints the URL of the version's branded PDF, --pdf-out saves the file
 invd earnings transcript -i AAPL --year 2026 --quarter 4 --format speakers --json
 invd earnings transcript --event-id <event_id> --format sections --json
 invd earnings transcript -i AAPL --year 2026 --quarter 4 --output aapl-q4.txt
+invd earnings transcript -i AAPL --year 2026 --quarter 4 --pdf-out aapl-q4.pdf
 ```
 <!-- /invd:hand:earnings transcript -->
 
@@ -519,9 +520,6 @@ invd news asset-download --id 13351ae7-876b-4839-ba2b-78873f6b4e00 --asset-id 61
 # List company developments from news (optional: --publisher, --topic, --item-id, --from, --to, --effective-from, --effective-to, --limit, --cursor, --all)
 invd news developments --json
 
-# Get a news item (optional: --body)
-invd news get --body both --id 13351ae7-876b-4839-ba2b-78873f6b4e00 --json
-
 # List news items (optional: --ticker, --cik, --from, --to, --source, --kind, --topic, --earnings, --has-media, --publisher, --publication-type, --issuer-category, --issuer-tag, --limit, --cursor, --all)
 invd news list --json
 
@@ -531,6 +529,14 @@ invd news search -q "data center revenue" -m lexical -t NVDA --json
 # Get a news item's text in blocks (optional: --limit, --max-chars, --cursor, --all)
 invd news text --id 13351ae7-876b-4839-ba2b-78873f6b4e00 --json
 ```
+
+<!-- invd:hand:news get -->
+```bash
+# Get a news item (optional: --body text|html|both); --pdf prints its branded PDF's URL, --pdf-out saves the file
+invd news get --body both --id 13351ae7-876b-4839-ba2b-78873f6b4e00 --json
+invd news get --id 13351ae7-876b-4839-ba2b-78873f6b4e00 --pdf-out item.pdf
+```
+<!-- /invd:hand:news get -->
 
 ### ownership
 

@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import chalk from 'chalk';
 import { apiGet } from '../client/api-client.js';
 import { downloadToFile, ensureDir, extensionFor, writeTextFile } from '../client/download.js';
+import { printPdfUrl, savePdf } from '../client/pdf.js';
 import { fetchAllPages } from '../client/pagination.js';
 import { apiErrorHint, withErrorHandling } from '../shared/errors.js';
 import { output } from '../shared/output.js';
@@ -160,7 +161,9 @@ export function registerEarningsCommands(program: Command): void {
     .option('--transcript-version <n>', 'A specific published version (see `invd earnings versions`)')
     .option('--as-of <iso>', 'The version current at this instant (ISO 8601)')
     .option('-o, --output <file>', 'Save the transcript to a file')
-    .option('--force', 'Overwrite an existing --output file')
+    .option('--pdf', 'Print the URL of the branded PDF of this version')
+    .option('--pdf-out <file>', 'Save the branded PDF of this version (e.g. call.pdf)')
+    .option('--force', 'Overwrite an existing --output or --pdf-out file')
     .action(run(async (cmdOpts: SelectorOptions & Row) => {
       const opts = globalOpts();
       const data = await apiGet<Row>({
@@ -168,15 +171,19 @@ export function registerEarningsCommands(program: Command): void {
         params: { ...selectorParams(cmdOpts), format: cmdOpts.format, version: cmdOpts.transcriptVersion, as_of: cmdOpts.asOf },
       });
       const text = transcriptText(data.data, data.format);
+      const savedPdf = await savePdf(data.pdf, { pdfOut: cmdOpts.pdfOut, force: cmdOpts.force }, 'Downloading transcript PDF...');
       const saved = cmdOpts.output ? await writeTextFile(cmdOpts.output, text, { force: cmdOpts.force }) : undefined;
       output(data, opts, () => {
+        if (cmdOpts.pdf && !savedPdf && !saved) {
+          printPdfUrl(data.pdf);
+          return;
+        }
         console.log(chalk.bold(`\n${eventLine(data.event)} · version ${data.version} (${data.version_kind}) · ${data.published_at}\n`));
         const qaStart = qaStartLine(data.qa_start_ms);
         if (qaStart) console.log(chalk.dim(`${qaStart}\n`));
-        if (saved) {
-          printSaved(saved);
-          return;
-        }
+        if (savedPdf) printSaved(savedPdf);
+        if (saved) printSaved(saved);
+        if (saved || savedPdf) return;
         if (data.format === 'words') {
           console.log(chalk.yellow('The words format is JSON only; use --json to pipe it.\n'));
           formatJson(data.data);

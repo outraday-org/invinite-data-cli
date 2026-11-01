@@ -25,7 +25,7 @@ Every plain command — one REST call, printed as a table, a key/value list or J
 ## The hand-written ROSTER
 
 `src/hand-written-commands.ts` lists the few commands that are NOT one call plus one view (login, local config,
-plugin install, the WebSocket stream, the earnings downloads / text renders in `src/commands/earnings.ts`), each with
+plugin install, the WebSocket stream, the earnings downloads / text renders in `src/commands/earnings.ts`, `news get` with its PDF flags in `src/commands/news.ts`), each with
 its reason. `tests/unit/command-roster.test.ts` fails on a hand-written command missing from it, on a stale entry and on
 an entry that is also a manifest operation. A rostered `group action` may share its group with generated actions
 (`earnings`): the roster registers first and the dispatcher attaches to the existing group; commander refuses a

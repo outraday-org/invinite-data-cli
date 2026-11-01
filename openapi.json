@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Invinite API",
-    "description": "Invinite financial data API. Each endpoint has a base credit cost: `x-credits` is the base cost; responses add 1 credit per started 1,000 rows beyond the first 1,000; `X-Credits-Charged` reports the final debit and `X-Credits-Included-Remaining` what is left of the plan's included credits. `GET /v1/account/usage` returns your account's usage by day, endpoint family and key (it costs no credits). SEC filing search has a 100-credit base cost.\n\n**Coverage.** Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404. A known company with no data in a family (for example no statements yet) answers 404 with `code: not_covered`; an empty page of a covered company stays 200 with an empty list. `GET /v1/company/available-companies` lists every known company.\n\n## Webhooks\n\nAccounts on LITE and above subscribe with `POST /v1/earnings-calls/webhooks` to the `earnings_call.*` lifecycle events (filtered by CIK) and, on STANDARD and above, to `news.published` (one delivery per new news item, filtered by the CIKs it mentions); see `x-webhooks` for each `data` object. What a subscription may hold depends on the plan (a create / update beyond it is refused with the plan's limit; `ping` needs no subscription — the test route and the disabled notice send it to any subscription):\n\n| Plan | Webhooks | Events | CIKs per webhook | Keywords per webhook |\n|---|---|---|---|---|\n| FREE | 0 | — | — | — |\n| LITE | 5 | `.scheduled`, `.rescheduled`, `.started`, `.ended`, `.transcript_ready`, `.assets_ready` | ≤ 10 | — |\n| STANDARD | 15 | LITE + `.transcript_provisional`, `.transcript_corrected`, `.documents_updated`, `news.published` | ≤ 25 | — |\n| PRO / ENTERPRISE | 50 | STANDARD + `.guidance_flash`, `.keyword_hit` | ≤ 100 | ≤ 20 (on ≤ 10 webhooks) |\n\nEvery delivery is a `POST` with `Content-Type: application/json`, `X-Invinite-Event`, `X-Invinite-Delivery` and `X-Invinite-Signature: t=<unix seconds>,v1=<hex>` where `v1` = HMAC-SHA256(secret, `<t>.<raw body>`); during a secret rotation the header carries one `v1` per valid secret. Reject a signature older than 5 minutes. Any 2xx within 10 s acknowledges; redirects are not followed. A failed delivery is retried after 1 min, 5 min, 30 min, 2 h, 6 h, 12 h, 24 h (8 attempts in all, the same delivery id each time). A subscription is disabled after 8 consecutive dead-lettered deliveries (a final `ping` with `notice: subscription_disabled` is sent). Deliveries are at-least-once and unordered: dedupe on the delivery id, order by `created_at`.\n\n## Licensing\n\n| Tier | display | redistribute | rag | train | audio | resell |\n| --- | --- | --- | --- | --- | --- | --- |\n| FREE | ✓ | – | – | – | – | – |\n| LITE | ✓ | – | – | – | – | – |\n| STANDARD | ✓ | – | ✓ | – | – | – |\n| PRO | ✓ | ✓ | ✓ | – | ✓ | – |\n\nInvinite data may be shown and, from PRO, redistributed inside the licensee's own product with attribution (\"Source: Invinite\" on screen or in the API response that carries it). It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.\n\nPolicy version: 2026-10-draft. Draft — pending counsel sign-off.\n\nAudio files carry a forensic watermark that identifies the recording. Audio is subject to per-company takedown and may not be re-hosted.\n\nSEC data: Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.\n\nNews: Issuer and SEC text is served in full with its attribution; the licensee shows publisher, source URL and date next to it and may forward it unmodified; the resale rule applies.\n\nEvery `/v1/*` data operation carries `x-license`, the minimum use right its data ships with; `GET /status/licensing` serves the same matrix per route, rendered at [data.invinite.com/docs/licensing](https://data.invinite.com/docs/licensing). `/v1/account/usage` serves no licensed data and carries none.\n\n## Status\n\n[`/status`](/status) reports whether each product family works (a status and its uptime over 7, 30 and 90 days); [`/status/licensing`](/status/licensing) serves the licensing matrix per route. The status routes need no API key and are cached for 5 minutes. The public status page is [status.data.invinite.com](https://status.data.invinite.com): a snapshot of `/status` every 15 minutes plus an external reachability probe of the API.\n\nUptime is the share of requests answered without a server error, measured by the API per product family; a window with too little traffic to judge shows no figure. Status reflects the last 24 hours.\n\nProduct families: Company, Financials, SEC Filings, Insider Trades, Institutional Ownership, IPOs, Market, Metadata, Earnings Calls, News, WebSocket, Account.",
+    "description": "Invinite financial data API. Each endpoint has a base credit cost: `x-credits` is the base cost; responses add 1 credit per started 1,000 rows beyond the first 1,000; `X-Credits-Charged` reports the final debit and `X-Credits-Included-Remaining` what is left of the plan's included credits. `GET /v1/account/usage` returns your account's usage by day, endpoint family and key (it costs no credits). SEC filing search has a 100-credit base cost.\n\n**Coverage.** Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404. A known company with no data in a family (for example no statements yet) answers 404 with `code: not_covered`; an empty page of a covered company stays 200 with an empty list. `GET /v1/company/available-companies` lists every known company.\n\n## Webhooks\n\nAccounts on LITE and above subscribe with `POST /v1/earnings-calls/webhooks` to the `earnings_call.*` lifecycle events (filtered by CIK) and, on STANDARD and above, to `news.published` (one delivery per new news item, filtered by the CIKs it mentions); see `x-webhooks` for each `data` object. What a subscription may hold depends on the plan (a create / update beyond it is refused with the plan's limit; `ping` needs no subscription — the test route and the disabled notice send it to any subscription):\n\n| Plan | Webhooks | Events | CIKs per webhook | Keywords per webhook |\n|---|---|---|---|---|\n| FREE | 0 | — | — | — |\n| LITE | 5 | `.scheduled`, `.rescheduled`, `.started`, `.ended`, `.transcript_ready`, `.assets_ready` | ≤ 10 | — |\n| STANDARD | 15 | LITE + `.transcript_provisional`, `.transcript_corrected`, `.documents_updated`, `news.published` | ≤ 25 | — |\n| PRO / ENTERPRISE | 50 | STANDARD + `.guidance_flash`, `.keyword_hit` | ≤ 100 | ≤ 20 (on ≤ 10 webhooks) |\n\nEvery delivery is a `POST` with `Content-Type: application/json`, `X-Invinite-Event`, `X-Invinite-Delivery` and `X-Invinite-Signature: t=<unix seconds>,v1=<hex>` where `v1` = HMAC-SHA256(secret, `<t>.<raw body>`); during a secret rotation the header carries one `v1` per valid secret. Reject a signature older than 5 minutes. Any 2xx within 10 s acknowledges; redirects are not followed. A failed delivery is retried after 1 min, 5 min, 30 min, 2 h, 6 h, 12 h, 24 h (8 attempts in all, the same delivery id each time). A subscription is disabled after 8 consecutive dead-lettered deliveries (a final `ping` with `notice: subscription_disabled` is sent). Deliveries are at-least-once and unordered: dedupe on the delivery id, order by `created_at`.\n\n## Licensing\n\n| Tier | display | redistribute | rag | train | audio | resell |\n| --- | --- | --- | --- | --- | --- | --- |\n| FREE | ✓ | – | – | – | – | – |\n| LITE | ✓ | – | – | – | – | – |\n| STANDARD | ✓ | – | ✓ | – | – | – |\n| PRO | ✓ | ✓ | ✓ | – | ✓ | – |\n\nInvinite data may be shown and, from PRO, redistributed inside the licensee's own product with attribution (\"Source: Invinite\" on screen or in the API response that carries it). It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.\n\nPolicy version: 2026-10-draft. Draft — pending counsel sign-off.\n\nAudio files carry a forensic watermark that identifies the recording. Audio is subject to per-company takedown and may not be re-hosted.\n\nSEC data: Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.\n\nNews: Issuer and SEC text is served in full with its attribution; the licensee shows publisher, source URL and date next to it and may forward it unmodified; the resale rule applies.\n\nPDF documents: Branded PDFs of transcripts and news items are permanent URLs to one shared file per version. They may be shown, downloaded and forwarded unmodified with the notice page intact; the resale rule applies unchanged. News PDFs reproduce issuer or SEC text under the attribution stated on their notice page; a PDF disappears when the item is taken down or its source's reuse is denied.\n\nEvery `/v1/*` data operation carries `x-license`, the minimum use right its data ships with; `GET /status/licensing` serves the same matrix per route, rendered at [data.invinite.com/docs/licensing](https://data.invinite.com/docs/licensing). `/v1/account/usage` serves no licensed data and carries none.\n\n## Status\n\n[`/status`](/status) reports whether each product family works (a status and its uptime over 7, 30 and 90 days); [`/status/licensing`](/status/licensing) serves the licensing matrix per route. The status routes need no API key and are cached for 5 minutes. The public status page is [status.data.invinite.com](https://status.data.invinite.com): a snapshot of `/status` every 15 minutes plus an external reachability probe of the API.\n\nUptime is the share of requests answered without a server error, measured by the API per product family; a window with too little traffic to judge shows no figure. Status reflects the last 24 hours.\n\nProduct families: Company, Financials, SEC Filings, Insider Trades, Institutional Ownership, IPOs, Market, Metadata, Earnings Calls, News, WebSocket, Account.",
     "version": "1.0.0"
   },
   "components": {
@@ -17885,7 +17885,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Transcript of one earnings call in five formats: any published version (`version`) or the version current at a point in time (`as_of`).\n\n### Credits\n\n- Costs 5 credits; `format=words` is weighted by turn count.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Calls without a recording\n\n- A call without a recording may carry the company's own transcript (`stt_provider` `company_document`): it is untimed (`null` timings) and has no cleaned layer.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for rag: STANDARD.",
+        "description": "Transcript of one earnings call in five formats: any published version (`version`) or the version current at a point in time (`as_of`).\n\n### Credits\n\n- Costs 5 credits; `format=words` is weighted by turn count.\n\n### PDF\n\n- `pdf` is the branded PDF of the served version: a permanent public URL with its size, page count and hash, or null while none exists. Live versions have none, and a final version gets its PDF shortly after publication.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Calls without a recording\n\n- A call without a recording may carry the company's own transcript (`stt_provider` `company_document`): it is untimed (`null` timings) and has no cleaned layer.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
@@ -18026,6 +18026,7 @@
                     "word_count",
                     "qa_start_ms",
                     "format",
+                    "pdf",
                     "data"
                   ],
                   "properties": {
@@ -18314,6 +18315,48 @@
                       ],
                       "description": "Format of data"
                     },
+                    "pdf": {
+                      "title": "PdfDocument",
+                      "type": "object",
+                      "nullable": true,
+                      "required": [
+                        "url",
+                        "version",
+                        "sha256",
+                        "bytes",
+                        "pages",
+                        "generated_at"
+                      ],
+                      "description": "Permanent URL of the branded PDF of this version; shared, immutable, deleted on takedown. Carries the notice page; see /status/licensing → PDF documents. Null = no PDF (not rendered yet, or none for this version)",
+                      "properties": {
+                        "url": {
+                          "type": "string",
+                          "format": "uri",
+                          "description": "Permanent public URL, shown inline; no API key and no expiry"
+                        },
+                        "version": {
+                          "type": "integer",
+                          "description": "Transcript version or news revision the PDF was rendered from"
+                        },
+                        "sha256": {
+                          "type": "string",
+                          "description": "SHA-256 of the PDF file (lowercase hex)"
+                        },
+                        "bytes": {
+                          "type": "integer",
+                          "description": "File size in bytes"
+                        },
+                        "pages": {
+                          "type": "integer",
+                          "description": "Pages, including the notice page"
+                        },
+                        "generated_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "When the PDF was rendered"
+                        }
+                      }
+                    },
                     "data": {
                       "description": "text: string. speakers: [{ speaker_label, name, title, role, person_id, start_ms, end_ms, speaker_confidence, text }]. words: speakers + words [{ w, s, e, c }]. sections: { prepared_remarks, questions_and_answers, qa_start_ms }. cleaned: [{ speaker_label, name, title, role, person_id, start_ms, text }]"
                     }
@@ -18358,6 +18401,7 @@
                   "word_count": 9372,
                   "qa_start_ms": 2298917,
                   "format": "speakers",
+                  "pdf": null,
                   "data": [
                     {
                       "speaker_label": "spk00",
@@ -18418,6 +18462,7 @@
         "x-tier": "standard",
         "x-credits": 5,
         "x-license": "rag",
+        "x-pdf-document": true,
         "x-example-params": [
           "event_id"
         ]
@@ -18430,7 +18475,7 @@
         "tags": [
           "Earnings Calls"
         ],
-        "description": "Every published transcript version of one earnings call (`live`, `final`, `corrected`), ascending, without the text.\n\nA final version replaced by the next final (the pipeline's speaker-naming pass) is not a version here and cannot be requested.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for rag: STANDARD.",
+        "description": "Every published transcript version of one earnings call (`live`, `final`, `corrected`), ascending, without the text, each with its branded PDF (`pdf`, null while none exists).\n\nA final version replaced by the next final (the pipeline's speaker-naming pass) is not a version here and cannot be requested.\n\n### Choose the call\n\n- By `event_id`, or\n\n- by `identifier` with `year` + `quarter` (fiscal), or\n\n- by `identifier` with `date` (a calendar day in New York time (America/New_York); a call without a confirmed time is listed on its announced date). With `date`, `event_type` (default `earnings_call`) also addresses an investor day, conference or shareholder meeting.\n\n### Freshness and coverage\n\n- Data is replicated from the capture pipeline with a lag of about a minute.\n\n- Only US earnings calls captured by Invinite are served; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404.\n\nMinimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
@@ -18522,7 +18567,8 @@
             "published_at",
             "word_count",
             "change_note",
-            "corrected_by"
+            "corrected_by",
+            "pdf.url"
           ],
           "flags": {
             "identifier": "i"
@@ -18563,7 +18609,8 @@
                           "published_at",
                           "word_count",
                           "change_note",
-                          "corrected_by"
+                          "corrected_by",
+                          "pdf"
                         ],
                         "properties": {
                           "version": {
@@ -18597,6 +18644,48 @@
                             "type": "string",
                             "nullable": true,
                             "description": "`human` or `system:<stage>` for a corrected version, else null"
+                          },
+                          "pdf": {
+                            "title": "PdfDocument",
+                            "type": "object",
+                            "nullable": true,
+                            "required": [
+                              "url",
+                              "version",
+                              "sha256",
+                              "bytes",
+                              "pages",
+                              "generated_at"
+                            ],
+                            "description": "Permanent URL of the branded PDF of this version; shared, immutable, deleted on takedown. Carries the notice page; see /status/licensing → PDF documents. Null = no PDF (not rendered yet, or none for this version)",
+                            "properties": {
+                              "url": {
+                                "type": "string",
+                                "format": "uri",
+                                "description": "Permanent public URL, shown inline; no API key and no expiry"
+                              },
+                              "version": {
+                                "type": "integer",
+                                "description": "Transcript version or news revision the PDF was rendered from"
+                              },
+                              "sha256": {
+                                "type": "string",
+                                "description": "SHA-256 of the PDF file (lowercase hex)"
+                              },
+                              "bytes": {
+                                "type": "integer",
+                                "description": "File size in bytes"
+                              },
+                              "pages": {
+                                "type": "integer",
+                                "description": "Pages, including the notice page"
+                              },
+                              "generated_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "When the PDF was rendered"
+                              }
+                            }
                           }
                         }
                       }
@@ -18613,7 +18702,8 @@
                       "published_at": "2026-10-08T17:34:32.507Z",
                       "word_count": 9372,
                       "change_note": "naming",
-                      "corrected_by": null
+                      "corrected_by": null,
+                      "pdf": null
                     }
                   ]
                 }
@@ -18636,6 +18726,7 @@
         "x-tier": "standard",
         "x-credits": 1,
         "x-license": "rag",
+        "x-pdf-document": true,
         "x-example-params": [
           "event_id"
         ]
@@ -28235,7 +28326,7 @@
         "tags": [
           "News"
         ],
-        "description": "One news item with its full text (plain and / or HTML), the companies it is about, every sighting, its images and original files, and the developments read from it.\n\n### What you get\n\n- `body` picks the text forms: `text` (default) = `body_text`, the publisher's text of the current revision, verbatim — for search, indexing and models; `html` = `body_html` instead — the same text as sanitized article HTML (headings, paragraphs, lists, tables, quotes, images) for display; `both` = both. `content_formats` says which forms the item has (PDFs and older items: text only); `content_status: no_text` = headline and link only.\n\n- **Images inside the article:** in `body_html` every stored image is an `<img src>` whose URL is stable for 24 hours and needs no API key (`assets[].view_url`, the same URL); an image Invinite may only link is an \"Image at source\" link to the publisher; an image that may not be shown is removed. The hero image is the asset with `kind: hero_image` — place it above the headline; it may also appear inline in `body_html`: when its id is a `data-asset-id` of the HTML, skip it above the article. After 24 hours (or on an image error) fetch the item again for fresh URLs.\n\n- **Attribution duty:** wherever you show `body_text`, `body_html` or `description`, show `attribution.publisher`, `attribution.source_url` and `attribution.published_at` with it (and `attribution.edgar` for a filing), with `attribution.statement`.\n\n- `text_url` serves the same text in citable blocks with their kind and heading; `assets[].download_url` mints a URL valid ≤ 60 seconds to view (`purpose=display`) or download (`purpose=download`, where `can_download`) a file where the publisher's terms allow it.\n\n- `model_processing_allowed` says whether the text may be processed by AI models (the publisher's machine-readable reservation); API access alone does not authorize forwarding the text into models.\n\n- A corrected item names its successor in `superseded_by` and stays served under its id.\n\n### Errors\n\n- `404` for an unknown id, or an item that is no longer served (opt-out, takedown).\n\n### Sources and rights\n\n- Items come from SEC EDGAR filings (`rights: public_record`) and the companies' own newsrooms (`rights: issuer`); wire services are never a source.\n\n- Issuer and SEC text is served in full with its attribution: wherever you show the text, show `attribution.publisher`, `attribution.source_url` and `attribution.published_at` next to it (and the EDGAR form and accession for a filing). You may forward the text unmodified; you may not resell it.\n\n- A company that opted out, and a source whose owner reserved reuse, are not served (a reserved source keeps its headline, without text).\n\nMinimum tier for display: FREE.",
+        "description": "One news item with its full text (plain and / or HTML), the companies it is about, every sighting, its images and original files, and the developments read from it.\n\n### What you get\n\n- `body` picks the text forms: `text` (default) = `body_text`, the publisher's text of the current revision, verbatim — for search, indexing and models; `html` = `body_html` instead — the same text as sanitized article HTML (headings, paragraphs, lists, tables, quotes, images) for display; `both` = both. `content_formats` says which forms the item has (PDFs and older items: text only); `content_status: no_text` = headline and link only.\n\n- **Images inside the article:** in `body_html` every stored image is an `<img src>` whose URL is stable for 24 hours and needs no API key (`assets[].view_url`, the same URL); an image Invinite may only link is an \"Image at source\" link to the publisher; an image that may not be shown is removed. The hero image is the asset with `kind: hero_image` — place it above the headline; it may also appear inline in `body_html`: when its id is a `data-asset-id` of the HTML, skip it above the article. After 24 hours (or on an image error) fetch the item again for fresh URLs.\n\n- **Attribution duty:** wherever you show `body_text`, `body_html` or `description`, show `attribution.publisher`, `attribution.source_url` and `attribution.published_at` with it (and `attribution.edgar` for a filing), with `attribution.statement`.\n\n- `text_url` serves the same text in citable blocks with their kind and heading; `assets[].download_url` mints a URL valid ≤ 60 seconds to view (`purpose=display`) or download (`purpose=download`, where `can_download`) a file where the publisher's terms allow it.\n\n- `model_processing_allowed` says whether the text may be processed by AI models (the publisher's machine-readable reservation); API access alone does not authorize forwarding the text into models.\n\n- `pdf` is the branded PDF of the current revision in every `body` mode: a permanent public URL with its size, page count and hash, or null while none exists (a new item gets one within minutes; an item without a PDF-eligible text never does). The file carries the attribution on its notice page.\n\n- A corrected item names its successor in `superseded_by` and stays served under its id.\n\n### Errors\n\n- `404` for an unknown id, or an item that is no longer served (opt-out, takedown).\n\n### Sources and rights\n\n- Items come from SEC EDGAR filings (`rights: public_record`) and the companies' own newsrooms (`rights: issuer`); wire services are never a source.\n\n- Issuer and SEC text is served in full with its attribution: wherever you show the text, show `attribution.publisher`, `attribution.source_url` and `attribution.published_at` next to it (and the EDGAR form and accession for a filing). You may forward the text unmodified; you may not resell it.\n\n- A company that opted out, and a source whose owner reserved reuse, are not served (a reserved source keeps its headline, without text).\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -28271,30 +28362,7 @@
           }
         ],
         "x-cli": {
-          "group": "news",
-          "action": "get",
-          "view": "keyValue",
-          "columns": [
-            "id",
-            "published_at",
-            "title",
-            "kind",
-            "source.id",
-            "url",
-            "content_status",
-            "attribution.publisher",
-            "attribution.publisher_host",
-            "attribution.source_url",
-            "attribution.published_at",
-            "attribution.rights",
-            "attribution.edgar.form",
-            "attribution.edgar.accession",
-            "attribution.statement",
-            "content_formats",
-            "body_text",
-            "body_html"
-          ],
-          "pagination": "none"
+          "exclude": "hand-written: invd news get (prints the item, saves its PDF with --pdf-out)"
         },
         "responses": {
           "200": {
@@ -28332,7 +28400,8 @@
                     "companies",
                     "sightings",
                     "assets",
-                    "developments"
+                    "developments",
+                    "pdf"
                   ],
                   "properties": {
                     "id": {
@@ -29126,6 +29195,48 @@
                         }
                       },
                       "description": "Developments read from the text (medium or high confidence, at most 20)"
+                    },
+                    "pdf": {
+                      "title": "PdfDocument",
+                      "type": "object",
+                      "nullable": true,
+                      "required": [
+                        "url",
+                        "version",
+                        "sha256",
+                        "bytes",
+                        "pages",
+                        "generated_at"
+                      ],
+                      "description": "Permanent URL of the branded PDF of this version; shared, immutable, deleted on takedown. Carries the notice page; see /status/licensing → PDF documents. Null = no PDF (not rendered yet, or none for this version)",
+                      "properties": {
+                        "url": {
+                          "type": "string",
+                          "format": "uri",
+                          "description": "Permanent public URL, shown inline; no API key and no expiry"
+                        },
+                        "version": {
+                          "type": "integer",
+                          "description": "Transcript version or news revision the PDF was rendered from"
+                        },
+                        "sha256": {
+                          "type": "string",
+                          "description": "SHA-256 of the PDF file (lowercase hex)"
+                        },
+                        "bytes": {
+                          "type": "integer",
+                          "description": "File size in bytes"
+                        },
+                        "pages": {
+                          "type": "integer",
+                          "description": "Pages, including the notice page"
+                        },
+                        "generated_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "When the PDF was rendered"
+                        }
+                      }
                     }
                   }
                 },
@@ -29228,7 +29339,8 @@
                   "developments": [],
                   "body_text": "Developers can use AI coding agents to edit code, build, test, and debug within one native Arm development environment. Keeping these tasks on the target architecture can give developers earlier feedback on dependencies, test results, and r…",
                   "body_html": "<p>Developers can use AI coding agents to edit code, build, test, and debug within one native Arm development environment. Keeping these tasks on the target architecture can give developers earlier feedback on dependencies, test results, an…",
-                  "images_truncated": false
+                  "images_truncated": false,
+                  "pdf": null
                 }
               }
             }
@@ -29249,6 +29361,7 @@
         "x-tier": "standard",
         "x-credits": 2,
         "x-license": "display",
+        "x-pdf-document": true,
         "x-example-params": [
           "body"
         ]
@@ -32221,7 +32334,8 @@
                         "train",
                         "audio",
                         "sec_data",
-                        "news"
+                        "news",
+                        "pdf_documents"
                       ],
                       "properties": {
                         "display": {
@@ -32243,6 +32357,9 @@
                           "type": "string"
                         },
                         "news": {
+                          "type": "string"
+                        },
+                        "pdf_documents": {
                           "type": "string"
                         }
                       }
@@ -32506,7 +32623,8 @@
                     "train": "Model training is contract-only.",
                     "audio": "Audio files carry a forensic watermark that identifies the recording. Audio is subject to per-company takedown and may not be re-hosted.",
                     "sec_data": "Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.",
-                    "news": "Issuer and SEC text is served in full with its attribution; the licensee shows publisher, source URL and date next to it and may forward it unmodified; the resale rule applies."
+                    "news": "Issuer and SEC text is served in full with its attribution; the licensee shows publisher, source URL and date next to it and may forward it unmodified; the resale rule applies.",
+                    "pdf_documents": "Branded PDFs of transcripts and news items are permanent URLs to one shared file per version. They may be shown, downloaded and forwarded unmodified with the notice page intact; the resale rule applies unchanged. News PDFs reproduce issuer …"
                   },
                   "rights": [
                     "display"
@@ -34512,7 +34630,8 @@
                               "published_at",
                               "word_count",
                               "change_note",
-                              "corrected_by"
+                              "corrected_by",
+                              "has_pdf"
                             ],
                             "properties": {
                               "version": {
@@ -34546,6 +34665,10 @@
                                 "type": "string",
                                 "nullable": true,
                                 "description": "`human` or `system:<stage>` for a corrected version, else null"
+                              },
+                              "has_pdf": {
+                                "type": "boolean",
+                                "description": "Whether a PDF exists at delivery. The PDF renders after publication, so false usually means not yet: read `pdf` from the REST route later; no webhook carries its URL"
                               }
                             },
                             "nullable": true,
@@ -34889,7 +35012,8 @@
                               "published_at",
                               "word_count",
                               "change_note",
-                              "corrected_by"
+                              "corrected_by",
+                              "has_pdf"
                             ],
                             "properties": {
                               "version": {
@@ -34923,6 +35047,10 @@
                                 "type": "string",
                                 "nullable": true,
                                 "description": "`human` or `system:<stage>` for a corrected version, else null"
+                              },
+                              "has_pdf": {
+                                "type": "boolean",
+                                "description": "Whether a PDF exists at delivery. The PDF renders after publication, so false usually means not yet: read `pdf` from the REST route later; no webhook carries its URL"
                               }
                             },
                             "nullable": true,
@@ -35255,7 +35383,8 @@
                               "published_at",
                               "word_count",
                               "change_note",
-                              "corrected_by"
+                              "corrected_by",
+                              "has_pdf"
                             ],
                             "properties": {
                               "version": {
@@ -35289,6 +35418,10 @@
                                 "type": "string",
                                 "nullable": true,
                                 "description": "`human` or `system:<stage>` for a corrected version, else null"
+                              },
+                              "has_pdf": {
+                                "type": "boolean",
+                                "description": "Whether a PDF exists at delivery. The PDF renders after publication, so false usually means not yet: read `pdf` from the REST route later; no webhook carries its URL"
                               }
                             },
                             "nullable": true,
@@ -36955,7 +37088,8 @@
                               "publications_truncated",
                               "model_processing_allowed",
                               "media_count",
-                              "attribution"
+                              "attribution",
+                              "has_pdf"
                             ],
                             "properties": {
                               "id": {
@@ -37314,6 +37448,10 @@
                                     "description": "The attribution sentence to carry with the text"
                                   }
                                 }
+                              },
+                              "has_pdf": {
+                                "type": "boolean",
+                                "description": "Whether a PDF exists at delivery. The PDF renders after publication, so false usually means not yet: read `pdf` from the REST route later; no webhook carries its URL"
                               }
                             }
                           }

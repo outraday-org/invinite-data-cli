@@ -17,4 +17,5 @@ export const HAND_WRITTEN_COMMANDS = [
   { command: 'earnings documents', reason: 'downloads every document into a directory with -o' },
   { command: 'earnings company-documents', reason: 'downloads every stored file into a directory with -o' },
   { command: 'earnings document', reason: 'downloads the file, or fetches and renders its page text with --pages' },
+  { command: 'news get', reason: 'prints the item and saves its PDF with --pdf-out' },
 ] as const;

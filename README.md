@@ -323,10 +323,16 @@ wherever you show a headline or text, show its publisher, link and date with it.
 revision_changed` = the item was corrected; start again without `--cursor`). Process text with an AI model only when
 `model_processing_allowed` is `true`. `news asset-download` returns a URL valid for at most 60 seconds.
 
+`earnings transcript` and `news get` also carry the branded PDF of the version (`pdf`, a permanent public URL, or null while
+none exists): `--pdf` prints the URL, `--pdf-out <file>` saves the file (an error without a PDF). `earnings versions` lists
+each version's `pdf.url`.
+
 ```bash
 invd news list --ticker NVDA --json
 invd news list --publisher 1045810 --publication-type press_release --from 2026-10-01 --all --json
 invd news get --id <id> --json
+invd news get --id <id> --pdf-out item.pdf
+invd earnings transcript --event-id <event_id> --pdf-out call.pdf
 invd news text --id <id> --all --json
 invd news developments --publisher 1045810 --topic product_launch --json
 invd news search -q "data center revenue" -t NVDA --json
