@@ -1,6 +1,6 @@
 {
   "specVersion": "1.0.0",
-  "specSha256": "eac71f996a3538d3f714e2d95ff09b8229a267bcdaed593403c2ed6e896b9863",
+  "specSha256": "4fdde92d4057df4f6d4a790f896db300fb8994b0576bbec8263bf2a6d02fc9ad",
   "groups": [
     {
       "name": "company",
@@ -4827,7 +4827,7 @@
           "required": false,
           "type": "string",
           "example": "2026-10-22",
-          "description": "Start of the announcement window: an ISO 8601 instant or a day (YYYY-MM-DD, from its UTC midnight). Default: `to` minus 7 days"
+          "description": "Start of the announcement window: an ISO 8601 instant or a day (YYYY-MM-DD, from its UTC midnight). Default with `to`: `to` minus 7 days. Without `from` and `to`, no window: the newest items first, and `next_cursor` pages back through the whole history"
         },
         {
           "name": "to",
@@ -4835,7 +4835,7 @@
           "required": false,
           "type": "string",
           "example": "2026-10-29",
-          "description": "End of the announcement window: an ISO 8601 instant (exclusive) or a day (inclusive). Default: now. At most 92 days after `from` (400 otherwise)"
+          "description": "End of the announcement window: an ISO 8601 instant (exclusive) or a day (inclusive). Default with `from`: now. At most 92 days after `from` (400 otherwise); `next_cursor` stops at the window"
         },
         {
           "name": "effective_from",
@@ -4922,7 +4922,7 @@
           "required": false,
           "type": "string",
           "example": "2026-10-22",
-          "description": "Start of the publication window: an ISO 8601 instant or a day (YYYY-MM-DD, from its UTC midnight). Default: `to` minus 7 days"
+          "description": "Start of the publication window: an ISO 8601 instant or a day (YYYY-MM-DD, from its UTC midnight). Default with `to`: `to` minus 7 days. Without `from` and `to`, no window: the newest items first, and `next_cursor` pages back through the whole history"
         },
         {
           "name": "to",
@@ -4930,7 +4930,7 @@
           "required": false,
           "type": "string",
           "example": "2026-10-29",
-          "description": "End of the publication window: an ISO 8601 instant (exclusive) or a day (inclusive). Default: now. At most 92 days after `from` (400 otherwise)"
+          "description": "End of the publication window: an ISO 8601 instant (exclusive) or a day (inclusive). Default with `from`: now. At most 92 days after `from` (400 otherwise); `next_cursor` stops at the window"
         },
         {
           "name": "source",

@@ -27124,7 +27124,7 @@
         "tags": [
           "News"
         ],
-        "description": "News of US companies — SEC filings and the companies' own newsroom publications — newest first.\n\n### What you get\n\n- Headline, lede, publication time, canonical URL, first source, kind, topics, the companies mentioned (`symbols`, `ciks`) and the companies' own publications of the item.\n\n- Every item carries `attribution`; the full text is on `GET /v1/news/{id}`.\n\n- `media_count` = the item's media you can get now (original PDFs, images); `has_media=true` lists only those items, and `GET /v1/news/{id}` lists the files with their `download_url`.\n\n### Filters\n\n- `ticker` / `cik` = items mentioning the company (either matches); `publisher` = items the company published itself. Several filters intersect; several values of one filter match any of them.\n\n- An unknown ticker is not an error: the list is empty.\n\n### Pagination\n\n- News is an append-heavy feed, so pages use a cursor instead of an offset: follow `next_url` (or pass `next_cursor` as `cursor` with the same filters) until it is null. An item published between two calls never shifts a page — no duplicates, no gaps.\n\n- `next_url` pins the resolved `from` / `to`, so a default window does not slide while you page.\n\n### Sources and rights\n\n- Items come from SEC EDGAR filings (`rights: public_record`) and the companies' own newsrooms (`rights: issuer`); wire services are never a source.\n\n- Issuer and SEC text is served in full with its attribution: wherever you show the text, show `attribution.publisher`, `attribution.source_url` and `attribution.published_at` next to it (and the EDGAR form and accession for a filing). You may forward the text unmodified; you may not resell it.\n\n- A company that opted out, and a source whose owner reserved reuse, are not served (a reserved source keeps its headline, without text).\n\nMinimum tier for display: FREE.",
+        "description": "News of US companies — SEC filings and the companies' own newsroom publications — newest first.\n\n### What you get\n\n- Headline, lede, publication time, canonical URL, first source, kind, topics, the companies mentioned (`symbols`, `ciks`) and the companies' own publications of the item.\n\n- Every item carries `attribution`; the full text is on `GET /v1/news/{id}`.\n\n- `media_count` = the item's media you can get now (original PDFs, images); `has_media=true` lists only those items, and `GET /v1/news/{id}` lists the files with their `download_url`.\n\n### Filters\n\n- `ticker` / `cik` = items mentioning the company (either matches); `publisher` = items the company published itself. Several filters intersect; several values of one filter match any of them.\n\n- An unknown ticker is not an error: the list is empty.\n\n### Pagination\n\n- News is an append-heavy feed, so pages use a cursor instead of an offset: follow `next_url` (or pass `next_cursor` as `cursor` with the same filters) until it is null. An item published between two calls never shifts a page — no duplicates, no gaps.\n\n- Without `from` and `to`, the feed pages back through the whole history: the first page holds the newest entries, and `next_cursor` keeps going into older ones until there are none (null = the true end). Every other filter stays applied on every page.\n\n- A feed without a company or item scope (`/v1/news` without `ticker` / `cik`, `/v1/news/developments` without `item_id`) reads one 92-day step per page: a page may then hold fewer entries than `limit`, or none, while `next_cursor` continues.\n\n- With `from` and / or `to`, the window is at most 92 days and `next_cursor` stops at its edge; `next_url` pins the resolved `from` / `to`, so a default bound does not slide while you page.\n\n### Sources and rights\n\n- Items come from SEC EDGAR filings (`rights: public_record`) and the companies' own newsrooms (`rights: issuer`); wire services are never a source.\n\n- Issuer and SEC text is served in full with its attribution: wherever you show the text, show `attribution.publisher`, `attribution.source_url` and `attribution.published_at` next to it (and the EDGAR form and accession for a filing). You may forward the text unmodified; you may not resell it.\n\n- A company that opted out, and a source whose owner reserved reuse, are not served (a reserved source keeps its headline, without text).\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -27163,7 +27163,7 @@
             "in": "query",
             "name": "from",
             "required": false,
-            "description": "Start of the publication window: an ISO 8601 instant or a day (YYYY-MM-DD, from its UTC midnight). Default: `to` minus 7 days",
+            "description": "Start of the publication window: an ISO 8601 instant or a day (YYYY-MM-DD, from its UTC midnight). Default with `to`: `to` minus 7 days. Without `from` and `to`, no window: the newest items first, and `next_cursor` pages back through the whole history",
             "example": "2026-10-22"
           },
           {
@@ -27173,7 +27173,7 @@
             "in": "query",
             "name": "to",
             "required": false,
-            "description": "End of the publication window: an ISO 8601 instant (exclusive) or a day (inclusive). Default: now. At most 92 days after `from` (400 otherwise)",
+            "description": "End of the publication window: an ISO 8601 instant (exclusive) or a day (inclusive). Default with `from`: now. At most 92 days after `from` (400 otherwise); `next_cursor` stops at the window",
             "example": "2026-10-29"
           },
           {
@@ -27825,7 +27825,7 @@
                     }
                   ],
                   "next_cursor": "WyIyMDI2LTEwLTMwVDEwOjE1OjAwLjAwMDAwMFoiLCJlNjljNzQwNi02MjMzLTQxN2UtOTAzNy00ZjE2YWU5N2U4MGIiXQ",
-                  "next_url": "https://api.data.invinite.com/v1/news?from=2026-10-24T11%3A19%3A13.921Z&to=2026-10-31T11%3A19%3A13.921Z&cursor=WyIyMDI2LTEwLTMwVDEwOjE1OjAwLjAwMDAwMFoiLCJlNjljNzQwNi02MjMzLTQxN2UtOTAzNy00ZjE2YWU5N2U4MGIiXQ"
+                  "next_url": "https://api.data.invinite.com/v1/news?cursor=WyIyMDI2LTEwLTMwVDEwOjE1OjAwLjAwMDAwMFoiLCJlNjljNzQwNi02MjMzLTQxN2UtOTAzNy00ZjE2YWU5N2U4MGIiXQ"
                 }
               }
             }
@@ -27855,7 +27855,7 @@
         "tags": [
           "News"
         ],
-        "description": "Company developments — product launches, partnerships, customer contracts, capacity, regulatory steps, research — read from the companies' own publications, newest announcement first.\n\n### What you get\n\n- Each development cites the source: `evidence[]` quotes the publisher's exact words with block pointers into `GET /v1/news/{id}/text`, and `item` names the publication with its `attribution`.\n\n- `title` and `summary` are model-derived (`derived: true`); the quotes are the source. A claim is what the text says, never a verified fact or a lasting relationship.\n\n- Only medium- and high-confidence developments of each item's current text.\n\n### Pagination\n\n- News is an append-heavy feed, so pages use a cursor instead of an offset: follow `next_url` (or pass `next_cursor` as `cursor` with the same filters) until it is null. An item published between two calls never shifts a page — no duplicates, no gaps.\n\n- `next_url` pins the resolved `from` / `to`, so a default window does not slide while you page.\n\n### Sources and rights\n\n- Items come from SEC EDGAR filings (`rights: public_record`) and the companies' own newsrooms (`rights: issuer`); wire services are never a source.\n\n- Issuer and SEC text is served in full with its attribution: wherever you show the text, show `attribution.publisher`, `attribution.source_url` and `attribution.published_at` next to it (and the EDGAR form and accession for a filing). You may forward the text unmodified; you may not resell it.\n\n- A company that opted out, and a source whose owner reserved reuse, are not served (a reserved source keeps its headline, without text).\n\nMinimum tier for display: FREE.",
+        "description": "Company developments — product launches, partnerships, customer contracts, capacity, regulatory steps, research — read from the companies' own publications, newest announcement first.\n\n### What you get\n\n- Each development cites the source: `evidence[]` quotes the publisher's exact words with block pointers into `GET /v1/news/{id}/text`, and `item` names the publication with its `attribution`.\n\n- `title` and `summary` are model-derived (`derived: true`); the quotes are the source. A claim is what the text says, never a verified fact or a lasting relationship.\n\n- Only medium- and high-confidence developments of each item's current text.\n\n### Pagination\n\n- News is an append-heavy feed, so pages use a cursor instead of an offset: follow `next_url` (or pass `next_cursor` as `cursor` with the same filters) until it is null. An item published between two calls never shifts a page — no duplicates, no gaps.\n\n- Without `from` and `to`, the feed pages back through the whole history: the first page holds the newest entries, and `next_cursor` keeps going into older ones until there are none (null = the true end). Every other filter stays applied on every page.\n\n- A feed without a company or item scope (`/v1/news` without `ticker` / `cik`, `/v1/news/developments` without `item_id`) reads one 92-day step per page: a page may then hold fewer entries than `limit`, or none, while `next_cursor` continues.\n\n- With `from` and / or `to`, the window is at most 92 days and `next_cursor` stops at its edge; `next_url` pins the resolved `from` / `to`, so a default bound does not slide while you page.\n\n### Sources and rights\n\n- Items come from SEC EDGAR filings (`rights: public_record`) and the companies' own newsrooms (`rights: issuer`); wire services are never a source.\n\n- Issuer and SEC text is served in full with its attribution: wherever you show the text, show `attribution.publisher`, `attribution.source_url` and `attribution.published_at` next to it (and the EDGAR form and accession for a filing). You may forward the text unmodified; you may not resell it.\n\n- A company that opted out, and a source whose owner reserved reuse, are not served (a reserved source keeps its headline, without text).\n\nMinimum tier for display: FREE.",
         "parameters": [
           {
             "schema": {
@@ -27905,7 +27905,7 @@
             "in": "query",
             "name": "from",
             "required": false,
-            "description": "Start of the announcement window: an ISO 8601 instant or a day (YYYY-MM-DD, from its UTC midnight). Default: `to` minus 7 days",
+            "description": "Start of the announcement window: an ISO 8601 instant or a day (YYYY-MM-DD, from its UTC midnight). Default with `to`: `to` minus 7 days. Without `from` and `to`, no window: the newest items first, and `next_cursor` pages back through the whole history",
             "example": "2026-10-22"
           },
           {
@@ -27915,7 +27915,7 @@
             "in": "query",
             "name": "to",
             "required": false,
-            "description": "End of the announcement window: an ISO 8601 instant (exclusive) or a day (inclusive). Default: now. At most 92 days after `from` (400 otherwise)",
+            "description": "End of the announcement window: an ISO 8601 instant (exclusive) or a day (inclusive). Default with `from`: now. At most 92 days after `from` (400 otherwise); `next_cursor` stops at the window",
             "example": "2026-10-29"
           },
           {

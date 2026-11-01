@@ -315,7 +315,7 @@ News of US companies from SEC EDGAR filings (`rights: public_record`) and the co
 (`rights: issuer`); wire services are never a source. `--ticker` / `--cik` = items that mention a company,
 `--publisher <cik>` = items the company published itself (`--publication-type`, `--issuer-category`, `--issuer-tag`
 narrow its own publications). The list is cursor-paged: `--all` follows `next_url`, or pass `next_cursor` as
-`--cursor` with the same filters; the default window is the last 7 days (`--from` / `--to`, ≤ 92 days).
+`--cursor` with the same filters; without `--from` / `--to`, `--all` and `next_cursor` page back through the whole history; with either, the window is at most 92 days.
 
 Every item carries `attribution` (publisher, `source_url`, `published_at`, EDGAR form + accession, `statement`):
 wherever you show a headline or text, show its publisher, link and date with it. `news get` (STANDARD) has the
