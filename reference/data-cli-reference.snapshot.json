@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "0.12.0",
+    "version": "0.13.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -9,24 +9,24 @@
     "engines": {
       "node": ">=20"
     },
-    "verifiedOn": "2026-11-01",
+    "verifiedOn": "2026-11-03",
     "sourceHashes": {
-      "api-contract.json": "00141047f7ee41522a9eb249174784ebcca3552e8194c4ff5cf4a3a03be60150",
-      "openapi.json": "109e01086b236f8b62c72c0734a00f173f432f67366c050647ed54e1d8ab530e",
-      "package.json": "38a3cec1136d0f2078a826f2fdb6077ba6a957337ce73c9e9070790793435851",
+      "api-contract.json": "8d26603a0d83e41a425a868522f20dd44cf7b9d844c4b14bb84063f4d71b2534",
+      "openapi.json": "6354f99f822d93ecfcd552db288b86c2b64255e4a6da0f1a41eacb091656a50f",
+      "package.json": "d5c89898fc4c1d36093b3503422116536a504f86d1249017ee003db55534016c",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "274c2c99671474d4442343a9e625bb41eda85343cc74de3cb032821c5736b1a7",
       "src/cli.ts": "555b2341382fe0a19f0d50151df1a294d4b2e84c5e758edec84904b727d5f6b3",
       "src/client/api-client.ts": "42857862c38a3cdbd51fd45a13752108b468a937b2e1ef91b11c02b163654ba7",
-      "src/client/download.ts": "98433fed77e89357a916690fc01dcd0982b0dc0f732bc240c6114284663573e2",
+      "src/client/download.ts": "cb7371d48391315969dc1f36edc90ac1fca55de002170a062adb64fab059c709",
       "src/client/earnings-live.ts": "ec7695211e9e8caa51988d3bca0b87da6e370be6621045783876bb537bf91a4c",
       "src/client/news-live.ts": "fdfd88e178bbbd3c290aa9f8c528269461fde6411ce881340e209658bc6c7a61",
       "src/client/pagination.ts": "d9ffa4af81e6dab59f7fb3b8afb7e1805fc6b542d673bb3e28f97eecd970a454",
       "src/client/pdf.ts": "9dadcdefd6f39661d8785df3878e70a28e41675bff0cfda0a41bbce89b0f0caf",
       "src/client/websocket-client.ts": "6938d699e2794d9bde27441fb25402f910462e1959e3f18bd915208e859cf4e5",
       "src/commands/config.ts": "f2f9a8b9c2eee46abf29e887b99837e10bd061416825d0b7eb84d043ae0a01ca",
-      "src/commands/earnings.ts": "32644cb423721cfd2967eb1d96c54f3195fb71d69d2226a3740f18f4c28d6bdc",
+      "src/commands/earnings.ts": "241ef117644ba29338f33d49f77395ee38442ddd4d8b9a948ec772b30ea62ffe",
       "src/commands/login.ts": "639b5c47ce2f61c94f4c6be581711b80a51f446f2c1fa86f7d5f09f35e478e87",
       "src/commands/news.ts": "adb753e058e826efdd26382e9170eb6fd8404d8e8f98a158bb34edf041418fd6",
       "src/commands/plugin.ts": "953f279105a682c5659c698f5145822c079d51497882f9d64cc54e4255a617b6",
@@ -37,7 +37,7 @@
       "src/formatters/json-formatter.ts": "0fa8904f4a31c7e0d10ac5eb6c4947c5d56079216e3c93349583ed02ef21b833",
       "src/formatters/table-formatter.ts": "56edfc931457289b4314107971d0021e237430131831199828a8bfd7b3e35c40",
       "src/formatters/time.ts": "f4d4e7c28b2f4610553a82cfdc55b585090c0f1cc6788f84acd6824b29e6bd0a",
-      "src/generated/cli-manifest.json": "c97921d28409c4d8c6f36b1c2e0bd67bbdda1fd5e77fc52ef29cf7fe0ad551f6",
+      "src/generated/cli-manifest.json": "0c1d9e65f6262a044860ddc5a09f7cbf27c8b0fc49e33a0bff7886c2e4c5a072",
       "src/hand-written-commands.ts": "5f0c8a24570361ec8f9dc5cd9fcf7f86f9060ea4e3fb3172d51fd40713887361",
       "src/shared/errors.ts": "3c379b53515a950fae853b9411bf456d3dfb21bcca4237d5730204045dca7097",
       "src/shared/options.ts": "6783cfa83b301857903bbde46edc238cd7adf80f05f0f33a7a883136de8a27b8",
@@ -48,9 +48,9 @@
       "src/spec-flags.ts": "779f80591b5eabe265023e5717e82de71b45ad385d84784f7e4304959ca2d83a",
       "src/spec-manifest.ts": "5ea901757d497900b968c4badb7ed1086def58afb719f19a8a89a5bbba27925c"
     },
-    "specSha256": "109e01086b236f8b62c72c0734a00f173f432f67366c050647ed54e1d8ab530e",
-    "revision": "522b580107ff3e8fdb1a2bf69b43c37c5b325392",
-    "fingerprint": "c910653dedd57822e87f131cf97fa7a41a3716e7bf658a65b178d489195edcf0"
+    "specSha256": "6354f99f822d93ecfcd552db288b86c2b64255e4a6da0f1a41eacb091656a50f",
+    "revision": "e0fde4663314be7b874de63b0137c0d31574d21f",
+    "fingerprint": "722039a23a31ae34c4b2c4d63e83f48a9c955ce0a771dc075fb4b1e6fcfb0bfa"
   },
   "globalOptions": [
     {
@@ -724,7 +724,7 @@
       "command": "earnings document",
       "group": "earnings",
       "origin": "hand",
-      "description": "One company IR document (metadata and signed URLs, or --pages for its text)",
+      "description": "One company IR document (metadata and permanent URLs, or --pages for its text)",
       "source": "src/commands/earnings.ts",
       "operations": [
         {
@@ -1638,7 +1638,7 @@
       "command": "earnings slides",
       "group": "earnings",
       "origin": "hand",
-      "description": "Slide deck (signed URL, or --output to save the PDF)",
+      "description": "Slide deck (permanent URL, or --output to save the PDF)",
       "source": "src/commands/earnings.ts",
       "operations": [
         {
