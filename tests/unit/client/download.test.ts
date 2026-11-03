@@ -43,12 +43,12 @@ describe('downloadToFile', () => {
     (fetch as any).mockResolvedValue({ ok: true, status: 200, body: streamOf(['abc', 'def']) });
     const file = join(dir, 'call.mp3');
 
-    const result = await downloadToFile('https://r2.example.com/signed', file);
+    const result = await downloadToFile('https://storage-prod.invinite.com/audio/0123456789abcdef0123456789abcdef/call.mp3', file);
 
     expect(result).toEqual({ path: file, bytes: 6 });
     expect(await readFile(file, 'utf8')).toBe('abcdef');
     const [url, init] = (fetch as any).mock.calls[0];
-    expect(url).toBe('https://r2.example.com/signed');
+    expect(url).toBe('https://storage-prod.invinite.com/audio/0123456789abcdef0123456789abcdef/call.mp3');
     expect(init).toEqual({ signal: expect.any(AbortSignal) });
   });
 
@@ -56,7 +56,7 @@ describe('downloadToFile', () => {
     const file = join(dir, 'deck.pdf');
     await writeFile(file, 'old');
 
-    await expect(downloadToFile('https://r2.example.com/signed', file)).rejects.toThrow(/--force/);
+    await expect(downloadToFile('https://storage-prod.invinite.com/audio/0123456789abcdef0123456789abcdef/call.mp3', file)).rejects.toThrow(/--force/);
     expect(fetch).not.toHaveBeenCalled();
     expect(await readFile(file, 'utf8')).toBe('old');
   });
@@ -66,21 +66,21 @@ describe('downloadToFile', () => {
     await writeFile(file, 'old');
     (fetch as any).mockResolvedValue({ ok: true, status: 200, body: streamOf(['new']) });
 
-    await downloadToFile('https://r2.example.com/signed', file, { force: true });
+    await downloadToFile('https://storage-prod.invinite.com/audio/0123456789abcdef0123456789abcdef/call.mp3', file, { force: true });
     expect(await readFile(file, 'utf8')).toBe('new');
   });
 
   it('creates no file on a non-2xx response', async () => {
     (fetch as any).mockResolvedValue({ ok: false, status: 403, body: null });
 
-    await expect(downloadToFile('https://r2.example.com/signed', join(dir, 'a.mp3'))).rejects.toThrow(/403/);
+    await expect(downloadToFile('https://storage-prod.invinite.com/audio/0123456789abcdef0123456789abcdef/call.mp3', join(dir, 'a.mp3'))).rejects.toThrow(/403/);
     expect(await readdir(dir)).toEqual([]);
   });
 
   it('cleans up after a failed stream', async () => {
     (fetch as any).mockResolvedValue({ ok: true, status: 200, body: streamOf(['abc', 'def'], 1) });
 
-    await expect(downloadToFile('https://r2.example.com/signed', join(dir, 'a.mp3'))).rejects.toThrow('connection reset');
+    await expect(downloadToFile('https://storage-prod.invinite.com/audio/0123456789abcdef0123456789abcdef/call.mp3', join(dir, 'a.mp3'))).rejects.toThrow('connection reset');
     expect(await readdir(dir)).toEqual([]);
   });
 
@@ -99,7 +99,7 @@ describe('downloadToFile', () => {
     const listeners = process.listenerCount(signal);
     const file = join(dir, 'call.mp3');
 
-    const pending = downloadToFile('https://r2.example.com/signed', file);
+    const pending = downloadToFile('https://storage-prod.invinite.com/audio/0123456789abcdef0123456789abcdef/call.mp3', file);
     await vi.waitFor(async () => expect(await readFile(`${file}.part`, 'utf8')).toBe('abc'));
     process.emit(signal, signal);
 
