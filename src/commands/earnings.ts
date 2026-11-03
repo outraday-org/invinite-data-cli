@@ -114,7 +114,7 @@ export function transcriptText(data: unknown, format: string): string {
     .join('\n\n');
 }
 
-/** `documents --output`: the warning for a document without a signed URL. */
+/** `documents --output`: the warning for a document without a download URL. */
 export function skippedDocumentWarning(doc: Row): string {
   const source = doc.source_url ? `; source: ${doc.source_url}` : '';
   return `Not saved: ${doc.kind} ${doc.document_id} has no download URL${source}`;
@@ -250,7 +250,7 @@ export function registerEarningsCommands(program: Command): void {
       });
     }));
 
-  selectorCommand('slides', 'Slide deck (signed URL, or --output to save the PDF)')
+  selectorCommand('slides', 'Slide deck (permanent URL, or --output to save the PDF)')
     .option('--markdown', "Include each page's extracted text")
     .option('--pages <range>', 'Page or range, e.g. 3 or 1-5')
     .option('-o, --output <file>', 'Save the deck PDF (e.g. deck.pdf)')
@@ -274,7 +274,7 @@ export function registerEarningsCommands(program: Command): void {
             origin: data.deck.origin,
             source_url: data.deck.source_url,
             trust_tier: data.deck.trust_tier,
-            ...(saved ? {} : { expires_at: data.deck.expires_at, url: data.deck.url }),
+            ...(saved ? {} : { url: data.deck.url }),
           });
         }
         if (saved) printSaved(saved);
@@ -317,7 +317,7 @@ export function registerEarningsCommands(program: Command): void {
         const dir = await ensureDir(cmdOpts.output);
         for (const doc of data.documents) {
           if (!doc.url) {
-            // Link-only rows (sec_filing) and failed downloads carry no signed URL: say so, never skip silently.
+            // Link-only rows (sec_filing) and failed downloads carry no download URL: say so, never skip silently.
             skipped.push(doc);
             console.error(chalk.yellow(skippedDocumentWarning(doc)));
             continue;
@@ -329,7 +329,7 @@ export function registerEarningsCommands(program: Command): void {
       }
       output(data, opts, () => {
         console.log(chalk.bold(`\n${eventLine(data.event)} · documents\n`));
-        formatTable(data.documents, ['kind', 'group', 'title', 'content_type', 'bytes', 'pages', 'trust_tier', 'origin', 'expires_at', 'document_id']);
+        formatTable(data.documents, ['kind', 'group', 'title', 'content_type', 'bytes', 'pages', 'trust_tier', 'origin', 'document_id']);
         if (cmdOpts.output) {
           console.log(chalk.bold('\nSaved\n'));
           formatTable(saved, ['document_id', 'kind', 'path', 'bytes']);
@@ -400,7 +400,7 @@ export function registerEarningsCommands(program: Command): void {
         const dir = await ensureDir(cmdOpts.output);
         for (const doc of data.documents) {
           if (!doc.url) {
-            // Link-only rows (webcast replay pages) carry no signed URL: say so, never skip silently.
+            // Link-only rows (webcast replay pages) carry no download URL: say so, never skip silently.
             skipped.push(doc);
             console.error(chalk.yellow(skippedDocumentWarning(doc)));
             continue;
@@ -432,7 +432,7 @@ export function registerEarningsCommands(program: Command): void {
 
   earnings
     .command('document')
-    .description('One company IR document (metadata and signed URLs, or --pages for its text)')
+    .description('One company IR document (metadata and permanent URLs, or --pages for its text)')
     .requiredOption('--document-id <document_id>', 'Document ID (from company-documents or document-search)')
     .option('--pages', 'Print the per-page text')
     .option('-o, --output <file>', 'Save the file (or, with --pages, the text)')
@@ -446,7 +446,7 @@ export function registerEarningsCommands(program: Command): void {
       const doc = data.document;
       let text: string | undefined;
       if (cmdOpts.pages) {
-        // Inline up to 2 MB; else the signed pages file (a bearer URL: plain GET, no Authorization header).
+        // Inline up to 2 MB; else the public pages file (a permanent URL: plain GET, no Authorization header).
         let pagesJson = doc.pages_json;
         if (pagesJson === undefined && doc.pages_url) {
           const response = await fetch(doc.pages_url);
@@ -469,7 +469,7 @@ export function registerEarningsCommands(program: Command): void {
       }
       output(data, opts, () => {
         console.log(chalk.bold(`\n${doc.title ?? doc.kind} · ${data.company?.symbol ?? ''}\n`));
-        // The metadata without the inline text; a saved file prints its path instead of the signed URLs.
+        // The metadata without the inline text; a saved file prints its path instead of the URLs.
         const hidden = new Set(saved ? ['pages_json', 'url', 'pages_url'] : ['pages_json']);
         formatKeyValue(Object.fromEntries(Object.entries(doc).filter(([key]) => !hidden.has(key))));
         if (saved) printSaved(saved);

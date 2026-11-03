@@ -143,10 +143,10 @@ describe('earnings requests', () => {
     vi.mocked(console.log).mockRestore();
   });
 
-  it('company-documents maps its filters and prints the table without signed URLs', async () => {
+  it('company-documents maps its filters and prints the table without the URLs', async () => {
     (fetch as any).mockResolvedValueOnce(json({
       company: { cik: '0000000001', symbol: 'ACME', name: 'Acme' },
-      documents: [{ document_id: 'd1', kind: 'annual_report', section: 'annual_reports', year: 2025, period: 'FY', title: 'Annual Report', pages: 120, url: 'https://r2.example.com/a.pdf?X-Amz-Signature=secret' }],
+      documents: [{ document_id: 'd1', kind: 'annual_report', section: 'annual_reports', year: 2025, period: 'FY', title: 'Annual Report', pages: 120, url: 'https://storage-prod.invinite.com/company-docs/0123456789abcdef0123456789abcdef/annual-report.pdf' }],
     }));
     await run('company-documents', '-i', 'ACME', '--section', 'annual_reports,proxy', '--kind', 'annual_report', '--year', '2025', '--event-id', 'e1', '-l', '20');
     expect(url().pathname).toBe('/v1/earnings-calls/company-documents');
@@ -156,7 +156,34 @@ describe('earnings requests', () => {
     const printed = logs.join('\n');
     expect(printed).toContain('ACME (0000000001) IR documents');
     expect(printed).toContain('Annual Report');
-    expect(printed).not.toContain('X-Amz-Signature');
+    expect(printed).not.toContain('storage-prod.invinite.com');
+  });
+
+  it('slides prints the deck\'s permanent URL and no expiry', async () => {
+    const deckUrl = 'https://storage-prod.invinite.com/slides/0123456789abcdef0123456789abcdef/deck.pdf';
+    (fetch as any).mockResolvedValueOnce(json({
+      event: { symbol: 'ACME', fiscal_year: 2027, fiscal_quarter: 2 },
+      deck: { pages: 12, origin: 'company', source_url: 'https://ir.acme.com/deck.pdf', trust_tier: 'company', url: deckUrl },
+      slides: [{ page: 1, title: 'Cover' }],
+    }));
+    await run('slides', '--event-id', 'e1');
+    expect(url().pathname).toBe('/v1/earnings-calls/slides');
+    const printed = logs.join('\n');
+    expect(printed).toContain(deckUrl);
+    expect(printed).not.toContain('expires_at');
+  });
+
+  it('documents prints each permanent URL and no expiry column', async () => {
+    const docUrl = 'https://storage-prod.invinite.com/event-docs/0123456789abcdef0123456789abcdef/cfo-commentary.pdf';
+    (fetch as any).mockResolvedValueOnce(json({
+      event: { symbol: 'ACME', fiscal_year: 2027, fiscal_quarter: 2 },
+      documents: [{ document_id: 'd1', kind: 'cfo_commentary', title: 'CFO Commentary', content_type: 'application/pdf', url: docUrl }],
+    }));
+    await run('documents', '--event-id', 'e1');
+    expect(url().pathname).toBe('/v1/earnings-calls/documents');
+    const printed = logs.join('\n');
+    expect(printed).toContain(`d1  ${docUrl}`);
+    expect(printed).not.toContain('expires_at');
   });
 
   it('company-documents --include calls asks for the calls\' documents and shows each row\'s source', async () => {
@@ -189,13 +216,13 @@ describe('earnings requests', () => {
     expect(printed).toContain('Capital allocation.');
   });
 
-  it('document --pages reads a large pages file from its signed URL without the API key', async () => {
-    const signed = 'https://r2.example.com/a.pdf.pages.json?X-Amz-Signature=secret';
+  it('document --pages reads a large pages file from its permanent URL without the API key', async () => {
+    const pagesUrl = 'https://storage-prod.invinite.com/company-docs/0123456789abcdef0123456789abcdef/annual-report.pages.json';
     (fetch as any)
-      .mockResolvedValueOnce(json({ company: { symbol: 'ACME' }, document: { document_id: 'd1', kind: 'annual_report', title: null, pages_url: signed } }))
+      .mockResolvedValueOnce(json({ company: { symbol: 'ACME' }, document: { document_id: 'd1', kind: 'annual_report', title: null, pages_url: pagesUrl } }))
       .mockResolvedValueOnce(json({ pages: [{ n: 1, text: 'Big file.' }] }));
     await run('document', '--document-id', 'd1', '--pages');
-    expect((fetch as any).mock.calls[1][0]).toBe(signed);
+    expect((fetch as any).mock.calls[1][0]).toBe(pagesUrl);
     expect((fetch as any).mock.calls[1][1]).toBeUndefined();
     expect(logs.join('\n')).toContain('Big file.');
   });

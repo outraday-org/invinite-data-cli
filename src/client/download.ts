@@ -60,8 +60,8 @@ async function writeViaPart(path: string, write: (part: string, signal: AbortSig
 }
 
 /**
- * Streams a presigned URL to disk. Plain fetch: NO Authorization header — the URL is a
- * bearer URL and R2 would reject the extra header. Written through `writeViaPart`.
+ * Streams a permanent public media URL (audio, deck, document, PDF) to disk. Plain fetch: NO
+ * Authorization header — the public bucket needs none. Written through `writeViaPart`.
  */
 export async function downloadToFile(
   url: string,
