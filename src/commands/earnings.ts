@@ -329,7 +329,8 @@ export function registerEarningsCommands(program: Command): void {
       }
       output(data, opts, () => {
         console.log(chalk.bold(`\n${eventLine(data.event)} · documents\n`));
-        formatTable(data.documents, ['kind', 'group', 'title', 'content_type', 'bytes', 'pages', 'trust_tier', 'origin', 'document_id']);
+        // `filing_date`: the EDGAR filing date of a sec_filing link (empty for every other kind).
+        formatTable(data.documents, ['kind', 'group', 'title', 'filing_date', 'content_type', 'bytes', 'pages', 'trust_tier', 'origin', 'document_id']);
         if (cmdOpts.output) {
           console.log(chalk.bold('\nSaved\n'));
           formatTable(saved, ['document_id', 'kind', 'path', 'bytes']);
@@ -415,7 +416,8 @@ export function registerEarningsCommands(program: Command): void {
       output(data, opts, () => {
         console.log(chalk.bold(`\n${data.company?.symbol ?? cmdOpts.identifier} (${data.company?.cik ?? ''}) IR documents\n`));
         console.log(chalk.dim('Company-published material, shown as published.\n'));
-        formatTable(data.documents, ['document_id', 'source', 'kind', 'group', 'section', 'year', 'period', 'title', 'pages']);
+        // `filing_date`: the EDGAR filing date of a call's sec_filing link (`--include calls`), never the call's day.
+        formatTable(data.documents, ['document_id', 'source', 'kind', 'group', 'section', 'year', 'period', 'title', 'filing_date', 'pages']);
         if (cmdOpts.output) {
           console.log(chalk.bold('\nSaved\n'));
           formatTable(saved, ['document_id', 'kind', 'path', 'bytes']);

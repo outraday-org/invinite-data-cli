@@ -202,6 +202,17 @@ describe('earnings requests', () => {
     expect(printed).toMatch(/call/);
   });
 
+  it('documents and company-documents show a sec_filing link\'s EDGAR filing_date', async () => {
+    const tenK = { document_id: 'd3', source: 'call', kind: 'sec_filing', group: 'earnings/fy2026/q4', year: 2026, period: 'Q4', title: 'FY2026 Form 10-K', filing_date: '2026-11-03', url: null };
+    (fetch as any).mockResolvedValueOnce(json({ event: { symbol: 'ACME', fiscal_year: 2026, fiscal_quarter: 4 }, documents: [tenK] }));
+    await run('documents', '--event-id', 'e1');
+    expect(logs.join('\n')).toMatch(/filing_date[\s\S]*2026-11-03/);
+    logs.length = 0;
+    (fetch as any).mockResolvedValueOnce(json({ company: { cik: '0000000001', symbol: 'ACME', name: 'Acme' }, documents: [tenK] }));
+    await run('company-documents', '-i', 'ACME', '--include', 'calls');
+    expect(logs.join('\n')).toMatch(/filing_date[\s\S]*2026-11-03/);
+  });
+
   it('document --pages prints the inline page text', async () => {
     (fetch as any).mockResolvedValueOnce(json({
       company: { symbol: 'ACME' },

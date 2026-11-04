@@ -2156,7 +2156,7 @@
                 },
                 "example": {
                   "status": "ok",
-                  "timestamp": "2026-11-03T19:38:41.738Z"
+                  "timestamp": "2026-11-04T09:39:43.755Z"
                 }
               }
             }
@@ -2742,7 +2742,7 @@
                       "insider_own_pct": 0.06,
                       "insider_own_shares": 9337764,
                       "inst_own_pct": 62.81,
-                      "inst_own_shares": 9167252708,
+                      "inst_own_shares": 9166674998,
                       "short_float_pct": 0.9,
                       "short_float_shares": 131591865,
                       "homepage_url": "https://www.apple.com",
@@ -16284,30 +16284,30 @@
                   }
                 },
                 "example": {
-                  "from": "2026-11-03",
-                  "to": "2026-11-17",
+                  "from": "2026-11-04",
+                  "to": "2026-11-18",
                   "events": [
                     {
-                      "event_id": "7d6c54cc-675a-4f92-9e55-ee61e984a774",
+                      "event_id": "b14afa83-608c-4963-b9d8-ff8c89ebbdd3",
                       "source": "us",
-                      "cik": "0002002473",
-                      "symbol": "BOW",
-                      "company_name": "Bowhead Specialty Holdings Inc.",
-                      "exchange": "NYSE",
+                      "cik": "0001804745",
+                      "symbol": "DRVN",
+                      "company_name": "Driven Brands Holdings Inc. Common Stock",
+                      "exchange": "NASDAQ",
                       "event_type": "earnings_call",
                       "event_title": null,
                       "fiscal_year": 2026,
                       "fiscal_quarter": 3,
-                      "scheduled_at": "2026-11-03T00:00:00.000Z",
+                      "scheduled_at": "2026-11-04T00:00:00.000Z",
                       "tz": "America/New_York",
-                      "date_status": "unconfirmed",
+                      "date_status": "postponed",
                       "call_time_source": null,
                       "call_time_confidence": null,
                       "session": null,
                       "started_at": null,
                       "ended_at": null,
-                      "results_released_at": "2026-11-03T13:08:01.000Z",
-                      "capture_status": "expired",
+                      "results_released_at": "2026-11-03T13:08:28.000Z",
+                      "capture_status": "pending",
                       "reschedule_count": 0,
                       "has_transcript": false,
                       "has_audio": false,
@@ -16318,7 +16318,7 @@
                       "video": null
                     }
                   ],
-                  "next_url": "https://api.data.invinite.com/v1/earnings-calls/calendar?offset=100&limit=100&from=2026-11-03&to=2026-11-17"
+                  "next_url": "https://api.data.invinite.com/v1/earnings-calls/calendar?offset=100&limit=100&from=2026-11-04&to=2026-11-18"
                 }
               }
             }
@@ -23788,6 +23788,12 @@
                             "nullable": true,
                             "description": "SEC accession number (EDGAR documents)"
                           },
+                          "filing_date": {
+                            "type": "string",
+                            "format": "date",
+                            "nullable": true,
+                            "description": "EDGAR filing date of a sec_filing link (the 10-Q / 10-K); null for every other kind or when unknown"
+                          },
                           "url": {
                             "type": "string",
                             "nullable": true,
@@ -23884,7 +23890,8 @@
                       "trust_tier": "confirmed_domain",
                       "group": "earnings/fy2026/q4",
                       "group_label": "Q4 FY2026",
-                      "category": "earnings"
+                      "category": "earnings",
+                      "filing_date": null
                     }
                   ]
                 }
@@ -24300,6 +24307,12 @@
                             "format": "date",
                             "nullable": true,
                             "description": "The item's own date on the site (a call document: the call's New York day)"
+                          },
+                          "filing_date": {
+                            "type": "string",
+                            "format": "date",
+                            "nullable": true,
+                            "description": "EDGAR filing date of a call's SEC filing link (kind sec_filing, e.g. the 10-K filed after the call); null for every other document or when unknown"
                           },
                           "title": {
                             "type": "string",
@@ -24724,6 +24737,12 @@
                           "format": "date",
                           "nullable": true,
                           "description": "The item's own date on the site (a call document: the call's New York day)"
+                        },
+                        "filing_date": {
+                          "type": "string",
+                          "format": "date",
+                          "nullable": true,
+                          "description": "EDGAR filing date of a call's SEC filing link (kind sec_filing, e.g. the 10-K filed after the call); null for every other document or when unknown"
                         },
                         "title": {
                           "type": "string",
@@ -27757,62 +27776,74 @@
                 "example": {
                   "items": [
                     {
-                      "id": "a3e22c57-1e1e-47ad-821b-a88a0152878e",
-                      "title": "Pfizer Announces Positive Top-Line Results from Phase 3 Study of Hemophilia B Gene Therapy Candidate",
-                      "description": null,
-                      "url": "https://www.pfizer.com/news/press-release/press-release-detail/pfizer-announces-positive-top-line-results-phase-3-study",
-                      "published_at": "2026-11-03T18:30:31.992Z",
-                      "first_seen_at": "2026-11-03T18:30:31.992Z",
+                      "id": "004c0de7-8573-4658-a07b-3bca84dee74c",
+                      "title": "Dutch Ministry of Defense Chooses SAP Sovereign Cloud: A Milestone for European Defense Readiness",
+                      "description": "Digital sovereignty is essential to Europe’s defense readiness. It gives armed forces the freedom to act, the ability to adapt, and the confidence to embrace new technologies.",
+                      "url": "https://news.sap.com/2026/11/dutch-ministry-of-defense-chooses-sap-sovereign-cloud/",
+                      "published_at": "2026-11-04T08:00:00.000Z",
+                      "first_seen_at": "2026-11-04T08:17:00.640Z",
                       "source": {
                         "id": "ir",
-                        "name": "Pfizer Inc.",
-                        "host": "www.pfizer.com"
+                        "name": "SAP SE",
+                        "host": "news.sap.com"
                       },
-                      "kind": "other",
+                      "kind": "material_agreement",
                       "topics": [],
                       "rights": "issuer",
                       "is_earnings_news": false,
                       "earnings": null,
                       "symbols": [
-                        "PFE"
+                        "SAP"
                       ],
                       "ciks": [
-                        "0000078003"
+                        "0001000184"
                       ],
-                      "revision": 1,
+                      "revision": 2,
                       "supersedes_id": null,
                       "publications": [
                         {
-                          "source_id": "ir:www.pfizer.com",
+                          "source_id": "ir:news.sap.com",
                           "publisher": {
-                            "cik": "0000078003",
-                            "symbol": "PFE",
-                            "name": "Pfizer Inc."
+                            "cik": "0001000184",
+                            "symbol": "SAP",
+                            "name": "SAP SE"
                           },
-                          "url": "https://www.pfizer.com/news/press-release/press-release-detail/pfizer-announces-positive-top-line-results-phase-3-study",
-                          "publication_type": "unknown",
-                          "published_at": "2026-11-03T18:30:31.992Z",
+                          "url": "https://news.sap.com/2026/11/dutch-ministry-of-defense-chooses-sap-sovereign-cloud/",
+                          "publication_type": "press_release",
+                          "published_at": "2026-11-04T08:00:00.000Z",
                           "modified_at": null,
-                          "categories": [],
-                          "tags": []
+                          "categories": [
+                            {
+                              "id": null,
+                              "label": "Cloud",
+                              "url": null
+                            }
+                          ],
+                          "tags": [
+                            {
+                              "id": null,
+                              "label": "Customer story",
+                              "url": null
+                            }
+                          ]
                         }
                       ],
                       "publications_truncated": false,
                       "model_processing_allowed": true,
                       "media_count": 0,
                       "attribution": {
-                        "publisher": "Pfizer Inc.",
-                        "publisher_host": "www.pfizer.com",
-                        "source_url": "https://www.pfizer.com/news/press-release/press-release-detail/pfizer-announces-positive-top-line-results-phase-3-study",
-                        "published_at": "2026-11-03T18:30:31.992Z",
+                        "publisher": "SAP SE",
+                        "publisher_host": "news.sap.com",
+                        "source_url": "https://news.sap.com/2026/11/dutch-ministry-of-defense-chooses-sap-sovereign-cloud/",
+                        "published_at": "2026-11-04T08:00:00.000Z",
                         "rights": "issuer",
                         "edgar": null,
                         "statement": "Reproduced verbatim from the publisher; © the publisher. Source and date above."
                       }
                     }
                   ],
-                  "next_cursor": "WyIyMDI2LTExLTAzVDEyOjAwOjAwLjAwMDAwMFoiLCIyNGU4OGZlMC02MDA5LTQ0NzAtODhlMi1iNGE3OTg0YTk1ZmQiXQ",
-                  "next_url": "https://api.data.invinite.com/v1/news?cursor=WyIyMDI2LTExLTAzVDEyOjAwOjAwLjAwMDAwMFoiLCIyNGU4OGZlMC02MDA5LTQ0NzAtODhlMi1iNGE3OTg0YTk1ZmQiXQ"
+                  "next_cursor": "WyIyMDI2LTExLTA0VDAyOjAwOjEwLjkxNDAwMFoiLCIxMTc1ZWI4YS05YzE2LTQ3ZjAtOWRiZi02M2NhYjZmMWNhNWUiXQ",
+                  "next_url": "https://api.data.invinite.com/v1/news?cursor=WyIyMDI2LTExLTA0VDAyOjAwOjEwLjkxNDAwMFoiLCIxMTc1ZWI4YS05YzE2LTQ3ZjAtOWRiZi02M2NhYjZmMWNhNWUiXQ"
                 }
               }
             }
@@ -29320,7 +29351,7 @@
                       "can_display": true,
                       "can_download": false,
                       "download_url": "https://api.data.invinite.com/v1/news/13351ae7-876b-4839-ba2b-78873f6b4e00/assets/a9247c9e-9539-4cd8-9d9c-784be7138839/download",
-                      "view_url": "https://api.data.invinite.com/v1/news/13351ae7-876b-4839-ba2b-78873f6b4e00/assets/a9247c9e-9539-4cd8-9d9c-784be7138839/view?exp=1793818800&sig=…"
+                      "view_url": "https://api.data.invinite.com/v1/news/13351ae7-876b-4839-ba2b-78873f6b4e00/assets/a9247c9e-9539-4cd8-9d9c-784be7138839/view?exp=1793869200&sig=…"
                     }
                   ],
                   "developments": [],
@@ -29858,7 +29889,7 @@
                   "item_id": "13351ae7-876b-4839-ba2b-78873f6b4e00",
                   "purpose": "display",
                   "url": "https://invinite-news-prod.r2.cloudflarestorage.com/earnings_events/news/assets/13351ae7-876b-4839-ba2b-78873f6b4e00/612cd78d-b618-42c6-b3be-ff5c9df1a0f7/ab99180f.jpg?X-Amz-Signature=…",
-                  "expires_at": "2026-11-03T19:40:06.757Z",
+                  "expires_at": "2026-11-04T09:41:12.172Z",
                   "content_type": "image/jpeg",
                   "byte_size": 238875,
                   "credit": null
@@ -31085,7 +31116,7 @@
                   ]
                 },
                 "example": {
-                  "text": "Apple’s main risk factors, as disclosed in its SEC filings for CIK **0000320193** and ticker **AAPL**, are:\n\n- **Intense competition and rapid technological change.** Apple operates in highly competitive markets with short product cycles, a…",
+                  "text": "Apple’s principal risk factors, based on its SEC filings for **CIK 0000320193 (AAPL)**, are:\n\n- **Intense competition and rapid technological change:** Apple operates in markets with aggressive price competition, short product life cycles, …",
                   "sources": [
                     {
                       "cik": "0000320193",
@@ -32071,13 +32102,13 @@
                   "period": {
                     "tier": "pro",
                     "included_credits": 4000000,
-                    "used_credits": 5251,
+                    "used_credits": 5701,
                     "resets_at": "2026-11-28T12:43:10.000Z",
                     "prepaid_balance_usd": 0
                   },
                   "daily": [
                     {
-                      "date": "2026-10-05",
+                      "date": "2026-10-06",
                       "requests": 0,
                       "credits": 0,
                       "errors": {
@@ -32263,12 +32294,12 @@
                   }
                 },
                 "example": {
-                  "generated_at": "2026-11-03T19:39:14.552Z",
+                  "generated_at": "2026-11-04T09:40:19.989Z",
                   "services": [
                     {
                       "family": "company",
                       "status": "outage",
-                      "uptime_7d": 0.975,
+                      "uptime_7d": 0.961,
                       "uptime_30d": 0.983,
                       "uptime_90d": 0.983
                     }
