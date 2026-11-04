@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "0.13.0",
+    "version": "0.13.1",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -9,11 +9,11 @@
     "engines": {
       "node": ">=20"
     },
-    "verifiedOn": "2026-11-03",
+    "verifiedOn": "2026-11-04",
     "sourceHashes": {
-      "api-contract.json": "8d26603a0d83e41a425a868522f20dd44cf7b9d844c4b14bb84063f4d71b2534",
-      "openapi.json": "6354f99f822d93ecfcd552db288b86c2b64255e4a6da0f1a41eacb091656a50f",
-      "package.json": "d5c89898fc4c1d36093b3503422116536a504f86d1249017ee003db55534016c",
+      "api-contract.json": "7f4dd4d33fc1bedd128598bc020d0cff78aa583526bee7b1b56e8a300b4ab2a7",
+      "openapi.json": "99044f5390ccb96f40ef3fd1b1b19cab54c7de89ec1000af86ed8b999ab57912",
+      "package.json": "253ee56c6594452d2c2fc5cab0cbd53955bb2f624a59aac36676277b014d9da2",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "274c2c99671474d4442343a9e625bb41eda85343cc74de3cb032821c5736b1a7",
@@ -26,7 +26,7 @@
       "src/client/pdf.ts": "9dadcdefd6f39661d8785df3878e70a28e41675bff0cfda0a41bbce89b0f0caf",
       "src/client/websocket-client.ts": "6938d699e2794d9bde27441fb25402f910462e1959e3f18bd915208e859cf4e5",
       "src/commands/config.ts": "f2f9a8b9c2eee46abf29e887b99837e10bd061416825d0b7eb84d043ae0a01ca",
-      "src/commands/earnings.ts": "241ef117644ba29338f33d49f77395ee38442ddd4d8b9a948ec772b30ea62ffe",
+      "src/commands/earnings.ts": "a2de8ffe2ee17b640ef3dba181c4dfaac34606117086f92ce383b0d087461ea2",
       "src/commands/login.ts": "639b5c47ce2f61c94f4c6be581711b80a51f446f2c1fa86f7d5f09f35e478e87",
       "src/commands/news.ts": "adb753e058e826efdd26382e9170eb6fd8404d8e8f98a158bb34edf041418fd6",
       "src/commands/plugin.ts": "953f279105a682c5659c698f5145822c079d51497882f9d64cc54e4255a617b6",
@@ -37,7 +37,7 @@
       "src/formatters/json-formatter.ts": "0fa8904f4a31c7e0d10ac5eb6c4947c5d56079216e3c93349583ed02ef21b833",
       "src/formatters/table-formatter.ts": "56edfc931457289b4314107971d0021e237430131831199828a8bfd7b3e35c40",
       "src/formatters/time.ts": "f4d4e7c28b2f4610553a82cfdc55b585090c0f1cc6788f84acd6824b29e6bd0a",
-      "src/generated/cli-manifest.json": "0c1d9e65f6262a044860ddc5a09f7cbf27c8b0fc49e33a0bff7886c2e4c5a072",
+      "src/generated/cli-manifest.json": "5a2b9e1fa4c71d61ba03d0b3e92ce23164e260d397cf8ed6d8a35221eaa969e1",
       "src/hand-written-commands.ts": "5f0c8a24570361ec8f9dc5cd9fcf7f86f9060ea4e3fb3172d51fd40713887361",
       "src/shared/errors.ts": "3c379b53515a950fae853b9411bf456d3dfb21bcca4237d5730204045dca7097",
       "src/shared/options.ts": "6783cfa83b301857903bbde46edc238cd7adf80f05f0f33a7a883136de8a27b8",
@@ -48,9 +48,9 @@
       "src/spec-flags.ts": "779f80591b5eabe265023e5717e82de71b45ad385d84784f7e4304959ca2d83a",
       "src/spec-manifest.ts": "5ea901757d497900b968c4badb7ed1086def58afb719f19a8a89a5bbba27925c"
     },
-    "specSha256": "6354f99f822d93ecfcd552db288b86c2b64255e4a6da0f1a41eacb091656a50f",
-    "revision": "e0fde4663314be7b874de63b0137c0d31574d21f",
-    "fingerprint": "722039a23a31ae34c4b2c4d63e83f48a9c955ce0a771dc075fb4b1e6fcfb0bfa"
+    "specSha256": "99044f5390ccb96f40ef3fd1b1b19cab54c7de89ec1000af86ed8b999ab57912",
+    "revision": "bf8c92d04d70b57f1fd5bbe517d3aa9b98abde5b",
+    "fingerprint": "41282bf758a1f476238b246551d058b04dcc9364c5f39096dbbc30cc6c83b124"
   },
   "globalOptions": [
     {
