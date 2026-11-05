@@ -202,12 +202,12 @@ export function registerSecCommands(program: Command): void {
       const opts = program.opts();
       if (opts.json) setJsonMode(true);
       if (cmdOpts.sha256 && !/^[0-9a-f]{64}$/i.test(cmdOpts.sha256)) throw new Error('--sha256 expects 64 hex characters');
-      const path = `/v1/sec/exports/${encodeURIComponent(cmdOpts.exportId)}/file`;
+      const request = { path: `/v1/sec/exports/${encodeURIComponent(cmdOpts.exportId)}/file`, accept: 'application/gzip' };
       const expected = { ...(cmdOpts.sha256 ? { sha256: cmdOpts.sha256 } : {}), contentTypes: EXPORT_CONTENT_TYPES };
       let file: VerifiedFile;
       if (await isDirectoryTarget(cmdOpts.output)) {
         // The name comes from the answer's Content-Disposition, so the request opens first.
-        const response = await apiDownload({ path, accept: 'application/gzip' });
+        const response = await apiDownload(request);
         const name = safeFileName(dispositionFileName(response.headers.get('Content-Disposition')), `${cmdOpts.exportId}.csv.gz`);
         const headerSha = response.headers.get('X-Content-SHA256') ?? undefined;
         file = await saveVerified(async () => response, join(await ensureDir(cmdOpts.output), name), {
@@ -217,7 +217,7 @@ export function registerSecCommands(program: Command): void {
         });
         if (file.skipped) await response.body?.cancel();
       } else {
-        file = await saveVerified(signal => apiDownload({ path, accept: 'application/gzip', signal }), cmdOpts.output, {
+        file = await saveVerified(signal => apiDownload({ ...request, signal }), cmdOpts.output, {
           force: cmdOpts.force,
           expected,
           spinnerText: 'Downloading export...',
