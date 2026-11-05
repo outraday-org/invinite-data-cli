@@ -204,7 +204,7 @@ route's `x-cli` (`invd <group> <action>`), its flags the operation's parameters 
 text the spec's summary and parameter descriptions. List them with `invd --help` and `invd <group> --help`; the
 [plugin skill](claude-plugin/skills/invinite-data-cli/SKILL.md#commands-reference) carries one generated example per
 command. A handful of commands are hand-written because they do more than one call — `login`, `logout`, `config`,
-`plugin`, `ws` and the earnings downloads / text renders below (`src/hand-written-commands.ts`).
+`plugin`, `ws`, the earnings downloads / text renders below and the `sec` downloads (`src/hand-written-commands.ts`).
 
 | Group | What it covers |
 |-------|----------------|
@@ -212,7 +212,8 @@ command. A handful of commands are hand-written because they do more than one ca
 | `financials` | Standardized and as-reported statements and snapshots — one command per variant: `income-statement`, `income-statement-detailed`, `income-statement-presentation`, `as-reported-income-statement…`; the same for `balance-sheet`, `cash-flow`, `snapshot` |
 | `metrics` | Ratios, growth, CAGR |
 | `segments` | `list`, `list-detailed` |
-| `filings` | List, natural-language search, sections, form types |
+| `filings` | List, natural-language search, sections, form types (legacy; replaced by `sec` in 1.0.0) |
+| `sec` | Invinite's SEC document store: `filers`, `filer`, `lifecycle`, `issuers`, `filings` (cursor-paged, `form_facet`), `filing` (its document manifest), `document` / `version` (immutable cited blocks, pages, footnotes), `sections`, `figure`, `fact-places`, `search` (`--mode lexical\|literal`, 100 credits), 13F `holders` / `portfolio` / `holding-deltas` / `form-filers`, `financials-catalog` / `statement` / `financial-fact`, `metric-export` / `export`, `datasets`; downloads `save` (originals), `save-figure`, `export-file` |
 | `earnings` | Calendar, events, live calls, transcripts, Q&A, participants, analysts, guidance and KPI extractions, diff, metrics, prosody, price moves during the call, media, documents, search, company IR documents |
 | `news` | News of US companies from SEC filings and their own newsrooms: `list` (cursor-paged), `get` (full text + attribution), `text` (citable blocks), `developments`, `search` (passages; off until the API enables it), `asset-download` |
 | `ownership` | 13F holdings by company / investor, institutions, transactions |
@@ -230,6 +231,10 @@ invd financials snapshot -i AAPL,MSFT,GOOGL -p annual --json
 invd metrics ratios -i AAPL -p annual --category profitability --json
 invd segments list-detailed -i AAPL -p annual --json
 invd filings sections -i AAPL --form-type 10-K --section-id risk_factors --json
+invd sec filings -i AAPL -f 10-K -l 5 --json
+invd sec filing --accession 0000320193-26-000024 --json
+invd sec document --accession 0000320193-26-000024 --filename aapl-20261102.htm -l 20 --json
+invd sec search -q "supply chain concentration" -m lexical -c 320193 --json
 invd ownership holdings-by-company -i AAPL --min-value 1000000 --json
 invd insider-trades list -i TSLA --acquired-disposed D --limit 20 --json
 invd earnings events -i AAPL -s desc -l 4 --json
@@ -340,6 +345,33 @@ invd ws listen --news --tickers NVDA
 ```
 
 ---
+
+### sec
+
+Invinite's SEC document store (`/v1/sec/*`, STANDARD; 1 credit a call, `sec search` 100). Every answer carries
+`readiness` (`ready`, `partial`, `pending` = 202 not billed, retry later; `excluded` 403, `unknown` 404, `failed` 424,
+`not_ready` 503 = the capability is not switched on yet) and the human output prints a yellow stderr line whenever the
+answer is not ready or a search's `coverage.completeness` is not `complete` — zero rows there is **not** "nothing
+exists". `--json` keeps every source field (version, block, page, `next_cursor`); an error prints its code
+(`Error 503: not_ready (search_provider_not_registered)`) and, with `--json`, the whole structured body as one JSON
+line on stderr. Pages use an opaque cursor: `--all` follows `next_url`, by hand pass `next_cursor` as `--cursor`
+with the same filters (a `409 restart_required` = start again).
+
+A citation is the immutable `version_id` + `block_id` (plus the printed page label when the document states one,
+else the page ordinal) — never a URL. Search is `--mode lexical` (keywords, ranked) or `--mode literal` (exact text,
+`--case-sensitive false` folds case); there is no semantic mode and no prose answer.
+
+| Download | What it does |
+|---|---|
+| `sec save --accession <a> [--filename <f>] -o <dir>` | Saves a filing's originals from their permanent public copies, no API key on the download, size + SHA-256 from the manifest verified. A document without a public copy (or quarantined / too large) is listed with its reason and the command exits **3**; nothing is skipped silently |
+| `sec save-figure --version-id <v> --block-id <b> -o <path>` | Saves a figure's image from its permanent public URL |
+| `sec export-file --export-id <id> -o <path> [--sha256 <hex>]` | Streams a metric export's `.csv.gz` through the key-authorized route, verified against `X-Content-SHA256` (and `--sha256`); with `--sha256`, an identical existing file is complete without a request |
+
+Downloads write `<file>.part` and rename it only after every check: exit **4** = partial download, **5** = size / hash /
+media-type mismatch — nothing is saved either way; an existing file needs `--force`. No command ever fetches sec.gov.
+
+The legacy `filings list|search|sections|form-types` stay until 1.0.0 and map onto `sec filings` (`form_facet`
+replaces `form-types`), `sec filing` + `sec document` / `sec sections` / `sec version --blocks` and `sec search`.
 
 ### webhooks
 

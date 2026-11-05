@@ -25,6 +25,7 @@ Use the connected Invinite Data API MCP tools when available. Fall back to the `
 | Ratios/growth/CAGR | `financial_ratios`, `financial_growth`, `financial_cagr` | `invd metrics ratios\|growth\|cagr` |
 | Segment data | `segmented_financials` | `invd segments list\|list-detailed` |
 | SEC filings/search/sections (a CIK also finds a not-yet-listed company; registration filings carry `proposed_symbols`) | `sec_filings`, `sec_filings_search`, `sec_filing_sections` | `invd filings list\|search\|sections` |
+| SEC document store: filers / issuer lifecycle, filings + document manifests, immutable cited document versions (blocks, pages, footnotes, figures, sections), lexical / literal search, 13F research, statement provenance, metric exports (typed `readiness`) | `sec_filers`, `sec_filer`, `sec_filer_lifecycle`, `sec_filer_filings`, `sec_filing`, `sec_document`, `sec_document_version`, `sec_document_sections`, `sec_document_search`, `sec_holders`, `sec_manager_portfolio`, `sec_metric_export`, … | `invd sec …` (`sec save`, `sec save-figure`, `sec export-file` download, CLI-only) |
 | Filing and metric discovery | `sec_available_form_types`, `list_available_section_ids`, `list_available_metrics` | `invd filings form-types`, `invd metadata section-ids\|metrics` |
 | Institutional ownership | `holdings_by_company`, `holdings_by_investor`, `institutional_investors`, `institutional_transactions` | `invd ownership …` |
 | Insider trades/IPOs/holidays | `insider_trades`, `ipos`, `market_holidays` | `invd insider-trades list`, `invd ipos list`, `invd market holidays` |
@@ -117,6 +118,7 @@ All share the same `metric_id` identifiers from `metadata metrics`.
 
 ### Filings, ownership, insider trades
 
+- `invd sec …` reads Invinite's SEC document store: `sec filings -i <ticker|CIK>` (cursor pages, `form_facet`), `sec filing --accession` (document manifest: role, MIME, true size, readiness), `sec document --accession --filename` (pins the immutable version; blocks with `citation {version_id, block_id, page, printed}`), `sec search -q … --mode lexical|literal` (100 credits). Cite `version_id` + `block_id` and the printed page label only when present (else the page ordinal). `readiness.status` `pending` / `partial` / `not_ready` and a search `coverage.completeness` other than `complete` mean the answer is incomplete — never report zero rows there as "nothing found".
 - Run `invd metadata section-ids --json` before `filings sections`; `filings search` (`-r, --request`) is natural-language search at 100 credits a call.
 - Ownership transaction types (`--type`): `new_buy`, `added`, `reduced`, `sold_out`. `holdings-by-investor` needs the investor's `--cik`.
 - Insider trades `--acquired-disposed`: `A` (acquisition) or `D` (disposition).
@@ -213,7 +215,7 @@ Earnings calls: calendar, transcripts, Q&A, extractions, media, search and webho
 # Analysts of a company (optional: --limit, --offset, --all)
 invd earnings analysts -i MSFT --json
 
-# Earnings call calendar (optional: --from, --to, --status, --session, --exchange, --event-type, --sort, --limit, --offset, --all)
+# Earnings call calendar (optional: --from, --to, --status, --session, --exchange, --event-type, --sort, --limit, --offset, --date-kind, --calendar-status, --all)
 invd earnings calendar --json
 
 # Call-over-call diff (optional: --event-id, --identifier, --year, --quarter, --date, --event-type, --vs)
@@ -564,6 +566,125 @@ invd plugin install --claude --global    # also --opencode, --codex, --copilot, 
 invd plugin uninstall --claude --global
 ```
 <!-- /invd:hand:plugin -->
+
+### sec
+
+Invinite's SEC document store: filers and issuer lifecycle, filings with their documents, immutable cited document versions (blocks, pages, figures, sections, XBRL fact places), lexical / literal search, 13F holdings research, standardized-statement provenance and metric exports
+
+```bash
+# SEC dataset releases
+invd sec datasets --json
+
+# SEC document (current version) (optional: --blocks, --pages, --printed, --printed-occurrence, --neighbors, --footnotes, --limit)
+invd sec document --accession 0000320193-26-000026 --filename aapl-20260926.htm --json
+
+# Metric export manifest
+invd sec export --export-id 6a7350b9-df18-517b-b553-96601b1e0508 --json
+
+# XBRL fact places in a document version (optional: --fact-id, --status, --cursor, --limit, --all)
+invd sec fact-places --version-id 8be0b759-1a9d-5f89-8308-bd86185f5e1f --json
+
+# SEC document figure
+invd sec figure --version-id 8be0b759-1a9d-5f89-8308-bd86185f5e1f --block-id b00107 --json
+
+# SEC filer
+invd sec filer --cik 320193 --json
+
+# SEC filer document coverage (optional: --since)
+invd sec filer-coverage --cik 320193 --json
+
+# Find SEC filers (optional: --name, --ticker, --form, --limit)
+invd sec filers --json
+
+# SEC filing and its documents
+invd sec filing -a 0000320193-26-000026 --json
+
+# SEC dataset facts of a filing (optional: --tag)
+invd sec filing-facts --accession 0000320193-26-000026 --json
+
+# Holdings of a 13F filing (optional: --after, --limit, --all)
+invd sec filing-holdings --accession 0000320193-26-000026 --json
+
+# SEC dataset text notes of a filing (optional: --tag)
+invd sec filing-notes --accession 0000320193-26-000026 --json
+
+# SEC filings of a filer (optional: --form, --filed-from, --filed-to, --order, --cursor, --limit, --all)
+invd sec filings -i AAPL --json
+
+# Explain a standardized fact (optional: --max-depth, --max-members, --places)
+invd sec financial-fact --id "320193|is_total_revenue|annual|2026|4" --json
+
+# Standardization rule catalog (optional: --statement, --metric-id)
+invd sec financials-catalog --json
+
+# Filers of an SEC form (optional: --exact, --name, --cik, --cursor, --limit, --all)
+invd sec form-filers -f 13F-HR --json
+
+# Institutional holders of a security (13F) (optional: --cusip, --symbol, --issuer-cik, --instruments, --pinned-at, --cursor, --limit, --all)
+invd sec holders --period-end 2026-06-30 --json
+
+# Position changes in a security (13F) (optional: --prior-period-end, --cusip, --symbol, --issuer-cik, --instruments, --pinned-at, --cursor, --limit, --all)
+invd sec holding-deltas --period-end 2026-06-30 --json
+
+# IPO-pending SEC issuers (optional: --query, --cursor, --limit, --all)
+invd sec ipo-pending --json
+
+# List SEC issuers (optional: --query, --phase, --form, --public-seen-from, --public-seen-to, --cursor, --limit, --all)
+invd sec issuers --json
+
+# SEC issuer lifecycle (optional: --traverse, --max-hops)
+invd sec lifecycle --cik 320193 --json
+
+# Request an annual metric export (optional: --period-type, --mode, --generation)
+invd sec metric-export -m is_total_revenue -y 2025 --json
+
+# Portfolio of a 13F manager (optional: --instruments, --pinned-at, --cursor, --limit, --all)
+invd sec portfolio --period-end 2026-06-30 --cik 1067983 --json
+
+# SEC review chain of a filing (optional: --max-depth, --max-nodes)
+invd sec review-chain --accession 0000320193-26-000026 --json
+
+# SEC review relations of a filing (optional: --direction, --kind, --history, --cursor, --limit, --all)
+invd sec review-relations --accession 0000320193-26-000026 --json
+
+# Search SEC documents (optional: --mode, --case-sensitive, --cik, --entity-id, --successors, --accession, --version-id, --form, --filename, --item, --exhibit-type, --filed-from, --filed-to, --cursor, --limit, --all)
+invd sec search -q "supply chain concentration" --json
+
+# Sections of an SEC document version (optional: --outline)
+invd sec sections --version-id 8be0b759-1a9d-5f89-8308-bd86185f5e1f --json
+
+# Standardized statement with provenance (optional: --period-type, --fiscal-year-from, --fiscal-year-to, --metric-id, --other-evidence, --limit)
+invd sec statement --cik 320193 --statement income_statement --json
+
+# SEC document version (optional: --blocks, --pages, --printed, --printed-occurrence, --neighbors, --footnotes, --limit)
+invd sec version --version-id 8be0b759-1a9d-5f89-8308-bd86185f5e1f --json
+```
+
+<!-- invd:hand:sec save -->
+```bash
+# Save a filing's originals from their permanent public copies (size + SHA-256 verified); every document it
+# cannot save is listed with its reason (no public copy yet, quarantined, too large) and the exit code is 3
+invd sec save --accession 0000320193-26-000024 -o filings/aapl-8k/
+invd sec save --accession 0000320193-26-000024 --filename aapl-20261102.htm --json
+```
+<!-- /invd:hand:sec save -->
+
+<!-- invd:hand:sec save-figure -->
+```bash
+# Save a cited figure's image from its permanent public URL; the citation is version_id#block_id, never a URL
+invd sec save-figure --version-id 402affed-8245-5fe1-814d-d025f60db4ac --block-id b00012 -o figures/
+```
+<!-- /invd:hand:sec save-figure -->
+
+<!-- invd:hand:sec export-file -->
+```bash
+# Download a metric export (.csv.gz) through the key-authorized route, verified against its SHA-256;
+# --sha256 (from invd sec export) also accepts an identical existing file without a request.
+# Exit 4 = partial download, 5 = size / hash / type mismatch: nothing is saved either way
+invd sec export-file --export-id 6a7350b9-df18-517b-b553-96601b1e0508 -o exports/
+invd sec export-file --export-id 6a7350b9-df18-517b-b553-96601b1e0508 -o exports/revenue-2025.csv.gz --sha256 <sha256>
+```
+<!-- /invd:hand:sec export-file -->
 
 ### segments
 

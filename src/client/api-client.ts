@@ -40,6 +40,8 @@ async function apiErrorFrom(response: Response): Promise<ApiError> {
     stringField(body, 'error') ?? (response.statusText || 'Unknown Error'),
     stringField(body, 'message') ?? `Request failed with status ${response.status}`,
     parseRetryAfter(response.headers?.get('Retry-After')),
+    stringField(body, 'code'),
+    body ?? undefined,
   );
 }
 
@@ -112,6 +114,20 @@ export async function apiGet<T = unknown>(opts: RequestOptions): Promise<T> {
     spinner?.fail('Failed');
     throw error;
   }
+}
+
+/**
+ * A key-authorized byte stream (`GET /v1/sec/exports/{export_id}/file`): the raw `Response` for the caller to stream
+ * and verify, credits recorded, a refusal thrown as `ApiError` like every other request. `signal` aborts it.
+ */
+export async function apiDownload(opts: RequestOptions & { accept: string; signal?: AbortSignal }): Promise<Response> {
+  const url = buildUrl(opts.path, opts.params);
+  const headers: Record<string, string> = { 'Accept': opts.accept };
+  if (opts.auth !== false) headers['Authorization'] = `Bearer ${await getApiKey()}`;
+  const response = await fetch(url, { headers, ...(opts.signal ? { signal: opts.signal } : {}) });
+  recordCredits(response);
+  if (!response.ok) throw await apiErrorFrom(response);
+  return response;
 }
 
 export interface ApiRequestOptions extends RequestOptions {

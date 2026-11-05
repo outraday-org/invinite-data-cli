@@ -7,6 +7,7 @@ import { registerEarningsCommands } from './commands/earnings.js';
 import { registerLoginCommands } from './commands/login.js';
 import { registerNewsCommands } from './commands/news.js';
 import { registerPluginCommands } from './commands/plugin.js';
+import { registerSecCommands } from './commands/sec.js';
 import { registerWsCommands } from './commands/ws.js';
 import { registerSpecCommands } from './spec-commands.js';
 import { parseManifest, type Manifest } from './spec-manifest.js';
@@ -64,13 +65,14 @@ export function createProgram(): Command {
     });
 
   // The hand-written roster (`src/hand-written-commands.ts`) first, then every manifest operation; a generated
-  // `earnings` action attaches to the group `registerEarningsCommands` created.
+  // `earnings` / `news` / `sec` action attaches to the group its hand-written commands created.
   registerLoginCommands(program);
   registerConfigCommands(program);
   registerPluginCommands(program);
   registerWsCommands(program);
   registerEarningsCommands(program);
   registerNewsCommands(program);
+  registerSecCommands(program);
   registerSpecCommands(program, loadManifest());
 
   return program;

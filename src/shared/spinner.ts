@@ -1,9 +1,11 @@
 import ora, { type Ora } from 'ora';
+import { setJsonOutput } from './json-mode.js';
 
 let jsonMode = false;
 
 export function setJsonMode(enabled: boolean): void {
   jsonMode = enabled;
+  setJsonOutput(enabled);
 }
 
 export function createSpinner(text: string): Ora {

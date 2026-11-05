@@ -61,8 +61,16 @@ export function formatKeyValue(data: Record<string, unknown>): void {
   }
 }
 
+/** One dim line under a table that has a next page: a cursor-paged route names its `--cursor`, else offset/limit. */
 export function printPaginationHint(nextUrl?: string): void {
-  if (nextUrl) {
-    console.log(chalk.dim('\nMore results available. Use --all to fetch all pages, or --offset/--limit to paginate.'));
+  if (!nextUrl) return;
+  let cursor: string | null = null;
+  try {
+    cursor = new URL(nextUrl).searchParams.get('cursor');
+  } catch {
+    // not a URL: the offset hint
   }
+  console.log(chalk.dim(cursor
+    ? `\nMore results available. Use --all to fetch all pages, or --cursor ${cursor} (same filters) for the next one.`
+    : '\nMore results available. Use --all to fetch all pages, or --offset/--limit to paginate.'));
 }

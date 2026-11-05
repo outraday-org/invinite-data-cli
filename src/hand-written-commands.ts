@@ -18,4 +18,7 @@ export const HAND_WRITTEN_COMMANDS = [
   { command: 'earnings company-documents', reason: 'downloads every stored file into a directory with -o' },
   { command: 'earnings document', reason: 'downloads the file, or fetches and renders its page text with --pages' },
   { command: 'news get', reason: 'prints the item and saves its PDF with --pdf-out' },
+  { command: 'sec save', reason: "saves a filing's originals from their permanent public URLs (manifest size + SHA-256 verified) and lists every document it cannot save" },
+  { command: 'sec save-figure', reason: "saves a cited figure's image from its permanent public URL" },
+  { command: 'sec export-file', reason: 'streams the key-authorized .csv.gz of GET /v1/sec/exports/{export_id}/file to disk, SHA-256 verified (the spec excludes it: binary)' },
 ] as const;

@@ -19,3 +19,16 @@ describe('formatTable', () => {
     expect(consoleSpy).toHaveBeenCalledTimes(3); // header + separator + 1 row
   });
 });
+
+describe('printPaginationHint', () => {
+  it('names --cursor for a cursor-paged next_url, offset/limit otherwise', async () => {
+    const { printPaginationHint } = await import('../../../src/formatters/table-formatter.js');
+    const lines: string[] = [];
+    const spy = vi.spyOn(console, 'log').mockImplementation((line?: unknown) => { lines.push(String(line ?? '')); });
+    printPaginationHint('https://api.example.com/v1/sec/filings?identifier=AAPL&cursor=abc');
+    printPaginationHint('https://api.example.com/v1/things?offset=10');
+    spy.mockRestore();
+    expect(lines[0]).toContain('--cursor abc');
+    expect(lines[1]).toContain('--offset/--limit');
+  });
+});

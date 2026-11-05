@@ -9,6 +9,7 @@ import { formatKeyValue, formatTable, printPaginationHint } from './formatters/t
 import { apiErrorHint, withErrorHandling } from './shared/errors.js';
 import { splitList } from './shared/options.js';
 import { output } from './shared/output.js';
+import { printReadinessNotes } from './shared/readiness.js';
 import { setJsonMode } from './shared/spinner.js';
 import { flagName } from './spec-flags.js';
 import { exampleValue, type Manifest, type ManifestOperation, type ManifestParam } from './spec-manifest.js';
@@ -229,6 +230,9 @@ function defineOperationCommand(command: Command, operation: ManifestOperation):
       if (!json) console.log('Done.');
       return;
     }
-    output(data, { json }, () => renderView(operation, data));
+    output(data, { json }, () => {
+      renderView(operation, data);
+      printReadinessNotes(data);
+    });
   }, apiErrorHint));
 }

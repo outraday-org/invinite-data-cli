@@ -25,11 +25,23 @@ Every plain command — one REST call, printed as a table, a key/value list or J
 ## The hand-written ROSTER
 
 `src/hand-written-commands.ts` lists the few commands that are NOT one call plus one view (login, local config,
-plugin install, the WebSocket stream, the earnings downloads / text renders in `src/commands/earnings.ts`, `news get` with its PDF flags in `src/commands/news.ts`), each with
+plugin install, the WebSocket stream, the earnings downloads / text renders in `src/commands/earnings.ts`, `news get` with its PDF flags in `src/commands/news.ts`, the `sec save` / `save-figure` / `export-file` downloads in `src/commands/sec.ts`), each with
 its reason. `tests/unit/command-roster.test.ts` fails on a hand-written command missing from it, on a stale entry and on
 an entry that is also a manifest operation. A rostered `group action` may share its group with generated actions
 (`earnings`): the roster registers first and the dispatcher attaches to the existing group; commander refuses a
 duplicate name. The spec marks such an operation `x-cli.exclude` naming the hand-written command.
+
+## `/v1/sec/*` answers (delivery-integration task 5)
+
+- Every SEC store answer carries `readiness`; `src/shared/readiness.ts` prints one yellow stderr line (human output
+  only) when it is not `ready` or a search `coverage.completeness` is not `complete` — generic over the body, never
+  per command. `ApiError` keeps the body's `code` and the whole body (`--json` prints it as one JSON line on stderr).
+- Downloads go through `saveVerified` (`src/client/download.ts`): `.part` + rename after the size / SHA-256 / media
+  type checks; `PartialDownloadError` exits 4, `IntegrityError` 5, `sec save` with unsaved documents 3. Public
+  originals / figures are fetched keyless from their stated `url`; the export file is `apiDownload` (key). No code
+  fetches the SEC's own site (`tests/unit/commands/sec.test.ts` scans `src/`).
+- The legacy `filings list|search|sections|form-types` are removed in 1.0.0 (task 7's train); their parity with
+  `sec …` is asserted in `tests/unit/commands/sec.test.ts`.
 
 ## The skill's command block and the docs' spellings are generated / gated
 
