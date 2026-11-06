@@ -14044,7 +14044,7 @@
         "tags": [
           "IPOs"
         ],
-        "description": "The SEC-sourced IPO calendar: one row per registration statement of a company that is not listed yet, from its first public S-1 or F-1 until it trades or is withdrawn, keyed by CIK. Each row carries the stage, the proposed ticker(s), the price range and final price from the prospectus, the SEC timestamps of every step, and the filings that moved it.\n\n`GET /v1/ipos` is a different source: the Massive IPO calendar, keyed by ticker, whose rows usually appear only near pricing. A registration shows up weeks earlier. `massive` holds the Massive row matched to a registration (by ticker and issuer name), `proposed_symbols[].ipo_calendar_match` flags a proposed ticker that is on that calendar, and each `GET /v1/ipos` row links back through `registration`.\n\nPre-IPO companies have no ticker yet: read their filings with `GET /v1/sec-filings/filings?identifier=<cik>`.\n\nMinimum tier for redistribute: PRO.",
+        "description": "The SEC-sourced IPO calendar: one row per registration statement of a company that is not listed yet, from its first public S-1 or F-1 until it trades or is withdrawn, keyed by CIK. Each row carries the stage, the proposed ticker(s), the price range and final price from the prospectus, the SEC timestamps of every step, and the filings that moved it.\n\n`GET /v1/ipos` is a different source: the Massive IPO calendar, keyed by ticker, whose rows usually appear only near pricing. A registration shows up weeks earlier. `massive` holds the Massive row matched to a registration (by ticker and issuer name), `proposed_symbols[].ipo_calendar_match` flags a proposed ticker that is on that calendar, and each `GET /v1/ipos` row links back through `registration`.\n\n`ipo_pending` carries the issuer lifecycle's IPO-pending entry of the same track (proposed symbols, profile, logo); `pending=true` lists only tracks with an open one. Issuers that are IPO-pending without an S-1 / F-1 registration track are on `GET /v1/sec/issuers?phase=public_preipo`.\n\nPre-IPO companies have no ticker yet: read their filings with `GET /v1/sec-filings/filings?identifier=<cik>`.\n\nMinimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -14106,6 +14106,20 @@
             "required": false,
             "description": "true = blank-check companies (SPACs) only, false = no SPACs. Default: both",
             "example": "false"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ]
+            },
+            "in": "query",
+            "name": "pending",
+            "required": false,
+            "description": "true = tracks with an open IPO-pending entry (`ipo_pending.status` open), false = tracks without one. Default: both",
+            "example": "true"
           },
           {
             "schema": {
@@ -14424,6 +14438,98 @@
                                   "nullable": true,
                                   "description": "URL to the archived filing HTML; null when the filing is not archived"
                                 }
+                              }
+                            }
+                          },
+                          "ipo_pending": {
+                            "type": "object",
+                            "nullable": true,
+                            "description": "The issuer lifecycle's IPO-pending entry of this registration (\"Pre-IPO, proposed XYZ (exchange)\"), matched by CIK and track; null when the track has none. Proposed symbols stay attributes, never a listing",
+                            "required": [
+                              "status",
+                              "open_reason",
+                              "opened_at",
+                              "closed_at",
+                              "close_reason",
+                              "exchange",
+                              "profile",
+                              "logo_url",
+                              "enrichment"
+                            ],
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "description": "open (the issuer is still pre-IPO on this track) or closed"
+                              },
+                              "open_reason": {
+                                "type": "string",
+                                "description": "What opened the entry: exchange_approval (8-A12B / exchange certification) or ipo_calendar_match"
+                              },
+                              "opened_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "When the entry opened (ISO 8601 UTC)"
+                              },
+                              "closed_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true,
+                                "description": "When the entry closed (ISO 8601 UTC)"
+                              },
+                              "close_reason": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Why the entry closed (listed, withdrawn, …)"
+                              },
+                              "exchange": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Exchange the entry names"
+                              },
+                              "profile": {
+                                "type": "object",
+                                "nullable": true,
+                                "description": "Issuer profile when enriched (FMP profile by CIK); only the fields present are listed",
+                                "properties": {
+                                  "company_name": {
+                                    "type": "string"
+                                  },
+                                  "website": {
+                                    "type": "string"
+                                  },
+                                  "industry": {
+                                    "type": "string"
+                                  },
+                                  "sector": {
+                                    "type": "string"
+                                  },
+                                  "country": {
+                                    "type": "string"
+                                  },
+                                  "ceo": {
+                                    "type": "string"
+                                  },
+                                  "full_time_employees": {
+                                    "type": "number"
+                                  },
+                                  "description": {
+                                    "type": "string",
+                                    "description": "First 600 characters"
+                                  }
+                                }
+                              },
+                              "logo_url": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Permanent public logo URL when enriched"
+                              },
+                              "enrichment": {
+                                "type": "string",
+                                "enum": [
+                                  "enriched",
+                                  "pending"
+                                ],
+                                "description": "Whether the profile lookup ran"
                               }
                             }
                           }
@@ -33159,236 +33265,6 @@
                         "additionalProperties": true
                       },
                       "description": "Issuers"
-                    },
-                    "next_cursor": {
-                      "type": "string",
-                      "description": "Nextcursor",
-                      "nullable": true
-                    },
-                    "provider": {
-                      "type": "object",
-                      "additionalProperties": true,
-                      "description": "Provider",
-                      "nullable": true
-                    },
-                    "readiness": {
-                      "$ref": "#/components/schemas/SecReadiness"
-                    },
-                    "next_url": {
-                      "type": "string",
-                      "description": "URL of the next page (same filters, the next cursor). Omitted on the last page."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "`error` = the readiness state (excluded / unknown / failed / not_ready) or the refusal (`Bad Request`, `restart_required`, `too_large`, `upstream_unavailable`); `code` = the reason; `readiness` = the backend's typed answer when there was one (absent for a refused request). Fields of the answer's subject (e.g. `filing`) may follow.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SecStoreError"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "403": {
-            "description": "`error` = the readiness state (excluded / unknown / failed / not_ready) or the refusal (`Bad Request`, `restart_required`, `too_large`, `upstream_unavailable`); `code` = the reason; `readiness` = the backend's typed answer when there was one (absent for a refused request). Fields of the answer's subject (e.g. `filing`) may follow.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SecStoreError"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "`error` = the readiness state (excluded / unknown / failed / not_ready) or the refusal (`Bad Request`, `restart_required`, `too_large`, `upstream_unavailable`); `code` = the reason; `readiness` = the backend's typed answer when there was one (absent for a refused request). Fields of the answer's subject (e.g. `filing`) may follow.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SecStoreError"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "`error` = the readiness state (excluded / unknown / failed / not_ready) or the refusal (`Bad Request`, `restart_required`, `too_large`, `upstream_unavailable`); `code` = the reason; `readiness` = the backend's typed answer when there was one (absent for a refused request). Fields of the answer's subject (e.g. `filing`) may follow.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SecStoreError"
-                }
-              }
-            }
-          },
-          "424": {
-            "description": "`error` = the readiness state (excluded / unknown / failed / not_ready) or the refusal (`Bad Request`, `restart_required`, `too_large`, `upstream_unavailable`); `code` = the reason; `readiness` = the backend's typed answer when there was one (absent for a refused request). Fields of the answer's subject (e.g. `filing`) may follow.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SecStoreError"
-                }
-              }
-            }
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "503": {
-            "description": "`error` = the readiness state (excluded / unknown / failed / not_ready) or the refusal (`Bad Request`, `restart_required`, `too_large`, `upstream_unavailable`); `code` = the reason; `readiness` = the backend's typed answer when there was one (absent for a refused request). Fields of the answer's subject (e.g. `filing`) may follow.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SecStoreError"
-                }
-              }
-            }
-          }
-        },
-        "x-tier": "standard",
-        "x-credits": 1,
-        "x-license": "display"
-      }
-    },
-    "/v1/sec/issuers/ipo-pending": {
-      "get": {
-        "operationId": "secIssuersIpoPending",
-        "summary": "IPO-pending SEC issuers",
-        "tags": [
-          "SEC"
-        ],
-        "description": "Issuers with an open IPO track (\"Pre-IPO, proposed XYZ (exchange)\"): one row per issuer track with the proposed symbols the registration names (`symbol_authority: proposed_only` — never a listing), SPAC flag and a profile when enriched. The registration-filing calendar stays `GET /v1/ipos/registrations`.\n\nRead from Invinite's SEC document store: every answer carries `readiness` (`ready` / `partial` 200, `pending` 202 — retry later, not billed — `excluded` 403, `unknown` 404, `failed` 424, `not_ready` 503 while the capability is switched off). Originals, figures and PDFs are permanent public URLs; nothing is fetched from SEC on request.\n\nMinimum tier for display: FREE.",
-        "parameters": [
-          {
-            "schema": {
-              "type": "string",
-              "minLength": 2,
-              "maxLength": 120
-            },
-            "in": "query",
-            "name": "query",
-            "required": false,
-            "description": "Name (substring)",
-            "example": "Iambic"
-          },
-          {
-            "schema": {
-              "type": "string",
-              "maxLength": 512
-            },
-            "in": "query",
-            "name": "cursor",
-            "required": false,
-            "description": "Opaque cursor of the previous page (`next_cursor`; follow `next_url`). Bound to the other filters.",
-            "example": "eyJ2IjoxLCJhZnRlciI6WyIyMDI1LTEwLTMxIiwiMDAwMDMyMDE5My0yNS0wMDAwNzkiXSwiZiI6Ijg1NzNiMDg0ZjEyNzVjMjMifQ"
-          },
-          {
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 100,
-              "default": 20
-            },
-            "in": "query",
-            "name": "limit",
-            "required": false,
-            "description": "Entries per page (1-100, default 20)",
-            "example": 5
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "x-cli": {
-          "group": "sec",
-          "action": "ipo-pending",
-          "flags": {
-            "query": "q",
-            "limit": "l"
-          },
-          "allItemsPath": "entries",
-          "pagination": "top"
-        },
-        "responses": {
-          "200": {
-            "description": "One page of IPO-pending issuers",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "api_schema",
-                    "readiness"
-                  ],
-                  "additionalProperties": true,
-                  "description": "One page of IPO-pending issuers",
-                  "properties": {
-                    "api_schema": {
-                      "type": "string",
-                      "description": "The backend contract version (`secdoors.v1`)"
-                    },
-                    "entries": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "additionalProperties": true
-                      },
-                      "description": "Entries"
-                    },
-                    "next_cursor": {
-                      "type": "string",
-                      "description": "Nextcursor",
-                      "nullable": true
-                    },
-                    "provider": {
-                      "type": "object",
-                      "additionalProperties": true,
-                      "description": "Provider",
-                      "nullable": true
-                    },
-                    "readiness": {
-                      "$ref": "#/components/schemas/SecReadiness"
-                    },
-                    "next_url": {
-                      "type": "string",
-                      "description": "URL of the next page (same filters, the next cursor). Omitted on the last page."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "202": {
-            "description": "One page of IPO-pending issuers",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "api_schema",
-                    "readiness"
-                  ],
-                  "additionalProperties": true,
-                  "description": "One page of IPO-pending issuers",
-                  "properties": {
-                    "api_schema": {
-                      "type": "string",
-                      "description": "The backend contract version (`secdoors.v1`)"
-                    },
-                    "entries": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "additionalProperties": true
-                      },
-                      "description": "Entries"
                     },
                     "next_cursor": {
                       "type": "string",

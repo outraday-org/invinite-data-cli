@@ -9,10 +9,10 @@
     "engines": {
       "node": ">=20"
     },
-    "verifiedOn": "2026-11-05",
+    "verifiedOn": "2026-11-06",
     "sourceHashes": {
-      "api-contract.json": "4d960a760c00c4cb10edeff921ef2de39c516faf2b6f60102b3b8fe8f005341b",
-      "openapi.json": "b30810b27751cde40801c1c826b08d7d1cee57aecd64e0a56397ada4032b40ad",
+      "api-contract.json": "43ff946e9d71a0b9e6c3de157023fa4994c53c9f03a989f38fde7ba09329c7b9",
+      "openapi.json": "428f787c861c2ad34b6108ceb845616e41996114da44abde7cd3f1d96dbce773",
       "package.json": "253ee56c6594452d2c2fc5cab0cbd53955bb2f624a59aac36676277b014d9da2",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
@@ -38,7 +38,7 @@
       "src/formatters/json-formatter.ts": "0fa8904f4a31c7e0d10ac5eb6c4947c5d56079216e3c93349583ed02ef21b833",
       "src/formatters/table-formatter.ts": "ebcbfc439017374ac11b8f87d13ec4607ab8c219750c1447b253f0a88c2d2e79",
       "src/formatters/time.ts": "f4d4e7c28b2f4610553a82cfdc55b585090c0f1cc6788f84acd6824b29e6bd0a",
-      "src/generated/cli-manifest.json": "80f72a99928922ca49b80ef23ccef2c18908b522f94100a8e7c18ed16bd1b0be",
+      "src/generated/cli-manifest.json": "b35821164585d0b452050dcb1ac96d893fa05993fb0ccc01d3c88017a05af1d2",
       "src/hand-written-commands.ts": "c7e41fb5471477fcd1d87683b9c1c8b4fe231172e51acb522bbb7480e5387fff",
       "src/shared/errors.ts": "ebefb5a0915f40f45330348dbec2ced9b62e8d40907fbb02ac62d8a08a6bf34e",
       "src/shared/json-mode.ts": "24d4b4a71475ba6301d0c8fe79d70d9304b058d9bb145203bdc545a51e84a85a",
@@ -51,9 +51,9 @@
       "src/spec-flags.ts": "779f80591b5eabe265023e5717e82de71b45ad385d84784f7e4304959ca2d83a",
       "src/spec-manifest.ts": "5ea901757d497900b968c4badb7ed1086def58afb719f19a8a89a5bbba27925c"
     },
-    "specSha256": "b30810b27751cde40801c1c826b08d7d1cee57aecd64e0a56397ada4032b40ad",
-    "revision": "dc950ea01954d22dcceb8fb0079b720ffc18bcce",
-    "fingerprint": "afb278892aea79666cb526073bf1e15431cc2441692e6324adc179cf0a51c988"
+    "specSha256": "428f787c861c2ad34b6108ceb845616e41996114da44abde7cd3f1d96dbce773",
+    "revision": "52cd9172652262c8ab65706e2aad09aceae337a5",
+    "fingerprint": "4c6f79263b21fa71aa04b528d39f1a7bf5dd7c6f80a02075018788dc9ecc186c"
   },
   "globalOptions": [
     {
@@ -3540,6 +3540,15 @@
           ]
         },
         {
+          "flags": "--pending <value>",
+          "description": "true = tracks with an open IPO-pending entry (`ipo_pending.status` open), false = tracks without one. Default: both (e.g. true)",
+          "required": false,
+          "choices": [
+            "true",
+            "false"
+          ]
+        },
+        {
           "flags": "-s, --sort <value>",
           "description": "Sort direction by first_public_at (default: \"desc\"; e.g. desc)",
           "required": false,
@@ -5178,37 +5187,6 @@
         {
           "flags": "-l, --limit <value>",
           "description": "Rows per page (1-200, default 50) (default: 50; e.g. 5)",
-          "required": false
-        }
-      ]
-    },
-    {
-      "command": "sec ipo-pending",
-      "group": "sec",
-      "origin": "spec",
-      "description": "IPO-pending SEC issuers",
-      "source": "src/generated/cli-manifest.json",
-      "operations": [
-        {
-          "method": "GET",
-          "path": "/v1/sec/issuers/ipo-pending"
-        }
-      ],
-      "arguments": [],
-      "options": [
-        {
-          "flags": "-q, --query <value>",
-          "description": "Name (substring) (e.g. Iambic)",
-          "required": false
-        },
-        {
-          "flags": "--cursor <value>",
-          "description": "Opaque cursor of the previous page (`next_cursor`; follow `next_url`). Bound to the other filters. (e.g. eyJ2IjoxLCJhZnRlciI6WyIyMDI1LTEwLTMxIiwiMDAwMDMyMDE5My0yNS0wMDAwNzkiXSwiZiI6Ijg1NzNiMDg0ZjEyNzVjMjMifQ)",
-          "required": false
-        },
-        {
-          "flags": "-l, --limit <value>",
-          "description": "Entries per page (1-100, default 20) (default: 20; e.g. 5)",
           "required": false
         }
       ]

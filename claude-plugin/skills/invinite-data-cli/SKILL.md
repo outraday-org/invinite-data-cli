@@ -455,7 +455,7 @@ Initial public offerings
 # List IPOs (optional: --start-date, --end-date, --sort, --limit, --offset, --all)
 invd ipos list --json
 
-# List IPO registrations (SEC) (optional: --start-date, --end-date, --stage, --is-spac, --sort, --limit, --offset, --all)
+# List IPO registrations (SEC) (optional: --start-date, --end-date, --stage, --is-spac, --pending, --sort, --limit, --offset, --all)
 invd ipos registrations --json
 ```
 
@@ -625,9 +625,6 @@ invd sec holders --period-end 2026-06-30 --json
 
 # Position changes in a security (13F) (optional: --prior-period-end, --cusip, --symbol, --issuer-cik, --instruments, --pinned-at, --cursor, --limit, --all)
 invd sec holding-deltas --period-end 2026-06-30 --json
-
-# IPO-pending SEC issuers (optional: --query, --cursor, --limit, --all)
-invd sec ipo-pending --json
 
 # List SEC issuers (optional: --query, --phase, --form, --public-seen-from, --public-seen-to, --cursor, --limit, --all)
 invd sec issuers --json

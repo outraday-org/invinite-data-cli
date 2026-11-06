@@ -1,6 +1,6 @@
 {
   "specVersion": "1.0.0",
-  "specSha256": "b30810b27751cde40801c1c826b08d7d1cee57aecd64e0a56397ada4032b40ad",
+  "specSha256": "428f787c861c2ad34b6108ceb845616e41996114da44abde7cd3f1d96dbce773",
   "groups": [
     {
       "name": "company",
@@ -4390,6 +4390,18 @@
           "description": "true = blank-check companies (SPACs) only, false = no SPACs. Default: both"
         },
         {
+          "name": "pending",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "example": "true",
+          "description": "true = tracks with an open IPO-pending entry (`ipo_pending.status` open), false = tracks without one. Default: both"
+        },
+        {
           "name": "sort",
           "in": "query",
           "required": false,
@@ -6579,49 +6591,6 @@
       "pagination": "top",
       "allItemsPath": [
         "rows"
-      ]
-    },
-    {
-      "operationId": "secIssuersIpoPending",
-      "group": "sec",
-      "action": "ipo-pending",
-      "method": "get",
-      "path": "/v1/sec/issuers/ipo-pending",
-      "auth": true,
-      "summary": "IPO-pending SEC issuers",
-      "params": [
-        {
-          "name": "query",
-          "in": "query",
-          "required": false,
-          "type": "string",
-          "example": "Iambic",
-          "description": "Name (substring)",
-          "alias": "q"
-        },
-        {
-          "name": "cursor",
-          "in": "query",
-          "required": false,
-          "type": "string",
-          "example": "eyJ2IjoxLCJhZnRlciI6WyIyMDI1LTEwLTMxIiwiMDAwMDMyMDE5My0yNS0wMDAwNzkiXSwiZiI6Ijg1NzNiMDg0ZjEyNzVjMjMifQ",
-          "description": "Opaque cursor of the previous page (`next_cursor`; follow `next_url`). Bound to the other filters."
-        },
-        {
-          "name": "limit",
-          "in": "query",
-          "required": false,
-          "type": "integer",
-          "default": 20,
-          "example": 5,
-          "description": "Entries per page (1-100, default 20)",
-          "alias": "l"
-        }
-      ],
-      "view": "json",
-      "pagination": "top",
-      "allItemsPath": [
-        "entries"
       ]
     },
     {
