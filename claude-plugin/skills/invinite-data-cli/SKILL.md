@@ -24,9 +24,9 @@ Use the connected Invinite Data API MCP tools when available. Fall back to the `
 | As-reported statements/snapshots | `as_reported_financial_statement`, `as_reported_financial_snapshot` | `invd financials as-reported-<statement>…`, `invd financials as-reported-snapshot…` |
 | Ratios/growth/CAGR | `financial_ratios`, `financial_growth`, `financial_cagr` | `invd metrics ratios\|growth\|cagr` |
 | Segment data | `segmented_financials` | `invd segments list\|list-detailed` |
-| SEC filings/search/sections (a CIK also finds a not-yet-listed company; registration filings carry `proposed_symbols`) | `sec_filings`, `sec_filings_search`, `sec_filing_sections` | `invd filings list\|search\|sections` |
+| SEC filings/search/sections (a CIK also finds a not-yet-listed company) | `sec_filer_filings`, `sec_document_search`, `sec_document_sections` | `invd sec filings\|search\|sections` |
 | SEC document store: filers / issuer lifecycle, filings + document manifests, immutable cited document versions (blocks, pages, footnotes, figures, sections), lexical / literal search, 13F research, statement provenance, metric exports (typed `readiness`) | `sec_filers`, `sec_filer`, `sec_filer_lifecycle`, `sec_filer_filings`, `sec_filing`, `sec_document`, `sec_document_version`, `sec_document_sections`, `sec_document_search`, `sec_holders`, `sec_manager_portfolio`, `sec_metric_export`, … | `invd sec …` (`sec save`, `sec save-figure`, `sec export-file` download, CLI-only) |
-| Filing and metric discovery | `sec_available_form_types`, `list_available_section_ids`, `list_available_metrics` | `invd filings form-types`, `invd metadata section-ids\|metrics` |
+| Filing and metric discovery | `sec_filer_filings` (`form_facet`), `list_available_section_ids`, `list_available_metrics` | `invd sec filings` (`form_facet`), `invd metadata section-ids\|metrics` |
 | Institutional ownership | `holdings_by_company`, `holdings_by_investor`, `institutional_investors`, `institutional_transactions` | `invd ownership …` |
 | Insider trades/IPOs/holidays | `insider_trades`, `ipos`, `market_holidays` | `invd insider-trades list`, `invd ipos list`, `invd market holidays` |
 | Upcoming IPOs from SEC registrations (S-1 / F-1, by CIK, weeks before the IPO calendar; stage, proposed ticker, price range, final price) | `ipo_registrations` | `invd ipos registrations` |
@@ -119,7 +119,7 @@ All share the same `metric_id` identifiers from `metadata metrics`.
 ### Filings, ownership, insider trades
 
 - `invd sec …` reads Invinite's SEC document store: `sec filings -i <ticker|CIK>` (cursor pages, `form_facet`), `sec filing --accession` (document manifest: role, MIME, true size, readiness), `sec document --accession --filename` (pins the immutable version; blocks with `citation {version_id, block_id, page, printed}`), `sec search -q … --mode lexical|literal` (100 credits). Cite `version_id` + `block_id` and the printed page label only when present (else the page ordinal). `readiness.status` `pending` / `partial` / `not_ready` and a search `coverage.completeness` other than `complete` mean the answer is incomplete — never report zero rows there as "nothing found".
-- Run `invd metadata section-ids --json` before `filings sections`; `filings search` (`-r, --request`) is natural-language search at 100 credits a call.
+- Filing sections: `sec document` (pins the `version_id`) → `sec sections --version-id` → `sec version --version-id … --blocks <range>` for the text. `sec search` returns cited passages (no prose answer) at 100 credits a call. The legacy `filings list|search|sections|form-types` were removed in 1.0.0.
 - Ownership transaction types (`--type`): `new_buy`, `added`, `reduced`, `sold_out`. `holdings-by-investor` needs the investor's `--cik`.
 - Insider trades `--acquired-disposed`: `A` (acquisition) or `D` (disposition).
 
@@ -332,24 +332,6 @@ invd earnings document --document-id <document_id> --pages --json
 invd earnings document --document-id <document_id> --output annual-report.pdf
 ```
 <!-- /invd:hand:earnings document -->
-
-### filings
-
-SEC filings, their parsed sections and natural-language filing search
-
-```bash
-# Available SEC form types (optional: --identifier)
-invd filings form-types --json
-
-# SEC filings (optional: --form-type, --sort, --limit, --offset, --all)
-invd filings list -i AAPL --json
-
-# Search SEC filings (optional: --identifier, --accession-number)
-invd filings search -r "What are Apple's main risk factors?" -i AAPL --json
-
-# SEC filing sections (optional: --section-id, --accession-number, --fiscal-year, --fiscal-quarter)
-invd filings sections -i AAPL --form-type 10-K --fiscal-year 2025 --json
-```
 
 ### financials
 
@@ -797,8 +779,9 @@ invd ownership holdings-by-company -i AAPL --min-value 10000000 --json
 ```
 
 ### Searching SEC filings by topic
+Cited passages (`version_id` + `block_id`), no prose answer; 100 credits:
 ```bash
-invd filings search -r "artificial intelligence strategy" -i MSFT --json
+invd sec search -q "artificial intelligence strategy" -m lexical -c 789019 --json
 ```
 
 ### Reading an earnings call
@@ -825,10 +808,13 @@ invd news developments --publisher 1045810 --topic product_launch --json
 Answer with the publisher, the date and the link of each item (`attribution`), and keep "announced" / "planned" claims as such.
 
 ### Reading specific filing sections
-First find section IDs, then fetch the section:
+Find the filing, pin the document version, list its sections, then read a section's blocks:
 ```bash
-invd metadata section-ids --json
-invd filings sections -i AAPL --form-type 10-K --section-id risk_factors --json
+invd sec filings -i AAPL -f 10-K -l 1 --json                      # pick the accession
+invd sec filing --accession <accession> --json                    # document manifest: the primary filename
+invd sec document --accession <accession> --filename <filename> -l 1 --json   # version.version_id
+invd sec sections --version-id <version_id> --json               # each section's blocks selector
+invd sec version --version-id <version_id> --blocks <blocks> --json
 ```
 
 ## Tips

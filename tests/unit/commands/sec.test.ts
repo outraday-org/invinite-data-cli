@@ -303,39 +303,49 @@ describe('readinessNotes', () => {
   });
 });
 
-describe('legacy filings * → sec … parity (task 7 removes the left column in 1.0.0)', () => {
+describe('legacy filings * removed in 1.0.0 → their sec … replacements', () => {
   const operations = loadManifest().operations;
   const find = (group: string, action: string) => {
     const found = operations.find(operation => operation.group === group && operation.action === action);
     if (!found) throw new Error(`no ${group} ${action}`);
     return found;
   };
+  const absent = (group: string, action: string) =>
+    expect(operations.some(operation => operation.group === group && operation.action === action)).toBe(false);
   const params = (group: string, action: string) => find(group, action).params.map(param => param.name);
 
-  it('filings list → sec filings: same filer (ticker or CIK), form and date filters; rows by cursor', () => {
-    expect(params('filings', 'list')).toEqual(expect.arrayContaining(['identifier', 'form_type']));
+  it('no manifest operation calls /v1/sec-filings/* and the filings group is gone', () => {
+    expect(operations.filter(operation => operation.path.startsWith('/v1/sec-filings/'))).toEqual([]);
+    expect(operations.some(operation => operation.group === 'filings')).toBe(false);
+    expect(loadManifest().groups.some(group => group.name === 'filings')).toBe(false);
+  });
+
+  it('filings list (removed) → sec filings: same filer (ticker or CIK), form and date filters; rows by cursor', () => {
+    absent('filings', 'list');
     expect(params('sec', 'filings')).toEqual(expect.arrayContaining(['identifier', 'form', 'filed_from', 'filed_to', 'cursor', 'limit']));
     expect(find('sec', 'filings').pagination).toBe('top');
     expect(find('sec', 'filings').columns).toEqual(expect.arrayContaining(['accession', 'form', 'filing_date', 'report_date']));
   });
 
-  it('filings form-types → the form_facet of sec filings', () => {
-    expect(find('filings', 'form-types').path).toBe('/v1/sec-filings/available-form-types');
+  it('filings form-types (removed) → the form_facet of sec filings', () => {
+    absent('filings', 'form-types');
     expect(find('sec', 'filings').path).toBe('/v1/sec/filings');
   });
 
-  it('filings sections → sec document (pins the version) → sec sections → sec version --blocks', () => {
+  it('filings sections (removed) → sec document (pins the version) → sec sections → sec version --blocks', () => {
+    absent('filings', 'sections');
     expect(params('sec', 'document')).toEqual(expect.arrayContaining(['accession', 'filename', 'blocks']));
     expect(params('sec', 'sections')).toEqual(expect.arrayContaining(['version_id', 'outline']));
     expect(find('sec', 'sections').columns).toContain('legacy_section_key');
     expect(params('sec', 'version')).toEqual(expect.arrayContaining(['version_id', 'blocks']));
   });
 
-  it('filings search → sec search: cited passages, explicit lexical | literal, no prose answer', () => {
+  it('filings search (removed) → sec search -m lexical|literal: cited passages, no prose answer', () => {
+    absent('filings', 'search');
     const mode = find('sec', 'search').params.find(param => param.name === 'mode');
     expect(mode?.enum).toEqual(['lexical', 'literal']);
     expect(find('sec', 'search').allItemsPath).toEqual(['hits']);
-    expect(params('filings', 'search')).toContain('request');
+    expect(params('sec', 'search')).not.toContain('request');
   });
 
   it('the export file stays a hand-written download (spec x-cli.exclude), never a manifest operation', () => {

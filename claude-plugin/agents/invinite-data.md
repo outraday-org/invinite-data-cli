@@ -40,7 +40,7 @@ Common multi-step patterns:
 - **Company research**: metadata metrics (first) + company details + financials snapshot + metrics ratios
 - **Metrics analysis**: metadata metrics (first) → then ratios/CAGR/growth queries
 - **Ownership analysis**: holdings-by-company + ownership transactions
-- **Filing deep-dive**: metadata section-ids (first) + filings list → then filings sections for full text
+- **Filing deep-dive**: sec filings (first, for the accession) → sec filing (document manifest) → sec document (pins the `version_id`) → sec sections → sec version `--blocks` for the section's text; sec search `-m lexical|literal` for cited passages on a topic
 - **Comparative analysis**: metadata metrics (first) + financials snapshot with multiple tickers + metrics ratios for each
 - **Earnings call review**: earnings events (first, for the `event_id`) → then in parallel press-release + extractions `--kind guidance` + extractions `--kind kpi` + qa + diff (+ optionally price-attribution: minute price moves next to what was said — temporal coincidence, not cause)
 - **Guidance tracking**: earnings guidance-history `--metric <metric>` across calls + extractions of the latest call

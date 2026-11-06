@@ -40,8 +40,8 @@ duplicate name. The spec marks such an operation `x-cli.exclude` naming the hand
   type checks; `PartialDownloadError` exits 4, `IntegrityError` 5, `sec save` with unsaved documents 3. Public
   originals / figures are fetched keyless from their stated `url`; the export file is `apiDownload` (key). No code
   fetches the SEC's own site (`tests/unit/commands/sec.test.ts` scans `src/`).
-- The legacy `filings list|search|sections|form-types` are removed in 1.0.0 (task 7's train); their parity with
-  `sec …` is asserted in `tests/unit/commands/sec.test.ts`.
+- The legacy `filings list|search|sections|form-types` were removed in 1.0.0 (task 7's train, spec 6f295b4); their
+  absence and the mapped `sec …` replacements are asserted in `tests/unit/commands/sec.test.ts`.
 
 ## The skill's command block and the docs' spellings are generated / gated
 

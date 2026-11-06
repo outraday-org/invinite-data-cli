@@ -212,7 +212,6 @@ command. A handful of commands are hand-written because they do more than one ca
 | `financials` | Standardized and as-reported statements and snapshots — one command per variant: `income-statement`, `income-statement-detailed`, `income-statement-presentation`, `as-reported-income-statement…`; the same for `balance-sheet`, `cash-flow`, `snapshot` |
 | `metrics` | Ratios, growth, CAGR |
 | `segments` | `list`, `list-detailed` |
-| `filings` | List, natural-language search, sections, form types (legacy; replaced by `sec` in 1.0.0) |
 | `sec` | Invinite's SEC document store: `filers`, `filer`, `lifecycle`, `issuers`, `filings` (cursor-paged, `form_facet`), `filing` (its document manifest), `document` / `version` (immutable cited blocks, pages, footnotes), `sections`, `figure`, `fact-places`, `search` (`--mode lexical\|literal`, 100 credits), 13F `holders` / `portfolio` / `holding-deltas` / `form-filers`, `financials-catalog` / `statement` / `financial-fact`, `metric-export` / `export`, `datasets`; downloads `save` (originals), `save-figure`, `export-file` |
 | `earnings` | Calendar, events, live calls, transcripts, Q&A, participants, analysts, guidance and KPI extractions, diff, metrics, prosody, price moves during the call, media, documents, search, company IR documents |
 | `news` | News of US companies from SEC filings and their own newsrooms: `list` (cursor-paged), `get` (full text + attribution), `text` (citable blocks), `developments`, `search` (passages; off until the API enables it), `asset-download` |
@@ -230,7 +229,6 @@ invd financials as-reported-cash-flow -i GOOGL -p annual --json
 invd financials snapshot -i AAPL,MSFT,GOOGL -p annual --json
 invd metrics ratios -i AAPL -p annual --category profitability --json
 invd segments list-detailed -i AAPL -p annual --json
-invd filings sections -i AAPL --form-type 10-K --section-id risk_factors --json
 invd sec filings -i AAPL -f 10-K -l 5 --json
 invd sec filing --accession 0000320193-26-000024 --json
 invd sec document --accession 0000320193-26-000024 --filename aapl-20261102.htm -l 20 --json
@@ -370,8 +368,10 @@ else the page ordinal) — never a URL. Search is `--mode lexical` (keywords, ra
 Downloads write `<file>.part` and rename it only after every check: exit **4** = partial download, **5** = size / hash /
 media-type mismatch — nothing is saved either way; an existing file needs `--force`. No command ever fetches sec.gov.
 
-The legacy `filings list|search|sections|form-types` stay until 1.0.0 and map onto `sec filings` (`form_facet`
-replaces `form-types`), `sec filing` + `sec document` / `sec sections` / `sec version --blocks` and `sec search`.
+The legacy `filings list|search|sections|form-types` (`/v1/sec-filings/*`) were removed in 1.0.0. Use `sec filings`
+for `filings list` (its `form_facet` replaces `filings form-types`), `sec document` (pins the version) + `sec sections`
++ `sec version --blocks` for `filings sections`, and `sec search -m lexical|literal` for `filings search` (cited
+passages, no prose answer, 100 credits).
 
 ### webhooks
 
