@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -11,9 +11,9 @@
     },
     "verifiedOn": "2026-11-06",
     "sourceHashes": {
-      "api-contract.json": "1a48249466d70e72d70cd3fe030ce4e05b351c5b5f8e567038fbfa07a241d6c2",
-      "openapi.json": "eeed886bbc63024fdde1a5a34fd91d022bc31359e93f2dc0ed2ce628bd252a48",
-      "package.json": "bedb4fb7ac6a9cd50bb33daa0d7a21bf0b54bdd660a282c20984985cc85080fd",
+      "api-contract.json": "f5788cd506f23f92357c19ef55d683174330cfd13b130e42c269f0ee53401847",
+      "openapi.json": "558348830d2357af9cbbb9e5cb7f3ab1d6538afbf990ea779ccb07546df5c405",
+      "package.json": "89cd6d568e0a1cbd1408476d426bd16dc323e99dbb099d2f8f00395551e8fcec",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "274c2c99671474d4442343a9e625bb41eda85343cc74de3cb032821c5736b1a7",
@@ -38,22 +38,22 @@
       "src/formatters/json-formatter.ts": "0fa8904f4a31c7e0d10ac5eb6c4947c5d56079216e3c93349583ed02ef21b833",
       "src/formatters/table-formatter.ts": "ebcbfc439017374ac11b8f87d13ec4607ab8c219750c1447b253f0a88c2d2e79",
       "src/formatters/time.ts": "f4d4e7c28b2f4610553a82cfdc55b585090c0f1cc6788f84acd6824b29e6bd0a",
-      "src/generated/cli-manifest.json": "2bb44d8162c3866f6b31a12bb80de9a1ce6a677b926d596b39cad4ab651ab8ca",
+      "src/generated/cli-manifest.json": "1a5c0d3b5071cfffeb598de92b600f4e3c070830840ab070fd10942003427201",
       "src/hand-written-commands.ts": "c7e41fb5471477fcd1d87683b9c1c8b4fe231172e51acb522bbb7480e5387fff",
       "src/shared/errors.ts": "ebefb5a0915f40f45330348dbec2ced9b62e8d40907fbb02ac62d8a08a6bf34e",
       "src/shared/json-mode.ts": "24d4b4a71475ba6301d0c8fe79d70d9304b058d9bb145203bdc545a51e84a85a",
       "src/shared/options.ts": "6783cfa83b301857903bbde46edc238cd7adf80f05f0f33a7a883136de8a27b8",
       "src/shared/output.ts": "613b3573aa7d3e11e9a98ac427db4d15ec895e1f242baf154e0cd6ff5f030ff0",
-      "src/shared/readiness.ts": "0ad676b61a02ec341d7f0cb168a3a8d87bd2dcbc159e7933a170e1008df858fd",
+      "src/shared/readiness.ts": "28b55cad060708aad59968b0dfa4b15cb439c5928c9ee8a176b7f75b4ed2e627",
       "src/shared/spinner.ts": "cfebc089549333f9c062c5c92d760814411d4f5d543047b4043ca2fcc45eed2a",
       "src/shared/types.ts": "9a9ab55519aa4f3de2cd020118091315530ecdb6e05a557a5b5ec2e5b1592b78",
       "src/spec-commands.ts": "420f339fb82ccbdb35d79b522338d0c8cc6cde0a392e4ee0fb3c5c63e3727d1f",
       "src/spec-flags.ts": "779f80591b5eabe265023e5717e82de71b45ad385d84784f7e4304959ca2d83a",
       "src/spec-manifest.ts": "5ea901757d497900b968c4badb7ed1086def58afb719f19a8a89a5bbba27925c"
     },
-    "specSha256": "eeed886bbc63024fdde1a5a34fd91d022bc31359e93f2dc0ed2ce628bd252a48",
-    "revision": "7c49acc003606fb5baa3c6ddc04d6cb0dc98cf2c",
-    "fingerprint": "82ca9c59b5cd2c91a3116d67e208d84ff44ec94f16a1f0fe12101fda205dfd23"
+    "specSha256": "558348830d2357af9cbbb9e5cb7f3ab1d6538afbf990ea779ccb07546df5c405",
+    "revision": "1670b5a7528aa053e61d8c4eb903ce172eeca4b8",
+    "fingerprint": "453241aeb3f7a7e3f8f5d2072bc09624a027592de78751f1f4b80ba4c28f7c33"
   },
   "globalOptions": [
     {

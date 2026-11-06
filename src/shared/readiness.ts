@@ -11,6 +11,20 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 
 const text = (value: unknown): string | undefined => (typeof value === 'string' && value !== '' ? value : undefined);
 
+/** How the capped passages were picked, from `coverage.matches.order` (an unknown order is printed as sent). */
+function examinedOrder(matches: Record<string, unknown>): string {
+  const order = text(matches.order);
+  if (order === 'newest_first') {
+    const complete = text(matches.complete_since)
+      ? `every match filed since ${text(matches.complete_since)}`
+      : 'even the newest week has more matches';
+    const band = text(matches.window_from) ? `older ones from ${text(matches.window_from)} on` : 'older ones';
+    return `newest first: ${complete}, then ${band} in index order`;
+  }
+  if (order === 'index_order' || order === undefined) return 'index order';
+  return `order ${order}`;
+}
+
 /** The lines a person should read beside the output; empty for a ready, complete answer or a non-SEC body. */
 export function readinessNotes(data: unknown): string[] {
   if (!isRecord(data) || !isRecord(data.readiness) || typeof data.api_schema !== 'string') return [];
@@ -36,8 +50,8 @@ export function readinessNotes(data: unknown): string[] {
         ? `, filed ${text(matches.filed_from)} to ${text(matches.filed_to)}`
         : '';
       notes.push(
-        `matches: ranked among the first ${String(matches.examined)} of at least ${String(matches.total_at_least)} `
-        + `matching passages (index order${span})`,
+        `matches: ranked among ${String(matches.examined)} examined of at least ${String(matches.total_at_least)} `
+        + `matching passages (${examinedOrder(matches)}${span})`,
       );
     }
     if (text(coverage.hint)) notes.push(`hint: ${text(coverage.hint)}`);

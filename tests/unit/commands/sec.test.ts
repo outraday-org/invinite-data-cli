@@ -316,9 +316,29 @@ describe('readinessNotes', () => {
     expect(notes).toEqual([
       'readiness: partial (too_many_matches) — the answer is incomplete',
       'coverage: partial (too_many_matches) — no hits here is not proof that nothing matches',
-      'matches: ranked among the first 300 of at least 301 matching passages (index order, filed 2026-11-05 to 2026-11-05)',
+      'matches: ranked among 300 examined of at least 301 matching passages (index order, filed 2026-11-05 to 2026-11-05)',
       'hint: For complete results, narrow the search by filer, form or filing-date range.',
     ]);
+  });
+
+  it('a newest-first capped search says which filing dates were read in full', () => {
+    const capped = (matches: Record<string, unknown>) => readinessNotes({
+      api_schema: 'secdoors.v1',
+      readiness: { status: 'partial', reason: 'too_many_matches', recoverable: false },
+      coverage: {
+        completeness: 'partial',
+        reasons: ['too_many_matches'],
+        matches: { capped: true, cap: 300, examined: 300, total_at_least: 301, filed_from: null, filed_to: null, ...matches },
+      },
+    })[2];
+    expect(capped({ order: 'newest_first', complete_since: '2026-10-30', window_from: '2025-11-06' }))
+      .toBe('matches: ranked among 300 examined of at least 301 matching passages (newest first: every match filed since '
+        + '2026-10-30, then older ones from 2025-11-06 on in index order)');
+    expect(capped({ order: 'newest_first', complete_since: null, window_from: null }))
+      .toBe('matches: ranked among 300 examined of at least 301 matching passages (newest first: even the newest week has '
+        + 'more matches, then older ones in index order)');
+    expect(capped({ order: 'some_future_order' }))
+      .toBe('matches: ranked among 300 examined of at least 301 matching passages (order some_future_order)');
   });
 });
 

@@ -639,7 +639,7 @@
             "type": "object",
             "nullable": true,
             "additionalProperties": true,
-            "description": "The selectivity cap of a search WITHOUT any filter (null for a filtered search, which is never capped): at most `cap` matching passages are read from the index, in index order (not ranked, not newest-first), then ranked and cited",
+            "description": "The selectivity cap of a search WITHOUT any filter (null for a filtered search, which is never capped): at most `cap` matching passages are read from the index, newest filings first (`order`), then ranked and cited",
             "required": [
               "capped",
               "cap",
@@ -682,9 +682,22 @@
               "order": {
                 "type": "string",
                 "enum": [
+                  "newest_first",
                   "index_order"
                 ],
-                "description": "Which passages were examined: the first ones the index returned (not newest-first)"
+                "description": "Which passages were examined: `newest_first` = every match filed since `complete_since`, then older ones from `window_from` on in index order; `index_order` = the first ones the index returned (older servers). Treat an unknown value as \"not stated\": the SDKs keep it as a string"
+              },
+              "complete_since": {
+                "type": "string",
+                "format": "date",
+                "nullable": true,
+                "description": "`newest_first` only: every matching passage filed on or after this date was examined; null when even the newest window (7 days) holds more than `cap` matches, or when not capped"
+              },
+              "window_from": {
+                "type": "string",
+                "format": "date",
+                "nullable": true,
+                "description": "`newest_first` only: the older passages examined (in index order, up to `cap`) were filed on or after this date; null = any date, or when not capped"
               },
               "filed_from": {
                 "type": "string",
@@ -36075,7 +36088,7 @@
         "tags": [
           "SEC"
         ],
-        "description": "Find passages in SEC documents, with citations: `mode=lexical` (default; keywords and quoted phrases, English stemming, ranked) or `mode=literal` (the exact characters; `case_sensitive=false` folds case). The earnings search contract: every hit carries `match` (`type`, `lexical_rank`, `spans` = code-point offsets into `text`), `document_spans` (offsets into the document text and each block), the cited blocks with neighbors and footnotes, and `citation` (version, block, the original's permanent URL). `coverage` says how complete the answer is: `forms_indexed` / `years_indexed` state the index policy; empty hits with `completeness: complete` is a genuine no-result, anything else is not. A search WITHOUT any filter (no `cik` / `entity_id` / `accession` / `form` / date) reads at most `coverage.matches.cap` matching passages (index order, not newest-first): when more match, `readiness` is `partial` / `too_many_matches`, `coverage.matches` states how many passages were examined, that the total is unknown (`total: null`, `total_at_least`) and the filing dates the examined passages span, and `coverage.hint` says how to get complete results (narrow by filer, form or filing-date range); the hits returned are still ranked and cited. A filtered search is never capped. A capped search costs the same 100 credits (hits are returned). A stale or expired cursor answers 409 `restart_required`.\n\nRead from Invinite's SEC document store: every answer carries `readiness` (`ready` / `partial` 200, `pending` 202 — retry later, not billed — `excluded` 403, `unknown` 404, `failed` 424, `not_ready` 503 while the capability is switched off). Originals, figures and PDFs are permanent public URLs; nothing is fetched from SEC on request.\n\nMinimum tier for rag: STANDARD.",
+        "description": "Find passages in SEC documents, with citations: `mode=lexical` (default; keywords and quoted phrases, English stemming, ranked) or `mode=literal` (the exact characters; `case_sensitive=false` folds case). The earnings search contract: every hit carries `match` (`type`, `lexical_rank`, `spans` = code-point offsets into `text`), `document_spans` (offsets into the document text and each block), the cited blocks with neighbors and footnotes, and `citation` (version, block, the original's permanent URL). `coverage` says how complete the answer is: `forms_indexed` / `years_indexed` state the index policy; empty hits with `completeness: complete` is a genuine no-result, anything else is not. A search WITHOUT any filter (no `cik` / `entity_id` / `accession` / `form` / date) reads at most `coverage.matches.cap` matching passages, newest filings first (`coverage.matches.order` `newest_first`: every match filed since `complete_since`, then older ones from `window_from` on): when more match, `readiness` is `partial` / `too_many_matches`, `coverage.matches` states how many passages were examined, that the total is unknown (`total: null`, `total_at_least`) and the filing dates the examined passages span, and `coverage.hint` says how to get complete results (narrow by filer, form or filing-date range); the hits returned are still ranked and cited. A filtered search is never capped. A capped search costs the same 100 credits (hits are returned). A stale or expired cursor answers 409 `restart_required`.\n\nRead from Invinite's SEC document store: every answer carries `readiness` (`ready` / `partial` 200, `pending` 202 — retry later, not billed — `excluded` 403, `unknown` 404, `failed` 424, `not_ready` 503 while the capability is switched off). Originals, figures and PDFs are permanent public URLs; nothing is fetched from SEC on request.\n\nMinimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
