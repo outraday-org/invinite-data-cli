@@ -29,6 +29,18 @@ export function readinessNotes(data: unknown): string[] {
       `coverage: ${coverage.completeness}${reasons.length ? ` (${reasons.join(', ')})` : ''} — `
       + 'no hits here is not proof that nothing matches',
     );
+    // An unfiltered search over the selectivity cap (`coverage.matches.capped`): what was examined and how to narrow.
+    const matches = coverage.matches;
+    if (isRecord(matches) && matches.capped === true) {
+      const span = text(matches.filed_from) && text(matches.filed_to)
+        ? `, filed ${text(matches.filed_from)} to ${text(matches.filed_to)}`
+        : '';
+      notes.push(
+        `matches: ranked among the first ${String(matches.examined)} of at least ${String(matches.total_at_least)} `
+        + `matching passages (index order${span})`,
+      );
+    }
+    if (text(coverage.hint)) notes.push(`hint: ${text(coverage.hint)}`);
   }
   return notes;
 }

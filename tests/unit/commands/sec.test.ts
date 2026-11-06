@@ -301,6 +301,25 @@ describe('readinessNotes', () => {
     expect(readinessNotes({ api_schema: 'secdoors.v1', readiness: ready, coverage: { completeness: 'partial', reasons: ['not_held'] } }))
       .toEqual(['coverage: partial (not_held) — no hits here is not proof that nothing matches']);
   });
+
+  it('a capped unfiltered search names what was examined and how to narrow it', () => {
+    const notes = readinessNotes({
+      api_schema: 'secdoors.v1',
+      readiness: { status: 'partial', reason: 'too_many_matches', recoverable: false },
+      coverage: {
+        completeness: 'partial',
+        reasons: ['too_many_matches'],
+        matches: { capped: true, cap: 300, examined: 300, total_at_least: 301, filed_from: '2026-11-05', filed_to: '2026-11-05' },
+        hint: 'For complete results, narrow the search by filer, form or filing-date range.',
+      },
+    });
+    expect(notes).toEqual([
+      'readiness: partial (too_many_matches) — the answer is incomplete',
+      'coverage: partial (too_many_matches) — no hits here is not proof that nothing matches',
+      'matches: ranked among the first 300 of at least 301 matching passages (index order, filed 2026-11-05 to 2026-11-05)',
+      'hint: For complete results, narrow the search by filer, form or filing-date range.',
+    ]);
+  });
 });
 
 describe('legacy filings * removed in 1.0.0 → their sec … replacements', () => {

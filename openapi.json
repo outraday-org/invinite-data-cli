@@ -625,7 +625,7 @@
             "items": {
               "type": "string"
             },
-            "description": "Why the answer may be incomplete: not_projected, projection_failed, not_published, not_held, held_not_verified, candidate_cap_reached, scan_budget_reached, scope_needs_review, scope_not_current, form_not_indexed, older_than_index_window, no_forms_indexed, held_gap, search_provider_not_registered, search_projection_empty, search_timeout, scope_excluded, documents_not_held"
+            "description": "Why the answer may be incomplete: not_projected, projection_failed, not_published, not_held, held_not_verified, too_many_matches, candidate_cap_reached, scan_budget_reached, scope_needs_review, scope_not_current, form_not_indexed, older_than_index_window, no_forms_indexed, held_gap, search_provider_not_registered, search_projection_empty, search_timeout, scope_excluded, documents_not_held"
           },
           "forms_indexed": {
             "type": "array",
@@ -634,6 +634,83 @@
               "type": "string"
             },
             "description": "The indexed form policy (`10-K*` = the form and its /A)"
+          },
+          "matches": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": true,
+            "description": "The selectivity cap of a search WITHOUT any filter (null for a filtered search, which is never capped): at most `cap` matching passages are read from the index, in index order (not ranked, not newest-first), then ranked and cited",
+            "required": [
+              "capped",
+              "cap",
+              "examined",
+              "examined_in_scope",
+              "total",
+              "total_at_least",
+              "order",
+              "filed_from",
+              "filed_to",
+              "narrow_with"
+            ],
+            "properties": {
+              "capped": {
+                "type": "boolean",
+                "description": "true = more passages match than were examined: the answer is partial (`too_many_matches`)"
+              },
+              "cap": {
+                "type": "integer",
+                "description": "The most matching passages an unfiltered search reads"
+              },
+              "examined": {
+                "type": "integer",
+                "description": "Matching passages read from the index (at most `cap`)"
+              },
+              "examined_in_scope": {
+                "type": "integer",
+                "description": "Of them, passages in searchable documents: the set the hits are ranked from"
+              },
+              "total": {
+                "type": "integer",
+                "nullable": true,
+                "description": "Every matching passage when not capped; null when capped (the total is unknown)"
+              },
+              "total_at_least": {
+                "type": "integer",
+                "nullable": true,
+                "description": "When capped: the total is at least this (cap + 1); never an estimate. null when not capped"
+              },
+              "order": {
+                "type": "string",
+                "enum": [
+                  "index_order"
+                ],
+                "description": "Which passages were examined: the first ones the index returned (not newest-first)"
+              },
+              "filed_from": {
+                "type": "string",
+                "format": "date",
+                "nullable": true,
+                "description": "Earliest filing date among the examined passages in searchable documents"
+              },
+              "filed_to": {
+                "type": "string",
+                "format": "date",
+                "nullable": true,
+                "description": "Latest filing date among the examined passages in searchable documents"
+              },
+              "narrow_with": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "What makes the search complete: filer (`cik`), entity (`entity_id`), form (`form`), filed_from / filed_to (`filed_from` / `filed_to`), accession (`accession`)"
+              }
+            }
+          },
+          "hint": {
+            "type": "string",
+            "nullable": true,
+            "description": "What to do for a complete answer (set when `matches.capped`; null otherwise)"
           }
         },
         "title": "SecSearchCoverage"
@@ -35998,7 +36075,7 @@
         "tags": [
           "SEC"
         ],
-        "description": "Find passages in SEC documents, with citations: `mode=lexical` (default; keywords and quoted phrases, English stemming, ranked) or `mode=literal` (the exact characters; `case_sensitive=false` folds case). The earnings search contract: every hit carries `match` (`type`, `lexical_rank`, `spans` = code-point offsets into `text`), `document_spans` (offsets into the document text and each block), the cited blocks with neighbors and footnotes, and `citation` (version, block, the original's permanent URL). `coverage` says how complete the answer is: `forms_indexed` / `years_indexed` state the index policy; empty hits with `completeness: complete` is a genuine no-result, anything else is not. A stale or expired cursor answers 409 `restart_required`.\n\nRead from Invinite's SEC document store: every answer carries `readiness` (`ready` / `partial` 200, `pending` 202 — retry later, not billed — `excluded` 403, `unknown` 404, `failed` 424, `not_ready` 503 while the capability is switched off). Originals, figures and PDFs are permanent public URLs; nothing is fetched from SEC on request.\n\nMinimum tier for rag: STANDARD.",
+        "description": "Find passages in SEC documents, with citations: `mode=lexical` (default; keywords and quoted phrases, English stemming, ranked) or `mode=literal` (the exact characters; `case_sensitive=false` folds case). The earnings search contract: every hit carries `match` (`type`, `lexical_rank`, `spans` = code-point offsets into `text`), `document_spans` (offsets into the document text and each block), the cited blocks with neighbors and footnotes, and `citation` (version, block, the original's permanent URL). `coverage` says how complete the answer is: `forms_indexed` / `years_indexed` state the index policy; empty hits with `completeness: complete` is a genuine no-result, anything else is not. A search WITHOUT any filter (no `cik` / `entity_id` / `accession` / `form` / date) reads at most `coverage.matches.cap` matching passages (index order, not newest-first): when more match, `readiness` is `partial` / `too_many_matches`, `coverage.matches` states how many passages were examined, that the total is unknown (`total: null`, `total_at_least`) and the filing dates the examined passages span, and `coverage.hint` says how to get complete results (narrow by filer, form or filing-date range); the hits returned are still ranked and cited. A filtered search is never capped. A capped search costs the same 100 credits (hits are returned). A stale or expired cursor answers 409 `restart_required`.\n\nRead from Invinite's SEC document store: every answer carries `readiness` (`ready` / `partial` 200, `pending` 202 — retry later, not billed — `excluded` 403, `unknown` 404, `failed` 424, `not_ready` 503 while the capability is switched off). Originals, figures and PDFs are permanent public URLs; nothing is fetched from SEC on request.\n\nMinimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
