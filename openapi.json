@@ -639,7 +639,7 @@
             "type": "object",
             "nullable": true,
             "additionalProperties": true,
-            "description": "The selectivity cap of a search WITHOUT any filter (null for a filtered search, which is never capped): at most `cap` matching passages are read from the index, newest filings first (`order`), then ranked and cited",
+            "description": "The selectivity cap of a search without a filer, entity or accession filter (no filter at all, or only `form` and / or `filed_from` / `filed_to`): at most `cap` matching passages are read from the index, newest filings first (`order`), then ranked and cited. null when the search names a `cik`, `entity_id` or `accession` (never capped: those give complete results)",
             "required": [
               "capped",
               "cap",
@@ -659,7 +659,7 @@
               },
               "cap": {
                 "type": "integer",
-                "description": "The most matching passages an unfiltered search reads"
+                "description": "The most matching passages a search without a filer, entity or accession filter reads (300)"
               },
               "examined": {
                 "type": "integer",
@@ -716,7 +716,7 @@
                 "items": {
                   "type": "string"
                 },
-                "description": "What makes the search complete: filer (`cik`), entity (`entity_id`), form (`form`), filed_from / filed_to (`filed_from` / `filed_to`), accession (`accession`)"
+                "description": "The filters to add for a complete answer: filer (`cik`), entity (`entity_id`), form (`form`), filed_from / filed_to (`filed_from` / `filed_to`), accession (`accession`). A search already filtered by form / date lists only `filer`, `entity`, `accession` (a form or date filter is itself capped while it matches more than `cap`)"
               }
             }
           },
@@ -36088,7 +36088,7 @@
         "tags": [
           "SEC"
         ],
-        "description": "Find passages in SEC documents, with citations: `mode=lexical` (default; keywords and quoted phrases, English stemming, ranked) or `mode=literal` (the exact characters; `case_sensitive=false` folds case). The earnings search contract: every hit carries `match` (`type`, `lexical_rank`, `spans` = code-point offsets into `text`), `document_spans` (offsets into the document text and each block), the cited blocks with neighbors and footnotes, and `citation` (version, block, the original's permanent URL). `coverage` says how complete the answer is: `forms_indexed` / `years_indexed` state the index policy; empty hits with `completeness: complete` is a genuine no-result, anything else is not. A search WITHOUT any filter (no `cik` / `entity_id` / `accession` / `form` / date) reads at most `coverage.matches.cap` matching passages, newest filings first (`coverage.matches.order` `newest_first`: every match filed since `complete_since`, then older ones from `window_from` on): when more match, `readiness` is `partial` / `too_many_matches`, `coverage.matches` states how many passages were examined, that the total is unknown (`total: null`, `total_at_least`) and the filing dates the examined passages span, and `coverage.hint` says how to get complete results (narrow by filer, form or filing-date range); the hits returned are still ranked and cited. A filtered search is never capped. A capped search costs the same 100 credits (hits are returned). A stale or expired cursor answers 409 `restart_required`.\n\nRead from Invinite's SEC document store: every answer carries `readiness` (`ready` / `partial` 200, `pending` 202 — retry later, not billed — `excluded` 403, `unknown` 404, `failed` 424, `not_ready` 503 while the capability is switched off). Originals, figures and PDFs are permanent public URLs; nothing is fetched from SEC on request.\n\nMinimum tier for rag: STANDARD.",
+        "description": "Find passages in SEC documents, with citations: `mode=lexical` (default; keywords and quoted phrases, English stemming, ranked) or `mode=literal` (the exact characters; `case_sensitive=false` folds case). The earnings search contract: every hit carries `match` (`type`, `lexical_rank`, `spans` = code-point offsets into `text`), `document_spans` (offsets into the document text and each block), the cited blocks with neighbors and footnotes, and `citation` (version, block, the original's permanent URL). `coverage` says how complete the answer is: `forms_indexed` / `years_indexed` state the index policy; empty hits with `completeness: complete` is a genuine no-result, anything else is not. A search without a filer, entity or accession filter (no filter at all, or only `form` and / or `filed_from` / `filed_to`) reads at most `coverage.matches.cap` (300) matching passages of its forms and dates, newest filings first (`coverage.matches.order` `newest_first`: every match filed since `complete_since`, then older ones from `window_from` on): when more match, `readiness` is `partial` / `too_many_matches`, `coverage.matches` states how many passages were examined, that the total is unknown (`total: null`, `total_at_least`) and the filing dates the examined passages span, and `coverage.hint` says how to get complete results (add a filer, entity or accession filter; a narrower form or date range helps while it matches fewer than `cap`); the hits returned are still ranked and cited. A search with `cik`, `entity_id` or `accession` is never capped and gives complete results. The first search for a very common term after a backend restart can take about half a second longer (cold index pages). A capped search costs the same 100 credits (hits are returned). A stale or expired cursor answers 409 `restart_required`.\n\nRead from Invinite's SEC document store: every answer carries `readiness` (`ready` / `partial` 200, `pending` 202 — retry later, not billed — `excluded` 403, `unknown` 404, `failed` 424, `not_ready` 503 while the capability is switched off). Originals, figures and PDFs are permanent public URLs; nothing is fetched from SEC on request.\n\nMinimum tier for rag: STANDARD.",
         "parameters": [
           {
             "schema": {
