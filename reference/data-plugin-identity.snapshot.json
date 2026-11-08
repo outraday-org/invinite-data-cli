@@ -1,9 +1,9 @@
 {
-  "observedAt": "2026-11-06",
+  "observedAt": "2026-11-08",
   "download": {
     "owner": "outraday-org",
     "repository": "invinite-data-cli",
-    "revision": "bfe61d9b6adf4ec97e46d895b48782afdc56d46d"
+    "revision": "95e5bd97ff9e276fe36543049484a829691aa9d5"
   },
   "manifest": {
     "name": "invinite-financial-data",
@@ -27,35 +27,35 @@
   "sourceHashes": {
     "claude-plugin/.claude-plugin/plugin.json": "240fdf2f04dcbb01c383ef19ced285399b702ac8aa8d3cf4fee651c02b130cff",
     "claude-plugin/.mcp.json": "a473ef1b56c55c29434aa2864d3bc0b250b4954890af437308ff9d66bc85d0d5",
-    "claude-plugin/agents/invinite-data.md": "01a44336ca79c1dbd0b69a0dbbd75a13345d31f49fb783cac5b54eca1f60eac4",
+    "claude-plugin/agents/invinite-data.md": "9bb9f57e7ffa58fc4c709c852dbfe9a86c5da19f7b94f54ba0a30da8309f1276",
     "claude-plugin/commands/analyze-earnings-call.md": "418a715ccf850b5481fd068ad1e979462b81a293e51eb4ebda9ea3265fd58199",
     "claude-plugin/commands/analyze-filing.md": "092fd86b99d8f8c4fcba6c68802939060232f414a2f1b271c81d3806b0a17196",
     "claude-plugin/commands/compare-companies.md": "8f7d570d2ac93139148115d6129c74fa6e57ea32868518c9483e8b1041d0454b",
     "claude-plugin/commands/financial-research.md": "63e6e0aaa3043d8192d600fc8e8bd7f6bbe67f86bc32ccfea23f3507c6800e2e",
     "claude-plugin/commands/ownership-review.md": "d52c2d234645fcc313e9430de08394545da57082980272198b8d5d5f5675bb08",
-    "claude-plugin/skills/invinite-data-cli/SKILL.md": "61291e7e30ee18d6e0034c8377a01a1b36158e514bd5016f8bedc650238e0dad",
+    "claude-plugin/skills/invinite-data-cli/SKILL.md": "58ce9f7a3a9291214a0d5e31dce92223d1947d02f4fd679df3f335eef4fdf2c9",
     "src/commands/plugin.ts": "953f279105a682c5659c698f5145822c079d51497882f9d64cc54e4255a617b6"
   },
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "1.2.0",
-    "specSha256": "2a233abd01d953cf4ae06dc822ac3bfaf7c4c235ece719a23d7948c1d97656e4",
+    "version": "2.0.0",
+    "specSha256": "118ae607bfa397dde8e651ff1a871117efa93a2ee92517e781921346bb64db3a",
     "sourceHashes": {
       "claude-plugin/.claude-plugin/plugin.json": "240fdf2f04dcbb01c383ef19ced285399b702ac8aa8d3cf4fee651c02b130cff",
       "claude-plugin/.mcp.json": "a473ef1b56c55c29434aa2864d3bc0b250b4954890af437308ff9d66bc85d0d5",
-      "claude-plugin/agents/invinite-data.md": "01a44336ca79c1dbd0b69a0dbbd75a13345d31f49fb783cac5b54eca1f60eac4",
+      "claude-plugin/agents/invinite-data.md": "9bb9f57e7ffa58fc4c709c852dbfe9a86c5da19f7b94f54ba0a30da8309f1276",
       "claude-plugin/commands/analyze-earnings-call.md": "418a715ccf850b5481fd068ad1e979462b81a293e51eb4ebda9ea3265fd58199",
       "claude-plugin/commands/analyze-filing.md": "092fd86b99d8f8c4fcba6c68802939060232f414a2f1b271c81d3806b0a17196",
       "claude-plugin/commands/compare-companies.md": "8f7d570d2ac93139148115d6129c74fa6e57ea32868518c9483e8b1041d0454b",
       "claude-plugin/commands/financial-research.md": "63e6e0aaa3043d8192d600fc8e8bd7f6bbe67f86bc32ccfea23f3507c6800e2e",
       "claude-plugin/commands/ownership-review.md": "d52c2d234645fcc313e9430de08394545da57082980272198b8d5d5f5675bb08",
-      "claude-plugin/skills/invinite-data-cli/SKILL.md": "61291e7e30ee18d6e0034c8377a01a1b36158e514bd5016f8bedc650238e0dad",
-      "package.json": "89cd6d568e0a1cbd1408476d426bd16dc323e99dbb099d2f8f00395551e8fcec",
+      "claude-plugin/skills/invinite-data-cli/SKILL.md": "58ce9f7a3a9291214a0d5e31dce92223d1947d02f4fd679df3f335eef4fdf2c9",
+      "package.json": "ef8669f10268041e4cf12a05c43f4e8c450d8826c3341bca5756570da086253b",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-plugin-packaging.ts": "98945657178e4d4468963f9ef9b7d85025fde6c25444dbc3adb1c2334aac899e",
       "src/commands/plugin.ts": "953f279105a682c5659c698f5145822c079d51497882f9d64cc54e4255a617b6"
     },
-    "revision": "fab53577dc054164e7c462d51389efb09d5b672c",
-    "fingerprint": "47a561d872f527ad84a79999e049c3c0f28c28b396676f1bf2b19fdc4ca7503c"
+    "revision": "95e5bd97ff9e276fe36543049484a829691aa9d5",
+    "fingerprint": "5c27a5fde98251ed8719bd68bae20fcacf564e9e455bd3b87df2dd6d588d8db4"
   }
 }
