@@ -453,16 +453,16 @@ describe('the real manifest', () => {
     expect(err).toEqual(['credits: 0 · included left: 7']);
   });
 
-  it('news get prints the attribution block before the body; news list --all follows the cursor next_url', async () => {
+  it('news get prints the attribution block before the summary; news list --all follows the cursor next_url', async () => {
     const out: string[] = [];
     vi.spyOn(console, 'log').mockImplementation((line?: unknown) => { out.push(String(line ?? '')); });
     const id = '4c1d9e62-3b7a-4f2e-8d1c-9e0a7b6c5d4f';
     respond({
       id, published_at: '2026-10-28T20:05:10Z', title: 'NVIDIA Results — Q3 FY2027', kind: 'earnings_results', source: { id: 'edgar' },
-      url: 'https://www.sec.gov/x', content_status: 'available', body_text: 'SANTA CLARA — NVIDIA reported …',
+      url: 'https://www.sec.gov/x', content_status: 'available', summary_text: 'NVIDIA reported record quarterly revenue …',
       attribution: {
         publisher: 'NVIDIA Corporation', publisher_host: null, source_url: 'https://www.sec.gov/x', published_at: '2026-10-28T20:05:10Z',
-        rights: 'public_record', edgar: { form: '8-K', accession: '0001045810-26-000123' }, statement: 'Reproduced verbatim from the publisher; © the publisher. Source and date above.',
+        rights: 'public_record', edgar: { form: '8-K', accession: '0001045810-26-000123' }, statement: "Summary written by Invinite from the publication above; not the publisher's text. Source and date above.",
       },
     });
     await createProgram().exitOverride().parseAsync(['node', 'invd', 'news', 'get', '--id', id]);
@@ -470,7 +470,7 @@ describe('the real manifest', () => {
     const text = out.join('\n').replace(/\x1b\[[0-9;]*m/g, '');
     for (const key of ['attribution.publisher', 'attribution.source_url', 'attribution.published_at', 'attribution.edgar.form', 'attribution.edgar.accession', 'attribution.statement']) {
       expect(text.indexOf(key), key).toBeGreaterThanOrEqual(0);
-      expect(text.indexOf(key), key).toBeLessThan(text.indexOf('body_text'));
+      expect(text.indexOf(key), key).toBeLessThan(text.indexOf('summary_text'));
     }
     expect(text).toContain('0001045810-26-000123');
 
@@ -481,5 +481,17 @@ describe('the real manifest', () => {
     await createProgram().exitOverride().parseAsync(['node', 'invd', '--json', '--all', 'news', 'list', '--ticker', 'NVDA']);
     expect(new URL(requestedUrl(2)).searchParams.get('cursor')).toBe('c1');
     expect(JSON.parse(out.join('\n')).items.map((item: { id: string }) => item.id)).toEqual(['id-1', 'id-2']);
+  });
+  it('news follows the 2.0.0 spec: summary blocks, title|lede|summary search, no media commands or flags', () => {
+    const news = createProgram().commands.find(command => command.name() === 'news')!;
+    const action = (name: string) => news.commands.find(command => command.name() === name);
+    expect(action('asset-download')).toBeUndefined();
+    expect(action('list')!.options.map(option => option.long)).not.toContain('--has-media');
+    expect(action('get')!.options.map(option => option.long)).not.toContain('--body');
+    expect(action('search')!.options.find(option => option.long === '--field')!.argChoices).toEqual(['title', 'lede', 'summary', 'any']);
+    const text = loadManifest().operations.find(operation => operation.group === 'news' && operation.action === 'text')!;
+    expect(text.columns).toEqual(['index', 'kind', 'heading', 'text']);
+    const manifest = JSON.stringify(loadManifest());
+    for (const gone of ['asset-download', 'has_media', 'media_count', 'body_text', 'body_html']) expect(manifest, gone).not.toContain(gone);
   });
 });

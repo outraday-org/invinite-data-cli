@@ -1,6 +1,6 @@
 {
   "specVersion": "1.0.0",
-  "specSha256": "2a233abd01d953cf4ae06dc822ac3bfaf7c4c235ece719a23d7948c1d97656e4",
+  "specSha256": "118ae607bfa397dde8e651ff1a871117efa93a2ee92517e781921346bb64db3a",
   "groups": [
     {
       "name": "company",
@@ -601,6 +601,18 @@
             "confirmed"
           ],
           "description": "Filter by `calendar.status` (repeatable), applied beside `status`"
+        },
+        {
+          "name": "include_expired",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "example": "false",
+          "description": "Expired calendar rows (an estimate that never became a call, a duplicate, a non-call issuer; see `expired_reason`) are omitted unless true. Default: false"
         }
       ],
       "view": "table",
@@ -1001,6 +1013,18 @@
           "default": 0,
           "example": 0,
           "description": "Number of events to skip for pagination"
+        },
+        {
+          "name": "include_expired",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "example": "false",
+          "description": "Expired calendar rows (an estimate that never became a call, a duplicate, a non-call issuer; see `expired_reason`) are omitted unless true. Default: false"
         }
       ],
       "view": "table",
@@ -4566,54 +4590,6 @@
       ]
     },
     {
-      "operationId": "newsAssetDownload",
-      "group": "news",
-      "action": "asset-download",
-      "method": "get",
-      "path": "/v1/news/{id}/assets/{asset_id}/download",
-      "auth": true,
-      "summary": "Get a short-lived URL of a news image or file",
-      "params": [
-        {
-          "name": "purpose",
-          "in": "query",
-          "required": false,
-          "type": "string",
-          "enum": [
-            "display",
-            "download"
-          ],
-          "example": "display",
-          "description": "display = an inline URL (an image with `can_display`, or a PDF with `can_download`: viewed in the browser); download = an attachment (`can_download`). Omitted: download when allowed, else display"
-        },
-        {
-          "name": "id",
-          "in": "path",
-          "required": true,
-          "type": "string",
-          "example": "13351ae7-876b-4839-ba2b-78873f6b4e00",
-          "description": "News item id"
-        },
-        {
-          "name": "asset_id",
-          "in": "path",
-          "required": true,
-          "type": "string",
-          "example": "612cd78d-b618-42c6-b3be-ff5c9df1a0f7",
-          "description": "Asset id (`assets[].id` of the item)"
-        }
-      ],
-      "view": "keyValue",
-      "columns": [
-        "purpose",
-        "url",
-        "expires_at",
-        "content_type",
-        "credit"
-      ],
-      "pagination": "none"
-    },
-    {
       "operationId": "newsDevelopments",
       "group": "news",
       "action": "developments",
@@ -4809,18 +4785,6 @@
           "description": "true = only earnings news (results, results dates, call announcements, guidance); false = none of it"
         },
         {
-          "name": "has_media",
-          "in": "query",
-          "required": false,
-          "type": "string",
-          "enum": [
-            "true",
-            "false"
-          ],
-          "example": "true",
-          "description": "true = only items with media you can get now (`media_count` > 0: an original PDF or image to show or download); false = items without"
-        },
-        {
           "name": "publisher",
           "in": "query",
           "required": false,
@@ -4949,12 +4913,13 @@
           "type": "string",
           "enum": [
             "title",
-            "body",
+            "lede",
+            "summary",
             "any"
           ],
           "default": "any",
           "example": "any",
-          "description": "title = headlines and ledes, body = the item text, any = both"
+          "description": "title = headlines, lede = the ledes, summary = the summaries, any = every field"
         },
         {
           "name": "ticker",
@@ -5071,7 +5036,7 @@
       "method": "get",
       "path": "/v1/news/{id}/text",
       "auth": true,
-      "summary": "Get a news item's text in blocks",
+      "summary": "Get a news item's summary in blocks",
       "params": [
         {
           "name": "limit",
@@ -5089,7 +5054,7 @@
           "type": "integer",
           "default": 12000,
           "example": 12000,
-          "description": "Unicode code points per page; a block is never split (the minimum is the largest block)"
+          "description": "Unicode code points per page; a block is never split (the minimum is larger than any block)"
         },
         {
           "name": "cursor",
@@ -5104,7 +5069,7 @@
           "in": "path",
           "required": true,
           "type": "string",
-          "example": "13351ae7-876b-4839-ba2b-78873f6b4e00",
+          "example": "06304274-da4a-400e-9d5c-fb4ce04f01c9",
           "description": "News item id"
         }
       ],

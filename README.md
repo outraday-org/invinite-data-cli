@@ -214,7 +214,7 @@ command. A handful of commands are hand-written because they do more than one ca
 | `segments` | `list`, `list-detailed` |
 | `sec` | Invinite's SEC document store: `filers`, `filer`, `lifecycle`, `issuers`, `filings` (cursor-paged, `form_facet`), `filing` (its document manifest), `document` / `version` (immutable cited blocks, pages, footnotes), `sections`, `figure`, `fact-places`, `search` (`--mode lexical\|literal`, 100 credits), 13F `holders` / `portfolio` / `holding-deltas` / `form-filers`, `financials-catalog` / `statement` / `financial-fact`, `metric-export` / `export`, `datasets`; downloads `save` (originals), `save-figure`, `export-file` |
 | `earnings` | Calendar, events, live calls, transcripts, Q&A, participants, analysts, guidance and KPI extractions, diff, metrics, prosody, price moves during the call, media, documents, search, company IR documents |
-| `news` | News of US companies from SEC filings and their own newsrooms: `list` (cursor-paged), `get` (full text + attribution), `text` (citable blocks), `developments`, `search` (passages; off until the API enables it), `asset-download` |
+| `news` | News of US companies from SEC filings and their own newsrooms: `list` (cursor-paged), `get` (Invinite's summary + attribution), `text` (the summary in citable blocks), `developments`, `search` (passages; off until the API enables it) |
 | `ownership` | 13F holdings by company / investor, institutions, transactions |
 | `insider-trades`, `ipos`, `market`, `metadata` | Insider transactions, IPOs, market holidays, available metric and filing-section ids |
 | `webhooks` | Earnings-call and `news.published` webhook subscriptions |
@@ -321,10 +321,10 @@ narrow its own publications). The list is cursor-paged: `--all` follows `next_ur
 `--cursor` with the same filters; without `--from` / `--to`, `--all` and `next_cursor` page back through the whole history; with either, the window is at most 92 days.
 
 Every item carries `attribution` (publisher, `source_url`, `published_at`, EDGAR form + accession, `statement`):
-wherever you show a headline or text, show its publisher, link and date with it. `news get` (STANDARD) has the
-`body_text` (`content_status: no_text` = headline and link only); `news text` serves it in blocks (a `409
-revision_changed` = the item was corrected; start again without `--cursor`). Process text with an AI model only when
-`model_processing_allowed` is `true`. `news asset-download` returns a URL valid for at most 60 seconds.
+wherever you show a headline or text, show its publisher, link and date with it. `news get` (STANDARD) has Invinite's
+summary of the publication, `summary_text` / `summary_html` (`content_status: no_text` = headline and link only), never
+the publisher's own text; `news text` serves the summary in blocks (a `409 revision_changed` = the item was corrected;
+start again without `--cursor`). `news search --field title|lede|summary|any` picks the searched text.
 
 `earnings transcript` and `news get` also carry the branded PDF of the version (`pdf`, a permanent public URL, or null while
 none exists): `--pdf` prints the URL, `--pdf-out <file>` saves the file (an error without a PDF). `earnings versions` lists

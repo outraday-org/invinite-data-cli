@@ -39,7 +39,7 @@ Use the connected Invinite Data API MCP tools when available. Fall back to the `
 | Company IR documents (annual reports, proxy, ESG, investor-day decks, letters, webcast pages) | `earnings_company_documents`, `earnings_company_document` | `invd earnings company-documents\|document` |
 | Search company documents (passages with page numbers) | `earnings_document_search` | `invd earnings document-search` |
 | Keyword / guidance alerts | `earnings_call_alert_create\|list\|update\|delete\|test\|deliveries` | `invd webhooks …` |
-| News (SEC filings and the companies' own newsrooms; full text with attribution), its text in blocks, AI-read developments | `news_list`, `news_item`, `news_text`, `news_developments`, `news_search` | `invd news list\|get\|text\|developments\|search` (`news asset-download` is CLI-only) |
+| News (SEC filings and the companies' own newsrooms; Invinite's summary with attribution), the summary in blocks, AI-read developments | `news_list`, `news_item`, `news_text`, `news_developments`, `news_search` | `invd news list\|get\|text\|developments\|search` |
 
 The discovery rules below apply to both transports: call `list_available_metrics` before ratios, growth, CAGR, or financial-statement analysis, and call `list_available_section_ids` before requesting filing sections.
 
@@ -153,12 +153,11 @@ invd webhooks deliveries --id <id> --json
 
 `invd news list` (FREE) lists items newest first from SEC EDGAR filings (`rights: public_record`) and the companies' own newsrooms (`rights: issuer`); wire services are never a source. `--ticker` / `--cik` = items that MENTION the company; `--publisher <cik>` = items the company PUBLISHED itself (its verified newsroom publication) — "what did NVIDIA announce" is `--publisher 1045810`, not `--ticker NVDA`. `--publication-type`, `--issuer-category` and `--issuer-tag` narrow the publisher's own publications (the last two need exactly one `--publisher`). Without `--from` / `--to` it pages back through the whole history; with either, the window is at most 92 days. Pages use a cursor, not an offset: `--all` follows `next_url`; by hand pass `next_cursor` as `--cursor` with the same filters.
 
-- **Attribution duty.** Every item carries `attribution` (`publisher`, `source_url`, `published_at`, `edgar.form` + `edgar.accession` for a filing, `statement`). Whenever you quote or show a headline, lede, `body_text` or text block, name the publisher, link `source_url` and give the date (and the form + accession of a filing). The text is the publisher's own words: quote it verbatim, never present it as Invinite's or as verified fact.
-- **Model use.** Process text with an AI model (summaries, extraction) only when the answer's `model_processing_allowed` is `true`; otherwise use the headline, links and attribution only. The MCP tools already withhold the words in that case (`text_withheld`).
-- `invd news get --id <id>` (STANDARD) has `body_text` (`content_status: available`, else `no_text` = headline and link only), `sightings`, `companies`, images / files and up to 20 developments; `invd news text --id <id>` serves the text in citable blocks (a `409 revision_changed` means the item was corrected: restart without `--cursor`). `superseded_by` names a corrected successor.
-- `invd news developments` lists product launches, partnerships, contracts, availability (AI-read from the text, `derived: true`): report `claim_status` as stated (`planned` is a plan, not availability) and cite the `evidence` quotes with the item's attribution.
-- `invd news search -q <keywords>` searches headlines and texts (`-m lexical` keywords, the default; `-m literal` exact characters; `--field title|body|any`; default window 365 days, at most 8 passages). It answers `503 search_disabled` until the API enables it; read `coverage` before concluding from few or no hits, and cite each passage with its item's `attribution`.
-- `invd news asset-download --id <id> --asset-id <asset_id>` returns a URL valid ≤ 60 s (keep the `credit` with the image); never store it.
+- **Attribution duty.** Every item carries `attribution` (`publisher`, `source_url`, `published_at`, `edgar.form` + `edgar.accession` for a filing, `statement`). Whenever you show a headline, lede, `summary_text` or summary block, name the publisher, link `source_url` and give the date (and the form + accession of a filing). The lede, the summary and the developments are Invinite's own wording of the publication (never the publisher's text): present them as a summary of what the publisher stated, not as verified fact, and point to `source_url` for the publisher's own words.
+- **Model use.** `model_processing_allowed` reports the publisher's machine-readable reservation on its ORIGINAL publication; it is informational — every text the API serves (lede, summary, developments) is Invinite's own wording.
+- `invd news get --id <id>` (STANDARD) has Invinite's long summary as `summary_text` / `summary_html` with `summary_words`, `source_words` and `summarized_at` (`content_status: available`, else `no_text` = headline and link only: an item published before summaries started, a metadata-only item or a reserved source), the branded PDF (`pdf`), `sightings`, `companies` and up to 20 developments; `invd news text --id <id>` serves the summary in citable blocks (`index`, `kind` heading / paragraph / list, `heading`, `text`; a `409 revision_changed` means the item was corrected: restart without `--cursor`). `superseded_by` names a corrected successor.
+- `invd news developments` lists product launches, partnerships, contracts, availability (AI-read from the text, `derived: true`): report `claim_status` as stated (`planned` is a plan, not availability) and cite the item's attribution.
+- `invd news search -q <keywords>` searches headlines and texts (`-m lexical` keywords, the default; `-m literal` exact characters; `--field title|lede|summary|any`; default window 365 days, at most 8 passages). It answers `503 search_disabled` until the API enables it; read `coverage` before concluding from few or no hits, and cite each passage with its item's `attribution`.
 - New items as they appear: `invd ws listen --news --tickers NVDA` (STANDARD); a webhook: `"events":["news.published"]` in `invd webhooks create --body` (STANDARD and above, filtered by `ciks`).
 
 ```bash
@@ -215,7 +214,7 @@ Earnings calls: calendar, transcripts, Q&A, extractions, media, search and webho
 # Analysts of a company (optional: --limit, --offset, --all)
 invd earnings analysts -i MSFT --json
 
-# Earnings call calendar (optional: --from, --to, --status, --session, --exchange, --event-type, --sort, --limit, --offset, --date-kind, --calendar-status, --all)
+# Earnings call calendar (optional: --from, --to, --status, --session, --exchange, --event-type, --sort, --limit, --offset, --date-kind, --calendar-status, --include-expired, --all)
 invd earnings calendar --json
 
 # Call-over-call diff (optional: --event-id, --identifier, --year, --quarter, --date, --event-type, --vs)
@@ -227,7 +226,7 @@ invd earnings document-search -q "Azure growth" -i MSFT --json
 # Earnings call by ID (optional: --include)
 invd earnings event --event-id 9655a5db-8968-40be-8c79-7cd1a8aed8e9 --json
 
-# Event history of a company (optional: --from, --to, --include, --event-type, --sort, --limit, --offset, --all)
+# Event history of a company (optional: --from, --to, --include, --event-type, --sort, --limit, --offset, --include-expired, --all)
 invd earnings events -i MSFT --json
 
 # Guidance and KPI extractions (optional: --event-id, --identifier, --year, --quarter, --date, --event-type, --kind, --review, --limit, --offset, --all)
@@ -498,27 +497,24 @@ invd metrics ratios -i AAPL -p annual --json
 News of US companies from SEC filings and their own newsrooms: items, full text with attribution, developments and files
 
 ```bash
-# Get a short-lived URL of a news image or file (optional: --purpose)
-invd news asset-download --id 13351ae7-876b-4839-ba2b-78873f6b4e00 --asset-id 612cd78d-b618-42c6-b3be-ff5c9df1a0f7 --json
-
 # List company developments from news (optional: --publisher, --topic, --item-id, --from, --to, --effective-from, --effective-to, --limit, --cursor, --all)
 invd news developments --json
 
-# List news items (optional: --ticker, --cik, --from, --to, --source, --kind, --topic, --earnings, --has-media, --publisher, --publication-type, --issuer-category, --issuer-tag, --limit, --cursor, --all)
+# List news items (optional: --ticker, --cik, --from, --to, --source, --kind, --topic, --earnings, --publisher, --publication-type, --issuer-category, --issuer-tag, --limit, --cursor, --all)
 invd news list --json
 
 # Search news (optional: --mode, --case-sensitive, --field, --ticker, --cik, --publisher, --publisher-host, --kind, --topic, --from, --to, --limit)
 invd news search -q "data center revenue" -m lexical -t NVDA --json
 
-# Get a news item's text in blocks (optional: --limit, --max-chars, --cursor, --all)
-invd news text --id 13351ae7-876b-4839-ba2b-78873f6b4e00 --json
+# Get a news item's summary in blocks (optional: --limit, --max-chars, --cursor, --all)
+invd news text --id 06304274-da4a-400e-9d5c-fb4ce04f01c9 --json
 ```
 
 <!-- invd:hand:news get -->
 ```bash
-# Get a news item (optional: --body text|html|both); --pdf prints its branded PDF's URL, --pdf-out saves the file
-invd news get --body both --id 13351ae7-876b-4839-ba2b-78873f6b4e00 --json
-invd news get --id 13351ae7-876b-4839-ba2b-78873f6b4e00 --pdf-out item.pdf
+# Get a news item with Invinite's summary; --pdf prints its branded PDF's URL, --pdf-out saves the file
+invd news get --id 06304274-da4a-400e-9d5c-fb4ce04f01c9 --json
+invd news get --id 06304274-da4a-400e-9d5c-fb4ce04f01c9 --pdf-out item.pdf
 ```
 <!-- /invd:hand:news get -->
 
@@ -802,7 +798,7 @@ Ask for the company's own publications (publisher = CIK), then read one in full 
 ```bash
 invd news list --publisher 1045810 --from 2026-10-29 --json         # what NVIDIA published itself
 invd news list --ticker NVDA --source edgar --from 2026-10-29 --json   # SEC filings mentioning NVIDIA
-invd news get --id <id> --json                                        # body_text + attribution
+invd news get --id <id> --json                                        # summary_text + attribution
 invd news developments --publisher 1045810 --topic product_launch --json
 ```
 Answer with the publisher, the date and the link of each item (`attribution`), and keep "announced" / "planned" claims as such.

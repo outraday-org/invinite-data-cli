@@ -50,7 +50,10 @@ async function run(...args: string[]) {
 
 const pdf = () => ({ url: pdfUrl, version: 1, sha256: 'ab', bytes: PDF_BYTES.length, pages: 2, generated_at: '2026-11-01T00:00:00.000Z' });
 
-const newsItem = (value: unknown) => ({ id: ID, title: 'Headline', attribution: { publisher: 'Arm' }, body_text: 'Text', pdf: value });
+const newsItem = (value: unknown) => ({
+  id: ID, title: 'Headline', attribution: { publisher: 'Arm' }, content_status: 'available', summary_words: 420, source_words: 610,
+  summarized_at: '2026-11-07T12:00:00.000Z', summary_text: 'Summary', summary_html: '<p>Summary</p>', pdf: value,
+});
 
 const transcript = (value: unknown) => ({
   event: { symbol: 'FDX' }, version: 2, version_kind: 'final', published_at: '2026-11-01T00:00:00.000Z', qa_start_ms: null, format: 'text', data: 'Words', pdf: value,
@@ -84,13 +87,25 @@ afterEach(async () => {
 });
 
 describe('invd news get', () => {
-  it('prints the item with its attribution and PDF URL, above the body', async () => {
+  it('prints the item with its attribution, summary lengths and PDF URL, above the summary', async () => {
     stubApi(newsItem(pdf()));
-    await run('news', 'get', '--id', ID, '--body', 'text');
+    await run('news', 'get', '--id', ID);
     const text = logs.join('\n').replace(/\x1b\[[0-9;]*m/g, '');
     expect(text.indexOf('attribution.publisher')).toBeGreaterThanOrEqual(0);
-    expect(text.indexOf('pdf.url')).toBeLessThan(text.indexOf('body_text'));
-    expect(String((fetch as any).mock.calls[0][0])).toBe(`https://api.example.com/v1/news/${ID}?body=text`);
+    for (const key of ['content_status', 'summary_words', 'source_words', 'summarized_at', 'pdf.url']) {
+      expect(text.indexOf(key), key).toBeGreaterThanOrEqual(0);
+      expect(text.indexOf(key), key).toBeLessThan(text.indexOf('summary_text'));
+    }
+    expect(text.indexOf('summary_text')).toBeLessThan(text.indexOf('summary_html'));
+    expect(text).not.toContain('body_text');
+    expect(String((fetch as any).mock.calls[0][0])).toBe(`https://api.example.com/v1/news/${ID}`);
+  });
+
+  it('has no --body flag (API 2.0.0 serves the summary only)', async () => {
+    stubApi(newsItem(pdf()));
+    const errors = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    await expect(run('news', 'get', '--id', ID, '--body', 'text')).rejects.toThrow(/unknown option '--body'/);
+    errors.mockRestore();
   });
 
   it('--pdf prints the URL alone, or the note without a PDF', async () => {

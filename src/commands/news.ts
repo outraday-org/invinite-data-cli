@@ -1,4 +1,4 @@
-import { Command, Option } from 'commander';
+import { Command } from 'commander';
 import chalk from 'chalk';
 import { apiGet } from '../client/api-client.js';
 import { printPdfUrl, savePdf } from '../client/pdf.js';
@@ -13,7 +13,10 @@ import { setJsonMode } from '../shared/spinner.js';
  * (`src/hand-written-commands.ts`). Every other `news` action is generated and attached to the same group.
  */
 
-/** The attribution block, then the text it attributes (backend news task 17); the URL above the long text. */
+/**
+ * The attribution block, then Invinite's summary it attributes (backend news summaries task 5, API 2.0.0): the lengths and
+ * the PDF URL above the long text. The publisher's own text is never served.
+ */
 const COLUMNS = [
   'id',
   'published_at',
@@ -21,7 +24,6 @@ const COLUMNS = [
   'kind',
   'source.id',
   'url',
-  'content_status',
   'attribution.publisher',
   'attribution.publisher_host',
   'attribution.source_url',
@@ -30,28 +32,29 @@ const COLUMNS = [
   'attribution.edgar.form',
   'attribution.edgar.accession',
   'attribution.statement',
-  'content_formats',
+  'content_status',
+  'summary_words',
+  'source_words',
+  'summarized_at',
   'pdf.url',
-  'body_text',
-  'body_html',
+  'summary_text',
+  'summary_html',
 ];
 
 export function registerNewsCommands(program: Command): void {
   const news = program.commands.find(command => command.name() === 'news') ?? program.command('news');
 
   news.command('get')
-    .description('Get a news item')
+    .description("Get a news item with Invinite's summary of the publication")
     .requiredOption('--id <id>', 'News item id')
-    .addOption(new Option('--body <form>', 'Which text forms to return: text = body_text (plain, default), html = body_html (sanitized HTML with the images inline) instead, both = both').choices(['text', 'html', 'both']))
     .option('--pdf', 'Print the URL of the branded PDF of this item')
     .option('--pdf-out <file>', 'Save the branded PDF of this item (e.g. item.pdf)')
     .option('--force', 'Overwrite an existing --pdf-out file')
-    .action(withErrorHandling(async (cmdOpts: { id: string; body?: string; pdf?: boolean; pdfOut?: string; force?: boolean }) => {
+    .action(withErrorHandling(async (cmdOpts: { id: string; pdf?: boolean; pdfOut?: string; force?: boolean }) => {
       const opts = program.opts();
       if (opts.json) setJsonMode(true);
       const data = await apiGet<Record<string, any>>({
         path: `/v1/news/${encodeURIComponent(cmdOpts.id)}`,
-        params: { body: cmdOpts.body },
       });
       const saved = await savePdf(data.pdf, cmdOpts, 'Downloading news PDF...');
       output(data, opts, () => {

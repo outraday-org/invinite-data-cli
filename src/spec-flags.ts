@@ -8,7 +8,7 @@ export const RESERVED_FLAGS: readonly string[] = ['json', 'all', 'show-cost', 'v
 
 /**
  * The JSON-body flags `defineOperationCommand` adds to an operation WITH a request body only: a body-less read may
- * name a parameter `body` (`GET /v1/news/{id}?body=html` → `invd news get --body html`).
+ * name a parameter `body` (a `GET …?body=html` would become `--body html`).
  */
 export const BODY_FLAGS: readonly string[] = ['body', 'body-file'];
 

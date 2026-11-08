@@ -44,7 +44,7 @@ Common multi-step patterns:
 - **Comparative analysis**: metadata metrics (first) + financials snapshot with multiple tickers + metrics ratios for each
 - **Earnings call review**: earnings events (first, for the `event_id`) → then in parallel press-release + extractions `--kind guidance` + extractions `--kind kpi` + qa + diff (+ optionally price-attribution: minute price moves next to what was said — temporal coincidence, not cause)
 - **Guidance tracking**: earnings guidance-history `--metric <metric>` across calls + extractions of the latest call
-- **Company announcements**: news list `--publisher <cik>` (what the company published itself; `--ticker` = items mentioning it) → news get `--id <id>` for `body_text` + news developments `--publisher <cik>`; keep each item's `attribution` (publisher, `source_url`, `published_at`, EDGAR form + accession) in the results so the caller can cite it
+- **Company announcements**: news list `--publisher <cik>` (what the company published itself; `--ticker` = items mentioning it) → news get `--id <id>` for `summary_text` (Invinite's summary) + news developments `--publisher <cik>`; keep each item's `attribution` (publisher, `source_url`, `published_at`, EDGAR form + accession) in the results so the caller can cite it
 
 ## Output format
 
