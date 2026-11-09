@@ -275,6 +275,15 @@
             "nullable": true,
             "description": "Numeric value for the metric (if available)"
           },
+          "derived": {
+            "type": "boolean",
+            "description": "Set with `value`: true when Invinite computed the value (Q4, TTM or YTD derivation), false = the company reported it"
+          },
+          "company_label": {
+            "type": "string",
+            "nullable": true,
+            "description": "Set with `value`: the company's own caption of the line item (null when not extracted)"
+          },
           "depth": {
             "type": "integer",
             "description": "Depth level in the tree structure (0 for root items)"
@@ -297,6 +306,190 @@
           "depth"
         ],
         "title": "PresentationFact"
+      },
+      "AsReportedFact": {
+        "type": "object",
+        "required": [
+          "value",
+          "derived"
+        ],
+        "properties": {
+          "value": {
+            "type": "number",
+            "description": "Fact value (as filed unless `display_sign=cash_flow_direction`)"
+          },
+          "derived": {
+            "type": "boolean",
+            "description": "true when Invinite computed the value (a Q4, TTM or YTD derivation; `formula` on the detailed route names its members); false = the company reported it"
+          }
+        },
+        "title": "AsReportedFact"
+      },
+      "AsReportedDetailedFact": {
+        "type": "object",
+        "required": [
+          "value",
+          "derived",
+          "label",
+          "company_label",
+          "decimals",
+          "accession_number",
+          "html_tag_id"
+        ],
+        "properties": {
+          "value": {
+            "type": "number",
+            "description": "Fact value (as filed unless `display_sign=cash_flow_direction`)"
+          },
+          "derived": {
+            "type": "boolean",
+            "description": "true when Invinite computed the value (a Q4, TTM or YTD derivation, see `formula`); false = the company reported it"
+          },
+          "label": {
+            "type": "string",
+            "nullable": true,
+            "description": "The concept's taxonomy label"
+          },
+          "company_label": {
+            "type": "string",
+            "nullable": true,
+            "description": "The company's own caption of the line item in the filing (null when it was not extracted)"
+          },
+          "decimals": {
+            "type": "integer",
+            "nullable": true,
+            "description": "XBRL decimals of the reported fact (-6 = rounded to millions); null = exact (INF) or not stated. A derived fact carries its source fact's"
+          },
+          "formula": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "formulaStr": {
+                "type": "string",
+                "description": "Readable formula string"
+              },
+              "members": {
+                "type": "array",
+                "description": "Metrics used in the formula",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "description": "Reported formula member",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "reported"
+                          ],
+                          "description": "Member type"
+                        },
+                        "value": {
+                          "type": "number",
+                          "description": "Value of the member"
+                        },
+                        "concept": {
+                          "type": "string",
+                          "description": "Financial concept"
+                        },
+                        "start_date": {
+                          "type": "string",
+                          "format": "date",
+                          "nullable": true,
+                          "description": "Start date (YYYY-MM-DD)"
+                        },
+                        "end_date": {
+                          "type": "string",
+                          "format": "date",
+                          "nullable": true,
+                          "description": "End date (YYYY-MM-DD)"
+                        },
+                        "instant_date": {
+                          "type": "string",
+                          "format": "date",
+                          "nullable": true,
+                          "description": "Instant date (YYYY-MM-DD)"
+                        },
+                        "segment": {
+                          "type": "object",
+                          "nullable": true,
+                          "additionalProperties": true,
+                          "description": "Segment information"
+                        },
+                        "fiscal_period_type": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "Fiscal period type"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "value",
+                        "concept"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "description": "Standardized formula member",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "standardized"
+                          ],
+                          "description": "Member type"
+                        },
+                        "value": {
+                          "type": "number",
+                          "description": "Value of the member"
+                        },
+                        "metric_id": {
+                          "type": "string",
+                          "description": "Standardized metric ID"
+                        },
+                        "fiscal_period_type": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "Fiscal period type"
+                        },
+                        "fiscal_year": {
+                          "type": "integer",
+                          "nullable": true,
+                          "description": "Fiscal year"
+                        },
+                        "fiscal_quarter": {
+                          "type": "integer",
+                          "nullable": true,
+                          "description": "Fiscal quarter"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "value",
+                        "metric_id"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "formulaStr",
+              "members"
+            ]
+          },
+          "accession_number": {
+            "type": "string",
+            "nullable": true,
+            "description": "Accession number of the filing that holds the value"
+          },
+          "html_tag_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "Anchor of the fact in the filing's HTML (null on a derived fact)"
+          }
+        },
+        "title": "AsReportedDetailedFact"
       },
       "StandardizedPresentationFact": {
         "type": "object",
@@ -8097,6 +8290,21 @@
             "required": false,
             "description": "Number of periods to skip for pagination",
             "example": 0
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "default": "false"
+            },
+            "in": "query",
+            "name": "reported_only",
+            "required": false,
+            "description": "`true`: only the facts the company reported (`derived: false`); the pipeline's derived Q4 / TTM / YTD values are left out",
+            "example": "true"
           }
         ],
         "security": [
@@ -8189,8 +8397,7 @@
                                 "facts": {
                                   "type": "object",
                                   "additionalProperties": {
-                                    "type": "number",
-                                    "description": "Numeric fact value"
+                                    "$ref": "#/components/schemas/AsReportedFact"
                                   },
                                   "description": "As-reported facts keyed by concept"
                                 }
@@ -8220,21 +8427,66 @@
                           "fiscal_period_type": "annual",
                           "period_end": "2026-09-26",
                           "facts": {
-                            "RevenueFromContractWithCustomerExcludingAssessedTax": 478834000000,
-                            "CostOfGoodsAndServicesSold": 245232000000,
-                            "GrossProfit": 233602000000,
-                            "ResearchAndDevelopmentExpense": 45765000000,
-                            "SellingGeneralAndAdministrativeExpense": 29774000000,
-                            "OperatingExpenses": 75539000000,
-                            "OperatingIncomeLoss": 158063000000,
-                            "NonoperatingIncomeExpense": 1174000000,
-                            "IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest": 159237000000,
-                            "IncomeTaxExpenseBenefit": 27062000000,
-                            "NetIncomeLoss": 132175000000,
-                            "EarningsPerShareBasic": 9.01,
-                            "EarningsPerShareDiluted": 8.98,
-                            "WeightedAverageNumberOfSharesOutstandingBasic": 14661935000,
-                            "WeightedAverageNumberOfDilutedSharesOutstanding": 14720306000
+                            "RevenueFromContractWithCustomerExcludingAssessedTax": {
+                              "value": 478834000000,
+                              "derived": false
+                            },
+                            "CostOfGoodsAndServicesSold": {
+                              "value": 245232000000,
+                              "derived": false
+                            },
+                            "GrossProfit": {
+                              "value": 233602000000,
+                              "derived": false
+                            },
+                            "ResearchAndDevelopmentExpense": {
+                              "value": 45765000000,
+                              "derived": false
+                            },
+                            "SellingGeneralAndAdministrativeExpense": {
+                              "value": 29774000000,
+                              "derived": false
+                            },
+                            "OperatingExpenses": {
+                              "value": 75539000000,
+                              "derived": false
+                            },
+                            "OperatingIncomeLoss": {
+                              "value": 158063000000,
+                              "derived": false
+                            },
+                            "NonoperatingIncomeExpense": {
+                              "value": 1174000000,
+                              "derived": false
+                            },
+                            "IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest": {
+                              "value": 159237000000,
+                              "derived": false
+                            },
+                            "IncomeTaxExpenseBenefit": {
+                              "value": 27062000000,
+                              "derived": false
+                            },
+                            "NetIncomeLoss": {
+                              "value": 132175000000,
+                              "derived": false
+                            },
+                            "EarningsPerShareBasic": {
+                              "value": 9.01,
+                              "derived": false
+                            },
+                            "EarningsPerShareDiluted": {
+                              "value": 8.98,
+                              "derived": false
+                            },
+                            "WeightedAverageNumberOfSharesOutstandingBasic": {
+                              "value": 14661935000,
+                              "derived": false
+                            },
+                            "WeightedAverageNumberOfDilutedSharesOutstanding": {
+                              "value": 14720306000,
+                              "derived": false
+                            }
                           }
                         }
                       ],
@@ -8270,7 +8522,7 @@
         "tags": [
           "As-Reported Income Statement"
         ],
-        "description": "Fetch detailed as-reported income statement data with html_label, formula, accession number, and html tag info. Minimum tier for redistribute: PRO.",
+        "description": "Fetch detailed as-reported income statement data with derived flag, taxonomy and company labels, decimals, accession number, html tag id and optional formula. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -8350,7 +8602,22 @@
             "in": "query",
             "name": "with_formula",
             "required": false,
-            "description": "Include formula in response",
+            "description": "Include each derived fact's formula (its members and their values)",
+            "example": "true"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "default": "false"
+            },
+            "in": "query",
+            "name": "reported_only",
+            "required": false,
+            "description": "`true`: only the facts the company reported (`derived: false`); the pipeline's derived Q4 / TTM / YTD values are left out",
             "example": "true"
           }
         ],
@@ -8444,142 +8711,7 @@
                                 "facts": {
                                   "type": "object",
                                   "additionalProperties": {
-                                    "type": "object",
-                                    "properties": {
-                                      "value": {
-                                        "type": "number"
-                                      },
-                                      "html_label": {
-                                        "type": "string",
-                                        "nullable": true
-                                      },
-                                      "formula": {
-                                        "type": "object",
-                                        "nullable": true,
-                                        "properties": {
-                                          "formulaStr": {
-                                            "type": "string",
-                                            "description": "Readable formula string"
-                                          },
-                                          "members": {
-                                            "type": "array",
-                                            "description": "Metrics used in the formula",
-                                            "items": {
-                                              "oneOf": [
-                                                {
-                                                  "type": "object",
-                                                  "description": "Reported formula member",
-                                                  "properties": {
-                                                    "type": {
-                                                      "type": "string",
-                                                      "enum": [
-                                                        "reported"
-                                                      ],
-                                                      "description": "Member type"
-                                                    },
-                                                    "value": {
-                                                      "type": "number",
-                                                      "description": "Value of the member"
-                                                    },
-                                                    "concept": {
-                                                      "type": "string",
-                                                      "description": "Financial concept"
-                                                    },
-                                                    "start_date": {
-                                                      "type": "string",
-                                                      "format": "date",
-                                                      "nullable": true,
-                                                      "description": "Start date (YYYY-MM-DD)"
-                                                    },
-                                                    "end_date": {
-                                                      "type": "string",
-                                                      "format": "date",
-                                                      "nullable": true,
-                                                      "description": "End date (YYYY-MM-DD)"
-                                                    },
-                                                    "instant_date": {
-                                                      "type": "string",
-                                                      "format": "date",
-                                                      "nullable": true,
-                                                      "description": "Instant date (YYYY-MM-DD)"
-                                                    },
-                                                    "segment": {
-                                                      "type": "object",
-                                                      "nullable": true,
-                                                      "additionalProperties": true,
-                                                      "description": "Segment information"
-                                                    },
-                                                    "fiscal_period_type": {
-                                                      "type": "string",
-                                                      "nullable": true,
-                                                      "description": "Fiscal period type"
-                                                    }
-                                                  },
-                                                  "required": [
-                                                    "type",
-                                                    "value",
-                                                    "concept"
-                                                  ]
-                                                },
-                                                {
-                                                  "type": "object",
-                                                  "description": "Standardized formula member",
-                                                  "properties": {
-                                                    "type": {
-                                                      "type": "string",
-                                                      "enum": [
-                                                        "standardized"
-                                                      ],
-                                                      "description": "Member type"
-                                                    },
-                                                    "value": {
-                                                      "type": "number",
-                                                      "description": "Value of the member"
-                                                    },
-                                                    "metric_id": {
-                                                      "type": "string",
-                                                      "description": "Standardized metric ID"
-                                                    },
-                                                    "fiscal_period_type": {
-                                                      "type": "string",
-                                                      "nullable": true,
-                                                      "description": "Fiscal period type"
-                                                    },
-                                                    "fiscal_year": {
-                                                      "type": "integer",
-                                                      "nullable": true,
-                                                      "description": "Fiscal year"
-                                                    },
-                                                    "fiscal_quarter": {
-                                                      "type": "integer",
-                                                      "nullable": true,
-                                                      "description": "Fiscal quarter"
-                                                    }
-                                                  },
-                                                  "required": [
-                                                    "type",
-                                                    "value",
-                                                    "metric_id"
-                                                  ]
-                                                }
-                                              ]
-                                            }
-                                          }
-                                        },
-                                        "required": [
-                                          "formulaStr",
-                                          "members"
-                                        ]
-                                      },
-                                      "accession_number": {
-                                        "type": "string",
-                                        "nullable": true
-                                      },
-                                      "html_tag_id": {
-                                        "type": "string",
-                                        "nullable": true
-                                      }
-                                    }
+                                    "$ref": "#/components/schemas/AsReportedDetailedFact"
                                   }
                                 }
                               }
@@ -8610,91 +8742,136 @@
                           "facts": {
                             "RevenueFromContractWithCustomerExcludingAssessedTax": {
                               "value": 478834000000,
-                              "html_label": "Net sales",
+                              "derived": false,
+                              "label": "Net sales",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-76"
                             },
                             "CostOfGoodsAndServicesSold": {
                               "value": 245232000000,
-                              "html_label": "Cost of sales",
+                              "derived": false,
+                              "label": "Cost of sales",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-85"
                             },
                             "GrossProfit": {
                               "value": 233602000000,
-                              "html_label": "Gross margin",
+                              "derived": false,
+                              "label": "Gross margin",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-88"
                             },
                             "ResearchAndDevelopmentExpense": {
                               "value": 45765000000,
-                              "html_label": "Research and development",
+                              "derived": false,
+                              "label": "Research and development",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-91"
                             },
                             "SellingGeneralAndAdministrativeExpense": {
                               "value": 29774000000,
-                              "html_label": "Selling, general and administrative",
+                              "derived": false,
+                              "label": "Selling, general and administrative",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-94"
                             },
                             "OperatingExpenses": {
                               "value": 75539000000,
-                              "html_label": "Total operating expenses",
+                              "derived": false,
+                              "label": "Total operating expenses",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-97"
                             },
                             "OperatingIncomeLoss": {
                               "value": 158063000000,
-                              "html_label": "Operating income",
+                              "derived": false,
+                              "label": "Operating income",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-100"
                             },
                             "NonoperatingIncomeExpense": {
                               "value": 1174000000,
-                              "html_label": "Other income/(expense), net",
+                              "derived": false,
+                              "label": "Other income/(expense), net",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-103"
                             },
                             "IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest": {
                               "value": 159237000000,
-                              "html_label": "Income before provision for income taxes",
+                              "derived": false,
+                              "label": "Income before provision for income taxes",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-106"
                             },
                             "IncomeTaxExpenseBenefit": {
                               "value": 27062000000,
-                              "html_label": "Provision for income taxes",
+                              "derived": false,
+                              "label": "Provision for income taxes",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-109"
                             },
                             "NetIncomeLoss": {
                               "value": 132175000000,
-                              "html_label": "Net income",
+                              "derived": false,
+                              "label": "Net income",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-112"
                             },
                             "EarningsPerShareBasic": {
                               "value": 9.01,
-                              "html_label": "Basic (in dollars per share)",
+                              "derived": false,
+                              "label": "Basic (in dollars per share)",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-115"
                             },
                             "EarningsPerShareDiluted": {
                               "value": 8.98,
-                              "html_label": "Diluted (in dollars per share)",
+                              "derived": false,
+                              "label": "Diluted (in dollars per share)",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-118"
                             },
                             "WeightedAverageNumberOfSharesOutstandingBasic": {
                               "value": 14661935000,
-                              "html_label": "Basic (in shares)",
+                              "derived": false,
+                              "label": "Basic (in shares)",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-121"
                             },
                             "WeightedAverageNumberOfDilutedSharesOutstanding": {
                               "value": 14720306000,
-                              "html_label": "Diluted (in shares)",
+                              "derived": false,
+                              "label": "Diluted (in shares)",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-124"
                             }
@@ -8800,6 +8977,21 @@
             "required": false,
             "description": "Number of periods to skip for pagination",
             "example": 0
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "default": "false"
+            },
+            "in": "query",
+            "name": "reported_only",
+            "required": false,
+            "description": "`true`: only the facts the company reported (`derived: false`); the pipeline's derived Q4 / TTM / YTD values are left out",
+            "example": "true"
           }
         ],
         "security": [
@@ -8925,7 +9117,9 @@
                               "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
                               "label": "Net sales",
                               "depth": 0,
-                              "value": 478834000000
+                              "value": 478834000000,
+                              "derived": false,
+                              "company_label": null
                             }
                           ]
                         }
@@ -9029,6 +9223,21 @@
             "required": false,
             "description": "Number of periods to skip for pagination",
             "example": 0
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "default": "false"
+            },
+            "in": "query",
+            "name": "reported_only",
+            "required": false,
+            "description": "`true`: only the facts the company reported (`derived: false`); the pipeline's derived Q4 / TTM / YTD values are left out",
+            "example": "true"
           }
         ],
         "security": [
@@ -9121,8 +9330,7 @@
                                 "facts": {
                                   "type": "object",
                                   "additionalProperties": {
-                                    "type": "number",
-                                    "description": "Numeric fact value"
+                                    "$ref": "#/components/schemas/AsReportedFact"
                                   },
                                   "description": "As-reported facts keyed by concept"
                                 }
@@ -9152,18 +9360,54 @@
                           "fiscal_period_type": "annual",
                           "period_end": "2026-09-26",
                           "facts": {
-                            "CashAndCashEquivalentsAtCarryingValue": 36305000000,
-                            "MarketableSecuritiesCurrent": 20417000000,
-                            "AccountsReceivableNetCurrent": 43817000000,
-                            "NontradeReceivablesCurrent": 39896000000,
-                            "InventoryNet": 14541000000,
-                            "OtherAssetsCurrent": 18881000000,
-                            "AssetsCurrent": 173857000000,
-                            "MarketableSecuritiesNoncurrent": 80213000000,
-                            "PropertyPlantAndEquipmentNet": 52084000000,
-                            "IntangibleAssetExcludingGoodwillAfterAccumulatedAmortizationNoncurrent": 20278000000,
-                            "OtherAssetsNoncurrent": 78116000000,
-                            "AssetsNoncurrent": 230691000000
+                            "CashAndCashEquivalentsAtCarryingValue": {
+                              "value": 36305000000,
+                              "derived": false
+                            },
+                            "MarketableSecuritiesCurrent": {
+                              "value": 20417000000,
+                              "derived": false
+                            },
+                            "AccountsReceivableNetCurrent": {
+                              "value": 43817000000,
+                              "derived": false
+                            },
+                            "NontradeReceivablesCurrent": {
+                              "value": 39896000000,
+                              "derived": false
+                            },
+                            "InventoryNet": {
+                              "value": 14541000000,
+                              "derived": false
+                            },
+                            "OtherAssetsCurrent": {
+                              "value": 18881000000,
+                              "derived": false
+                            },
+                            "AssetsCurrent": {
+                              "value": 173857000000,
+                              "derived": false
+                            },
+                            "MarketableSecuritiesNoncurrent": {
+                              "value": 80213000000,
+                              "derived": false
+                            },
+                            "PropertyPlantAndEquipmentNet": {
+                              "value": 52084000000,
+                              "derived": false
+                            },
+                            "IntangibleAssetExcludingGoodwillAfterAccumulatedAmortizationNoncurrent": {
+                              "value": 20278000000,
+                              "derived": false
+                            },
+                            "OtherAssetsNoncurrent": {
+                              "value": 78116000000,
+                              "derived": false
+                            },
+                            "AssetsNoncurrent": {
+                              "value": 230691000000,
+                              "derived": false
+                            }
                           }
                         }
                       ],
@@ -9199,7 +9443,7 @@
         "tags": [
           "As-Reported Balance Sheet"
         ],
-        "description": "Fetch detailed as-reported balance sheet data with html_label, formula, accession number, and html tag info. Minimum tier for redistribute: PRO.",
+        "description": "Fetch detailed as-reported balance sheet data with derived flag, taxonomy and company labels, decimals, accession number, html tag id and optional formula. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -9279,7 +9523,22 @@
             "in": "query",
             "name": "with_formula",
             "required": false,
-            "description": "Include formula in response",
+            "description": "Include each derived fact's formula (its members and their values)",
+            "example": "true"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "default": "false"
+            },
+            "in": "query",
+            "name": "reported_only",
+            "required": false,
+            "description": "`true`: only the facts the company reported (`derived: false`); the pipeline's derived Q4 / TTM / YTD values are left out",
             "example": "true"
           }
         ],
@@ -9373,142 +9632,7 @@
                                 "facts": {
                                   "type": "object",
                                   "additionalProperties": {
-                                    "type": "object",
-                                    "properties": {
-                                      "value": {
-                                        "type": "number"
-                                      },
-                                      "html_label": {
-                                        "type": "string",
-                                        "nullable": true
-                                      },
-                                      "formula": {
-                                        "type": "object",
-                                        "nullable": true,
-                                        "properties": {
-                                          "formulaStr": {
-                                            "type": "string",
-                                            "description": "Readable formula string"
-                                          },
-                                          "members": {
-                                            "type": "array",
-                                            "description": "Metrics used in the formula",
-                                            "items": {
-                                              "oneOf": [
-                                                {
-                                                  "type": "object",
-                                                  "description": "Reported formula member",
-                                                  "properties": {
-                                                    "type": {
-                                                      "type": "string",
-                                                      "enum": [
-                                                        "reported"
-                                                      ],
-                                                      "description": "Member type"
-                                                    },
-                                                    "value": {
-                                                      "type": "number",
-                                                      "description": "Value of the member"
-                                                    },
-                                                    "concept": {
-                                                      "type": "string",
-                                                      "description": "Financial concept"
-                                                    },
-                                                    "start_date": {
-                                                      "type": "string",
-                                                      "format": "date",
-                                                      "nullable": true,
-                                                      "description": "Start date (YYYY-MM-DD)"
-                                                    },
-                                                    "end_date": {
-                                                      "type": "string",
-                                                      "format": "date",
-                                                      "nullable": true,
-                                                      "description": "End date (YYYY-MM-DD)"
-                                                    },
-                                                    "instant_date": {
-                                                      "type": "string",
-                                                      "format": "date",
-                                                      "nullable": true,
-                                                      "description": "Instant date (YYYY-MM-DD)"
-                                                    },
-                                                    "segment": {
-                                                      "type": "object",
-                                                      "nullable": true,
-                                                      "additionalProperties": true,
-                                                      "description": "Segment information"
-                                                    },
-                                                    "fiscal_period_type": {
-                                                      "type": "string",
-                                                      "nullable": true,
-                                                      "description": "Fiscal period type"
-                                                    }
-                                                  },
-                                                  "required": [
-                                                    "type",
-                                                    "value",
-                                                    "concept"
-                                                  ]
-                                                },
-                                                {
-                                                  "type": "object",
-                                                  "description": "Standardized formula member",
-                                                  "properties": {
-                                                    "type": {
-                                                      "type": "string",
-                                                      "enum": [
-                                                        "standardized"
-                                                      ],
-                                                      "description": "Member type"
-                                                    },
-                                                    "value": {
-                                                      "type": "number",
-                                                      "description": "Value of the member"
-                                                    },
-                                                    "metric_id": {
-                                                      "type": "string",
-                                                      "description": "Standardized metric ID"
-                                                    },
-                                                    "fiscal_period_type": {
-                                                      "type": "string",
-                                                      "nullable": true,
-                                                      "description": "Fiscal period type"
-                                                    },
-                                                    "fiscal_year": {
-                                                      "type": "integer",
-                                                      "nullable": true,
-                                                      "description": "Fiscal year"
-                                                    },
-                                                    "fiscal_quarter": {
-                                                      "type": "integer",
-                                                      "nullable": true,
-                                                      "description": "Fiscal quarter"
-                                                    }
-                                                  },
-                                                  "required": [
-                                                    "type",
-                                                    "value",
-                                                    "metric_id"
-                                                  ]
-                                                }
-                                              ]
-                                            }
-                                          }
-                                        },
-                                        "required": [
-                                          "formulaStr",
-                                          "members"
-                                        ]
-                                      },
-                                      "accession_number": {
-                                        "type": "string",
-                                        "nullable": true
-                                      },
-                                      "html_tag_id": {
-                                        "type": "string",
-                                        "nullable": true
-                                      }
-                                    }
+                                    "$ref": "#/components/schemas/AsReportedDetailedFact"
                                   }
                                 }
                               }
@@ -9539,73 +9663,109 @@
                           "facts": {
                             "CashAndCashEquivalentsAtCarryingValue": {
                               "value": 36305000000,
-                              "html_label": "Cash and cash equivalents",
+                              "derived": false,
+                              "label": "Cash and cash equivalents",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-157"
                             },
                             "MarketableSecuritiesCurrent": {
                               "value": 20417000000,
-                              "html_label": "Marketable securities",
+                              "derived": false,
+                              "label": "Marketable securities",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-159"
                             },
                             "AccountsReceivableNetCurrent": {
                               "value": 43817000000,
-                              "html_label": "Accounts receivable, net",
+                              "derived": false,
+                              "label": "Accounts receivable, net",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-161"
                             },
                             "NontradeReceivablesCurrent": {
                               "value": 39896000000,
-                              "html_label": "Vendor non-trade receivables",
+                              "derived": false,
+                              "label": "Vendor non-trade receivables",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-163"
                             },
                             "InventoryNet": {
                               "value": 14541000000,
-                              "html_label": "Inventories",
+                              "derived": false,
+                              "label": "Inventories",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-165"
                             },
                             "OtherAssetsCurrent": {
                               "value": 18881000000,
-                              "html_label": "Other current assets",
+                              "derived": false,
+                              "label": "Other current assets",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-167"
                             },
                             "AssetsCurrent": {
                               "value": 173857000000,
-                              "html_label": "Total current assets",
+                              "derived": false,
+                              "label": "Total current assets",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-169"
                             },
                             "MarketableSecuritiesNoncurrent": {
                               "value": 80213000000,
-                              "html_label": "Marketable securities",
+                              "derived": false,
+                              "label": "Marketable securities",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-171"
                             },
                             "PropertyPlantAndEquipmentNet": {
                               "value": 52084000000,
-                              "html_label": "Property, plant and equipment, net",
+                              "derived": false,
+                              "label": "Property, plant and equipment, net",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-173"
                             },
                             "IntangibleAssetExcludingGoodwillAfterAccumulatedAmortizationNoncurrent": {
                               "value": 20278000000,
-                              "html_label": "Non-current portion of intangible assets",
+                              "derived": false,
+                              "label": "Non-current portion of intangible assets",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-175"
                             },
                             "OtherAssetsNoncurrent": {
                               "value": 78116000000,
-                              "html_label": "Other non-current assets",
+                              "derived": false,
+                              "label": "Other non-current assets",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-177"
                             },
                             "AssetsNoncurrent": {
                               "value": 230691000000,
-                              "html_label": "Total non-current assets",
+                              "derived": false,
+                              "label": "Total non-current assets",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-179"
                             }
@@ -9711,6 +9871,21 @@
             "required": false,
             "description": "Number of periods to skip for pagination",
             "example": 0
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "default": "false"
+            },
+            "in": "query",
+            "name": "reported_only",
+            "required": false,
+            "description": "`true`: only the facts the company reported (`derived: false`); the pipeline's derived Q4 / TTM / YTD values are left out",
+            "example": "true"
           }
         ],
         "security": [
@@ -9846,7 +10021,9 @@
                                       "concept": "CashAndCashEquivalentsAtCarryingValue",
                                       "label": "Cash and cash equivalents",
                                       "depth": 2,
-                                      "value": 36305000000
+                                      "value": 36305000000,
+                                      "derived": false,
+                                      "company_label": null
                                     }
                                   ]
                                 }
@@ -9954,6 +10131,36 @@
             "required": false,
             "description": "Number of periods to skip for pagination",
             "example": 0
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "default": "false"
+            },
+            "in": "query",
+            "name": "reported_only",
+            "required": false,
+            "description": "`true`: only the facts the company reported (`derived: false`); the pipeline's derived Q4 / TTM / YTD values are left out",
+            "example": "true"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "as_filed",
+                "cash_flow_direction"
+              ],
+              "default": "as_filed"
+            },
+            "in": "query",
+            "name": "display_sign",
+            "required": false,
+            "description": "Sign of cash-flow facts. `as_filed` (default): the value as the company tagged it in XBRL. `cash_flow_direction`: a credit-balance cash-flow fact (outside the supplemental disclosures) is negated so outflows read negative. Standardized cash-flow metrics already carry one sign per metric (outflows negative, capital expenditures positive).",
+            "example": "as_filed"
           }
         ],
         "security": [
@@ -10046,8 +10253,7 @@
                                 "facts": {
                                   "type": "object",
                                   "additionalProperties": {
-                                    "type": "number",
-                                    "description": "Numeric fact value"
+                                    "$ref": "#/components/schemas/AsReportedFact"
                                   },
                                   "description": "As-reported facts keyed by concept"
                                 }
@@ -10077,18 +10283,54 @@
                           "fiscal_period_type": "annual",
                           "period_end": "2026-09-26",
                           "facts": {
-                            "NetIncomeLoss": 132175000000,
-                            "DepreciationDepletionAndAmortization": 13423000000,
-                            "ShareBasedCompensation": 13789000000,
-                            "OtherNoncashIncomeExpense": 568000000,
-                            "IncreaseDecreaseInAccountsReceivable": -3994000000,
-                            "IncreaseDecreaseInOtherReceivables": -6716000000,
-                            "IncreaseDecreaseInInventories": -8905000000,
-                            "IncreaseDecreaseInOtherOperatingAssets": -21117000000,
-                            "IncreaseDecreaseInAccountsPayable": 12171000000,
-                            "IncreaseDecreaseInOtherOperatingLiabilities": 13703000000,
-                            "NetCashProvidedByUsedInOperatingActivities": 145097000000,
-                            "PaymentsToAcquireAvailableForSaleSecuritiesDebt": -54945000000
+                            "NetIncomeLoss": {
+                              "value": 132175000000,
+                              "derived": false
+                            },
+                            "DepreciationDepletionAndAmortization": {
+                              "value": 13423000000,
+                              "derived": false
+                            },
+                            "ShareBasedCompensation": {
+                              "value": 13789000000,
+                              "derived": false
+                            },
+                            "OtherNoncashIncomeExpense": {
+                              "value": -568000000,
+                              "derived": false
+                            },
+                            "IncreaseDecreaseInAccountsReceivable": {
+                              "value": 3994000000,
+                              "derived": false
+                            },
+                            "IncreaseDecreaseInOtherReceivables": {
+                              "value": 6716000000,
+                              "derived": false
+                            },
+                            "IncreaseDecreaseInInventories": {
+                              "value": 8905000000,
+                              "derived": false
+                            },
+                            "IncreaseDecreaseInOtherOperatingAssets": {
+                              "value": 21117000000,
+                              "derived": false
+                            },
+                            "IncreaseDecreaseInAccountsPayable": {
+                              "value": 12171000000,
+                              "derived": false
+                            },
+                            "IncreaseDecreaseInOtherOperatingLiabilities": {
+                              "value": 13703000000,
+                              "derived": false
+                            },
+                            "NetCashProvidedByUsedInOperatingActivities": {
+                              "value": 145097000000,
+                              "derived": false
+                            },
+                            "PaymentsToAcquireAvailableForSaleSecuritiesDebt": {
+                              "value": 54945000000,
+                              "derived": false
+                            }
                           }
                         }
                       ],
@@ -10124,7 +10366,7 @@
         "tags": [
           "As-Reported Cash Flow Statement"
         ],
-        "description": "Fetch detailed as-reported cash flow statement data with html_label, formula, accession number, and html tag info. Minimum tier for redistribute: PRO.",
+        "description": "Fetch detailed as-reported cash flow statement data with derived flag, taxonomy and company labels, decimals, accession number, html tag id and optional formula. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -10204,8 +10446,38 @@
             "in": "query",
             "name": "with_formula",
             "required": false,
-            "description": "Include formula in response",
+            "description": "Include each derived fact's formula (its members and their values)",
             "example": "true"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "default": "false"
+            },
+            "in": "query",
+            "name": "reported_only",
+            "required": false,
+            "description": "`true`: only the facts the company reported (`derived: false`); the pipeline's derived Q4 / TTM / YTD values are left out",
+            "example": "true"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "as_filed",
+                "cash_flow_direction"
+              ],
+              "default": "as_filed"
+            },
+            "in": "query",
+            "name": "display_sign",
+            "required": false,
+            "description": "Sign of cash-flow facts. `as_filed` (default): the value as the company tagged it in XBRL. `cash_flow_direction`: a credit-balance cash-flow fact (outside the supplemental disclosures) is negated so outflows read negative. Standardized cash-flow metrics already carry one sign per metric (outflows negative, capital expenditures positive).",
+            "example": "as_filed"
           }
         ],
         "security": [
@@ -10298,142 +10570,7 @@
                                 "facts": {
                                   "type": "object",
                                   "additionalProperties": {
-                                    "type": "object",
-                                    "properties": {
-                                      "value": {
-                                        "type": "number"
-                                      },
-                                      "html_label": {
-                                        "type": "string",
-                                        "nullable": true
-                                      },
-                                      "formula": {
-                                        "type": "object",
-                                        "nullable": true,
-                                        "properties": {
-                                          "formulaStr": {
-                                            "type": "string",
-                                            "description": "Readable formula string"
-                                          },
-                                          "members": {
-                                            "type": "array",
-                                            "description": "Metrics used in the formula",
-                                            "items": {
-                                              "oneOf": [
-                                                {
-                                                  "type": "object",
-                                                  "description": "Reported formula member",
-                                                  "properties": {
-                                                    "type": {
-                                                      "type": "string",
-                                                      "enum": [
-                                                        "reported"
-                                                      ],
-                                                      "description": "Member type"
-                                                    },
-                                                    "value": {
-                                                      "type": "number",
-                                                      "description": "Value of the member"
-                                                    },
-                                                    "concept": {
-                                                      "type": "string",
-                                                      "description": "Financial concept"
-                                                    },
-                                                    "start_date": {
-                                                      "type": "string",
-                                                      "format": "date",
-                                                      "nullable": true,
-                                                      "description": "Start date (YYYY-MM-DD)"
-                                                    },
-                                                    "end_date": {
-                                                      "type": "string",
-                                                      "format": "date",
-                                                      "nullable": true,
-                                                      "description": "End date (YYYY-MM-DD)"
-                                                    },
-                                                    "instant_date": {
-                                                      "type": "string",
-                                                      "format": "date",
-                                                      "nullable": true,
-                                                      "description": "Instant date (YYYY-MM-DD)"
-                                                    },
-                                                    "segment": {
-                                                      "type": "object",
-                                                      "nullable": true,
-                                                      "additionalProperties": true,
-                                                      "description": "Segment information"
-                                                    },
-                                                    "fiscal_period_type": {
-                                                      "type": "string",
-                                                      "nullable": true,
-                                                      "description": "Fiscal period type"
-                                                    }
-                                                  },
-                                                  "required": [
-                                                    "type",
-                                                    "value",
-                                                    "concept"
-                                                  ]
-                                                },
-                                                {
-                                                  "type": "object",
-                                                  "description": "Standardized formula member",
-                                                  "properties": {
-                                                    "type": {
-                                                      "type": "string",
-                                                      "enum": [
-                                                        "standardized"
-                                                      ],
-                                                      "description": "Member type"
-                                                    },
-                                                    "value": {
-                                                      "type": "number",
-                                                      "description": "Value of the member"
-                                                    },
-                                                    "metric_id": {
-                                                      "type": "string",
-                                                      "description": "Standardized metric ID"
-                                                    },
-                                                    "fiscal_period_type": {
-                                                      "type": "string",
-                                                      "nullable": true,
-                                                      "description": "Fiscal period type"
-                                                    },
-                                                    "fiscal_year": {
-                                                      "type": "integer",
-                                                      "nullable": true,
-                                                      "description": "Fiscal year"
-                                                    },
-                                                    "fiscal_quarter": {
-                                                      "type": "integer",
-                                                      "nullable": true,
-                                                      "description": "Fiscal quarter"
-                                                    }
-                                                  },
-                                                  "required": [
-                                                    "type",
-                                                    "value",
-                                                    "metric_id"
-                                                  ]
-                                                }
-                                              ]
-                                            }
-                                          }
-                                        },
-                                        "required": [
-                                          "formulaStr",
-                                          "members"
-                                        ]
-                                      },
-                                      "accession_number": {
-                                        "type": "string",
-                                        "nullable": true
-                                      },
-                                      "html_tag_id": {
-                                        "type": "string",
-                                        "nullable": true
-                                      }
-                                    }
+                                    "$ref": "#/components/schemas/AsReportedDetailedFact"
                                   }
                                 }
                               }
@@ -10464,73 +10601,109 @@
                           "facts": {
                             "NetIncomeLoss": {
                               "value": 132175000000,
-                              "html_label": "Net income",
+                              "derived": false,
+                              "label": "Net income",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-112"
                             },
                             "DepreciationDepletionAndAmortization": {
                               "value": 13423000000,
-                              "html_label": "Depreciation and amortization",
+                              "derived": false,
+                              "label": "Depreciation and amortization",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-280"
                             },
                             "ShareBasedCompensation": {
                               "value": 13789000000,
-                              "html_label": "Share-based compensation expense",
+                              "derived": false,
+                              "label": "Share-based compensation expense",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-283"
                             },
                             "OtherNoncashIncomeExpense": {
-                              "value": 568000000,
-                              "html_label": "Other",
+                              "value": -568000000,
+                              "derived": false,
+                              "label": "Other",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-286"
                             },
                             "IncreaseDecreaseInAccountsReceivable": {
-                              "value": -3994000000,
-                              "html_label": "Accounts receivable, net",
+                              "value": 3994000000,
+                              "derived": false,
+                              "label": "Accounts receivable, net",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-289"
                             },
                             "IncreaseDecreaseInOtherReceivables": {
-                              "value": -6716000000,
-                              "html_label": "Vendor non-trade receivables",
+                              "value": 6716000000,
+                              "derived": false,
+                              "label": "Vendor non-trade receivables",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-292"
                             },
                             "IncreaseDecreaseInInventories": {
-                              "value": -8905000000,
-                              "html_label": "Inventories",
+                              "value": 8905000000,
+                              "derived": false,
+                              "label": "Inventories",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-295"
                             },
                             "IncreaseDecreaseInOtherOperatingAssets": {
-                              "value": -21117000000,
-                              "html_label": "Other current and non-current assets",
+                              "value": 21117000000,
+                              "derived": false,
+                              "label": "Other current and non-current assets",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-298"
                             },
                             "IncreaseDecreaseInAccountsPayable": {
                               "value": 12171000000,
-                              "html_label": "Accounts payable",
+                              "derived": false,
+                              "label": "Accounts payable",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-301"
                             },
                             "IncreaseDecreaseInOtherOperatingLiabilities": {
                               "value": 13703000000,
-                              "html_label": "Other current and non-current liabilities",
+                              "derived": false,
+                              "label": "Other current and non-current liabilities",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-304"
                             },
                             "NetCashProvidedByUsedInOperatingActivities": {
                               "value": 145097000000,
-                              "html_label": "Cash generated by operating activities",
+                              "derived": false,
+                              "label": "Cash generated by operating activities",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-307"
                             },
                             "PaymentsToAcquireAvailableForSaleSecuritiesDebt": {
-                              "value": -54945000000,
-                              "html_label": "Purchases of marketable securities",
+                              "value": 54945000000,
+                              "derived": false,
+                              "label": "Purchases of marketable securities",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-310"
                             }
@@ -10636,6 +10809,36 @@
             "required": false,
             "description": "Number of periods to skip for pagination",
             "example": 0
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "default": "false"
+            },
+            "in": "query",
+            "name": "reported_only",
+            "required": false,
+            "description": "`true`: only the facts the company reported (`derived: false`); the pipeline's derived Q4 / TTM / YTD values are left out",
+            "example": "true"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "as_filed",
+                "cash_flow_direction"
+              ],
+              "default": "as_filed"
+            },
+            "in": "query",
+            "name": "display_sign",
+            "required": false,
+            "description": "Sign of cash-flow facts. `as_filed` (default): the value as the company tagged it in XBRL. `cash_flow_direction`: a credit-balance cash-flow fact (outside the supplemental disclosures) is negated so outflows read negative. Standardized cash-flow metrics already carry one sign per metric (outflows negative, capital expenditures positive).",
+            "example": "as_filed"
           }
         ],
         "security": [
@@ -10766,7 +10969,9 @@
                                   "concept": "NetIncomeLoss",
                                   "label": "Net income",
                                   "depth": 1,
-                                  "value": 132175000000
+                                  "value": 132175000000,
+                                  "derived": false,
+                                  "company_label": null
                                 }
                               ]
                             }
@@ -10856,6 +11061,36 @@
             "required": false,
             "description": "Calendar quarter (1-4). For annual periods, should not be provided. For non-annual periods, must be provided together with calendar_year.",
             "example": 4
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "default": "false"
+            },
+            "in": "query",
+            "name": "reported_only",
+            "required": false,
+            "description": "`true`: only the facts the company reported (`derived: false`); the pipeline's derived Q4 / TTM / YTD values are left out",
+            "example": "true"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "as_filed",
+                "cash_flow_direction"
+              ],
+              "default": "as_filed"
+            },
+            "in": "query",
+            "name": "display_sign",
+            "required": false,
+            "description": "Sign of cash-flow facts. `as_filed` (default): the value as the company tagged it in XBRL. `cash_flow_direction`: a credit-balance cash-flow fact (outside the supplemental disclosures) is negated so outflows read negative. Standardized cash-flow metrics already carry one sign per metric (outflows negative, capital expenditures positive).",
+            "example": "as_filed"
           }
         ],
         "security": [
@@ -10940,7 +11175,7 @@
                                   "facts": {
                                     "type": "object",
                                     "additionalProperties": {
-                                      "type": "number"
+                                      "$ref": "#/components/schemas/AsReportedFact"
                                     },
                                     "description": "Financial facts (concept -> value)"
                                   }
@@ -10954,7 +11189,7 @@
                                   "facts": {
                                     "type": "object",
                                     "additionalProperties": {
-                                      "type": "number"
+                                      "$ref": "#/components/schemas/AsReportedFact"
                                     },
                                     "description": "Financial facts (concept -> value)"
                                   }
@@ -10968,7 +11203,7 @@
                                   "facts": {
                                     "type": "object",
                                     "additionalProperties": {
-                                      "type": "number"
+                                      "$ref": "#/components/schemas/AsReportedFact"
                                     },
                                     "description": "Financial facts (concept -> value)"
                                   }
@@ -11015,53 +11250,170 @@
                       "statements": {
                         "income_statement": {
                           "facts": {
-                            "RevenueFromContractWithCustomerExcludingAssessedTax": 478834000000,
-                            "CostOfGoodsAndServicesSold": 245232000000,
-                            "GrossProfit": 233602000000,
-                            "ResearchAndDevelopmentExpense": 45765000000,
-                            "SellingGeneralAndAdministrativeExpense": 29774000000,
-                            "OperatingExpenses": 75539000000,
-                            "OperatingIncomeLoss": 158063000000,
-                            "NonoperatingIncomeExpense": 1174000000,
-                            "IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest": 159237000000,
-                            "IncomeTaxExpenseBenefit": 27062000000,
-                            "NetIncomeLoss": 132175000000,
-                            "EarningsPerShareBasic": 9.01,
-                            "EarningsPerShareDiluted": 8.98,
-                            "WeightedAverageNumberOfSharesOutstandingBasic": 14661935000,
-                            "WeightedAverageNumberOfDilutedSharesOutstanding": 14720306000
+                            "RevenueFromContractWithCustomerExcludingAssessedTax": {
+                              "value": 478834000000,
+                              "derived": false
+                            },
+                            "CostOfGoodsAndServicesSold": {
+                              "value": 245232000000,
+                              "derived": false
+                            },
+                            "GrossProfit": {
+                              "value": 233602000000,
+                              "derived": false
+                            },
+                            "ResearchAndDevelopmentExpense": {
+                              "value": 45765000000,
+                              "derived": false
+                            },
+                            "SellingGeneralAndAdministrativeExpense": {
+                              "value": 29774000000,
+                              "derived": false
+                            },
+                            "OperatingExpenses": {
+                              "value": 75539000000,
+                              "derived": false
+                            },
+                            "OperatingIncomeLoss": {
+                              "value": 158063000000,
+                              "derived": false
+                            },
+                            "NonoperatingIncomeExpense": {
+                              "value": 1174000000,
+                              "derived": false
+                            },
+                            "IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest": {
+                              "value": 159237000000,
+                              "derived": false
+                            },
+                            "IncomeTaxExpenseBenefit": {
+                              "value": 27062000000,
+                              "derived": false
+                            },
+                            "NetIncomeLoss": {
+                              "value": 132175000000,
+                              "derived": false
+                            },
+                            "EarningsPerShareBasic": {
+                              "value": 9.01,
+                              "derived": false
+                            },
+                            "EarningsPerShareDiluted": {
+                              "value": 8.98,
+                              "derived": false
+                            },
+                            "WeightedAverageNumberOfSharesOutstandingBasic": {
+                              "value": 14661935000,
+                              "derived": false
+                            },
+                            "WeightedAverageNumberOfDilutedSharesOutstanding": {
+                              "value": 14720306000,
+                              "derived": false
+                            }
                           }
                         },
                         "balance_sheet": {
                           "facts": {
-                            "CashAndCashEquivalentsAtCarryingValue": 36305000000,
-                            "MarketableSecuritiesCurrent": 20417000000,
-                            "AccountsReceivableNetCurrent": 43817000000,
-                            "NontradeReceivablesCurrent": 39896000000,
-                            "InventoryNet": 14541000000,
-                            "OtherAssetsCurrent": 18881000000,
-                            "AssetsCurrent": 173857000000,
-                            "MarketableSecuritiesNoncurrent": 80213000000,
-                            "PropertyPlantAndEquipmentNet": 52084000000,
-                            "IntangibleAssetExcludingGoodwillAfterAccumulatedAmortizationNoncurrent": 20278000000,
-                            "OtherAssetsNoncurrent": 78116000000,
-                            "AssetsNoncurrent": 230691000000
+                            "CashAndCashEquivalentsAtCarryingValue": {
+                              "value": 36305000000,
+                              "derived": false
+                            },
+                            "MarketableSecuritiesCurrent": {
+                              "value": 20417000000,
+                              "derived": false
+                            },
+                            "AccountsReceivableNetCurrent": {
+                              "value": 43817000000,
+                              "derived": false
+                            },
+                            "NontradeReceivablesCurrent": {
+                              "value": 39896000000,
+                              "derived": false
+                            },
+                            "InventoryNet": {
+                              "value": 14541000000,
+                              "derived": false
+                            },
+                            "OtherAssetsCurrent": {
+                              "value": 18881000000,
+                              "derived": false
+                            },
+                            "AssetsCurrent": {
+                              "value": 173857000000,
+                              "derived": false
+                            },
+                            "MarketableSecuritiesNoncurrent": {
+                              "value": 80213000000,
+                              "derived": false
+                            },
+                            "PropertyPlantAndEquipmentNet": {
+                              "value": 52084000000,
+                              "derived": false
+                            },
+                            "IntangibleAssetExcludingGoodwillAfterAccumulatedAmortizationNoncurrent": {
+                              "value": 20278000000,
+                              "derived": false
+                            },
+                            "OtherAssetsNoncurrent": {
+                              "value": 78116000000,
+                              "derived": false
+                            },
+                            "AssetsNoncurrent": {
+                              "value": 230691000000,
+                              "derived": false
+                            }
                           }
                         },
                         "cash_flow_statement": {
                           "facts": {
-                            "NetIncomeLoss": 132175000000,
-                            "DepreciationDepletionAndAmortization": 13423000000,
-                            "ShareBasedCompensation": 13789000000,
-                            "OtherNoncashIncomeExpense": 568000000,
-                            "IncreaseDecreaseInAccountsReceivable": -3994000000,
-                            "IncreaseDecreaseInOtherReceivables": -6716000000,
-                            "IncreaseDecreaseInInventories": -8905000000,
-                            "IncreaseDecreaseInOtherOperatingAssets": -21117000000,
-                            "IncreaseDecreaseInAccountsPayable": 12171000000,
-                            "IncreaseDecreaseInOtherOperatingLiabilities": 13703000000,
-                            "NetCashProvidedByUsedInOperatingActivities": 145097000000,
-                            "PaymentsToAcquireAvailableForSaleSecuritiesDebt": -54945000000
+                            "NetIncomeLoss": {
+                              "value": 132175000000,
+                              "derived": false
+                            },
+                            "DepreciationDepletionAndAmortization": {
+                              "value": 13423000000,
+                              "derived": false
+                            },
+                            "ShareBasedCompensation": {
+                              "value": 13789000000,
+                              "derived": false
+                            },
+                            "OtherNoncashIncomeExpense": {
+                              "value": -568000000,
+                              "derived": false
+                            },
+                            "IncreaseDecreaseInAccountsReceivable": {
+                              "value": 3994000000,
+                              "derived": false
+                            },
+                            "IncreaseDecreaseInOtherReceivables": {
+                              "value": 6716000000,
+                              "derived": false
+                            },
+                            "IncreaseDecreaseInInventories": {
+                              "value": 8905000000,
+                              "derived": false
+                            },
+                            "IncreaseDecreaseInOtherOperatingAssets": {
+                              "value": 21117000000,
+                              "derived": false
+                            },
+                            "IncreaseDecreaseInAccountsPayable": {
+                              "value": 12171000000,
+                              "derived": false
+                            },
+                            "IncreaseDecreaseInOtherOperatingLiabilities": {
+                              "value": 13703000000,
+                              "derived": false
+                            },
+                            "NetCashProvidedByUsedInOperatingActivities": {
+                              "value": 145097000000,
+                              "derived": false
+                            },
+                            "PaymentsToAcquireAvailableForSaleSecuritiesDebt": {
+                              "value": 54945000000,
+                              "derived": false
+                            }
                           }
                         }
                       }
@@ -11096,7 +11448,7 @@
         "tags": [
           "As-Reported Snapshot"
         ],
-        "description": "Fetch latest complete detailed as-reported financial statements snapshot with html_label, formula, accession number, and html tag info. Minimum tier for redistribute: PRO.",
+        "description": "Fetch latest complete detailed as-reported financial statements snapshot with derived flag, taxonomy and company labels, decimals, accession number, html tag id and optional formula. Minimum tier for redistribute: PRO.",
         "parameters": [
           {
             "schema": {
@@ -11158,9 +11510,39 @@
               "default": "false"
             },
             "in": "query",
+            "name": "reported_only",
+            "required": false,
+            "description": "`true`: only the facts the company reported (`derived: false`); the pipeline's derived Q4 / TTM / YTD values are left out",
+            "example": "true"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "as_filed",
+                "cash_flow_direction"
+              ],
+              "default": "as_filed"
+            },
+            "in": "query",
+            "name": "display_sign",
+            "required": false,
+            "description": "Sign of cash-flow facts. `as_filed` (default): the value as the company tagged it in XBRL. `cash_flow_direction`: a credit-balance cash-flow fact (outside the supplemental disclosures) is negated so outflows read negative. Standardized cash-flow metrics already carry one sign per metric (outflows negative, capital expenditures positive).",
+            "example": "as_filed"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "default": "false"
+            },
+            "in": "query",
             "name": "with_formula",
             "required": false,
-            "description": "Include formula in response",
+            "description": "Include each derived fact's formula (its members and their values)",
             "example": "true"
           }
         ],
@@ -11246,142 +11628,7 @@
                                   "facts": {
                                     "type": "object",
                                     "additionalProperties": {
-                                      "type": "object",
-                                      "properties": {
-                                        "value": {
-                                          "type": "number"
-                                        },
-                                        "html_label": {
-                                          "type": "string",
-                                          "nullable": true
-                                        },
-                                        "formula": {
-                                          "type": "object",
-                                          "nullable": true,
-                                          "properties": {
-                                            "formulaStr": {
-                                              "type": "string",
-                                              "description": "Readable formula string"
-                                            },
-                                            "members": {
-                                              "type": "array",
-                                              "description": "Metrics used in the formula",
-                                              "items": {
-                                                "oneOf": [
-                                                  {
-                                                    "type": "object",
-                                                    "description": "Reported formula member",
-                                                    "properties": {
-                                                      "type": {
-                                                        "type": "string",
-                                                        "enum": [
-                                                          "reported"
-                                                        ],
-                                                        "description": "Member type"
-                                                      },
-                                                      "value": {
-                                                        "type": "number",
-                                                        "description": "Value of the member"
-                                                      },
-                                                      "concept": {
-                                                        "type": "string",
-                                                        "description": "Financial concept"
-                                                      },
-                                                      "start_date": {
-                                                        "type": "string",
-                                                        "format": "date",
-                                                        "nullable": true,
-                                                        "description": "Start date (YYYY-MM-DD)"
-                                                      },
-                                                      "end_date": {
-                                                        "type": "string",
-                                                        "format": "date",
-                                                        "nullable": true,
-                                                        "description": "End date (YYYY-MM-DD)"
-                                                      },
-                                                      "instant_date": {
-                                                        "type": "string",
-                                                        "format": "date",
-                                                        "nullable": true,
-                                                        "description": "Instant date (YYYY-MM-DD)"
-                                                      },
-                                                      "segment": {
-                                                        "type": "object",
-                                                        "nullable": true,
-                                                        "additionalProperties": true,
-                                                        "description": "Segment information"
-                                                      },
-                                                      "fiscal_period_type": {
-                                                        "type": "string",
-                                                        "nullable": true,
-                                                        "description": "Fiscal period type"
-                                                      }
-                                                    },
-                                                    "required": [
-                                                      "type",
-                                                      "value",
-                                                      "concept"
-                                                    ]
-                                                  },
-                                                  {
-                                                    "type": "object",
-                                                    "description": "Standardized formula member",
-                                                    "properties": {
-                                                      "type": {
-                                                        "type": "string",
-                                                        "enum": [
-                                                          "standardized"
-                                                        ],
-                                                        "description": "Member type"
-                                                      },
-                                                      "value": {
-                                                        "type": "number",
-                                                        "description": "Value of the member"
-                                                      },
-                                                      "metric_id": {
-                                                        "type": "string",
-                                                        "description": "Standardized metric ID"
-                                                      },
-                                                      "fiscal_period_type": {
-                                                        "type": "string",
-                                                        "nullable": true,
-                                                        "description": "Fiscal period type"
-                                                      },
-                                                      "fiscal_year": {
-                                                        "type": "integer",
-                                                        "nullable": true,
-                                                        "description": "Fiscal year"
-                                                      },
-                                                      "fiscal_quarter": {
-                                                        "type": "integer",
-                                                        "nullable": true,
-                                                        "description": "Fiscal quarter"
-                                                      }
-                                                    },
-                                                    "required": [
-                                                      "type",
-                                                      "value",
-                                                      "metric_id"
-                                                    ]
-                                                  }
-                                                ]
-                                              }
-                                            }
-                                          },
-                                          "required": [
-                                            "formulaStr",
-                                            "members"
-                                          ]
-                                        },
-                                        "accession_number": {
-                                          "type": "string",
-                                          "nullable": true
-                                        },
-                                        "html_tag_id": {
-                                          "type": "string",
-                                          "nullable": true
-                                        }
-                                      }
+                                      "$ref": "#/components/schemas/AsReportedDetailedFact"
                                     }
                                   }
                                 },
@@ -11394,142 +11641,7 @@
                                   "facts": {
                                     "type": "object",
                                     "additionalProperties": {
-                                      "type": "object",
-                                      "properties": {
-                                        "value": {
-                                          "type": "number"
-                                        },
-                                        "html_label": {
-                                          "type": "string",
-                                          "nullable": true
-                                        },
-                                        "formula": {
-                                          "type": "object",
-                                          "nullable": true,
-                                          "properties": {
-                                            "formulaStr": {
-                                              "type": "string",
-                                              "description": "Readable formula string"
-                                            },
-                                            "members": {
-                                              "type": "array",
-                                              "description": "Metrics used in the formula",
-                                              "items": {
-                                                "oneOf": [
-                                                  {
-                                                    "type": "object",
-                                                    "description": "Reported formula member",
-                                                    "properties": {
-                                                      "type": {
-                                                        "type": "string",
-                                                        "enum": [
-                                                          "reported"
-                                                        ],
-                                                        "description": "Member type"
-                                                      },
-                                                      "value": {
-                                                        "type": "number",
-                                                        "description": "Value of the member"
-                                                      },
-                                                      "concept": {
-                                                        "type": "string",
-                                                        "description": "Financial concept"
-                                                      },
-                                                      "start_date": {
-                                                        "type": "string",
-                                                        "format": "date",
-                                                        "nullable": true,
-                                                        "description": "Start date (YYYY-MM-DD)"
-                                                      },
-                                                      "end_date": {
-                                                        "type": "string",
-                                                        "format": "date",
-                                                        "nullable": true,
-                                                        "description": "End date (YYYY-MM-DD)"
-                                                      },
-                                                      "instant_date": {
-                                                        "type": "string",
-                                                        "format": "date",
-                                                        "nullable": true,
-                                                        "description": "Instant date (YYYY-MM-DD)"
-                                                      },
-                                                      "segment": {
-                                                        "type": "object",
-                                                        "nullable": true,
-                                                        "additionalProperties": true,
-                                                        "description": "Segment information"
-                                                      },
-                                                      "fiscal_period_type": {
-                                                        "type": "string",
-                                                        "nullable": true,
-                                                        "description": "Fiscal period type"
-                                                      }
-                                                    },
-                                                    "required": [
-                                                      "type",
-                                                      "value",
-                                                      "concept"
-                                                    ]
-                                                  },
-                                                  {
-                                                    "type": "object",
-                                                    "description": "Standardized formula member",
-                                                    "properties": {
-                                                      "type": {
-                                                        "type": "string",
-                                                        "enum": [
-                                                          "standardized"
-                                                        ],
-                                                        "description": "Member type"
-                                                      },
-                                                      "value": {
-                                                        "type": "number",
-                                                        "description": "Value of the member"
-                                                      },
-                                                      "metric_id": {
-                                                        "type": "string",
-                                                        "description": "Standardized metric ID"
-                                                      },
-                                                      "fiscal_period_type": {
-                                                        "type": "string",
-                                                        "nullable": true,
-                                                        "description": "Fiscal period type"
-                                                      },
-                                                      "fiscal_year": {
-                                                        "type": "integer",
-                                                        "nullable": true,
-                                                        "description": "Fiscal year"
-                                                      },
-                                                      "fiscal_quarter": {
-                                                        "type": "integer",
-                                                        "nullable": true,
-                                                        "description": "Fiscal quarter"
-                                                      }
-                                                    },
-                                                    "required": [
-                                                      "type",
-                                                      "value",
-                                                      "metric_id"
-                                                    ]
-                                                  }
-                                                ]
-                                              }
-                                            }
-                                          },
-                                          "required": [
-                                            "formulaStr",
-                                            "members"
-                                          ]
-                                        },
-                                        "accession_number": {
-                                          "type": "string",
-                                          "nullable": true
-                                        },
-                                        "html_tag_id": {
-                                          "type": "string",
-                                          "nullable": true
-                                        }
-                                      }
+                                      "$ref": "#/components/schemas/AsReportedDetailedFact"
                                     }
                                   }
                                 },
@@ -11542,142 +11654,7 @@
                                   "facts": {
                                     "type": "object",
                                     "additionalProperties": {
-                                      "type": "object",
-                                      "properties": {
-                                        "value": {
-                                          "type": "number"
-                                        },
-                                        "html_label": {
-                                          "type": "string",
-                                          "nullable": true
-                                        },
-                                        "formula": {
-                                          "type": "object",
-                                          "nullable": true,
-                                          "properties": {
-                                            "formulaStr": {
-                                              "type": "string",
-                                              "description": "Readable formula string"
-                                            },
-                                            "members": {
-                                              "type": "array",
-                                              "description": "Metrics used in the formula",
-                                              "items": {
-                                                "oneOf": [
-                                                  {
-                                                    "type": "object",
-                                                    "description": "Reported formula member",
-                                                    "properties": {
-                                                      "type": {
-                                                        "type": "string",
-                                                        "enum": [
-                                                          "reported"
-                                                        ],
-                                                        "description": "Member type"
-                                                      },
-                                                      "value": {
-                                                        "type": "number",
-                                                        "description": "Value of the member"
-                                                      },
-                                                      "concept": {
-                                                        "type": "string",
-                                                        "description": "Financial concept"
-                                                      },
-                                                      "start_date": {
-                                                        "type": "string",
-                                                        "format": "date",
-                                                        "nullable": true,
-                                                        "description": "Start date (YYYY-MM-DD)"
-                                                      },
-                                                      "end_date": {
-                                                        "type": "string",
-                                                        "format": "date",
-                                                        "nullable": true,
-                                                        "description": "End date (YYYY-MM-DD)"
-                                                      },
-                                                      "instant_date": {
-                                                        "type": "string",
-                                                        "format": "date",
-                                                        "nullable": true,
-                                                        "description": "Instant date (YYYY-MM-DD)"
-                                                      },
-                                                      "segment": {
-                                                        "type": "object",
-                                                        "nullable": true,
-                                                        "additionalProperties": true,
-                                                        "description": "Segment information"
-                                                      },
-                                                      "fiscal_period_type": {
-                                                        "type": "string",
-                                                        "nullable": true,
-                                                        "description": "Fiscal period type"
-                                                      }
-                                                    },
-                                                    "required": [
-                                                      "type",
-                                                      "value",
-                                                      "concept"
-                                                    ]
-                                                  },
-                                                  {
-                                                    "type": "object",
-                                                    "description": "Standardized formula member",
-                                                    "properties": {
-                                                      "type": {
-                                                        "type": "string",
-                                                        "enum": [
-                                                          "standardized"
-                                                        ],
-                                                        "description": "Member type"
-                                                      },
-                                                      "value": {
-                                                        "type": "number",
-                                                        "description": "Value of the member"
-                                                      },
-                                                      "metric_id": {
-                                                        "type": "string",
-                                                        "description": "Standardized metric ID"
-                                                      },
-                                                      "fiscal_period_type": {
-                                                        "type": "string",
-                                                        "nullable": true,
-                                                        "description": "Fiscal period type"
-                                                      },
-                                                      "fiscal_year": {
-                                                        "type": "integer",
-                                                        "nullable": true,
-                                                        "description": "Fiscal year"
-                                                      },
-                                                      "fiscal_quarter": {
-                                                        "type": "integer",
-                                                        "nullable": true,
-                                                        "description": "Fiscal quarter"
-                                                      }
-                                                    },
-                                                    "required": [
-                                                      "type",
-                                                      "value",
-                                                      "metric_id"
-                                                    ]
-                                                  }
-                                                ]
-                                              }
-                                            }
-                                          },
-                                          "required": [
-                                            "formulaStr",
-                                            "members"
-                                          ]
-                                        },
-                                        "accession_number": {
-                                          "type": "string",
-                                          "nullable": true
-                                        },
-                                        "html_tag_id": {
-                                          "type": "string",
-                                          "nullable": true
-                                        }
-                                      }
+                                      "$ref": "#/components/schemas/AsReportedDetailedFact"
                                     }
                                   }
                                 },
@@ -11725,91 +11702,136 @@
                           "facts": {
                             "RevenueFromContractWithCustomerExcludingAssessedTax": {
                               "value": 478834000000,
-                              "html_label": "Net sales",
+                              "derived": false,
+                              "label": "Net sales",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-76"
                             },
                             "CostOfGoodsAndServicesSold": {
                               "value": 245232000000,
-                              "html_label": "Cost of sales",
+                              "derived": false,
+                              "label": "Cost of sales",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-85"
                             },
                             "GrossProfit": {
                               "value": 233602000000,
-                              "html_label": "Gross margin",
+                              "derived": false,
+                              "label": "Gross margin",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-88"
                             },
                             "ResearchAndDevelopmentExpense": {
                               "value": 45765000000,
-                              "html_label": "Research and development",
+                              "derived": false,
+                              "label": "Research and development",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-91"
                             },
                             "SellingGeneralAndAdministrativeExpense": {
                               "value": 29774000000,
-                              "html_label": "Selling, general and administrative",
+                              "derived": false,
+                              "label": "Selling, general and administrative",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-94"
                             },
                             "OperatingExpenses": {
                               "value": 75539000000,
-                              "html_label": "Total operating expenses",
+                              "derived": false,
+                              "label": "Total operating expenses",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-97"
                             },
                             "OperatingIncomeLoss": {
                               "value": 158063000000,
-                              "html_label": "Operating income",
+                              "derived": false,
+                              "label": "Operating income",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-100"
                             },
                             "NonoperatingIncomeExpense": {
                               "value": 1174000000,
-                              "html_label": "Other income/(expense), net",
+                              "derived": false,
+                              "label": "Other income/(expense), net",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-103"
                             },
                             "IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest": {
                               "value": 159237000000,
-                              "html_label": "Income before provision for income taxes",
+                              "derived": false,
+                              "label": "Income before provision for income taxes",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-106"
                             },
                             "IncomeTaxExpenseBenefit": {
                               "value": 27062000000,
-                              "html_label": "Provision for income taxes",
+                              "derived": false,
+                              "label": "Provision for income taxes",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-109"
                             },
                             "NetIncomeLoss": {
                               "value": 132175000000,
-                              "html_label": "Net income",
+                              "derived": false,
+                              "label": "Net income",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-112"
                             },
                             "EarningsPerShareBasic": {
                               "value": 9.01,
-                              "html_label": "Basic (in dollars per share)",
+                              "derived": false,
+                              "label": "Basic (in dollars per share)",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-115"
                             },
                             "EarningsPerShareDiluted": {
                               "value": 8.98,
-                              "html_label": "Diluted (in dollars per share)",
+                              "derived": false,
+                              "label": "Diluted (in dollars per share)",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-118"
                             },
                             "WeightedAverageNumberOfSharesOutstandingBasic": {
                               "value": 14661935000,
-                              "html_label": "Basic (in shares)",
+                              "derived": false,
+                              "label": "Basic (in shares)",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-121"
                             },
                             "WeightedAverageNumberOfDilutedSharesOutstanding": {
                               "value": 14720306000,
-                              "html_label": "Diluted (in shares)",
+                              "derived": false,
+                              "label": "Diluted (in shares)",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-124"
                             }
@@ -11819,73 +11841,109 @@
                           "facts": {
                             "CashAndCashEquivalentsAtCarryingValue": {
                               "value": 36305000000,
-                              "html_label": "Cash and cash equivalents",
+                              "derived": false,
+                              "label": "Cash and cash equivalents",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-157"
                             },
                             "MarketableSecuritiesCurrent": {
                               "value": 20417000000,
-                              "html_label": "Marketable securities",
+                              "derived": false,
+                              "label": "Marketable securities",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-159"
                             },
                             "AccountsReceivableNetCurrent": {
                               "value": 43817000000,
-                              "html_label": "Accounts receivable, net",
+                              "derived": false,
+                              "label": "Accounts receivable, net",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-161"
                             },
                             "NontradeReceivablesCurrent": {
                               "value": 39896000000,
-                              "html_label": "Vendor non-trade receivables",
+                              "derived": false,
+                              "label": "Vendor non-trade receivables",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-163"
                             },
                             "InventoryNet": {
                               "value": 14541000000,
-                              "html_label": "Inventories",
+                              "derived": false,
+                              "label": "Inventories",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-165"
                             },
                             "OtherAssetsCurrent": {
                               "value": 18881000000,
-                              "html_label": "Other current assets",
+                              "derived": false,
+                              "label": "Other current assets",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-167"
                             },
                             "AssetsCurrent": {
                               "value": 173857000000,
-                              "html_label": "Total current assets",
+                              "derived": false,
+                              "label": "Total current assets",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-169"
                             },
                             "MarketableSecuritiesNoncurrent": {
                               "value": 80213000000,
-                              "html_label": "Marketable securities",
+                              "derived": false,
+                              "label": "Marketable securities",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-171"
                             },
                             "PropertyPlantAndEquipmentNet": {
                               "value": 52084000000,
-                              "html_label": "Property, plant and equipment, net",
+                              "derived": false,
+                              "label": "Property, plant and equipment, net",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-173"
                             },
                             "IntangibleAssetExcludingGoodwillAfterAccumulatedAmortizationNoncurrent": {
                               "value": 20278000000,
-                              "html_label": "Non-current portion of intangible assets",
+                              "derived": false,
+                              "label": "Non-current portion of intangible assets",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-175"
                             },
                             "OtherAssetsNoncurrent": {
                               "value": 78116000000,
-                              "html_label": "Other non-current assets",
+                              "derived": false,
+                              "label": "Other non-current assets",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-177"
                             },
                             "AssetsNoncurrent": {
                               "value": 230691000000,
-                              "html_label": "Total non-current assets",
+                              "derived": false,
+                              "label": "Total non-current assets",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-179"
                             }
@@ -11895,73 +11953,109 @@
                           "facts": {
                             "NetIncomeLoss": {
                               "value": 132175000000,
-                              "html_label": "Net income",
+                              "derived": false,
+                              "label": "Net income",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-112"
                             },
                             "DepreciationDepletionAndAmortization": {
                               "value": 13423000000,
-                              "html_label": "Depreciation and amortization",
+                              "derived": false,
+                              "label": "Depreciation and amortization",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-280"
                             },
                             "ShareBasedCompensation": {
                               "value": 13789000000,
-                              "html_label": "Share-based compensation expense",
+                              "derived": false,
+                              "label": "Share-based compensation expense",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-283"
                             },
                             "OtherNoncashIncomeExpense": {
-                              "value": 568000000,
-                              "html_label": "Other",
+                              "value": -568000000,
+                              "derived": false,
+                              "label": "Other",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-286"
                             },
                             "IncreaseDecreaseInAccountsReceivable": {
-                              "value": -3994000000,
-                              "html_label": "Accounts receivable, net",
+                              "value": 3994000000,
+                              "derived": false,
+                              "label": "Accounts receivable, net",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-289"
                             },
                             "IncreaseDecreaseInOtherReceivables": {
-                              "value": -6716000000,
-                              "html_label": "Vendor non-trade receivables",
+                              "value": 6716000000,
+                              "derived": false,
+                              "label": "Vendor non-trade receivables",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-292"
                             },
                             "IncreaseDecreaseInInventories": {
-                              "value": -8905000000,
-                              "html_label": "Inventories",
+                              "value": 8905000000,
+                              "derived": false,
+                              "label": "Inventories",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-295"
                             },
                             "IncreaseDecreaseInOtherOperatingAssets": {
-                              "value": -21117000000,
-                              "html_label": "Other current and non-current assets",
+                              "value": 21117000000,
+                              "derived": false,
+                              "label": "Other current and non-current assets",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-298"
                             },
                             "IncreaseDecreaseInAccountsPayable": {
                               "value": 12171000000,
-                              "html_label": "Accounts payable",
+                              "derived": false,
+                              "label": "Accounts payable",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-301"
                             },
                             "IncreaseDecreaseInOtherOperatingLiabilities": {
                               "value": 13703000000,
-                              "html_label": "Other current and non-current liabilities",
+                              "derived": false,
+                              "label": "Other current and non-current liabilities",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-304"
                             },
                             "NetCashProvidedByUsedInOperatingActivities": {
                               "value": 145097000000,
-                              "html_label": "Cash generated by operating activities",
+                              "derived": false,
+                              "label": "Cash generated by operating activities",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-307"
                             },
                             "PaymentsToAcquireAvailableForSaleSecuritiesDebt": {
-                              "value": -54945000000,
-                              "html_label": "Purchases of marketable securities",
+                              "value": 54945000000,
+                              "derived": false,
+                              "label": "Purchases of marketable securities",
+                              "company_label": null,
+                              "decimals": null,
                               "accession_number": "0000320193-26-000026",
                               "html_tag_id": "f-310"
                             }
@@ -12050,6 +12144,36 @@
             "required": false,
             "description": "Calendar quarter (1-4). For annual periods, should not be provided. For non-annual periods, must be provided together with calendar_year.",
             "example": 4
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "default": "false"
+            },
+            "in": "query",
+            "name": "reported_only",
+            "required": false,
+            "description": "`true`: only the facts the company reported (`derived: false`); the pipeline's derived Q4 / TTM / YTD values are left out",
+            "example": "true"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "as_filed",
+                "cash_flow_direction"
+              ],
+              "default": "as_filed"
+            },
+            "in": "query",
+            "name": "display_sign",
+            "required": false,
+            "description": "Sign of cash-flow facts. `as_filed` (default): the value as the company tagged it in XBRL. `cash_flow_direction`: a credit-balance cash-flow fact (outside the supplemental disclosures) is negated so outflows read negative. Standardized cash-flow metrics already carry one sign per metric (outflows negative, capital expenditures positive).",
+            "example": "as_filed"
           }
         ],
         "security": [
@@ -12213,7 +12337,9 @@
                               "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
                               "label": "Net sales",
                               "depth": 0,
-                              "value": 478834000000
+                              "value": 478834000000,
+                              "derived": false,
+                              "company_label": null
                             }
                           ]
                         },
@@ -12233,7 +12359,9 @@
                                       "concept": "CashAndCashEquivalentsAtCarryingValue",
                                       "label": "Cash and cash equivalents",
                                       "depth": 2,
-                                      "value": 36305000000
+                                      "value": 36305000000,
+                                      "derived": false,
+                                      "company_label": null
                                     }
                                   ]
                                 }
@@ -12252,7 +12380,9 @@
                                   "concept": "NetIncomeLoss",
                                   "label": "Net income",
                                   "depth": 1,
-                                  "value": 132175000000
+                                  "value": 132175000000,
+                                  "derived": false,
+                                  "company_label": null
                                 }
                               ]
                             }
@@ -16104,11 +16234,13 @@
                           },
                           "share_price": {
                             "type": "number",
-                            "description": "Price per share"
+                            "nullable": true,
+                            "description": "Price per share (null when the filing states none, e.g. a gift or grant)"
                           },
                           "total": {
                             "type": "number",
-                            "description": "Total transaction value"
+                            "nullable": true,
+                            "description": "Total transaction value (null when the filing states no price)"
                           },
                           "shares_owned_following_transaction": {
                             "type": "number",

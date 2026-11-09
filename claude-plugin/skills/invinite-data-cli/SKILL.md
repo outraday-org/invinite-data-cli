@@ -337,40 +337,40 @@ invd earnings document --document-id <document_id> --output annual-report.pdf
 Financial statements (standardized & as-reported)
 
 ```bash
-# As-reported balance sheet (optional: --sort, --limit, --offset, --all)
+# As-reported balance sheet (optional: --sort, --limit, --offset, --reported-only, --all)
 invd financials as-reported-balance-sheet -i AAPL -p annual --json
 
-# As-reported balance sheet (detailed) (optional: --sort, --limit, --offset, --with-formula, --all)
+# As-reported balance sheet (detailed) (optional: --sort, --limit, --offset, --with-formula, --reported-only, --all)
 invd financials as-reported-balance-sheet-detailed -i AAPL -p annual --json
 
-# As-reported balance sheet (presentation) (optional: --sort, --limit, --offset, --all)
+# As-reported balance sheet (presentation) (optional: --sort, --limit, --offset, --reported-only, --all)
 invd financials as-reported-balance-sheet-presentation -i AAPL -p annual --json
 
-# As-reported cash flow statement (optional: --sort, --limit, --offset, --all)
+# As-reported cash flow statement (optional: --sort, --limit, --offset, --reported-only, --display-sign, --all)
 invd financials as-reported-cash-flow -i AAPL -p annual --json
 
-# As-reported cash flow statement (detailed) (optional: --sort, --limit, --offset, --with-formula, --all)
+# As-reported cash flow statement (detailed) (optional: --sort, --limit, --offset, --with-formula, --reported-only, --display-sign, --all)
 invd financials as-reported-cash-flow-detailed -i AAPL -p annual --json
 
-# As-reported cash flow statement (presentation) (optional: --sort, --limit, --offset, --all)
+# As-reported cash flow statement (presentation) (optional: --sort, --limit, --offset, --reported-only, --display-sign, --all)
 invd financials as-reported-cash-flow-presentation -i AAPL -p annual --json
 
-# As-reported income statement (optional: --sort, --limit, --offset, --all)
+# As-reported income statement (optional: --sort, --limit, --offset, --reported-only, --all)
 invd financials as-reported-income-statement -i AAPL -p annual --json
 
-# As-reported income statement (detailed) (optional: --sort, --limit, --offset, --with-formula, --all)
+# As-reported income statement (detailed) (optional: --sort, --limit, --offset, --with-formula, --reported-only, --all)
 invd financials as-reported-income-statement-detailed -i AAPL -p annual --json
 
-# As-reported income statement (presentation) (optional: --sort, --limit, --offset, --all)
+# As-reported income statement (presentation) (optional: --sort, --limit, --offset, --reported-only, --all)
 invd financials as-reported-income-statement-presentation -i AAPL -p annual --json
 
-# As-reported snapshot (optional: --calendar-year, --calendar-quarter)
+# As-reported snapshot (optional: --calendar-year, --calendar-quarter, --reported-only, --display-sign)
 invd financials as-reported-snapshot -i AAPL,MSFT -p annual --json
 
-# As-reported snapshot (detailed) (optional: --calendar-year, --calendar-quarter, --with-formula)
+# As-reported snapshot (detailed) (optional: --calendar-year, --calendar-quarter, --reported-only, --display-sign, --with-formula)
 invd financials as-reported-snapshot-detailed -i AAPL,MSFT -p annual --json
 
-# As-reported snapshot (presentation) (optional: --calendar-year, --calendar-quarter)
+# As-reported snapshot (presentation) (optional: --calendar-year, --calendar-quarter, --reported-only, --display-sign)
 invd financials as-reported-snapshot-presentation -i AAPL,MSFT -p annual --json
 
 # Standardized balance sheet (optional: --sort, --limit, --offset, --all)

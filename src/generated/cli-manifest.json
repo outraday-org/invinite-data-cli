@@ -1,6 +1,6 @@
 {
   "specVersion": "1.0.0",
-  "specSha256": "118ae607bfa397dde8e651ff1a871117efa93a2ee92517e781921346bb64db3a",
+  "specSha256": "f2359dda15915d63db6863c844c1ca07e9cfd365e1296a1901310967b79e24ce",
   "groups": [
     {
       "name": "company",
@@ -2266,6 +2266,19 @@
           "default": 0,
           "example": 0,
           "description": "Number of periods to skip for pagination"
+        },
+        {
+          "name": "reported_only",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "default": "false",
+          "example": "true",
+          "description": "`true`: only the facts the company reported (`derived: false`); the pipeline's derived Q4 / TTM / YTD values are left out"
         }
       ],
       "view": "json",
@@ -2351,7 +2364,20 @@
           ],
           "default": "false",
           "example": "true",
-          "description": "Include formula in response"
+          "description": "Include each derived fact's formula (its members and their values)"
+        },
+        {
+          "name": "reported_only",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "default": "false",
+          "example": "true",
+          "description": "`true`: only the facts the company reported (`derived: false`); the pipeline's derived Q4 / TTM / YTD values are left out"
         }
       ],
       "view": "json",
@@ -2425,6 +2451,19 @@
           "default": 0,
           "example": 0,
           "description": "Number of periods to skip for pagination"
+        },
+        {
+          "name": "reported_only",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "default": "false",
+          "example": "true",
+          "description": "`true`: only the facts the company reported (`derived: false`); the pipeline's derived Q4 / TTM / YTD values are left out"
         }
       ],
       "view": "json",
@@ -2498,6 +2537,32 @@
           "default": 0,
           "example": 0,
           "description": "Number of periods to skip for pagination"
+        },
+        {
+          "name": "reported_only",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "default": "false",
+          "example": "true",
+          "description": "`true`: only the facts the company reported (`derived: false`); the pipeline's derived Q4 / TTM / YTD values are left out"
+        },
+        {
+          "name": "display_sign",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "as_filed",
+            "cash_flow_direction"
+          ],
+          "default": "as_filed",
+          "example": "as_filed",
+          "description": "Sign of cash-flow facts. `as_filed` (default): the value as the company tagged it in XBRL. `cash_flow_direction`: a credit-balance cash-flow fact (outside the supplemental disclosures) is negated so outflows read negative. Standardized cash-flow metrics already carry one sign per metric (outflows negative, capital expenditures positive)."
         }
       ],
       "view": "json",
@@ -2583,7 +2648,33 @@
           ],
           "default": "false",
           "example": "true",
-          "description": "Include formula in response"
+          "description": "Include each derived fact's formula (its members and their values)"
+        },
+        {
+          "name": "reported_only",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "default": "false",
+          "example": "true",
+          "description": "`true`: only the facts the company reported (`derived: false`); the pipeline's derived Q4 / TTM / YTD values are left out"
+        },
+        {
+          "name": "display_sign",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "as_filed",
+            "cash_flow_direction"
+          ],
+          "default": "as_filed",
+          "example": "as_filed",
+          "description": "Sign of cash-flow facts. `as_filed` (default): the value as the company tagged it in XBRL. `cash_flow_direction`: a credit-balance cash-flow fact (outside the supplemental disclosures) is negated so outflows read negative. Standardized cash-flow metrics already carry one sign per metric (outflows negative, capital expenditures positive)."
         }
       ],
       "view": "json",
@@ -2657,6 +2748,32 @@
           "default": 0,
           "example": 0,
           "description": "Number of periods to skip for pagination"
+        },
+        {
+          "name": "reported_only",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "default": "false",
+          "example": "true",
+          "description": "`true`: only the facts the company reported (`derived: false`); the pipeline's derived Q4 / TTM / YTD values are left out"
+        },
+        {
+          "name": "display_sign",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "as_filed",
+            "cash_flow_direction"
+          ],
+          "default": "as_filed",
+          "example": "as_filed",
+          "description": "Sign of cash-flow facts. `as_filed` (default): the value as the company tagged it in XBRL. `cash_flow_direction`: a credit-balance cash-flow fact (outside the supplemental disclosures) is negated so outflows read negative. Standardized cash-flow metrics already carry one sign per metric (outflows negative, capital expenditures positive)."
         }
       ],
       "view": "json",
@@ -2730,6 +2847,19 @@
           "default": 0,
           "example": 0,
           "description": "Number of periods to skip for pagination"
+        },
+        {
+          "name": "reported_only",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "default": "false",
+          "example": "true",
+          "description": "`true`: only the facts the company reported (`derived: false`); the pipeline's derived Q4 / TTM / YTD values are left out"
         }
       ],
       "view": "json",
@@ -2815,7 +2945,20 @@
           ],
           "default": "false",
           "example": "true",
-          "description": "Include formula in response"
+          "description": "Include each derived fact's formula (its members and their values)"
+        },
+        {
+          "name": "reported_only",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "default": "false",
+          "example": "true",
+          "description": "`true`: only the facts the company reported (`derived: false`); the pipeline's derived Q4 / TTM / YTD values are left out"
         }
       ],
       "view": "json",
@@ -2889,6 +3032,19 @@
           "default": 0,
           "example": 0,
           "description": "Number of periods to skip for pagination"
+        },
+        {
+          "name": "reported_only",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "default": "false",
+          "example": "true",
+          "description": "`true`: only the facts the company reported (`derived: false`); the pipeline's derived Q4 / TTM / YTD values are left out"
         }
       ],
       "view": "json",
@@ -2945,6 +3101,32 @@
           "type": "integer",
           "example": 4,
           "description": "Calendar quarter (1-4). For annual periods, should not be provided. For non-annual periods, must be provided together with calendar_year."
+        },
+        {
+          "name": "reported_only",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "default": "false",
+          "example": "true",
+          "description": "`true`: only the facts the company reported (`derived: false`); the pipeline's derived Q4 / TTM / YTD values are left out"
+        },
+        {
+          "name": "display_sign",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "as_filed",
+            "cash_flow_direction"
+          ],
+          "default": "as_filed",
+          "example": "as_filed",
+          "description": "Sign of cash-flow facts. `as_filed` (default): the value as the company tagged it in XBRL. `cash_flow_direction`: a credit-balance cash-flow fact (outside the supplemental disclosures) is negated so outflows read negative. Standardized cash-flow metrics already carry one sign per metric (outflows negative, capital expenditures positive)."
         }
       ],
       "view": "json",
@@ -3000,6 +3182,32 @@
           "description": "Calendar quarter (1-4). For annual periods, should not be provided. For non-annual periods, must be provided together with calendar_year."
         },
         {
+          "name": "reported_only",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "default": "false",
+          "example": "true",
+          "description": "`true`: only the facts the company reported (`derived: false`); the pipeline's derived Q4 / TTM / YTD values are left out"
+        },
+        {
+          "name": "display_sign",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "as_filed",
+            "cash_flow_direction"
+          ],
+          "default": "as_filed",
+          "example": "as_filed",
+          "description": "Sign of cash-flow facts. `as_filed` (default): the value as the company tagged it in XBRL. `cash_flow_direction`: a credit-balance cash-flow fact (outside the supplemental disclosures) is negated so outflows read negative. Standardized cash-flow metrics already carry one sign per metric (outflows negative, capital expenditures positive)."
+        },
+        {
           "name": "with_formula",
           "in": "query",
           "required": false,
@@ -3010,7 +3218,7 @@
           ],
           "default": "false",
           "example": "true",
-          "description": "Include formula in response"
+          "description": "Include each derived fact's formula (its members and their values)"
         }
       ],
       "view": "json",
@@ -3064,6 +3272,32 @@
           "type": "integer",
           "example": 4,
           "description": "Calendar quarter (1-4). For annual periods, should not be provided. For non-annual periods, must be provided together with calendar_year."
+        },
+        {
+          "name": "reported_only",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "default": "false",
+          "example": "true",
+          "description": "`true`: only the facts the company reported (`derived: false`); the pipeline's derived Q4 / TTM / YTD values are left out"
+        },
+        {
+          "name": "display_sign",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "as_filed",
+            "cash_flow_direction"
+          ],
+          "default": "as_filed",
+          "example": "as_filed",
+          "description": "Sign of cash-flow facts. `as_filed` (default): the value as the company tagged it in XBRL. `cash_flow_direction`: a credit-balance cash-flow fact (outside the supplemental disclosures) is negated so outflows read negative. Standardized cash-flow metrics already carry one sign per metric (outflows negative, capital expenditures positive)."
         }
       ],
       "view": "json",

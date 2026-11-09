@@ -4,9 +4,9 @@
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-api",
     "version": "1.0.0",
-    "specSha256": "118ae607bfa397dde8e651ff1a871117efa93a2ee92517e781921346bb64db3a",
+    "specSha256": "f2359dda15915d63db6863c844c1ca07e9cfd365e1296a1901310967b79e24ce",
     "sourceHashes": {
-      "openapi.json": "118ae607bfa397dde8e651ff1a871117efa93a2ee92517e781921346bb64db3a",
+      "openapi.json": "f2359dda15915d63db6863c844c1ca07e9cfd365e1296a1901310967b79e24ce",
       "package.json": "15f2e29716c13ede24825017bfd0df99f875b416fb4461444d2987dcb014f191",
       "scripts/export-reference.ts": "8a59e536c1c63d57f764626d63b6579e495a5775def0b6cf8825d5035434e36d",
       "scripts/generate-openapi.ts": "fd07fe65502eb0b2a29c8851ee1d26b802e0898d8b3be4f28b3bae39be061fb3",
@@ -14,7 +14,7 @@
       "scripts/reference-artifacts.ts": "0ef8e67cb5454a3f50f43de77b0be1aebb7897164ddf3f5288b58dc7d0f47255",
       "scripts/reference-env.ts": "105b341c463b24e99d349d50a96634f83b1b8dca8a669c84730dc93f24e122e0"
     },
-    "revision": "fdc3512989cd08660f97fbb915f7a84e0eaa1732",
-    "fingerprint": "3280203da9e241a7f9c0116c2c3e520f36dadac6613d314a88c5cdfcc9287971"
+    "revision": "28cb08f9ebee862d850a6ee749d1dfa3b4c23654",
+    "fingerprint": "4a7182fade70840d7b92713255a86954572164776863cf44f3003c101e57c76b"
   }
 }
