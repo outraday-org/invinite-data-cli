@@ -1,229 +1,90 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
-// Mock the config/auth modules before importing api-client
-vi.mock('../../../src/config/auth.js', () => ({
-  getApiKey: vi.fn().mockResolvedValue('test-api-key'),
-}));
-
-vi.mock('../../../src/config/config-manager.js', () => ({
-  getBaseUrl: vi.fn().mockReturnValue('https://api.example.com'),
-}));
-
-vi.mock('../../../src/shared/spinner.js', () => ({
-  createSpinner: vi.fn().mockReturnValue({
-    succeed: vi.fn(),
-    fail: vi.fn(),
-  }),
-}));
-
-import { apiGet, apiRequest, takeCreditUsage } from '../../../src/client/api-client.js';
+import { apiCall, apiGet, buildUrl, formatCreditUsage, takeCreditUsage } from '../../../src/client/api-client.js';
 import { ApiError } from '../../../src/shared/errors.js';
 
-describe('apiGet', () => {
+const json = (body: unknown, status = 200, headers: Record<string, string> = {}) =>
+  new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', ...headers } });
+
+describe('api-client', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn());
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
-  });
-
-  it('should make GET request with auth header', async () => {
-    const mockResponse = { status: 'ok' };
-    (fetch as any).mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(mockResponse),
-    });
-
-    const result = await apiGet({ path: '/health' });
-    expect(result).toEqual(mockResponse);
-    expect(fetch).toHaveBeenCalledWith(
-      'https://api.example.com/health',
-      expect.objectContaining({
-        headers: expect.objectContaining({
-          'Authorization': 'Bearer test-api-key',
-        }),
-      }),
-    );
-  });
-
-  it('should build URL with query params', async () => {
-    (fetch as any).mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({}),
-    });
-
-    await apiGet({ path: '/v1/company/search', params: { query: 'AAPL', limit: '10' } });
-    const calledUrl = (fetch as any).mock.calls[0][0];
-    expect(calledUrl).toContain('query=AAPL');
-    expect(calledUrl).toContain('limit=10');
-  });
-
-  it('should exclude undefined params', async () => {
-    (fetch as any).mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({}),
-    });
-
-    await apiGet({ path: '/v1/test', params: { a: 'val', b: undefined, c: '' } });
-    const calledUrl = (fetch as any).mock.calls[0][0];
-    expect(calledUrl).toContain('a=val');
-    expect(calledUrl).not.toContain('b=');
-    expect(calledUrl).not.toContain('c=');
-  });
-
-  it('should repeat an array param once per value', async () => {
-    (fetch as any).mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({}),
-    });
-
-    await apiGet({ path: '/v1/test', params: { status: ['confirmed', 'estimated'], none: [] } });
-    const calledUrl = (fetch as any).mock.calls[0][0];
-    expect(calledUrl).toBe('https://api.example.com/v1/test?status=confirmed&status=estimated');
-  });
-
-  it('should throw ApiError on non-200 response', async () => {
-    (fetch as any).mockResolvedValue({
-      ok: false,
-      status: 401,
-      json: () => Promise.resolve({ error: 'Unauthorized', message: 'Invalid API key' }),
-    });
-
-    await expect(apiGet({ path: '/health' })).rejects.toThrow(ApiError);
-    await expect(apiGet({ path: '/health' })).rejects.toMatchObject({
-      statusCode: 401,
-      errorType: 'Unauthorized',
-    });
-  });
-
-  it('carries the Retry-After of a refusal on the ApiError, in milliseconds', async () => {
-    (fetch as any).mockResolvedValue({
-      ok: false,
-      status: 429,
-      headers: new Headers({ 'Retry-After': '3' }),
-      json: () => Promise.resolve({ error: 'Too Many Requests', message: 'Request admission limit exceeded.' }),
-    });
-
-    await expect(apiGet({ path: '/v1/company/search' })).rejects.toMatchObject({ statusCode: 429, retryAfterMs: 3_000 });
-  });
-
-  it('throws ApiError with the status text when the error body is not JSON', async () => {
-    (fetch as any).mockResolvedValue({
-      ok: false,
-      status: 502,
-      statusText: 'Bad Gateway',
-      json: () => Promise.reject(new SyntaxError('Unexpected token <')),
-    });
-
-    await expect(apiGet({ path: '/health' })).rejects.toMatchObject({ statusCode: 502, errorType: 'Bad Gateway' });
-  });
-
-  it('sends no Authorization header and resolves no key with auth: false', async () => {
-    const { getApiKey } = await import('../../../src/config/auth.js');
-    vi.mocked(getApiKey).mockClear();
-    (fetch as any).mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({}) });
-
-    await apiGet({ path: '/status', auth: false });
-    expect((fetch as any).mock.calls[0][1].headers).toEqual({ 'Accept': 'application/json' });
-    expect(getApiKey).not.toHaveBeenCalled();
-  });
-});
-
-describe('apiRequest', () => {
-  beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn());
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
-  });
-
-  it('sends the method and a JSON body with the auth header', async () => {
-    (fetch as any).mockResolvedValue({
-      ok: true,
-      status: 201,
-      text: () => Promise.resolve('{"id":"w1","secret":"whsec_x"}'),
-    });
-
-    const result = await apiRequest({ method: 'POST', path: '/v1/earnings-calls/webhooks', body: { url: 'https://h.example.com', events: ['ping'] } });
-    expect(result).toEqual({ id: 'w1', secret: 'whsec_x' });
-    expect(fetch).toHaveBeenCalledWith(
-      'https://api.example.com/v1/earnings-calls/webhooks',
-      expect.objectContaining({
-        method: 'POST',
-        body: '{"url":"https://h.example.com","events":["ping"]}',
-        headers: expect.objectContaining({
-          'Authorization': 'Bearer test-api-key',
-          'Content-Type': 'application/json',
-        }),
-      }),
-    );
-  });
-
-  it('returns undefined for a 204 without reading the body', async () => {
-    const text = vi.fn();
-    (fetch as any).mockResolvedValue({ ok: true, status: 204, text });
-
-    await expect(apiRequest({ method: 'DELETE', path: '/v1/earnings-calls/webhooks/w1' })).resolves.toBeUndefined();
-    expect(text).not.toHaveBeenCalled();
-    const init = (fetch as any).mock.calls[0][1];
-    expect(init.method).toBe('DELETE');
-    expect(init.body).toBeUndefined();
-    expect(init.headers['Content-Type']).toBeUndefined();
-  });
-
-  it('throws ApiError on a non-2xx answer', async () => {
-    (fetch as any).mockResolvedValue({
-      ok: false,
-      status: 400,
-      json: () => Promise.resolve({ error: 'invalid_webhook_url', message: 'Invalid webhook URL: not https' }),
-    });
-
-    await expect(apiRequest({ method: 'POST', path: '/v1/earnings-calls/webhooks', body: {} })).rejects.toMatchObject({
-      statusCode: 400,
-      errorType: 'invalid_webhook_url',
-    });
-  });
-
-  it('keeps GET requests free of method / body keys', async () => {
-    (fetch as any).mockResolvedValue({ ok: true, json: () => Promise.resolve({}) });
-
-    await apiGet({ path: '/health' });
-    const init = (fetch as any).mock.calls[0][1];
-    expect(Object.keys(init)).toEqual(['headers']);
-  });
-});
-
-describe('takeCreditUsage', () => {
-  beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn());
+    process.env.INVD_API_KEY = 'k1';
+    process.env.INVD_BASE_URL = 'https://api.example.com/';
     takeCreditUsage();
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
+    delete process.env.INVD_API_KEY;
+    delete process.env.INVD_BASE_URL;
   });
 
-  const page = (headers: Record<string, string>) => ({
-    ok: true,
-    headers: new Headers(headers),
-    json: () => Promise.resolve({}),
+  it('builds the URL: base without its slash, repeated array values, empty values dropped, a query on the path kept', () => {
+    expect(buildUrl('/v2/filings?form=10-K', { company: 'AAPL', items: ['2.02', '9.01'], cursor: undefined, q: '' }))
+      .toBe('https://api.example.com/v2/filings?form=10-K&company=AAPL&items=2.02&items=9.01');
   });
 
-  it('sums X-Credits-Charged across requests, keeps the last remaining net of its own charge, then resets', async () => {
-    (fetch as any)
-      .mockResolvedValueOnce(page({ 'X-Credits-Charged': '5', 'X-Credits-Included-Remaining': '100' }))
-      .mockResolvedValueOnce(page({ 'X-Credits-Charged': '5', 'X-Credits-Included-Remaining': '95' }));
-    await apiGet({ path: '/v1/a' });
-    await apiGet({ path: '/v1/a', params: { offset: '10' } });
-    expect(takeCreditUsage()).toEqual({ charged: 10, includedRemaining: 90 });
+  it('sends the bearer key, returns status, headers and the parsed body', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(json({ data: [] }, 200, { 'X-Request-Id': 'req_1' }));
+    const response = await apiCall({ path: '/v2/companies', query: { q: 'apple' }, silent: true });
+    expect(response.status).toBe(200);
+    expect(response.headers.get('X-Request-Id')).toBe('req_1');
+    expect(response.body).toEqual({ data: [] });
+    const [, init] = vi.mocked(fetch).mock.calls[0] ?? [];
+    expect((init?.headers as Record<string, string>).Authorization).toBe('Bearer k1');
+    expect(init?.method).toBe('GET');
+  });
+
+  it('sends no key for a public operation and JSON for a body', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 204 }));
+    const response = await apiCall({ path: '/v2/webhooks', method: 'POST', body: { url: 'https://x' }, auth: false, silent: true });
+    expect(response.body).toBeUndefined();
+    const [, init] = vi.mocked(fetch).mock.calls[0] ?? [];
+    const headers = init?.headers as Record<string, string>;
+    expect(headers.Authorization).toBeUndefined();
+    expect(headers['Content-Type']).toBe('application/json');
+    expect(init?.body).toBe('{"url":"https://x"}');
+  });
+
+  it('turns a problem+json answer into an ApiError with title, detail, code, Retry-After and the body', async () => {
+    const problem = { type: 'https://data.invinite.com/docs/errors#rate_limited', title: 'Too many requests', status: 429, detail: 'Slow down', code: 'rate_limited', request_id: 'req_2', docs_url: 'https://x' };
+    vi.mocked(fetch).mockResolvedValueOnce(json(problem, 429, { 'Retry-After': '3' }));
+    const error = await apiGet({ path: '/v2/companies', silent: true }).catch((caught: unknown) => caught);
+    expect(error).toBeInstanceOf(ApiError);
+    expect(error).toMatchObject({ statusCode: 429, errorType: 'Too many requests', message: 'Slow down', code: 'rate_limited', retryAfterMs: 3000, body: problem });
+  });
+
+  it('reads a non-JSON error body without failing', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response('gateway down', { status: 502, statusText: 'Bad Gateway' }));
+    const error = await apiGet({ path: '/v2/me', silent: true }).catch((caught: unknown) => caught);
+    expect(error).toMatchObject({ statusCode: 502, errorType: 'Bad Gateway', body: 'gateway down' });
+  });
+
+  it('sums X-Credits-Charged and keeps the last X-Credits-Remaining', async () => {
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(json({}, 200, { 'X-Credits-Charged': '5', 'X-Credits-Remaining': '100' }))
+      .mockResolvedValueOnce(json({}, 200, { 'X-Credits-Charged': '1' }));
+    await apiGet({ path: '/v2/a', silent: true });
+    await apiGet({ path: '/v2/b', silent: true });
+    const usage = takeCreditUsage();
+    expect(usage).toEqual({ charged: 6, remaining: 100, requests: 2 });
+    expect(formatCreditUsage(usage ?? { charged: 0, remaining: null, requests: 0 })).toBe('credits: 6 · remaining: 100');
     expect(takeCreditUsage()).toBeNull();
   });
 
-  it('records nothing for a response without credit headers', async () => {
-    (fetch as any).mockResolvedValueOnce(page({}));
-    await apiGet({ path: '/health' });
-    expect(takeCreditUsage()).toBeNull();
+  it('refuses without a key (exit 4) before any request', async () => {
+    delete process.env.INVD_API_KEY;
+    const previous = process.env.INVINITE_DATA_API_KEY;
+    delete process.env.INVINITE_DATA_API_KEY;
+    const cwd = process.cwd();
+    process.chdir('/');
+    try {
+      const error = await apiGet({ path: '/v2/me', silent: true }).catch((caught: unknown) => caught);
+      expect(error).toMatchObject({ name: 'AuthRequiredError', exitCode: 4 });
+      expect(fetch).not.toHaveBeenCalled();
+    } finally {
+      process.chdir(cwd);
+      if (previous !== undefined) process.env.INVINITE_DATA_API_KEY = previous;
+    }
   });
 });

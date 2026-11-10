@@ -67,8 +67,17 @@ function invdLines(markdown: string): string[] {
   return lines;
 }
 
-const optionsOf = (command: Command) => command.options;
 const matches = (flag: string) => (option: Option) => option.long === flag || option.short === flag;
+
+/** The subcommand a group runs when the next word is not one of its subcommands (`invd filings AAPL` → `list`). */
+const defaultChild = (command: Command): Command | undefined => {
+  const name = (command as unknown as { _defaultCommandName?: string })._defaultCommandName;
+  return name ? command.commands.find(candidate => candidate.name() === name) : undefined;
+};
+
+/** How many positionals a command takes (Infinity after a variadic one). */
+const positionalLimit = (command: Command) =>
+  command.registeredArguments.some(argument => argument.variadic) ? Infinity : command.registeredArguments.length;
 
 /** The problems of one `invd …` line; empty when it resolves. */
 function problems(program: Command, line: string): string[] {
@@ -81,14 +90,21 @@ function problems(program: Command, line: string): string[] {
     if (token.startsWith('-') && !/^-\d/.test(token)) {
       const flag = token.split('=')[0] ?? token;
       if (flag === '--help' || flag === '-h') continue;
-      const option = [...optionsOf(command), ...optionsOf(program)].find(matches(flag));
+      if (command.commands.length > 0 && defaultChild(command) && !command.options.some(matches(flag))) {
+        command = defaultChild(command) ?? command;
+      }
+      const option = command.options.find(matches(flag));
       if (!option) found.push(`unknown flag ${flag}`);
       // A flag that takes a value consumes the next word (unless given as --flag=value); an unknown flag is assumed to.
-      const takesValue = option ? option.required || option.optional : !(tokens[index + 1] ?? '-').startsWith('-');
+      // An optional value (`--json [fields]`) consumes it only when it does not look like a flag.
+      const next = tokens[index + 1];
+      const takesValue = option
+        ? option.required || (option.optional && next !== undefined && !next.startsWith('-'))
+        : !(next ?? '-').startsWith('-');
       if (takesValue && !token.includes('=')) index += 1;
       continue;
     }
-    // A family in a table (`search\\|details`, `ownership …`, `<statement>-detailed`): each named alternative must exist.
+    // A family in a table (`ratios\\|growth`, `<group> …`): each named alternative must exist.
     if (/\\\||…|</.test(token) && command.commands.length > 0) {
       const named = token.split('\\|').filter(alternative => /^[a-z][a-z-]*$/.test(alternative));
       const missing = named.filter(alternative => !command.commands.some(candidate => candidate.name() === alternative));
@@ -101,11 +117,15 @@ function problems(program: Command, line: string): string[] {
       continue;
     }
     if (command.commands.length > 0) {
-      found.push(`unknown command ${token} under \`${command === program ? 'invd' : command.name()}\``);
-      break;
+      const fallback = defaultChild(command);
+      if (!fallback || command === program) {
+        found.push(`unknown command ${token} under \`${command === program ? 'invd' : command.name()}\``);
+        break;
+      }
+      command = fallback;
     }
     positionals += 1;
-    if (positionals > command.registeredArguments.length) found.push(`unexpected argument ${token}`);
+    if (positionals > positionalLimit(command)) found.push(`unexpected argument ${token}`);
   }
   if (command === program && !tokens.every(token => ['--help', '-h', '--version', '-V'].includes(token))) found.push('no command');
   return found;
@@ -125,15 +145,20 @@ describe('invd command spellings in the docs', () => {
     for (const document of DOCUMENTS.slice(0, 2)) expect(invdLines(readFileSync(document, 'utf8')).length, document).toBeGreaterThan(10);
   });
 
-  it('catches a renamed flag and a missing command', () => {
+  it('catches a renamed flag, a missing command and a stray positional', () => {
     const program = createProgram();
-    expect(problems(program, 'invd earnings transcript --event abc --json')).toEqual(['unknown flag --event']);
-    expect(problems(program, 'invd financials income-statement -i AAPL -p annual --detailed')).toEqual(['unknown flag --detailed']);
-    expect(problems(program, 'invd company screener --json')).toEqual(['unknown command screener under `company`']);
-    expect(problems(program, 'invd webhooks update abc --json')).toEqual(['unexpected argument abc']);
-    expect(problems(program, 'invd config set-url https://example.com')).toEqual([]);
+    expect(problems(program, 'invd events transcript abc --event abc --json')).toEqual(['unknown flag --event']);
+    expect(problems(program, 'invd financials AAPL MSFT --period annual --detailed')).toEqual(['unknown flag --detailed']);
+    expect(problems(program, 'invd financials AAPL --view detailed --limit 4 --json')).toEqual([]);
+    expect(problems(program, 'invd companies screener --json')).toEqual(['unexpected argument screener']);
+    expect(problems(program, 'invd screener AAPL')).toEqual(['unknown command screener under `invd`', 'no command']);
+    expect(problems(program, 'invd companies get AAPL MSFT')).toEqual(['unexpected argument MSFT']);
+    expect(problems(program, 'invd filings AAPL --form 10-K')).toEqual([]);
+    expect(problems(program, 'invd holdings --filer 0000102909')).toEqual([]);
+    expect(problems(program, 'invd events transcript NVDA 2026Q3')).toEqual([]);
+    expect(problems(program, 'invd config set base_url https://example.com')).toEqual([]);
     expect(problems(program, 'invd metrics ratios\\|growth\\|cagr')).toEqual([]);
     expect(problems(program, 'invd metrics ratios\\|gross')).toEqual(['unknown command gross under `metrics`']);
-    expect(problems(program, 'invd financials snapshot -i "AAPL,MSFT" -p annual --json # comment --nope')).toEqual([]);
+    expect(problems(program, 'invd financials AAPL MSFT --fiscal-year 2026 --json # comment --nope')).toEqual([]);
   });
 });

@@ -6,8 +6,9 @@
  *   pnpm skill:commands          rewrite the block
  *   pnpm skill:commands:check    the drift gate
  *
- * One example per generated command (its required flags and the spec's `x-example-params`, valued with the spec's
- * examples — a placeholder only where the spec has none — and `--json`), its summary as a `#` comment.
+ * One example per generated command (the second `--help` example of `src/examples.ts`: positional, required flags and
+ * the spec's `x-example-params`, valued with the spec's examples, and `--json`), its summary as a `#` comment;
+ * `invd financials` once for its six operations.
  * A rostered command keeps a hand-written block between `<!-- invd:hand:<command> -->` and
  * `<!-- /invd:hand:<command> -->`, carried over verbatim; a missing one is seeded, a stale one fails by name.
  * The prose around the block stays hand-written.
@@ -17,8 +18,8 @@ import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { HAND_WRITTEN_COMMANDS } from '../src/hand-written-commands.js';
-import { exampleValue, parseManifest, type Manifest, type ManifestOperation, type ManifestParam } from '../src/spec-manifest.js';
-import { flagName } from '../src/spec-flags.js';
+import { exampleLines, shellWord } from '../src/examples.js';
+import { commandName, parseManifest, type Manifest, type ManifestOperation } from '../src/spec-manifest.js';
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const DEFAULT_SKILL_PATH = resolve(REPO_ROOT, 'claude-plugin/skills/invinite-data-cli/SKILL.md');
@@ -34,37 +35,28 @@ export interface RosterEntry {
   readonly reason: string;
 }
 
-/** The first spelling a flag is shown with: its one-letter alias, else the long flag. */
-const flagSpelling = (param: ManifestParam) => (param.alias ? `-${param.alias}` : `--${flagName(param.name)}`);
+export { shellWord };
 
-/** A word the shell reads as itself; anything else is quoted (double quotes unless the text needs single ones). */
-export const shellWord = (text: string): string => {
-  if (/^[\w.,:/@+=-]+$/.test(text)) return text;
-  if (!/["$`\\!]/.test(text)) return `"${text}"`;
-  return `'${text.replace(/'/g, "'\\''")}'`;
-};
-
-/** A flag's example value: the spec's example, else the enum's first value, else `<name>`. */
-const placeholder = (param: ManifestParam) =>
-  param.example !== undefined ? shellWord(exampleValue(param.example)) : (param.enum?.[0] ?? `<${param.name}>`);
-
-export function exampleLine(operation: ManifestOperation): string {
-  const shown = new Set(operation.exampleParams ?? []);
-  const flags = operation.params
-    .filter(param => param.required || shown.has(param.name))
-    .map(param => (param.type === 'boolean' ? flagSpelling(param) : `${flagSpelling(param)} ${placeholder(param)}`));
-  const body = operation.body && (operation.body.required || operation.body.example !== undefined)
-    ? [`--body ${operation.body.example === undefined ? "'<json>'" : shellWord(JSON.stringify(operation.body.example))}`]
-    : [];
-  return ['invd', operation.group, operation.action, ...flags, ...body, '--json'].filter(Boolean).join(' ');
+/** The skill's example: the second (fuller) `--help` example of the command. */
+export function exampleLine(operation: ManifestOperation, siblings: readonly ManifestOperation[] = []): string {
+  if (siblings.length > 1) {
+    const detailed = siblings.find(candidate => candidate.select?.view === 'detailed' && candidate.select?.basis === operation.select?.basis);
+    return exampleLines(detailed ?? operation, { implied: ['period'], extra: detailed ? ['--view detailed'] : [] })[1];
+  }
+  return exampleLines(operation)[1];
 }
 
-export function commentLine(operation: ManifestOperation): string {
-  const optional = operation.params.filter(param => !param.required).map(param => `--${flagName(param.name)}`);
-  if (operation.body && !operation.body.required) optional.push('--body', '--body-file');
-  if (operation.body?.required) optional.push('--body-file');
-  if (operation.pagination !== 'none') optional.push('--all');
-  return `# ${operation.summary}${optional.length ? ` (optional: ${optional.join(', ')})` : ''}`;
+export function commentLine(operation: ManifestOperation, siblings: readonly ManifestOperation[] = []): string {
+  const optional = operation.params
+    .filter(param => !param.required && param.name !== operation.positional?.name)
+    .map(param => `--${param.flag}`);
+  if (operation.body) optional.push(...operation.body.fields.map(field => `--${field.flag}`), '--body', '--body-file');
+  if (operation.download !== undefined) optional.push('--save');
+  if (operation.list) optional.push('--all');
+  const selectors = siblings.length > 1
+    ? ` [${[...new Set(siblings.flatMap(sibling => Object.entries(sibling.select ?? {}).map(([key]) => key)))].map(key => `--${key} ${[...new Set(siblings.map(sibling => sibling.select?.[key]))].join('|')}`).join(', ')}]`
+    : '';
+  return `# ${operation.summary}${selectors}${optional.length ? ` (optional: ${optional.join(', ')})` : ''}`;
 }
 
 /** Every `<!-- invd:hand:<command> -->` block of a SKILL.md, by command; a command given twice fails. */
@@ -101,14 +93,18 @@ export function renderCommandBlock(
     const lines = [`### ${group}`, ''];
     const description = descriptions.get(group);
     if (description) lines.push(description, '');
-    const operations = manifest.operations
-      .filter(operation => operation.group === group)
-      .sort((a, b) => a.action.localeCompare(b.action));
-    if (operations.length > 0) {
+    const commands = new Map<string, ManifestOperation[]>();
+    for (const operation of manifest.operations.filter(candidate => candidate.group === group)) {
+      commands.set(commandName(operation), [...(commands.get(commandName(operation)) ?? []), operation]);
+    }
+    const entries = [...commands].sort(([a], [b]) => a.localeCompare(b));
+    if (entries.length > 0) {
       lines.push('```bash');
-      operations.forEach((operation, index) => {
+      entries.forEach(([, siblings], index) => {
+        const primary = siblings.find(sibling => sibling.select?.basis === 'standardized' && sibling.select?.view === 'summary') ?? siblings[0];
+        if (!primary) return;
         if (index > 0) lines.push('');
-        lines.push(commentLine(operation), exampleLine(operation));
+        lines.push(commentLine(primary, siblings), exampleLine(primary, siblings));
       });
       lines.push('```', '');
     }

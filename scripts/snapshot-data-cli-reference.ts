@@ -80,9 +80,8 @@ try {
     const paths = pathLiterals.map((literal) =>
       literal.replaceAll('${BASE}', base).replace(/\$\{encodeURIComponent\(([^)]+)\)\}/gu, pathParameter),
     );
-    if (tokens[0] === 'ws') paths.push('/v1/ws');
     const declaredMethod = /method: '(POST|PATCH|DELETE|PUT)'/u.exec(commandBlock)?.[1] ?? 'GET';
-    const method = tokens[0] === 'ws' ? 'WS' : declaredMethod;
+    const method = declaredMethod;
     return [...new Set(paths)].filter((path) => inSpec(method, path)).map((path) => ({ method, path }));
   };
   const collect = (
@@ -118,10 +117,10 @@ try {
           );
       } else {
         origin = 'hand';
-        source = `src/commands/${tokens[0] === 'logout' ? 'login' : tokens[0]}.ts`;
+        source = `src/commands/${tokens[0]}.ts`;
         operations = scrapeHandOperations(tokens, source);
-        // A rostered command inside an API group (or the WebSocket) calls the API; a local one (login, config, plugin) may not.
-        if (operations.length === 0 && (manifestGroups.has(tokens[0] ?? '') || tokens[0] === 'ws'))
+        // A rostered command inside an API group calls the API; a local one (auth, config, plugin …) may not.
+        if (operations.length === 0 && manifestGroups.has(tokens[0] ?? ''))
           throw new Error(`invd ${name}: no API path found in ${source}`);
       }
       return [

@@ -10,213 +10,204 @@ import {
   serializeManifest,
 } from '../../../scripts/build-cli-manifest.js';
 
-const ok = { 200: { description: 'ok' } };
-
-const fixture = () => ({
-  openapi: '3.0.0',
-  info: { title: 'fixture', version: '9.9.9' },
-  tags: [{ name: 'Things', description: 'Things and more' }, { name: 'Other', description: 'Other' }],
-  components: {
-    parameters: {
-      Limit: { name: 'limit', in: 'query', required: false, schema: { type: 'integer', default: 10 } },
-    },
-  },
-  paths: {
-    '/v1/things/search': {
-      get: {
-        operationId: 'thingsSearch',
-        summary: 'Search things',
-        tags: ['Things'],
-        parameters: [
-          { name: 'query', in: 'query', required: true, description: 'Text', schema: { type: 'string' } },
-          { $ref: '#/components/parameters/Limit' },
-          { name: 'days', in: 'query', schema: { type: 'integer', enum: [7, 30] } },
-          { name: 'status', in: 'query', schema: { type: 'array', items: { type: 'string', enum: ['a', 'b'] } } },
-        ],
-        responses: ok,
-        'x-cli': {
-          group: 'things', action: 'search', view: 'table', rowsPath: 'things', columns: ['name'],
-          flags: { query: 'q' }, pagination: 'top',
+const envelope = (row: string) => ({
+  200: {
+    description: 'page',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            data: { type: 'array', items: { $ref: `#/components/schemas/${row}` } },
+            has_more: { type: 'boolean' },
+            next_cursor: { type: 'string', nullable: true },
+            meta: { type: 'object' },
+          },
         },
       },
     },
-    '/v1/things/{thing_id}': {
-      get: {
-        operationId: 'thingsGet',
-        summary: 'One thing',
-        tags: ['Things'],
-        parameters: [{ name: 'thing_id', in: 'path', required: true, schema: { type: 'string' } }],
-        responses: ok,
-        'x-cli': { group: 'things', action: 'get', view: 'keyValue', rowsPath: 'thing', pagination: 'none' },
+  },
+});
+const object = (ref: string) => ({ 200: { description: 'one', content: { 'application/json': { schema: { $ref: `#/components/schemas/${ref}` } } } } });
+const stamps = { 'x-credits': 1, 'x-tier': 'standard' };
+
+const fixture = () => ({
+  openapi: '3.1.0',
+  info: { title: 'fixture', version: '2026-11-09' },
+  security: [{ bearerAuth: [] }],
+  tags: [{ name: 'Things', description: 'Things and more' }, { name: 'Shared', description: 'Shared tag' }],
+  components: {
+    parameters: { Limit: { name: 'limit', in: 'query', schema: { type: 'integer', default: 25 }, example: 25 } },
+    schemas: {
+      Thing: { type: 'object', properties: { id: { type: 'string' }, name: { type: 'string' } } },
+      ThingDoc: {
+        type: 'object',
+        properties: { id: { type: 'string' }, pdf: { type: 'object', properties: { url: { type: 'string' }, sha256: { type: 'string' } } } },
       },
     },
-    '/v1/things/history': {
+  },
+  paths: {
+    '/v1/legacy': { get: { operationId: 'legacy', responses: object('Thing'), 'x-cli': { group: 'legacy', action: 'get', pagination: 'none' } } },
+    '/v2/things': {
       get: {
-        operationId: 'thingsHistory',
-        summary: 'History',
-        tags: ['Things'],
-        responses: ok,
-        'x-cli': { group: 'things', action: 'history', allItemsPath: 'periods', pagination: 'perCompany' },
+        operationId: 'listThings', summary: 'List things', tags: ['Things'], ...stamps,
+        parameters: [
+          { name: 'company', in: 'query', required: true, description: 'Ticker or CIK', schema: { type: 'string' }, example: 'AAPL' },
+          { name: 'filed_at.gte', in: 'query', schema: { type: 'string', format: 'date' }, example: '2026-01-01' },
+          { name: 'statement', in: 'query', schema: { type: 'string', pattern: '^(a|b)(,(a|b))*$' } },
+          { name: 'reported_only', in: 'query', schema: { type: 'boolean' } },
+          { name: 'fields', in: 'query', schema: { type: 'string' } },
+          { $ref: '#/components/parameters/Limit' },
+        ],
+        responses: envelope('Thing'),
+        'x-cli': { group: 'things', action: 'list', positional: 'company', flags: { limit: 'l' }, columns: ['id', 'name'] },
+        'x-example-params': ['filed_at.gte'],
       },
-    },
-    '/v1/hooks': {
       post: {
-        operationId: 'hooksCreate',
-        summary: 'Create a hook',
-        tags: ['Things', 'Other'],
-        requestBody: { required: true, content: { 'application/json': { schema: { type: 'object' } } } },
-        responses: { 201: { description: 'created' } },
-        'x-cli': { group: 'hooks', action: 'create', groupDescription: 'Hooks', pagination: 'none' },
+        operationId: 'createThing', summary: 'Create a thing', tags: ['Things'], ...stamps,
+        parameters: [{ name: 'Idempotency-Key', in: 'header', schema: { type: 'string' } }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object', required: ['url'],
+                properties: {
+                  url: { type: 'string' }, events: { type: 'array', items: { type: 'string' } },
+                  filters: { type: 'object', properties: { ciks: { type: 'array', items: { type: 'string' } } } },
+                },
+              },
+              example: { url: 'https://x' },
+            },
+          },
+        },
+        responses: object('Thing'),
+        'x-cli': { group: 'things', action: 'create', flags: { url: 'u' }, columns: ['id'] },
       },
     },
-    '/v1/things/download': {
+    '/v2/things/{id}': {
       get: {
-        operationId: 'thingsDownload',
-        summary: 'Download',
-        tags: ['Things'],
-        responses: ok,
-        'x-cli': { exclude: 'hand-written: invd things download' },
+        operationId: 'getThing', summary: 'Get a thing', tags: ['Things'], ...stamps,
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' }, example: 't1' }],
+        responses: object('ThingDoc'),
+        'x-cli': { group: 'things', action: 'get', positional: 'id' },
       },
     },
-    '/v1/ws': { ws: { summary: 'socket', responses: ok } },
+    '/v2/sums/a': {
+      get: {
+        operationId: 'getSumA', summary: 'Sum A', tags: ['Shared'], 'x-credits': 1, 'x-tier': 'free',
+        parameters: [{ name: 'company', in: 'query', required: true, schema: { type: 'string' } }],
+        responses: envelope('Thing'),
+        'x-cli': { group: 'sums', action: 'get', positional: 'company', command: 'sums', select: { basis: 'a' } },
+      },
+    },
+    '/v2/sums/b': {
+      get: {
+        operationId: 'getSumB', summary: 'Sum B', tags: ['Shared'], 'x-credits': 2, 'x-tier': 'pro',
+        parameters: [{ name: 'company', in: 'query', required: true, schema: { type: 'string' } }],
+        responses: envelope('Thing'),
+        'x-cli': { group: 'sums', action: 'get', positional: 'company', command: 'sums', select: { basis: 'b' } },
+      },
+      ws: { operationId: 'stream' },
+    },
   },
 });
 
-const build = (spec: unknown) => buildManifest(spec, JSON.stringify(spec));
+const build = (spec: unknown = fixture()) => buildManifest(spec, JSON.stringify(spec));
+const op = (manifest: ReturnType<typeof build>, id: string) => manifest.operations.find(operation => operation.operationId === id);
 
-describe('buildManifest', () => {
-  it('maps types, a $ref parameter, an integer enum, an array enum and an alias', () => {
-    const search = build(fixture()).operations.find(operation => operation.operationId === 'thingsSearch');
-    expect(search?.params).toEqual([
-      { name: 'query', in: 'query', required: true, type: 'string', description: 'Text', alias: 'q' },
-      { name: 'limit', in: 'query', required: false, type: 'integer', default: 10 },
-      { name: 'days', in: 'query', required: false, type: 'integer', enum: ['7', '30'] },
-      { name: 'status', in: 'query', required: false, type: 'array', items: 'string', enum: ['a', 'b'] },
+describe('buildManifest (v2)', () => {
+  it('skips v1 and non-HTTP operations, groups by x-cli, describes single-tag groups by their tag', () => {
+    const manifest = build();
+    expect(manifest.operations.map(operation => operation.operationId).sort()).toEqual(['createThing', 'getSumA', 'getSumB', 'getThing', 'listThings']);
+    expect(manifest.groups).toEqual([{ name: 'sums', description: 'Shared tag' }, { name: 'things', description: 'Things and more' }]);
+    expect(manifest.specVersion).toBe('2026-11-09');
+  });
+
+  it('a list: positional company (comma-variadic), flags with dots → dashes, pattern, boolean, alias, row fields, table view', () => {
+    const list = op(build(), 'listThings');
+    expect(list).toMatchObject({ group: 'things', action: 'list', list: true, view: 'table', columns: ['id', 'name'], fields: ['id', 'name'], credits: 1, tier: 'standard', auth: true });
+    expect(list?.positional).toEqual({ name: 'company', required: true, variadic: 'comma' });
+    expect(list?.params.map(param => param.flag)).toEqual(['company', 'filed-at-gte', 'statement', 'reported-only', 'fields', 'limit']);
+    expect(list?.params.find(param => param.name === 'statement')?.pattern).toBe('^(a|b)(,(a|b))*$');
+    expect(list?.params.find(param => param.name === 'limit')).toMatchObject({ alias: 'l', default: 25, example: 25 });
+    expect(list?.exampleParams).toEqual(['filed_at.gte']);
+  });
+
+  it('a member: path positional (never variadic), key/value only with columns, the download object', () => {
+    const get = op(build(), 'getThing');
+    expect(get).toMatchObject({ list: false, view: 'json', download: 'pdf', fields: ['id', 'pdf'] });
+    expect(get?.positional).toEqual({ name: 'id', required: true });
+  });
+
+  it('a body: flags for its scalar / list properties one object deep, a header parameter, the example', () => {
+    const create = op(build(), 'createThing');
+    expect(create?.body?.fields).toEqual([
+      { path: ['url'], type: 'string', required: true, flag: 'url', alias: 'u' },
+      { path: ['events'], type: 'array', items: 'string', required: false, flag: 'events' },
+      { path: ['filters', 'ciks'], type: 'array', items: 'string', required: false, flag: 'ciks' },
     ]);
-    expect(search).toMatchObject({ method: 'get', view: 'table', pagination: 'top', allItemsPath: ['things'] });
+    expect(create?.body?.example).toEqual({ url: 'https://x' });
+    expect(create?.params[0]).toMatchObject({ name: 'Idempotency-Key', in: 'header', flag: 'idempotency-key' });
+    expect(create?.view).toBe('keyValue');
   });
 
-  it('a path parameter is required, a body op records its body, view defaults to json', () => {
-    const manifest = build(fixture());
-    const get = manifest.operations.find(operation => operation.operationId === 'thingsGet');
-    expect(get?.params[0]).toMatchObject({ name: 'thing_id', in: 'path', required: true });
-    const create = manifest.operations.find(operation => operation.operationId === 'hooksCreate');
-    expect(create).toMatchObject({ method: 'post', body: { required: true, contentType: 'application/json' }, view: 'json' });
-    const history = manifest.operations.find(operation => operation.operationId === 'thingsHistory');
-    expect(history).toMatchObject({ pagination: 'perCompany', allItemsPath: ['periods'] });
+  it('x-cli.command: one command (action "") over several operations told apart by select', () => {
+    const manifest = build();
+    expect(manifest.operations.filter(operation => operation.group === 'sums').map(operation => [operation.action, operation.select, operation.credits]))
+      .toEqual([['', { basis: 'a' }, 1], ['', { basis: 'b' }, 2]]);
   });
 
-  it('carries parameter examples, x-example-params and the request-body example; refuses an unknown example param', () => {
-    const spec = fixture();
-    const search = spec.paths['/v1/things/search'].get;
-    spec.paths['/v1/things/search'].get = {
-      ...search,
-      parameters: [{ ...search.parameters[0], example: 'apple' }, ...search.parameters.slice(1)],
-      'x-example-params': ['days'],
-    } as typeof search;
-    const hook = spec.paths['/v1/hooks'].post;
-    hook.requestBody.content['application/json'] = { schema: { type: 'object' }, example: { url: 'https://x.test' } } as never;
-    const manifest = build(spec);
-    const built = manifest.operations.find(operation => operation.operationId === 'thingsSearch');
-    expect(built?.params[0]).toMatchObject({ name: 'query', example: 'apple' });
-    expect(built?.exampleParams).toEqual(['days']);
-    expect(manifest.operations.find(operation => operation.operationId === 'hooksCreate')?.body)
-      .toEqual({ required: true, contentType: 'application/json', example: { url: 'https://x.test' } });
-    spec.paths['/v1/things/search'].get = { ...spec.paths['/v1/things/search'].get, 'x-example-params': ['nope'] } as typeof search;
-    expect(() => build(spec)).toThrow(/GET \/v1\/things\/search: x-example-params names no parameter: nope/);
-  });
+  it('refuses what the manifest would get wrong, by name', () => {
+    const clash = fixture();
+    clash.paths['/v2/things'].get.parameters.push({ name: 'json', in: 'query', schema: { type: 'string' } } as never);
+    expect(() => build(clash)).toThrow('--json collides with an invd flag of its own');
 
-  it('auth: an operation security list wins over the document one; none at all or [] is public', () => {
-    const spec = fixture();
-    spec.paths['/v1/things/search'].get = { ...spec.paths['/v1/things/search'].get, security: [{ bearerAuth: [] }] };
-    spec.paths['/v1/things/{thing_id}'].get = { ...spec.paths['/v1/things/{thing_id}'].get, security: [] };
-    const auth = (manifestSpec: unknown) => Object.fromEntries(build(manifestSpec).operations
-      .map(operation => [operation.operationId, operation.auth]));
-    expect(auth(spec)).toMatchObject({ thingsSearch: true, thingsGet: false, thingsHistory: false });
-    expect(auth({ ...spec, security: [{ bearerAuth: [] }] }))
-      .toMatchObject({ thingsSearch: true, thingsGet: false, thingsHistory: true });
-  });
+    const alias = fixture();
+    alias.paths['/v2/things'].get['x-cli'].flags = { limit: 'h' };
+    expect(() => build(alias)).toThrow('-h collides');
 
-  it('omits excluded and non-HTTP operations, sorts, and describes each group once', () => {
-    const manifest = build(fixture());
-    expect(manifest.operations.map(operation => `${operation.group} ${operation.action}`))
-      .toEqual(['hooks create', 'things get', 'things history', 'things search']);
-    expect(manifest.groups).toEqual([
-      { name: 'hooks', description: 'Hooks' },
-      { name: 'things', description: 'Things and more' },
-    ]);
-    expect(manifest.specVersion).toBe('9.9.9');
-    expect(manifest.specSha256).toMatch(/^[0-9a-f]{64}$/);
-  });
+    const twice = fixture();
+    (twice.paths['/v2/things/{id}'].get['x-cli'] as Record<string, unknown>).action = 'list';
+    expect(() => build(twice)).toThrow('invd things list is also GET /v2/things');
 
-  it('refuses what the manifest adds, by name', () => {
-    const noAllPath = fixture();
-    delete (noAllPath.paths['/v1/things/history'].get['x-cli'] as { allItemsPath?: string }).allItemsPath;
-    expect(() => build(noAllPath)).toThrow(/GET \/v1\/things\/history: a perCompany operation needs x-cli.allItemsPath/);
+    const stampless = fixture();
+    delete (stampless.paths['/v2/things/{id}'].get as Record<string, unknown>)['x-credits'];
+    expect(() => build(stampless)).toThrow('x-credits / x-tier missing');
 
-    const twoTags = fixture();
-    delete (twoTags.paths['/v1/hooks'].post['x-cli'] as { groupDescription?: string }).groupDescription;
-    expect(() => build(twoTags)).toThrow(/group "hooks": spans 2 tags/);
+    const positional = fixture();
+    positional.paths['/v2/things/{id}'].get['x-cli'].positional = 'nope';
+    expect(() => build(positional)).toThrow('x-cli.positional names no parameter: nope');
 
-    const twoDescriptions = fixture();
-    Object.assign(twoDescriptions.paths['/v1/things/history'].get['x-cli'], { groupDescription: 'A' });
-    Object.assign(twoDescriptions.paths['/v1/things/{thing_id}'].get['x-cli'], { groupDescription: 'B' });
-    expect(() => build(twoDescriptions)).toThrow(/group "things": two descriptions/);
-
-    const badType = fixture();
-    badType.paths['/v1/things/{thing_id}'].get.parameters.push({ name: 'x', in: 'query', required: false, schema: { type: 'object' } });
-    expect(() => build(badType)).toThrow(/parameter "x": unmappable type "object"/);
-
-    const reserved = fixture();
-    reserved.paths['/v1/things/{thing_id}'].get.parameters.push({ name: 'all', in: 'query', required: false, schema: { type: 'string' } });
-    expect(() => build(reserved)).toThrow(/--all collides with an invd flag/);
-
-    // `--body` is a write's JSON-body flag: a read may name a parameter `body`, a write may not.
-    const readBody = fixture();
-    readBody.paths['/v1/things/{thing_id}'].get.parameters.push({ name: 'body', in: 'query', required: false, schema: { type: 'string' } });
-    expect(() => build(readBody)).not.toThrow();
-
-    const writeBody = fixture();
-    (writeBody.paths['/v1/hooks'].post as { parameters?: unknown[] }).parameters = [
-      { name: 'body', in: 'query', required: false, schema: { type: 'string' } },
-    ];
-    expect(() => build(writeBody)).toThrow(/--body collides with an invd flag/);
-
-    const topWithoutRows = fixture();
-    delete (topWithoutRows.paths['/v1/things/search'].get['x-cli'] as { rowsPath?: string }).rowsPath;
-    expect(() => build(topWithoutRows)).toThrow(/a top-paginated operation needs x-cli.rowsPath or allItemsPath/);
+    const shared = fixture();
+    shared.paths['/v2/things/{id}'].get.tags = ['Shared'];
+    (shared.paths['/v2/things/{id}'].get['x-cli'] as Record<string, unknown>).group = 'others';
+    expect(() => build(shared)).toThrow('shares tag "Shared"');
   });
 });
 
-describe('runBuildCliManifest --check', () => {
+describe('runBuildCliManifest', () => {
+  let dir: string;
   beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), 'invd-manifest-'));
     vi.spyOn(console, 'log').mockImplementation(() => undefined);
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
   });
-
-  afterEach(() => {
-    vi.mocked(console.log).mockRestore();
-    vi.mocked(console.error).mockRestore();
-  });
+  afterEach(() => vi.restoreAllMocks());
 
   it('exits 0 when current, 1 when the spec changed or the manifest is missing', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'invd-manifest-'));
     const specPath = join(dir, 'openapi.json');
-    const manifestPath = join(dir, 'generated', 'cli-manifest.json');
+    const manifestPath = join(dir, 'manifest.json');
     writeFileSync(specPath, JSON.stringify(fixture()));
-
     expect(runBuildCliManifest({ specPath, manifestPath, check: true })).toBe(1);
     expect(runBuildCliManifest({ specPath, manifestPath, check: false })).toBe(0);
     expect(runBuildCliManifest({ specPath, manifestPath, check: true })).toBe(0);
-
-    const edited = fixture();
-    edited.paths['/v1/things/search'].get.summary = 'Search things!';
-    writeFileSync(specPath, JSON.stringify(edited));
+    writeFileSync(specPath, JSON.stringify({ ...fixture(), info: { title: 'x', version: '2' } }));
     expect(runBuildCliManifest({ specPath, manifestPath, check: true })).toBe(1);
   });
 
   it('the committed manifest is what the bundled openapi.json produces', () => {
-    const specText = readFileSync(DEFAULT_SPEC_PATH, 'utf8');
-    expect(readFileSync(DEFAULT_MANIFEST_PATH, 'utf8')).toBe(serializeManifest(buildManifest(JSON.parse(specText), specText)));
+    const text = readFileSync(DEFAULT_SPEC_PATH, 'utf8');
+    expect(readFileSync(DEFAULT_MANIFEST_PATH, 'utf8')).toBe(serializeManifest(buildManifest(JSON.parse(text), text)));
   });
 });

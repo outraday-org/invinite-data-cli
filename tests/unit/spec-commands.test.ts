@@ -1,497 +1,300 @@
-import { Readable } from 'node:stream';
+import { mkdtempSync, readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { Command } from 'commander';
-
-vi.mock('../../src/config/auth.js', () => ({
-  getApiKey: vi.fn().mockResolvedValue('test-api-key'),
-}));
-
-vi.mock('../../src/config/config-manager.js', () => ({
-  getBaseUrl: vi.fn().mockReturnValue('https://api.example.com'),
-  DASHBOARD_URL: 'https://app.example.com/data-api',
-}));
-
-vi.mock('../../src/shared/spinner.js', () => ({
-  createSpinner: vi.fn().mockReturnValue({ succeed: vi.fn(), fail: vi.fn() }),
-  setJsonMode: vi.fn(),
-}));
-
-import { registerSpecCommands } from '../../src/spec-commands.js';
 import { createProgram, loadManifest } from '../../src/cli.js';
-import type { Manifest, ManifestOperation } from '../../src/spec-manifest.js';
-import { flagName } from '../../src/spec-flags.js';
+import { coverageNote, parseFiscalPeriod, wireValue } from '../../src/spec-commands.js';
+import { UsageError } from '../../src/shared/errors.js';
+import type { ManifestParam } from '../../src/spec-manifest.js';
 
-const op = (overrides: Partial<ManifestOperation> & Pick<ManifestOperation, 'group' | 'action' | 'path'>): ManifestOperation => ({
-  operationId: `${overrides.group}-${overrides.action}`,
-  method: 'get',
-  auth: true,
-  summary: `${overrides.group} ${overrides.action}`,
-  params: [],
-  view: 'json',
-  pagination: 'none',
-  ...overrides,
+const json = (body: unknown, status = 200, headers: Record<string, string> = {}) =>
+  new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', ...headers } });
+const page = (data: unknown[], next: string | null = null, meta: Record<string, unknown> = {}) =>
+  json({ data, has_more: next !== null, next_cursor: next, meta });
+
+let out: string[];
+let err: string[];
+
+const run = async (...args: string[]) => {
+  await createProgram().parseAsync(['node', 'invd', ...args]);
+};
+/** Runs and returns the exit code `withErrorHandling` asked for (0 when the command returned). */
+const exitOf = async (...args: string[]): Promise<number> => {
+  try {
+    await run(...args);
+    return 0;
+  } catch (error) {
+    const match = /^exit (\d+)$/.exec(error instanceof Error ? error.message : '');
+    if (match) return Number(match[1]);
+    throw error;
+  }
+};
+const calls = () => vi.mocked(fetch).mock.calls.map(([url, init]) => ({ url: String(url), init }));
+
+beforeEach(() => {
+  vi.stubGlobal('fetch', vi.fn());
+  process.env.INVD_API_KEY = 'k';
+  process.env.INVD_BASE_URL = 'https://api.example.com';
+  out = [];
+  err = [];
+  vi.spyOn(console, 'log').mockImplementation((line?: unknown) => { out.push(String(line ?? '')); });
+  vi.spyOn(console, 'error').mockImplementation((...parts: unknown[]) => { err.push(parts.map(String).join(' ')); });
+  vi.spyOn(process, 'exit').mockImplementation(((code?: number) => { throw new Error(`exit ${code ?? 0}`); }) as never);
 });
 
-const MANIFEST: Manifest = {
-  specVersion: '1.0.0',
-  specSha256: '0'.repeat(64),
-  groups: [
-    { name: 'things', description: 'Things' },
-    { name: 'hooks', description: 'Hooks' },
-    { name: 'ping', description: 'Ping the API' },
-  ],
-  operations: [
-    op({
-      group: 'things',
-      action: 'search',
-      path: '/v1/things/search',
-      view: 'table',
-      rowsPath: 'things',
-      columns: ['name', 'owner.name'],
-      pagination: 'top',
-      allItemsPath: ['things'],
-      params: [
-        { name: 'query', in: 'query', required: true, type: 'string', alias: 'q', description: 'Search text' },
-        { name: 'limit', in: 'query', required: false, type: 'integer', default: 10, alias: 'l' },
-        { name: 'min_value', in: 'query', required: false, type: 'number' },
-        { name: 'sort', in: 'query', required: false, type: 'string', enum: ['asc', 'desc'] },
-        { name: 'status', in: 'query', required: false, type: 'array', items: 'string', enum: ['open', 'closed'] },
-      ],
-    }),
-    op({
-      group: 'things',
-      action: 'history',
-      path: '/v1/things/history',
-      view: 'table',
-      rowsPath: 'companies.0.periods',
-      columns: ['year'],
-      pagination: 'perCompany',
-      allItemsPath: ['periods'],
-      params: [{ name: 'identifier', in: 'query', required: true, type: 'string', alias: 'i' }],
-    }),
-    op({
-      group: 'things',
-      action: 'get',
-      path: '/v1/things/{thing_id}',
-      view: 'keyValue',
-      rowsPath: 'thing',
-      columns: ['name', 'owner.name'],
-      params: [{ name: 'thing_id', in: 'path', required: true, type: 'string' }],
-    }),
-    op({
-      group: 'things',
-      action: 'extract',
-      path: '/v1/things/extract',
-      pagination: 'top',
-      allItemsPath: ['guidance', 'kpis'],
-    }),
-    op({
-      group: 'hooks',
-      action: 'create',
-      method: 'post',
-      path: '/v1/hooks',
-      body: { required: true, contentType: 'application/json' },
-      view: 'keyValue',
-      columns: ['id', 'url'],
-    }),
-    op({ group: 'hooks', action: 'delete', method: 'delete', path: '/v1/hooks/{id}', params: [{ name: 'id', in: 'path', required: true, type: 'string' }] }),
-    op({ group: 'ping', action: '', path: '/ping', auth: false, view: 'keyValue', columns: ['status'] }),
-  ],
-};
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+  delete process.env.INVD_API_KEY;
+  delete process.env.INVD_BASE_URL;
+  delete process.env.INVD_CONFIRM_CREDITS;
+});
 
-function respond(body: unknown, init: { status?: number; headers?: Record<string, string> } = {}) {
-  const status = init.status ?? 200;
-  const text = body === undefined ? '' : JSON.stringify(body);
-  vi.mocked(fetch).mockResolvedValueOnce({
-    ok: status >= 200 && status < 300,
-    status,
-    statusText: 'Status',
-    headers: new Headers(init.headers ?? {}),
-    json: () => Promise.resolve(JSON.parse(text)),
-    text: () => Promise.resolve(text),
-  } as unknown as Response);
-}
+describe('flag values', () => {
+  const param = (overrides: Partial<ManifestParam>): ManifestParam => ({ name: 'x', in: 'query', required: false, type: 'string', flag: 'x', ...overrides });
 
-const program = () => {
-  const root = new Command().exitOverride().option('--json').option('--all');
-  registerSpecCommands(root, MANIFEST);
-  return root;
-};
-const run = (...args: string[]) => program().parseAsync(['node', 'invd', ...args]);
-const requestedUrl = (call = 0) => String(vi.mocked(fetch).mock.calls[call][0]);
-const requestInit = (call = 0) => vi.mocked(fetch).mock.calls[call][1];
-
-describe('registerSpecCommands', () => {
-  let out: string[];
-  let err: string[];
-
-  beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn());
-    out = [];
-    err = [];
-    vi.spyOn(console, 'log').mockImplementation((line?: unknown) => { out.push(String(line ?? '')); });
-    vi.spyOn(console, 'error').mockImplementation((...parts: unknown[]) => { err.push(parts.map(String).join(' ')); });
-    vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never);
+  it('validates by type, enum and pattern; refuses with exit 2 by flag name', () => {
+    expect(wireValue(param({ type: 'integer' }), '007')).toBe('7');
+    expect(() => wireValue(param({ type: 'integer', flag: 'limit' }), '1.5')).toThrow('--limit expects an integer');
+    expect(wireValue(param({ enum: ['annual', 'quarterly'] }), 'annual')).toBe('annual');
+    expect(() => wireValue(param({ enum: ['annual'] }), 'weekly')).toThrow(UsageError);
+    expect(wireValue(param({ pattern: '^(a|b)(,(a|b))*$' }), 'a,b')).toBe('a,b');
+    expect(() => wireValue(param({ pattern: '^(a|b)(,(a|b))*$' }), 'a,c')).toThrow('matching');
+    expect(wireValue(param({ type: 'boolean' }), false)).toBe('false');
+    expect(wireValue(param({ type: 'array', items: 'string', enum: ['x', 'y'] }), 'x, y')).toEqual(['x', 'y']);
   });
 
-  afterEach(() => {
-    vi.unstubAllGlobals();
-    vi.mocked(console.log).mockRestore();
-    vi.mocked(console.error).mockRestore();
-    vi.mocked(process.exit).mockRestore();
-  });
-
-  it('maps flags (long and alias) to query parameters and sends no default', async () => {
-    respond({ things: [] });
-    await run('things', 'search', '-q', 'apple', '--min-value', '1.5', '--sort', 'asc');
-    expect(requestedUrl()).toBe('https://api.example.com/v1/things/search?query=apple&min_value=1.5&sort=asc');
-  });
-
-  it('coerces an integer and refuses a non-integer by flag name without a request', async () => {
-    respond({ things: [] });
-    await run('things', 'search', '--query', 'a', '-l', '007');
-    expect(requestedUrl()).toContain('limit=7');
-
-    vi.mocked(fetch).mockClear();
-    await run('things', 'search', '--query', 'a', '--limit', 'ten');
-    expect(fetch).not.toHaveBeenCalled();
-    expect(err.join('\n')).toContain('--limit expects an integer (got "ten")');
-    expect(process.exit).toHaveBeenCalledWith(1);
-  });
-
-  it('refuses a missing required flag and an unknown enum value', async () => {
-    await expect(run('things', 'search')).rejects.toThrow(/required option '-q, --query <value>' not specified/);
-    await expect(run('things', 'search', '-q', 'a', '--sort', 'up')).rejects.toThrow(/Allowed choices are asc, desc/);
-    expect(fetch).not.toHaveBeenCalled();
-  });
-
-  it('takes an array as one comma list, sent repeated, items checked against the enum', async () => {
-    respond({ things: [] });
-    await run('things', 'search', '-q', 'a', '--status', 'open, closed,open');
-    expect(requestedUrl()).toContain('status=open&status=closed');
-
-    vi.mocked(fetch).mockClear();
-    await run('things', 'search', '-q', 'a', '--status', 'open,pending');
-    expect(fetch).not.toHaveBeenCalled();
-    expect(err.join('\n')).toContain('--status expects a comma-separated list, each item one of open, closed');
-  });
-
-  it('puts a path parameter into the path, encoded', async () => {
-    respond({ thing: { name: 'x', owner: { name: 'y' } } });
-    await run('things', 'get', '--thing-id', 'a/b c');
-    expect(requestedUrl()).toBe('https://api.example.com/v1/things/a%2Fb%20c');
-  });
-
-  it('sends a JSON body from --body', async () => {
-    respond({ id: 'h1', url: 'https://x' }, { status: 201 });
-    await run('hooks', 'create', '--body', '{"url":"https://x"}');
-    expect(requestInit()).toMatchObject({ method: 'POST', body: '{"url":"https://x"}' });
-  });
-
-  it('reads the body from stdin with --body-file -', async () => {
-    const stdin = vi.spyOn(process, 'stdin', 'get')
-      .mockReturnValue(Readable.from(['{"url":', '"https://y"}']) as unknown as typeof process.stdin);
-    respond({ id: 'h2', url: 'https://y' }, { status: 201 });
-    await run('hooks', 'create', '--body-file', '-');
-    stdin.mockRestore();
-    expect(requestInit()).toMatchObject({ method: 'POST', body: '{"url":"https://y"}' });
-  });
-
-  it('refuses a missing body, two bodies and invalid JSON before any request', async () => {
-    await run('hooks', 'create');
-    await run('hooks', 'create', '--body', '{}', '--body-file', 'x.json');
-    await run('hooks', 'create', '--body', '{nope');
-    expect(fetch).not.toHaveBeenCalled();
-    const text = err.join('\n');
-    expect(text).toContain('This command needs a JSON body');
-    expect(text).toContain('Pass --body or --body-file, not both');
-    expect(text).toContain('--body is not valid JSON');
-  });
-
-  it('--all follows a top-level next_url and concatenates the rows', async () => {
-    respond({ things: [{ name: 'a' }], next_url: 'https://api.example.com/v1/things/search?query=a&offset=1' });
-    respond({ things: [{ name: 'b' }] });
-    await run('--all', '--json', 'things', 'search', '-q', 'a');
-    expect(requestedUrl(1)).toBe('https://api.example.com/v1/things/search?query=a&offset=1');
-    expect(JSON.parse(out.join('\n')).things).toEqual([{ name: 'a' }, { name: 'b' }]);
-  });
-
-  it('--all on a top op concatenates every listed array a page carries', async () => {
-    respond({ guidance: [1], next_url: 'https://api.example.com/v1/things/extract?offset=1' });
-    respond({ guidance: [2], kpis: [3] });
-    await run('--all', '--json', 'things', 'extract');
-    expect(JSON.parse(out.join('\n'))).toMatchObject({ guidance: [1, 2], kpis: [3] });
-  });
-
-  it('--all follows companies[0].next_url and merges each company by index', async () => {
-    respond({
-      companies: [
-        { ticker: 'A', periods: [{ year: 1 }], next_url: 'https://api.example.com/v1/things/history?identifier=A&offset=1' },
-        { ticker: 'B', periods: [{ year: 10 }], next_url: 'https://api.example.com/v1/things/history?identifier=B&offset=1' },
-      ],
-    });
-    respond({ companies: [{ ticker: 'A', periods: [{ year: 2 }] }, { ticker: 'B', periods: [{ year: 11 }] }] });
-    await run('--all', '--json', 'things', 'history', '-i', 'A');
-    const merged = JSON.parse(out.join('\n'));
-    expect(merged.companies.map((c: { periods: unknown }) => c.periods)).toEqual([[{ year: 1 }, { year: 2 }], [{ year: 10 }, { year: 11 }]]);
-    expect(merged.companies.every((c: { next_url?: unknown }) => c.next_url === undefined)).toBe(true);
-  });
-
-  it('refuses --all on an operation that does not paginate', async () => {
-    await run('--all', 'things', 'get', '--thing-id', 'x');
-    expect(fetch).not.toHaveBeenCalled();
-    expect(err.join('\n')).toContain('invd things get does not paginate');
-    expect(process.exit).toHaveBeenCalledWith(1);
-  });
-
-  it('renders a table from rowsPath with dotted columns and the pagination hint', async () => {
-    respond({ things: [{ name: 'a', owner: { name: 'o' } }], next_url: 'https://api.example.com/next' });
-    await run('things', 'search', '-q', 'a');
-    const text = out.join('\n');
-    expect(text).toMatch(/name\s+owner\.name/);
-    expect(text).toMatch(/a\s+o/);
-    expect(text).toContain('More results available');
-  });
-
-  it('prints No results. for an empty rowsPath array', async () => {
-    respond({ things: [] });
-    await run('things', 'search', '-q', 'a');
-    expect(out.join('\n')).toContain('No results.');
-  });
-
-  it('renders keyValue over the object rowsPath names', async () => {
-    respond({ thing: { name: 'x', owner: { name: 'y' } } });
-    await run('things', 'get', '--thing-id', '1');
-    const text = out.join('\n');
-    expect(text).toMatch(/name\s+x/);
-    expect(text).toMatch(/owner\.name\s+y/);
-  });
-
-  it('a group-level command (action "") and the json view', async () => {
-    respond({ status: 'ok' });
-    await run('ping');
-    expect(out.join('\n')).toMatch(/status\s+ok/);
-    respond({ guidance: [] });
-    await run('things', 'extract');
-    expect(JSON.parse(out.slice(1).join('\n'))).toEqual({ guidance: [] });
-  });
-
-  it('--json prints the raw body', async () => {
-    respond({ thing: { name: 'x' }, extra: true });
-    await run('--json', 'things', 'get', '--thing-id', '1');
-    expect(JSON.parse(out.join('\n'))).toEqual({ thing: { name: 'x' }, extra: true });
-  });
-
-  it('a 204 prints Done. (and nothing with --json)', async () => {
-    respond(undefined, { status: 204 });
-    await run('hooks', 'delete', '--id', 'h1');
-    expect(requestInit()).toMatchObject({ method: 'DELETE' });
-    expect(out).toEqual(['Done.']);
-    respond(undefined, { status: 204 });
-    await run('--json', 'hooks', 'delete', '--id', 'h1');
-    expect(out).toEqual(['Done.']);
-  });
-
-  it('an ApiError exits 1', async () => {
-    respond({ error: 'Not Found', message: 'No such thing' }, { status: 404 });
-    await run('things', 'get', '--thing-id', 'nope');
-    expect(err.join('\n')).toContain('Error 404: Not Found');
-    expect(process.exit).toHaveBeenCalledWith(1);
-  });
-
-  it('sends no API key for a public operation (auth: false)', async () => {
-    const { getApiKey } = await import('../../src/config/auth.js');
-    vi.mocked(getApiKey).mockClear();
-    respond({ status: 'ok' });
-    await run('ping');
-    expect(requestInit()?.headers).not.toHaveProperty('Authorization');
-    expect(getApiKey).not.toHaveBeenCalled();
-    respond({ things: [] });
-    await run('things', 'search', '-q', 'x');
-    expect(requestInit(1)?.headers).toHaveProperty('Authorization', 'Bearer test-api-key');
-  });
-
-  it('adds the plan line to a 403 tier denial and points a 401 at invd login', async () => {
-    respond({ error: 'Forbidden', message: 'This route requires the PRO plan' }, { status: 403 });
-    await run('things', 'get', '--thing-id', 't1');
-    expect(err.join('\n')).toContain('This route needs the PRO plan');
-    err.length = 0;
-    respond({ error: 'Unauthorized', message: 'Invalid API key' }, { status: 401 });
-    await run('things', 'get', '--thing-id', 't1');
-    expect(err.join('\n')).toContain('Run: invd login');
-  });
-
-  it('attaches generated actions to a group a hand-written command registered, with the spec description', () => {
-    const root = new Command();
-    root.command('things').description('hand-written').command('export');
-    registerSpecCommands(root, MANIFEST);
-    expect(root.commands.map(command => command.name())).toEqual(['things', 'hooks', 'ping']);
-    expect(root.commands[0].description()).toBe('Things');
-    expect(root.commands[0].commands.map(command => command.name())).toEqual(['export', 'search', 'history', 'get', 'extract']);
-  });
-
-  it('refuses a hand-written action that is also a manifest operation', () => {
-    const root = new Command();
-    root.command('things').command('search');
-    expect(() => registerSpecCommands(root, MANIFEST)).toThrow(/search/);
+  it('reads a fiscal period', () => {
+    expect(parseFiscalPeriod('2026Q3')).toEqual({ fiscalYear: '2026', fiscalQuarter: '3' });
+    expect(parseFiscalPeriod('FY2025 q4')).toEqual({ fiscalYear: '2025', fiscalQuarter: '4' });
+    expect(parseFiscalPeriod('2026H1')).toBeUndefined();
   });
 });
 
-describe('the real manifest', () => {
-  beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn());
-    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+describe('requests', () => {
+  it('invd financials AAPL --statement … --view detailed --limit 4 --json hits getStandardizedFinancialsDetailed', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(page([{ fiscal_year: 2026 }]));
+    await run('financials', 'AAPL', '--statement', 'income-statement', '--period', 'quarterly', '--view', 'detailed', '--limit', '4', '--json');
+    expect(calls()).toHaveLength(1);
+    expect(calls()[0]?.url).toBe('https://api.example.com/v2/financials/standardized/detailed?company=AAPL&statement=income-statement&period=quarterly&limit=4');
+    expect(JSON.parse(out.join('\n'))).toMatchObject({ data: [{ fiscal_year: 2026 }] });
   });
 
-  afterEach(() => {
-    vi.unstubAllGlobals();
-    vi.mocked(console.error).mockRestore();
-    if (vi.isMockFunction(console.log)) vi.mocked(console.log).mockRestore();
+  it('several companies + one fiscal year and quarter is one call (period implied, said on stderr)', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(page([]));
+    await run('financials', 'AAPL', 'MSFT', '--fiscal-year', '2026', '--fiscal-quarter', '3', '--json');
+    expect(calls()).toHaveLength(1);
+    const url = new URL(calls()[0]?.url ?? '');
+    expect(url.pathname).toBe('/v2/financials/standardized');
+    expect(Object.fromEntries(url.searchParams)).toEqual({ company: 'AAPL,MSFT', fiscal_year: '2026', fiscal_quarter: '3', period: 'quarterly' });
+    expect(err.join('\n')).toContain('--period quarterly assumed');
   });
 
-  it('registers every operation once, with no colliding command or flag', () => {
-    const manifest = loadManifest();
-    const root = new Command().option('--json').option('--all').option('--show-cost');
-    registerSpecCommands(root, manifest);
-
-    const names = manifest.operations.map(operation => `${operation.group} ${operation.action}`.trim());
-    expect(new Set(names).size).toBe(names.length);
-    const registered = root.commands.flatMap(group => (group.commands.length
-      ? group.commands.map(command => `${group.name()} ${command.name()}`)
-      : [group.name()]));
-    expect(registered.sort()).toEqual([...names].sort());
-
-    for (const operation of manifest.operations) {
-      const flags = operation.params.map(param => flagName(param.name));
-      const aliases = operation.params.flatMap(param => (param.alias ? [param.alias] : []));
-      expect(new Set(flags).size, operation.operationId).toBe(flags.length);
-      expect(new Set(aliases).size, operation.operationId).toBe(aliases.length);
-    }
+  it('--basis as-reported picks the as-reported operation; an as-reported flag elsewhere is refused (exit 2)', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(page([]));
+    await run('financials', 'AAPL', '--basis', 'as-reported', '--reported-only', '--period', 'annual', '--json');
+    expect(calls()[0]?.url).toContain('/v2/financials/as-reported?company=AAPL&period=annual&reported_only=true');
+    expect(await exitOf('financials', 'AAPL', '--reported-only', '--period', 'annual')).toBe(2);
+    expect(err.join('\n')).toContain('--reported-only applies to --basis as-reported only');
   });
 
-  it('createProgram registers every manifest group once, the generated earnings actions beside the rostered ones', async () => {
+  it("a group's list is its default: invd filings AAPL --form 10-K; --no-<flag> sends false; dotted filters", async () => {
+    vi.mocked(fetch).mockImplementation(async () => page([]));
+    await run('filings', 'AAPL', '--form', '10-K', '--filed-at-gte', '2025-01-01', '--json');
+    expect(calls()[0]?.url).toBe('https://api.example.com/v2/filings?company=AAPL&form=10-K&filed_at.gte=2025-01-01');
+    await run('ipos', '--no-is-spac', '--json');
+    expect(calls()[1]?.url).toContain('is_spac=false');
+  });
+
+  it('a member id is the positional and goes in the path, encoded', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(json({ accession: '0000320193-26-000026' }));
+    await run('filings', 'get', '0000320193-26-000026', '--json');
+    expect(calls()[0]?.url).toBe('https://api.example.com/v2/filings/0000320193-26-000026');
+  });
+
+  it('invd events transcript NVDA 2026Q3 resolves the event through GET /v2/events and says so', async () => {
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(page([{ event_id: 'ev-1' }]))
+      .mockResolvedValueOnce(json({ event: { event_id: 'ev-1' }, turns: [] }));
+    await run('events', 'transcript', 'NVDA', '2026Q3', '--json');
+    expect(calls().map(call => call.url)).toEqual([
+      'https://api.example.com/v2/events?company=NVDA&fiscal_year=2026&fiscal_quarter=3&limit=1',
+      'https://api.example.com/v2/events/ev-1/transcript',
+    ]);
+    expect(err.join('\n')).toContain('resolved NVDA 2026Q3 → event ev-1');
+  });
+
+  it('body flags (one object deep) over --body, the header parameter, POST', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(json({ id: 'wh_1' }));
+    await run('webhooks', 'create', '--body', '{"events":["x"]}', '--url', 'https://hooks.example.com', '--ciks', '0000320193,0000789019', '--idempotency-key', 'k-1', '--json');
+    const [call] = calls();
+    expect(call?.init?.method).toBe('POST');
+    expect(JSON.parse(String(call?.init?.body))).toEqual({ events: ['x'], url: 'https://hooks.example.com', filters: { ciks: ['0000320193', '0000789019'] } });
+    expect((call?.init?.headers as Record<string, string>)['Idempotency-Key']).toBe('k-1');
+  });
+
+  it('a required body without one is a usage error naming its flags', async () => {
+    expect(await exitOf('webhooks', 'create')).toBe(2);
+    expect(err.join('\n')).toContain('--url, --events');
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('a missing required positional or an unknown flag is a usage error (commander, exit 2 in bin)', async () => {
     const program = createProgram();
-    const names = program.commands.map(command => command.name());
-    expect(new Set(names).size).toBe(names.length);
-    for (const group of loadManifest().groups) expect(names, group.name).toContain(group.name);
-    const earnings = program.commands.find(command => command.name() === 'earnings');
-    expect(earnings?.description()).toBe(loadManifest().groups.find(group => group.name === 'earnings')?.description);
-    expect(earnings?.commands.map(command => command.name())).toEqual(expect.arrayContaining(['transcript', 'calendar', 'qa']));
+    program.commands.forEach(command => command.commands.forEach(child => child.exitOverride()));
+    await expect(program.parseAsync(['node', 'invd', 'companies', 'get'])).rejects.toMatchObject({ code: 'commander.missingArgument' });
+  });
+});
+
+describe('--dry-run, confirmation, delete', () => {
+  it('invd holdings AAPL --all --dry-run prints a credit estimate and makes no request', async () => {
+    await run('holdings', 'AAPL', '--all', '--dry-run', '--output', 'table');
+    expect(fetch).not.toHaveBeenCalled();
+    const text = out.join('\n');
+    expect(text).toContain('GET https://api.example.com/v2/holdings?company=AAPL');
+    expect(text).toContain('credits: 1 × pages');
+    expect(text).toContain('dry run: no request was sent');
   });
 
-  it('health and status run without an API key', async () => {
-    const { getApiKey } = await import('../../src/config/auth.js');
-    vi.mocked(getApiKey).mockClear();
-    vi.spyOn(console, 'log').mockImplementation(() => undefined);
-    respond({ status: 'ok', timestamp: 't' });
-    respond({ status: 'operational', services: [] });
-    respond({ families: [] });
-    await createProgram().exitOverride().parseAsync(['node', 'invd', 'health']);
-    await createProgram().exitOverride().parseAsync(['node', 'invd', 'status', 'show']);
-    await createProgram().exitOverride().parseAsync(['node', 'invd', 'status', 'licensing']);
-    expect([0, 1, 2].map(call => requestedUrl(call))).toEqual([
-      'https://api.example.com/health', 'https://api.example.com/status', 'https://api.example.com/status/licensing',
-    ]);
-    expect(getApiKey).not.toHaveBeenCalled();
+  it('a dry run of a resolved event shows the lookup and the sum', async () => {
+    await run('events', 'transcript', 'NVDA', '2026Q3', '--dry-run', '--json');
+    const plan = JSON.parse(out.join('\n'));
+    expect(plan.steps.map((step: { step: string }) => step.step)).toEqual(['resolve', 'request']);
+    expect(plan.steps[1].request).toContain('/v2/events/<event_id>/transcript');
+    expect(plan.credits_estimate).toBe('6');
+    expect(fetch).not.toHaveBeenCalled();
   });
 
-  it('a generated earnings command sends an array repeated and accepts --event-type all', async () => {
-    vi.spyOn(console, 'log').mockImplementation(() => undefined);
-    respond({ from: 'a', to: 'b', events: [] });
-    await createProgram().exitOverride().parseAsync([
-      'node', 'invd', 'earnings', 'calendar', '--status', 'confirmed,estimated', '--event-type', 'all', '-l', '5',
-    ]);
-    const url = new URL(requestedUrl());
-    expect(url.pathname).toBe('/v1/earnings-calls/calendar');
-    expect(url.searchParams.getAll('status')).toEqual(['confirmed', 'estimated']);
-    expect(url.searchParams.get('event_type')).toBe('all');
-    expect(url.searchParams.get('limit')).toBe('5');
+  it('--all over the confirm_credits threshold needs --yes when nobody can answer', async () => {
+    expect(await exitOf('search', 'filings', 'supply', 'chain', '--all')).toBe(2);
+    expect(err.join('\n')).toContain('costs 100 credits per page');
+    expect(fetch).not.toHaveBeenCalled();
+    vi.mocked(fetch).mockResolvedValueOnce(page([{ accession: 'a' }]));
+    await run('search', 'filings', 'supply', 'chain', '--all', '--yes');
+    expect(calls()[0]?.url).toBe('https://api.example.com/v2/search/filings?q=supply+chain');
   });
 
-  it('earnings document-search sends --mode literal and --case-sensitive false as query values', async () => {
-    vi.spyOn(console, 'log').mockImplementation(() => undefined);
-    respond({ query: 'FY2027', mode: 'literal', coverage: { completeness: 'complete', lexical: null, reasons: [] }, hits: [] });
-    await createProgram().exitOverride().parseAsync([
-      'node', 'invd', '--json', 'earnings', 'document-search', '-q', 'FY2027', '-i', 'NVDA', '--mode', 'literal', '--case-sensitive', 'false',
-    ]);
-    const url = new URL(requestedUrl());
-    expect(url.pathname).toBe('/v1/earnings-calls/documents/search');
-    expect(url.searchParams.get('q')).toBe('FY2027');
-    expect(url.searchParams.get('identifier')).toBe('NVDA');
-    expect(url.searchParams.get('mode')).toBe('literal');
-    expect(url.searchParams.get('case_sensitive')).toBe('false');
+  it('a delete needs --yes without a terminal', async () => {
+    expect(await exitOf('webhooks', 'delete', 'wh_1')).toBe(2);
+    expect(fetch).not.toHaveBeenCalled();
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 204 }));
+    await run('webhooks', 'delete', 'wh_1', '--yes');
+    expect(calls()[0]?.init?.method).toBe('DELETE');
+    expect(err.join('\n')).toContain('Done.');
+  });
+});
+
+describe('output', () => {
+  const rows = [{ ticker: 'AAPL', name: 'Apple Inc.', exchange: 'XNAS', sector: 'Technology', cik: '0000320193', extra: 1 }];
+
+  it('piped: tab-separated rows of the operation columns; the next cursor on stderr', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(page(rows, 'c2'));
+    await run('companies', '--q', 'apple');
+    expect(out).toEqual(['ticker\tname\texchange\tsector\tcik\nAAPL\tApple Inc.\tXNAS\tTechnology\t0000320193']);
+    expect(err.join('\n')).toContain('--cursor c2');
   });
 
-  it('earnings search takes -m for the mode and sends no mode without it (the API default applies)', async () => {
-    vi.spyOn(console, 'log').mockImplementation(() => undefined);
-    const body = { query: 'margin', mode: 'literal', coverage: { completeness: 'complete', lexical: null, reasons: [] }, hits: [] };
-    respond(body);
-    respond(body);
-    await createProgram().exitOverride().parseAsync(['node', 'invd', '--json', 'earnings', 'search', '-q', 'margin', '-m', 'literal']);
-    await createProgram().exitOverride().parseAsync(['node', 'invd', '--json', 'earnings', 'search', '-q', 'margin']);
-    expect(new URL(requestedUrl(0)).searchParams.get('mode')).toBe('literal');
-    expect(new URL(requestedUrl(1)).searchParams.has('mode')).toBe(false);
+  it('--json a,b keeps those fields of each row and the envelope; an unknown field is exit 2 listing the fields', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(page(rows, 'c2'));
+    await run('companies', '--json', 'ticker,cik');
+    expect(JSON.parse(out.join('\n'))).toEqual({ data: [{ ticker: 'AAPL', cik: '0000320193' }], has_more: true, next_cursor: 'c2', meta: {} });
+    expect(await exitOf('companies', '--json', 'nope')).toBe(2);
+    expect(err.join('\n')).toContain('Fields: cik, ticker');
   });
 
-  it('earnings search rejects the removed modes at the manifest enum', async () => {
-    const root = new Command().exitOverride().option('--json');
-    registerSpecCommands(root, loadManifest());
-    const run = (mode: string) => root.parseAsync(['node', 'invd', '--json', 'earnings', 'search', '-q', 'margin', '-m', mode]);
-    await expect(run('hybrid')).rejects.toThrow(/Allowed choices are lexical, literal/);
-    await expect(run('semantic')).rejects.toThrow(/Allowed choices are lexical, literal/);
-    expect(vi.mocked(fetch)).not.toHaveBeenCalled();
+  it('--output csv / jsonl, --jq', async () => {
+    vi.mocked(fetch).mockImplementation(async () => page([{ a: 1, b: 'x,y' }, { a: 2, b: null }]));
+    await run('market', 'holidays', '--output', 'csv');
+    expect(out.pop()).toBe('a,b\n1,"x,y"\n2,');
+    await run('market', 'holidays', '--output', 'jsonl');
+    expect(out.pop()).toBe('{"a":1,"b":"x,y"}\n{"a":2,"b":null}');
+    await run('market', 'holidays', '--jq', '.data[].a');
+    expect(out.pop()).toBe('1\n2');
   });
 
-  it('--show-cost still prints for a generated command', async () => {
-    const out: string[] = [];
-    const err: string[] = [];
-    vi.spyOn(console, 'log').mockImplementation((line?: unknown) => { out.push(String(line ?? '')); });
-    vi.mocked(console.error).mockImplementation((line?: unknown) => { err.push(String(line ?? '')); });
-    respond({ status: 'operational', components: [] }, { headers: { 'X-Credits-Charged': '0', 'X-Credits-Included-Remaining': '7' } });
-    await createProgram().exitOverride().parseAsync(['node', 'invd', '--show-cost', 'status', 'show']);
-    expect(requestedUrl()).toBe('https://api.example.com/status');
-    expect(err).toEqual(['credits: 0 · included left: 7']);
+  it('--all streams every page as JSONL', async () => {
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(page([{ day: '2026-01-01' }], 'c2'))
+      .mockResolvedValueOnce(page([{ day: '2026-01-19' }]));
+    await run('market', 'holidays', '--all');
+    expect(out).toEqual(['{"day":"2026-01-01"}', '{"day":"2026-01-19"}']);
+    expect(calls()[1]?.url).toBe('https://api.example.com/v2/market-holidays?cursor=c2');
   });
 
-  it('news get prints the attribution block before the summary; news list --all follows the cursor next_url', async () => {
-    const out: string[] = [];
-    vi.spyOn(console, 'log').mockImplementation((line?: unknown) => { out.push(String(line ?? '')); });
-    const id = '4c1d9e62-3b7a-4f2e-8d1c-9e0a7b6c5d4f';
-    respond({
-      id, published_at: '2026-10-28T20:05:10Z', title: 'NVIDIA Results — Q3 FY2027', kind: 'earnings_results', source: { id: 'edgar' },
-      url: 'https://www.sec.gov/x', content_status: 'available', summary_text: 'NVIDIA reported record quarterly revenue …',
-      attribution: {
-        publisher: 'NVIDIA Corporation', publisher_host: null, source_url: 'https://www.sec.gov/x', published_at: '2026-10-28T20:05:10Z',
-        rights: 'public_record', edgar: { form: '8-K', accession: '0001045810-26-000123' }, statement: "Summary written by Invinite from the publication above; not the publisher's text. Source and date above.",
-      },
-    });
-    await createProgram().exitOverride().parseAsync(['node', 'invd', 'news', 'get', '--id', id]);
-    expect(requestedUrl(0)).toBe(`https://api.example.com/v1/news/${id}`);
-    const text = out.join('\n').replace(/\x1b\[[0-9;]*m/g, '');
-    for (const key of ['attribution.publisher', 'attribution.source_url', 'attribution.published_at', 'attribution.edgar.form', 'attribution.edgar.accession', 'attribution.statement']) {
-      expect(text.indexOf(key), key).toBeGreaterThanOrEqual(0);
-      expect(text.indexOf(key), key).toBeLessThan(text.indexOf('summary_text'));
-    }
-    expect(text).toContain('0001045810-26-000123');
-
-    const row = (n: number) => ({ id: `id-${n}`, published_at: '2026-10-29T13:03:22Z', source: { id: 'edgar' }, kind: 'other', is_earnings_news: false, symbols: ['NVDA'], title: `t${n}`, attribution: { publisher: 'NVIDIA Corporation' } });
-    respond({ items: [row(1)], next_cursor: 'c1', next_url: 'https://api.example.com/v1/news?ticker=NVDA&cursor=c1&from=2026-10-22&to=2026-10-29' });
-    respond({ items: [row(2)], next_cursor: null, next_url: null });
-    out.length = 0;
-    await createProgram().exitOverride().parseAsync(['node', 'invd', '--json', '--all', 'news', 'list', '--ticker', 'NVDA']);
-    expect(new URL(requestedUrl(2)).searchParams.get('cursor')).toBe('c1');
-    expect(JSON.parse(out.join('\n')).items.map((item: { id: string }) => item.id)).toEqual(['id-1', 'id-2']);
+  it('--all that fails after written rows exits 3 with the resume cursor', async () => {
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(page([{ day: '2026-01-01' }], 'c2'))
+      .mockResolvedValueOnce(page([{ day: '2026-01-19' }], 'c3'))
+      .mockResolvedValueOnce(json({ title: 'Bad', detail: 'boom', code: 'internal' }, 500));
+    expect(await exitOf('market', 'holidays', '--all')).toBe(3);
+    expect(out).toHaveLength(2);
+    expect(err.join('\n')).toContain('resume with --cursor c3');
   });
-  it('news follows the 2.0.0 spec: summary blocks, title|lede|summary search, no media commands or flags', () => {
-    const news = createProgram().commands.find(command => command.name() === 'news')!;
-    const action = (name: string) => news.commands.find(command => command.name() === name);
-    expect(action('asset-download')).toBeUndefined();
-    expect(action('list')!.options.map(option => option.long)).not.toContain('--has-media');
-    expect(action('get')!.options.map(option => option.long)).not.toContain('--body');
-    expect(action('search')!.options.find(option => option.long === '--field')!.argChoices).toEqual(['title', 'lede', 'summary', 'any']);
-    const text = loadManifest().operations.find(operation => operation.group === 'news' && operation.action === 'text')!;
-    expect(text.columns).toEqual(['index', 'kind', 'heading', 'text']);
-    const manifest = JSON.stringify(loadManifest());
-    for (const gone of ['asset-download', 'has_media', 'media_count', 'body_text', 'body_html']) expect(manifest, gone).not.toContain(gone);
+
+  it('--all --jq that fails after printed pages also exits 3 with the resume cursor', async () => {
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(page([{ day: '2026-01-01' }], 'c2'))
+      .mockResolvedValueOnce(json({ title: 'Bad', detail: 'boom', code: 'internal' }, 500));
+    expect(await exitOf('market', 'holidays', '--all', '--jq', '.data[].day')).toBe(3);
+    expect(out).toEqual(['2026-01-01']);
+    expect(err.join('\n')).toContain('resume with --cursor c2');
+  });
+
+  it('a coverage that is not complete is a yellow stderr note', async () => {
+    expect(coverageNote({ meta: { coverage: { state: 'pending', retry_after_s: 30 } } })).toContain('retry in 30s');
+    expect(coverageNote({ meta: { coverage: { state: 'complete' } } })).toBeUndefined();
+    vi.mocked(fetch).mockResolvedValueOnce(page([], null, { coverage: { state: 'partial', through: '2026-11-09' } }));
+    await run('holdings', 'AAPL', '--json');
+    expect(err.join('\n')).toContain('coverage: partial through 2026-11-09');
+  });
+});
+
+describe('exit codes from problem codes', () => {
+  const problem = (status: number, code: string) => json({ type: 't', title: 'T', status, detail: 'd', code, request_id: 'req_1', docs_url: 'https://x' }, status);
+
+  it.each([
+    [400, 'invalid_parameter', 2],
+    [400, 'cursor_mismatch', 2],
+    [401, 'unauthorized', 4],
+    [402, 'insufficient_credits', 6],
+    [403, 'plan_required', 6],
+    [404, 'not_covered', 1],
+  ])('%s %s → exit %s', async (status, code, exit) => {
+    vi.mocked(fetch).mockResolvedValueOnce(problem(status, code));
+    expect(await exitOf('companies', 'get', 'AAPL')).toBe(exit);
+    expect(err.join('\n')).toContain('request id: req_1');
+  });
+});
+
+describe('--save', () => {
+  it('saves the file a response points to, size and SHA-256 verified', async () => {
+    const bytes = Buffer.from('%PDF-1.7 test');
+    const sha256 = createHash('sha256').update(bytes).digest('hex');
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(json({ id: 'n1', title: 'T', pdf: { url: 'https://storage.example.com/n1.pdf', sha256, bytes: bytes.length } }))
+      .mockResolvedValueOnce(new Response(bytes, { status: 200, headers: { 'Content-Type': 'application/pdf' } }));
+    const file = join(mkdtempSync(join(tmpdir(), 'invd-save-')), 'n1.pdf');
+    await run('news', 'get', 'n1', '--save', file, '--json', 'title');
+    expect(readFileSync(file)).toEqual(bytes);
+    expect((calls()[1]?.init?.headers as Record<string, string> | undefined)?.Authorization).toBeUndefined();
+    expect(err.join('\n')).toContain(`Saved ${file}`);
+  });
+
+  it('a checksum mismatch saves nothing and exits 5', async () => {
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(json({ id: 'n1', pdf: { url: 'https://storage.example.com/n1.pdf', sha256: '0'.repeat(64), bytes: 3 } }))
+      .mockResolvedValueOnce(new Response(Buffer.from('abc'), { status: 200 }));
+    const file = join(mkdtempSync(join(tmpdir(), 'invd-save-')), 'n1.pdf');
+    expect(await exitOf('news', 'get', 'n1', '--save', file)).toBe(5);
+  });
+});
+
+describe('manifest coverage', () => {
+  it('every operation with a download object takes --save; no list does', () => {
+    const operations = loadManifest().operations;
+    expect(operations.filter(operation => operation.download !== undefined).map(operation => operation.operationId).sort())
+      .toEqual(['getAudio', 'getInvestorDocument', 'getNewsItem', 'getTranscript']);
+    expect(operations.some(operation => operation.list && operation.download !== undefined)).toBe(false);
   });
 });

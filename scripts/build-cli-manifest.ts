@@ -5,9 +5,11 @@
  *   pnpm cli:manifest          rewrite the manifest
  *   pnpm cli:manifest:check    the drift gate
  *
- * The spec's `x-cli` is validated at its source (`invinite-data-api` `src/lib/cliMetadata.ts`); this builder only
- * refuses what the MANIFEST adds: one description per group, parameter types it can map, flag names that do not
- * collide with the program's own, an `--all` path for every paginated operation.
+ * Only the `/v2` operations become commands (the bundle still carries v1 until task 12 deletes it; `invd` 3.x is
+ * the v1 CLI). The spec's `x-cli` is validated at its source (`invinite-data-api` conventions lint); this builder
+ * derives what the v2 `x-cli` no longer states — list-ness from the response envelope, the view from the shape,
+ * body flags from the request schema, the download object — and refuses what the MANIFEST would get wrong: flag
+ * names that collide with the program's own, an unmappable parameter type, one command spelled twice.
  */
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
@@ -17,24 +19,57 @@ import { z } from 'zod';
 import {
   MANIFEST_ITEM_TYPES,
   MANIFEST_METHODS,
-  MANIFEST_PAGINATIONS,
   MANIFEST_PARAM_TYPES,
-  MANIFEST_VIEWS,
+  commandName,
   parseManifest,
   type Manifest,
+  type ManifestBodyField,
   type ManifestOperation,
   type ManifestParam,
 } from '../src/spec-manifest.js';
-import { BODY_FLAGS, flagName, RESERVED_ALIASES, RESERVED_FLAGS } from '../src/spec-flags.js';
+import {
+  COMMAND_FLAGS,
+  GLOBAL_PARAM_FLAGS,
+  RESERVED_ALIASES,
+  RESERVED_FLAGS,
+  SELECT_FLAGS,
+  flagName,
+} from '../src/spec-flags.js';
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const DEFAULT_SPEC_PATH = resolve(REPO_ROOT, 'openapi.json');
 export const DEFAULT_MANIFEST_PATH = resolve(REPO_ROOT, 'src/generated/cli-manifest.json');
 
+/**
+ * The `--help` line of a group whose operations span several spec tags or share their tag with another group (the
+ * v2 `x-cli` has no `groupDescription`; proposed upstream as decision D7 of task 10). Any other group takes its
+ * tag's description.
+ */
+export const GROUP_DESCRIPTIONS: Readonly<Record<string, string>> = {
+  companies: 'Listed companies: list, profile, fiscal periods, dividends and splits',
+  events: 'Earnings calls and other corporate events: transcripts, Q&A, media and call analytics',
+  filers: 'Every SEC filer (13F managers, pre-IPO issuers, former registrants), listed or not',
+  market: 'US market holidays',
+  metrics: 'Ratios, growth, CAGR, and the explanation of one standardized fact',
+  people: 'Executives and analysts, and who took part in which event',
+  search: 'Full-text search over SEC filings, transcripts, investor documents and news',
+  segments: 'Segment values (revenue by product, geography …); list-detailed adds lineage (PRO)',
+};
+
+/**
+ * Spec aliases `invd` cannot honour because commander owns the letter (`-h` is help). Listed one by one so a new
+ * collision still fails the build; proposed upstream as decision D8 of task 10 (`x-cli.flags.horizon: "H"`).
+ */
+export const DROPPED_ALIASES: Readonly<Record<string, string>> = { 'GET /v2/metrics/cagr horizon': 'h' };
+
+/** The parameter a positional joins several words into: company lists with `,`, search text with a space. */
+const VARIADIC: Readonly<Record<string, 'comma' | 'space'>> = { company: 'comma', q: 'space' };
+
 const schemaSchema = z.object({
   type: z.unknown().optional(),
   items: z.object({ type: z.unknown().optional(), enum: z.array(z.unknown()).optional() }).passthrough().optional(),
   enum: z.array(z.unknown()).optional(),
+  pattern: z.string().optional(),
   default: z.unknown().optional(),
 }).passthrough();
 
@@ -54,13 +89,11 @@ const cliSchema = z.union([
   z.object({
     group: z.string(),
     action: z.string(),
-    view: z.enum(MANIFEST_VIEWS).optional(),
-    rowsPath: z.string().optional(),
+    positional: z.string().optional(),
     columns: z.array(z.string()).optional(),
     flags: z.record(z.string()).optional(),
-    allItemsPath: z.union([z.string(), z.array(z.string())]).optional(),
-    groupDescription: z.string().optional(),
-    pagination: z.enum(MANIFEST_PAGINATIONS),
+    command: z.string().optional(),
+    select: z.record(z.string()).optional(),
   }).passthrough(),
 ]);
 
@@ -70,22 +103,31 @@ const operationSchema = z.object({
   tags: z.array(z.string()).optional(),
   parameters: z.array(z.union([refSchema, parameterSchema])).optional(),
   requestBody: z.object({ required: z.boolean().optional(), content: z.record(z.unknown()) }).passthrough().optional(),
+  responses: z.record(z.unknown()).optional(),
   security: z.array(z.record(z.unknown())).optional(),
   'x-cli': cliSchema.optional(),
+  'x-credits': z.number().optional(),
+  'x-tier': z.string().optional(),
   'x-example-params': z.array(z.string()).optional(),
 }).passthrough();
 
 const specSchema = z.object({
   info: z.object({ version: z.string() }).passthrough(),
   tags: z.array(z.object({ name: z.string(), description: z.string().optional() }).passthrough()).optional(),
-  components: z.object({ parameters: z.record(parameterSchema).optional() }).passthrough().optional(),
+  components: z.object({
+    parameters: z.record(parameterSchema).optional(),
+    schemas: z.record(z.unknown()).optional(),
+  }).passthrough().optional(),
   security: z.array(z.record(z.unknown())).optional(),
   paths: z.record(z.record(z.unknown())),
 }).passthrough();
 
 type Spec = z.infer<typeof specSchema>;
 type SpecParameter = z.infer<typeof parameterSchema>;
+type JsonSchema = Record<string, unknown>;
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
 const isMethod = (value: string): value is ManifestOperation['method'] =>
   MANIFEST_METHODS.some(method => method === value);
 const isParamType = (value: unknown): value is ManifestParam['type'] =>
@@ -104,23 +146,64 @@ function resolveParameter(spec: Spec, raw: unknown, where: string): SpecParamete
   return parameterSchema.parse(raw);
 }
 
+/** A schema with its `$ref`s followed and an `allOf` merged (properties only); `{}` when unresolvable. */
+function resolveSchema(spec: Spec, raw: unknown, depth = 0): JsonSchema {
+  if (!isRecord(raw) || depth > 20) return {};
+  if (typeof raw.$ref === 'string') {
+    const target = spec.components?.schemas?.[raw.$ref.replace(/^#\/components\/schemas\//, '')];
+    return resolveSchema(spec, target, depth + 1);
+  }
+  if (Array.isArray(raw.allOf)) {
+    const parts = raw.allOf.map(part => resolveSchema(spec, part, depth + 1));
+    const properties = Object.assign({}, ...parts.map(part => (isRecord(part.properties) ? part.properties : {})));
+    return { ...raw, type: 'object', properties };
+  }
+  return raw;
+}
+
+const propertiesOf = (spec: Spec, schema: JsonSchema): Record<string, JsonSchema> => {
+  const properties = isRecord(schema.properties) ? schema.properties : {};
+  return Object.fromEntries(Object.entries(properties).map(([key, value]) => [key, resolveSchema(spec, value)]));
+};
+
+function successSchema(spec: Spec, operation: z.infer<typeof operationSchema>): JsonSchema | undefined {
+  const responses = operation.responses ?? {};
+  const response = [responses['200'], responses['201']].find(isRecord);
+  const content = response && isRecord(response.content) ? response.content['application/json'] : undefined;
+  return isRecord(content) ? resolveSchema(spec, content.schema) : undefined;
+}
+
+/** A file the API states: an object with `url` and its `bytes` or `sha256`. */
+const isDownloadObject = (spec: Spec, schema: JsonSchema): boolean => {
+  const properties = propertiesOf(spec, schema);
+  return 'url' in properties && ('bytes' in properties || 'sha256' in properties);
+};
+
+function downloadPath(spec: Spec, schema: JsonSchema): string | undefined {
+  if (isDownloadObject(spec, schema)) return '';
+  for (const [key, child] of Object.entries(propertiesOf(spec, schema))) {
+    if (isDownloadObject(spec, child)) return key;
+  }
+  return undefined;
+}
+
 function manifestParam(
   parameter: SpecParameter,
   alias: string | undefined,
   where: string,
-  hasBody: boolean,
+  reserved: readonly string[],
 ): ManifestParam {
   const at = `${where} parameter "${parameter.name}"`;
-  if (parameter.in !== 'query' && parameter.in !== 'path') {
+  if (parameter.in !== 'query' && parameter.in !== 'path' && parameter.in !== 'header') {
     throw new Error(`${at}: parameters "in: ${parameter.in}" cannot be a flag`);
   }
   const schema = parameter.schema ?? {};
   if (!isParamType(schema.type)) throw new Error(`${at}: unmappable type ${JSON.stringify(schema.type)}`);
   const flag = flagName(parameter.name);
-  if (RESERVED_FLAGS.includes(flag) || (hasBody && BODY_FLAGS.includes(flag))) {
+  if (!GLOBAL_PARAM_FLAGS.includes(flag) && reserved.includes(flag)) {
     throw new Error(`${at}: --${flag} collides with an invd flag of its own`);
   }
-  if (alias !== undefined && RESERVED_ALIASES.includes(alias)) {
+  if (alias !== undefined && RESERVED_ALIASES.includes(alias) && DROPPED_ALIASES[`${where} ${parameter.name}`] !== alias) {
     throw new Error(`${at}: -${alias} collides with an invd flag of its own`);
   }
   const param: ManifestParam = {
@@ -128,6 +211,7 @@ function manifestParam(
     in: parameter.in,
     required: parameter.in === 'path' || parameter.required === true,
     type: schema.type,
+    flag,
   };
   let values = schema.enum;
   if (schema.type === 'array') {
@@ -138,11 +222,51 @@ function manifestParam(
     values = schema.items.enum;
   }
   if (values) param.enum = values.map(value => String(value));
+  if (schema.pattern !== undefined) param.pattern = schema.pattern;
   if (schema.default !== undefined) param.default = schema.default;
   if (parameter.example !== undefined) param.example = parameter.example;
   if (parameter.description) param.description = parameter.description;
-  if (alias !== undefined) param.alias = alias;
+  if (alias !== undefined && !RESERVED_ALIASES.includes(alias)) param.alias = alias;
   return param;
+}
+
+/** Flags for a JSON body's scalar and list properties, one object level deep (`filters.ciks` → `--ciks`). */
+function bodyFields(
+  spec: Spec,
+  schema: JsonSchema,
+  aliases: Record<string, string>,
+  taken: Set<string>,
+  where: string,
+): ManifestBodyField[] {
+  const required = new Set(Array.isArray(schema.required) ? schema.required.map(String) : []);
+  const fields: ManifestBodyField[] = [];
+  const add = (path: string[], property: JsonSchema, isRequired: boolean) => {
+    if (!isParamType(property.type)) return;
+    const items = isRecord(property.items) ? property.items.type : undefined;
+    if (property.type === 'array' && !isItemType(items)) return;
+    const name = path[path.length - 1] ?? '';
+    const flag = flagName(name);
+    if (taken.has(flag) || RESERVED_FLAGS.includes(flag) || COMMAND_FLAGS.includes(flag)) {
+      throw new Error(`${where} body property "${path.join('.')}": --${flag} collides with another flag`);
+    }
+    taken.add(flag);
+    const field: ManifestBodyField = { path, type: property.type, required: isRequired, flag };
+    if (property.type === 'array' && isItemType(items)) field.items = items;
+    if (typeof property.description === 'string') field.description = property.description;
+    const alias = aliases[name];
+    if (alias !== undefined) field.alias = alias;
+    fields.push(field);
+  };
+  for (const [key, property] of Object.entries(propertiesOf(spec, schema))) {
+    if (property.type === 'object') {
+      for (const [inner, innerProperty] of Object.entries(propertiesOf(spec, property))) {
+        add([key, inner], innerProperty, false);
+      }
+    } else {
+      add([key], property, required.has(key));
+    }
+  }
+  return fields;
 }
 
 /** The pure transform; `specText` is hashed so a stale manifest is visible on its face. */
@@ -150,9 +274,11 @@ export function buildManifest(rawSpec: unknown, specText: string): Manifest {
   const spec = specSchema.parse(rawSpec);
   const tagDescriptions = new Map((spec.tags ?? []).map(tag => [tag.name, tag.description ?? '']));
   const operations: ManifestOperation[] = [];
-  const groupFacts = new Map<string, { explicit: Set<string>; tags: Set<string> }>();
+  const groupTags = new Map<string, Set<string>>();
+  const commands = new Map<string, string>();
 
   for (const [path, item] of Object.entries(spec.paths)) {
+    if (!path.startsWith('/v2/')) continue;
     const shared = Array.isArray(item.parameters) ? item.parameters : [];
     for (const [method, rawOperation] of Object.entries(item)) {
       if (!isMethod(method)) continue; // `parameters`, and the non-HTTP `ws`
@@ -162,26 +288,48 @@ export function buildManifest(rawSpec: unknown, specText: string): Manifest {
       if (!cli) throw new Error(`${where}: no x-cli`);
       if ('exclude' in cli) continue;
       if (!operation.operationId) throw new Error(`${where}: no operationId`);
+      if (operation['x-credits'] === undefined || operation['x-tier'] === undefined) {
+        throw new Error(`${where}: x-credits / x-tier missing`);
+      }
 
+      const multi = cli.command !== undefined;
+      const group = cli.command ?? cli.group;
+      const action = multi ? '' : cli.action;
+      const reserved = [...RESERVED_FLAGS, ...COMMAND_FLAGS, ...(multi ? SELECT_FLAGS : [])];
       const parameters = [...shared, ...(operation.parameters ?? [])].map(raw => resolveParameter(spec, raw, where));
-      const params = parameters.map(parameter =>
-        manifestParam(parameter, cli.flags?.[parameter.name], where, operation.requestBody !== undefined),
-      );
+      const params = parameters.map(parameter => manifestParam(parameter, cli.flags?.[parameter.name], where, reserved));
 
-      const view = cli.view ?? 'json';
+      const success = successSchema(spec, operation);
+      const successProps = success ? propertiesOf(spec, success) : {};
+      const list = 'next_cursor' in successProps && 'data' in successProps;
+      const row = list ? resolveSchema(spec, successProps.data?.items) : (success ?? {});
+      const fields = Object.keys(propertiesOf(spec, row));
+
       const out: ManifestOperation = {
         operationId: operation.operationId,
-        group: cli.group,
-        action: cli.action,
+        group,
+        action,
         method,
         path,
         // The operation's own `security` wins over the document's; none at all = public.
         auth: (operation.security ?? spec.security ?? []).length > 0,
         summary: operation.summary ?? '',
+        credits: operation['x-credits'],
+        tier: operation['x-tier'],
         params,
-        view,
-        pagination: cli.pagination,
+        list,
+        view: cli.columns ? (list ? 'table' : 'keyValue') : 'json',
+        fields,
       };
+
+      if (cli.positional !== undefined) {
+        const param = params.find(candidate => candidate.name === cli.positional);
+        if (!param) throw new Error(`${where}: x-cli.positional names no parameter: ${cli.positional}`);
+        out.positional = { name: param.name, required: param.required };
+        const variadic = param.in === 'query' ? VARIADIC[param.name] : undefined;
+        if (variadic) out.positional.variadic = variadic;
+      }
+      if (cli.select) out.select = cli.select;
 
       const exampleParams = operation['x-example-params'];
       if (exampleParams && exampleParams.length > 0) {
@@ -195,47 +343,50 @@ export function buildManifest(rawSpec: unknown, specText: string): Manifest {
         if (types.length !== 1 || types[0] !== 'application/json') {
           throw new Error(`${where}: request body ${types.join(', ')} is not application/json`);
         }
-        out.body = { required: operation.requestBody.required === true, contentType: 'application/json' };
         const media = operation.requestBody.content['application/json'];
-        if (typeof media === 'object' && media !== null && 'example' in media) out.body.example = media.example;
+        const schema = isRecord(media) ? resolveSchema(spec, media.schema) : {};
+        const taken = new Set(params.map(param => param.flag));
+        out.body = {
+          required: operation.requestBody.required === true,
+          contentType: 'application/json',
+          fields: bodyFields(spec, schema, cli.flags ?? {}, taken, where),
+        };
+        if (isRecord(media) && 'example' in media) out.body.example = media.example;
       }
-      if (cli.rowsPath !== undefined) out.rowsPath = cli.rowsPath;
       if (cli.columns) out.columns = cli.columns;
+      const download = success && method === 'get' && !list ? downloadPath(spec, success) : undefined;
+      if (download !== undefined) out.download = download;
 
-      const authored = typeof cli.allItemsPath === 'string' ? [cli.allItemsPath] : cli.allItemsPath;
-      if (cli.pagination === 'perCompany') {
-        if (!authored) throw new Error(`${where}: a perCompany operation needs x-cli.allItemsPath`);
-        out.allItemsPath = authored;
-      } else if (cli.pagination === 'top') {
-        const paths = authored ?? (cli.rowsPath !== undefined ? [cli.rowsPath] : undefined);
-        if (!paths) throw new Error(`${where}: a top-paginated operation needs x-cli.rowsPath or allItemsPath`);
-        out.allItemsPath = paths;
-      }
+      // One spelling per command; the operations of a multi-operation command differ by their `select`.
+      const key = `${commandName(out)} ${JSON.stringify(out.select ?? null)}`;
+      const previous = commands.get(key);
+      if (previous) throw new Error(`${where}: invd ${commandName(out)} is also ${previous}`);
+      commands.set(key, where);
+
       operations.push(out);
-
-      const facts = groupFacts.get(cli.group) ?? { explicit: new Set<string>(), tags: new Set<string>() };
-      if (cli.groupDescription !== undefined) facts.explicit.add(cli.groupDescription);
-      for (const tag of operation.tags ?? []) facts.tags.add(tag);
-      groupFacts.set(cli.group, facts);
+      const tags = groupTags.get(group) ?? new Set<string>();
+      for (const tag of operation.tags ?? []) tags.add(tag);
+      groupTags.set(group, tags);
     }
   }
 
-  const groups = [...groupFacts].map(([name, facts]) => {
-    if (facts.explicit.size > 1) {
-      throw new Error(`group "${name}": two descriptions (${[...facts.explicit].join(' | ')})`);
-    }
-    const [explicit] = facts.explicit;
+  const groups = [...groupTags].map(([name, tags]) => {
+    const explicit = GROUP_DESCRIPTIONS[name];
     if (explicit !== undefined) return { name, description: explicit };
-    const [tag, ...more] = facts.tags;
+    const [tag, ...more] = tags;
     if (tag === undefined || more.length > 0) {
-      throw new Error(`group "${name}": spans ${facts.tags.size} tags and sets no x-cli.groupDescription`);
+      throw new Error(`group "${name}": spans ${tags.size} tags and has no GROUP_DESCRIPTIONS entry`);
+    }
+    const sharedWith = [...groupTags].filter(([other, otherTags]) => other !== name && !(other in GROUP_DESCRIPTIONS) && otherTags.has(tag)).map(([other]) => other);
+    if (sharedWith.length > 0) {
+      throw new Error(`group "${name}": shares tag "${tag}" with ${sharedWith.join(', ')} and has no GROUP_DESCRIPTIONS entry`);
     }
     return { name, description: tagDescriptions.get(tag) ?? '' };
   });
 
   const byName = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
   groups.sort((a, b) => byName(a.name, b.name));
-  operations.sort((a, b) => byName(a.group, b.group) || byName(a.action, b.action));
+  operations.sort((a, b) => byName(a.group, b.group) || byName(a.action, b.action) || byName(a.operationId, b.operationId));
 
   return parseManifest({
     specVersion: spec.info.version,

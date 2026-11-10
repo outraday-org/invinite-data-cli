@@ -1,431 +1,500 @@
 ---
 name: invinite-financial-data
-description: Fetch financial data through the Invinite Data API MCP connector or invd CLI. Use whenever the user wants company information, financial statements, SEC filings, institutional ownership, insider trades, IPO data, market holidays, financial metrics, earnings calls, company news, or other stock/company data, including requests mentioning tickers, CIKs, balance sheets, income statements, cash flows, 10-K, 10-Q, ratios, CAGR, growth rates, dividends, stock splits, institutional holdings, call transcripts, earnings guidance, KPIs, Q&A, analysts, live calls, slides, press releases, company announcements, newsroom posts, or 8-K news.
+description: Fetch financial data through the Invinite Data API (v2) MCP connector or the invd 4 CLI. Use whenever the user wants company information, financial statements (standardized or as-reported, point in time), ratios, growth, CAGR, segments, SEC filings and filing documents, earnings calls (calendar, transcripts, Q&A, guidance, KPIs, slides, press releases, call comparison), executives and analysts, 13F holdings, insider trades, IPOs, market holidays, company news and newsroom announcements, investor documents, or full-text search over filings, transcripts and news, including requests mentioning tickers, CIKs, accessions, balance sheets, income statements, cash flows, 10-K, 10-Q, 8-K, dividends, stock splits or institutional holders.
 allowed-tools: Bash(invd *)
 ---
 
 # Invinite Data API
 
-Use the connected Invinite Data API MCP tools when available. Fall back to the `invd` CLI when MCP is unavailable. Both transports access the same Data API, billed to your Invinite Data account.
+Use the connected Invinite Data MCP tools when available; fall back to the `invd` CLI (version 4, the v2 API) when MCP
+is unavailable or the user asks for the CLI. Both reach the same Data API and bill the same Invinite Data account.
 
 ## Transport selection
 
-1. Prefer MCP tools when an Invinite Data connector is available. Call the direct domain tool matching the request; unlike the Web API MCP server, the Data API MCP server does not use meta-tools such as `call_endpoint`.
-2. Use the CLI examples below when MCP is unavailable or when the user explicitly requests CLI usage. Always pass `--json` for data used in analysis.
-3. Do not mix transports merely to repeat a successful request.
+1. Prefer the MCP tools when an Invinite Data connector is connected: call the domain tool matching the request.
+   `search_endpoints` + `call_api` reach any operation without a dedicated tool.
+2. Otherwise use the CLI. Pass `--json` (or `--json a,b` for only the fields you need) for data you analyse.
+3. Do not repeat a successful request over the other transport.
 
 ### MCP and CLI mapping
 
-| Data need | MCP tool | CLI command family |
-|---|---|---|
-| Search/details/list | `company_search`, `company_details`, `available_companies` | `invd company search\|details\|list` |
-| Dividends/periods/splits | `company_dividends`, `company_fiscal_periods`, `company_splits` | `invd company dividends\|fiscal-periods\|splits` |
-| Standardized statements/snapshots | `standardized_financial_statement`, `standardized_financial_snapshot` | `invd financials <statement>[-detailed\|-presentation]`, `invd financials snapshot…` |
-| As-reported statements/snapshots | `as_reported_financial_statement`, `as_reported_financial_snapshot` | `invd financials as-reported-<statement>…`, `invd financials as-reported-snapshot…` |
-| Ratios/growth/CAGR | `financial_ratios`, `financial_growth`, `financial_cagr` | `invd metrics ratios\|growth\|cagr` |
-| Segment data | `segmented_financials` | `invd segments list\|list-detailed` |
-| SEC filings/search/sections (a CIK also finds a not-yet-listed company) | `sec_filer_filings`, `sec_document_search`, `sec_document_sections` | `invd sec filings\|search\|sections` |
-| SEC document store: filers / issuer lifecycle, filings + document manifests, immutable cited document versions (blocks, pages, footnotes, figures, sections), lexical / literal search, 13F research, statement provenance, metric exports (typed `readiness`) | `sec_filers`, `sec_filer`, `sec_filer_lifecycle`, `sec_filer_filings`, `sec_filing`, `sec_document`, `sec_document_version`, `sec_document_sections`, `sec_document_search`, `sec_holders`, `sec_manager_portfolio`, `sec_metric_export`, … | `invd sec …` (`sec save`, `sec save-figure`, `sec export-file` download, CLI-only) |
-| Filing and metric discovery | `sec_filer_filings` (`form_facet`), `list_available_section_ids`, `list_available_metrics` | `invd sec filings` (`form_facet`), `invd metadata section-ids\|metrics` |
-| Institutional ownership | `holdings_by_company`, `holdings_by_investor`, `institutional_investors`, `institutional_transactions` | `invd ownership …` |
-| Insider trades/IPOs/holidays | `insider_trades`, `ipos`, `market_holidays` | `invd insider-trades list`, `invd ipos list`, `invd market holidays` |
-| Upcoming IPOs from SEC registrations (S-1 / F-1, by CIK, weeks before the IPO calendar; stage, proposed ticker, price range, final price) | `ipo_registrations` | `invd ipos registrations` |
-| Earnings call calendar/events/live | `earnings_call_calendar`, `earnings_call_events`, `earnings_call_live` | `invd earnings calendar\|events\|live` |
-| Call transcript/Q&A/participants | `earnings_call_transcript`, `earnings_call_qa`, `earnings_call_participants` | `invd earnings transcript\|qa\|participants` |
-| Call guidance/KPIs, diff vs prior call | `earnings_call_guidance`, `earnings_call_diff` | `invd earnings extractions\|guidance-history\|diff` |
-| Call documents/press release | `earnings_call_documents`, `earnings_call_press_release` | `invd earnings documents\|press-release` |
-| Price moves during a call (coincidence, not cause; live rows during the call) | `earnings_call_price_moves` | `invd earnings price-attribution` |
-| Search across calls | `earnings_call_search` | `invd earnings search` |
-| Company IR documents (annual reports, proxy, ESG, investor-day decks, letters, webcast pages) | `earnings_company_documents`, `earnings_company_document` | `invd earnings company-documents\|document` |
-| Search company documents (passages with page numbers) | `earnings_document_search` | `invd earnings document-search` |
-| Keyword / guidance alerts | `earnings_call_alert_create\|list\|update\|delete\|test\|deliveries` | `invd webhooks …` |
-| News (SEC filings and the companies' own newsrooms; Invinite's summary with attribution), the summary in blocks, AI-read developments | `news_list`, `news_item`, `news_text`, `news_developments`, `news_search` | `invd news list\|get\|text\|developments\|search` |
+The v2 tool roster of the MCP server and the matching CLI commands. A connector that still lists older tool names
+serves the earlier roster; use whatever tools it lists, or the CLI.
 
-The discovery rules below apply to both transports: call `list_available_metrics` before ratios, growth, CAGR, or financial-statement analysis, and call `list_available_section_ids` before requesting filing sections.
+| Data need | MCP tool (v2 roster) | CLI |
+|---|---|---|
+| Find a company or filer | `search_companies` | `invd companies list -q apple`, `invd filers list -q berkshire` |
+| Company profile, fiscal periods, dividends, splits | `get_company` | `invd companies get\|fiscal-periods\|dividends\|splits` |
+| Statements (standardized / as-reported; summary / detailed / presentation) | `get_financials` | `invd financials AAPL --basis … --view …` |
+| Ratios, growth, CAGR, segments | `get_metrics` | `invd metrics ratios\|growth\|cagr`, `invd segments list\|list-detailed` |
+| Where a number comes from | `explain_fact` | `invd metrics explain`, `invd documents fact-places` |
+| SEC filings of a company | `list_filings` | `invd filings list` |
+| Read a filing or document version | `read_filing` | `invd filings get`, `invd documents get\|sections\|figure` |
+| Full-text search of filings (100 credits) | `search_filings` | `invd search filings` |
+| 13F holdings and changes | `get_holdings` | `invd holdings list\|changes` |
+| Form 4 insider trades | `get_insider_trades` | `invd insider-trades list\|get` |
+| Earnings-call calendar and history | `list_events` | `invd events list` |
+| One event: transcript, Q&A, stats, comparison, press release, slides … | `get_event` | `invd events get\|transcript\|transcript-text\|qa\|stats\|comparison\|press-release\|slides\|price-attribution` |
+| Search transcripts and investor documents | `search_transcripts` | `invd search transcripts`, `invd search investor-documents` |
+| News items, text, announcements, news search | `get_news` | `invd news list\|get\|text\|announcements`, `invd search news` |
+| Account and usage | `get_account` | `invd me show\|usage` |
+| Webhooks | `manage_webhooks` | `invd webhooks …` |
+| Any other operation | `search_endpoints` + `call_api` | `invd api GET /v2/…` |
+
+MCP resources `invinite://catalog/metrics`, `invinite://catalog/sections`, `invinite://catalog/event-types`,
+`invinite://catalog/forms` and `invinite://catalog/document-kinds` are the catalogs (`invd catalog metrics`, `invd catalog sections`, `invd catalog event-types`, `invd catalog forms`,
+`invd catalog document-kinds`).
+The server's prompts are `analyse_earnings_call`, `compare_companies` and `summarise_10k_risk_factors`.
+
+Read the catalogs before interpreting metric or section keys: `invd catalog metrics` before statements, ratios, growth
+or CAGR (values are keyed by `metric_id`), `invd catalog sections --form 10-K` before asking for a filing section.
 
 ## Prerequisites
 
 ### MCP
 
-Connect `https://api.data.invinite.com/mcp` through OAuth and sign in to your Invinite Data account, which is billed for the calls. Leave OAuth client ID and secret empty so the client uses Dynamic Client Registration and PKCE.
+Connect `https://api.data.invinite.com/mcp` with OAuth and sign in to the Invinite Data account to be billed. Leave the
+OAuth client ID and secret empty (Dynamic Client Registration and PKCE). `invd agent-setup` writes the connector for
+Claude Code or Codex in one step.
 
 ### CLI
 
-Install the CLI with `npm install -g @invinite-org/invinite-data-cli`, then run `invd login`. Authentication is resolved in this order:
-1. `INVINITE_DATA_API_KEY` environment variable
-2. `.env` file
-3. OS keychain (via optional `keytar`)
-4. Stored config
+Install with `npm install -g @invinite-org/invinite-data-cli`, then run `invd auth login`. The key is resolved in this
+order: `INVD_API_KEY` > `INVINITE_DATA_API_KEY` > `./.env` (either name) > OS keychain > `api_key` in `config.toml`.
+`invd auth status` shows which key is active and whose account it is (free).
 
-If an MCP call fails with an auth error, reconnect the connector and complete OAuth. If a CLI call fails with an auth error, run `invd login`; manual `invd config set-key` and `INVINITE_DATA_API_KEY` remain supported fallbacks (create a key at https://data.invinite.com/keys).
+An auth failure exits 4: reconnect the MCP connector, or tell the user to run `invd auth login` (or set
+`INVD_API_KEY`; keys at https://data.invinite.com/keys).
 
-## Global Options
+## The CLI grammar
 
-| Flag | Description |
-|------|-------------|
-| `--json` | Output raw JSON (always use this for programmatic access) |
-| `--all` | Auto-paginate through all results (paginated commands only; others refuse it by name) |
-| `--show-cost` | Print `credits: <charged> · included left: <remaining>` to stderr after the command (or set `INVD_SHOW_COST=1`); stdout stays clean |
+- Noun-verb: `invd <group> <action>`. `list` is each group's default action, so `invd filings AAPL --form 10-K` equals
+  `invd filings list AAPL --form 10-K` and `invd events AAPL` lists Apple's calls.
+- The first positional is the natural key: a ticker or CIK on company commands (several allowed:
+  `invd financials AAPL MSFT`), the member id on member commands (`invd companies get AAPL`,
+  `invd filings get 0000320193-26-000026`, `invd events transcript <event_id>`).
+- Every command that takes an `event_id` also takes a company plus a fiscal period: `invd events transcript NVDA 2026Q3`
+  resolves the event through `GET /v2/events` (one extra credit; the resolution is noted on stderr).
+- Flags are the API parameters with dashes (`fiscal_year` → `--fiscal-year`, `filed_at[gte]` → `--filed-at-gte`).
+  `invd <group> <action> --help` lists them with the API's descriptions, the credit cost and plan, and the row fields.
+- `invd api` calls any path the tree lacks: `invd api GET /v2/filings?company=AAPL --paginate --jq '.data[].accession'`.
 
-Every data command's flags are the API parameters of its operation, spelled with dashes (`fiscal_period_type` → `--fiscal-period-type`, `event_id` → `--event-id`); `invd <group> <action> --help` lists them with the API's own descriptions. The two write commands (`webhooks create`, `webhooks update`) take the request body as `--body '<json>'` or `--body-file <path>` (`-` reads stdin).
+## Output, pagination and cost
 
-### Usage and credits
+| Flag | Effect |
+|---|---|
+| `--json` / `--json a,b` | the whole body / only those fields of each row (fields listed in `--help`) |
+| `--output table\|plain\|json\|jsonl\|csv`, `--plain` | explicit format (default: table on a terminal, tab-separated when piped) |
+| `--jq <expr>` | filter the JSON |
+| `--fields a,b` | server-side prune where the operation supports `fields=` |
+| `--limit`, `--cursor` | page size; the previous page's `next_cursor`, with the SAME filters |
+| `--all` | every page, streamed as JSONL (CSV with `--output csv`) |
+| `--dry-run` | the request plan and credit estimate; sends nothing |
+| `--show-cost` | the credits the command cost, on stderr (or `INVD_SHOW_COST=1`) |
+| `--yes`, `--no-input` | skip / refuse the confirmation of a costly `--all` walk or a delete |
+| `--save <file>` | save the file a response points to (transcript PDF, audio, news PDF, investor document); size and SHA-256 verified |
 
-Before a large pull (`--all`, many tickers, filing search at 100 credits a call), run `invd usage --json` (free, `--days 7|30|90`): `period` has the plan's `included_credits`, `used_credits`, `resets_at` and `prepaid_balance_usd`; `daily`, `by_family` and `by_key` show where credits went. If the pull would not fit what is left, say so before starting it. For budgeting, add `--show-cost` to a sample call and multiply; the stderr line never mixes into `--json` output. Every operation's credit cost is the `x-credits` field of the OpenAPI spec.
+Data is on stdout; progress, cost and coverage notes on stderr, so `--json` output stays clean. When a response's
+`meta.coverage` is `pending` or `partial`, few or no rows are not proof that something does not exist: say the data is
+incomplete instead of "nothing found".
+
+Before a large pull (`--all`, many companies, `search filings` at 100 credits a page) check what is left with
+`invd me usage --json` (free) and estimate with `--dry-run`. If the pull would not fit, say so before starting it.
+
+Exit codes: 0 ok, 1 failure, 2 usage (incl. `invalid_parameter`, `unknown_parameter`, `cursor_mismatch`), 3 partial
+(an interrupted `--all`: resume with the printed `--cursor`), 4 auth required, 5 download integrity, 6 credits
+exhausted or plan required (`plan_required`, `insufficient_credits`).
 
 ## Working with the data
 
 ### Financial statements
 
-`-p, --fiscal-period-type` is required: `quarterly`, `annual`, `ytd`, or `ttm`. Each statement (`income-statement`, `balance-sheet`, `cash-flow`, `snapshot`) is one command per variant:
+`invd financials <company…>` is one command over six operations:
 
-- `<statement>` — standardized values keyed by `metric_id`
-- `<statement>-detailed` — adds formula, accession number, HTML tag info (`--with-formula true` for formulas)
-- `<statement>-presentation` — nested tree structure (hierarchical)
-- `as-reported-<statement>[-detailed|-presentation]` — the as-reported data instead of standardized
-
-Financial statement responses use standardized `metric_id` keys (from `metadata metrics`) as field names. If you need to understand what a specific metric_id means, check `invd metadata metrics --json` first. The snapshot commands take `-i, --identifiers` (comma-separated tickers) and are the most efficient way to get complete financials for several companies at once.
-
-```bash
-invd financials income-statement -i AAPL -p annual --json
-invd financials balance-sheet -i MSFT -p quarterly --limit 4 --json
-invd financials as-reported-cash-flow -i GOOGL -p annual --json
-invd financials snapshot -i AAPL,MSFT,GOOGL -p annual --json
-invd financials snapshot -i AAPL -p quarterly --calendar-year 2024 --calendar-quarter 3 --json
-```
-
-### Financial metrics
-
-**Before querying any metrics endpoint (ratios, CAGR, or growth), first fetch the available metric identifiers using `metadata metrics`.** The response from ratios/CAGR/growth uses `metric_id` keys (e.g., `PR_TO_EARNINGS`, `CURRENT_RATIO`) — without knowing the available IDs, you won't know what data exists or how to interpret the results. This also helps you confirm that the metric the user is asking about actually exists.
+- `--basis standardized` (default; values keyed by `metric_id`) or `--basis as-reported` (the company's own lines).
+- `--view summary` (default), `detailed` (formula, accession and source lineage per value) or `presentation` (the
+  statement tree).
+- `-s, --statement` any of `income-statement`, `balance-sheet`, `cash-flow` (default all three).
+- `-p, --period` `annual`, `quarterly`, `ytd` or `ttm`; without it: `quarterly` when `--fiscal-quarter` is 1–3, else
+  `annual`.
+- `--fiscal-year` / `--fiscal-quarter`, or a range with `--fiscal-year-gte` / `--fiscal-year-lte`.
+- `--as-of 2025-01-31` = point in time (the newest rendering of each period filed by that day); `--filing <accession>`
+  pins one filing's rendering.
+- `--reported-only` and `--display-sign cash_flow_direction` exist on `--basis as-reported` only.
+- Several companies plus one fiscal year (and quarter) is a cross-company snapshot.
 
 ```bash
-# STEP 1: Always fetch available metrics first
-invd metadata metrics --json
-# Returns: { metrics: [{ metric_id: "...", name: "..." }, ...] }
-
-# STEP 2: Then query the specific metrics endpoint
-invd metrics ratios -i AAPL -p annual --category profitability --json   # valuation, profitability, liquidity, solvency
-invd metrics cagr -i AAPL --period-years 5 --json                       # 3, 5 or 10 years
-invd metrics growth -i MSFT -p quarterly --growth-type year_over_year --json
+invd catalog metrics --statement income-statement --json
+invd financials AAPL -s income-statement --json
+invd financials MSFT --period quarterly --limit 4 --json
+invd financials AAPL MSFT GOOGL --fiscal-year 2025 --json
+invd financials AAPL --basis as-reported -s cash-flow --view presentation --json
+invd financials AAPL --as-of 2025-01-31 --fiscal-year-gte 2020 --json
 ```
 
-The metrics response structures differ by endpoint:
-- **Ratios**: `period.facts[category][metric_id]` — organized by category (valuation, profitability, etc.)
-- **CAGR**: `period.facts[years][metric_id]` — organized by time period (3-year, 5-year, 10-year)
-- **Growth**: `period.facts[growthType][metric_id]` — organized by growth type (year_over_year, quarter_over_quarter)
+### Metrics, segments and lineage
 
-All share the same `metric_id` identifiers from `metadata metrics`.
+```bash
+invd metrics ratios AAPL -p annual --category profitability,valuation --json
+invd metrics growth MSFT -p quarterly --basis yoy --json
+invd metrics cagr AAPL MSFT -p annual --horizon 5 --json
+invd segments list AAPL -p annual --metric is_total_revenue --json
+invd metrics explain "0000320193|is_total_revenue|annual|2026|4" --json
+```
 
-### Filings, ownership, insider trades
+Ratio categories: `profitability`, `liquidity`, `leverage`, `efficiency`, `valuation`. `metrics explain` shows the rule
+and operands behind one standardized fact and the source facts it came from; `documents fact-places --fact <fact_id>`
+shows where a fact sits in the filing document (PRO).
 
-- `invd sec …` reads Invinite's SEC document store: `sec filings -i <ticker|CIK>` (cursor pages, `form_facet`), `sec filing --accession` (document manifest: role, MIME, true size, readiness), `sec document --accession --filename` (pins the immutable version; blocks with `citation {version_id, block_id, page, printed}`), `sec search -q … --mode lexical|literal` (100 credits). Cite `version_id` + `block_id` and the printed page label only when present (else the page ordinal). `readiness.status` `pending` / `partial` / `not_ready` and a search `coverage.completeness` other than `complete` mean the answer is incomplete — never report zero rows there as "nothing found".
-- Filing sections: `sec document` (pins the `version_id`) → `sec sections --version-id` → `sec version --version-id … --blocks <range>` for the text. `sec search` returns cited passages (no prose answer) at 100 credits a call. The legacy `filings list|search|sections|form-types` were removed in 1.0.0.
-- Ownership transaction types (`--type`): `new_buy`, `added`, `reduced`, `sold_out`. `holdings-by-investor` needs the investor's `--cik`.
-- Insider trades `--acquired-disposed`: `A` (acquisition) or `D` (disposition).
+### Filings and documents
+
+```bash
+invd filings AAPL --form 10-K --limit 1 --json
+invd filings get 0000320193-26-000026 --expand documents --json
+invd catalog sections --form 10-K --json
+invd documents sections <version_id> --json
+invd documents get <version_id> --blocks b12-b40 --json
+invd search filings "supply chain risk" --company AAPL --form 10-K --item 1A --json
+```
+
+A filing's documents carry the `version_id` of each immutable document version. Read a section by listing the
+version's sections (each names its `blocks`) and then fetching those blocks. Cite `version_id` + `block_id` and the
+printed page label when present (else the page ordinal). `search filings` returns cited passages, no prose answer, at
+100 credits a page; `--mode literal` matches exact characters (`FY2027`, `10b5-1`). `invd filers` covers every SEC
+filer, including 13F managers and pre-IPO issuers without a listing.
 
 ### Earnings calls
 
-Commands about one call take a selector: `--event-id <event_id>` (from `events` / `calendar`), or `-i <ticker>` with `--year` + `--quarter` (fiscal) or `--date YYYY-MM-DD` (New York call day); `--event-type` picks a non-earnings event (investor day, conference, AGM). `earnings calendar` defaults to earnings calls (`--event-type all` lists the others too).
+```bash
+invd events NVDA --sort -scheduled_at --limit 4 --json
+invd events transcript-text NVDA 2026Q3 --split sections --json
+invd events qa NVDA 2026Q3 --json
+invd events comparison NVDA 2026Q3 --json
+invd guidance NVDA --event <event_id> --json
+invd search transcripts "gross margin outlook" --event <event_id> --json
+```
 
-- `--transcript-version N` (not `--version`) selects a published transcript version; `--as-of <iso>` the version current at that instant.
-- `extractions --kind guidance|kpi`; `--review approved|auto|all` filters guidance by review status; `diff --vs prior` is the only comparison base.
-- `earnings event --include observations` adds the date / time observations; `earnings participants --include evidence` the participation evidence.
-- Every `*_ms` field is milliseconds from the call's start: cite it as `[m:ss]`. `qa_start_ms` is where the Q&A begins (null without one).
-- Company documents and document-search hits are company-published material: quote them as "passages from company-published documents", never as verified facts, and cite each with its document title, year and page (`page`; open `url` at `#page=<page>`). A `webcast` row is link-only (`url` null, `source_url` = the replay page, `link_status`).
-- `earnings search` and `earnings document-search` take `-m, --mode`: `lexical` (the default) matches words and quoted phrases (stemmed; `OR` and `-word` work), `literal` matches the exact characters such as `FY2027` or `10b5-1` (case-sensitive; `--case-sensitive false` for a case-insensitive match). Search with keywords, not a whole question: scoped to one call (`--event-id`) or one company (`-i`), `earnings search` needs any of the words and returns the management answer right after a matching analyst question (its `match.spans` may be empty); without a scope, and in `document-search`, every word must match. Both modes cost the same. In `--json` output read `coverage.completeness` before concluding anything from few or no hits: `partial` / `unknown` means the index does not cover the whole scope yet, so absence is not proof. `match.spans` are code-point offsets of the matched characters in `text`.
-- Audio, slides and document URLs are permanent public URLs (immutable; a new version is a new URL); `--output` on the download commands saves the file.
-- The live transcript (`ws listen --earnings`), audio, slides, the live stream and webhooks need the PRO plan (calendar, events and `live` need LITE, the other reads STANDARD); a `403` names the plan a route needs.
+- `events list` defaults to earnings calls; `--type all` adds investor days, conferences and AGMs; `--status upcoming|live|ended`.
+- Take `event_id` from `events list` and pass it to the per-event commands, or give the company and fiscal period
+  (`NVDA 2026Q3`) in its place.
+- `transcript` returns turns with speaker and `start_ms` (`--layer cleaned`, `-v <version>`); `transcript-text` the
+  plain text (`--split sections` separates prepared remarks and Q&A); `transcript-versions` / `transcript-diff` the
+  published versions.
+- Every `*_ms` field is milliseconds from the call's start: cite it as `[m:ss]`. `qa_start_ms` is where the Q&A begins.
+- `comparison` is against the previous call by default (`--prior <event_id>` picks another): tone shift, hedging,
+  uncertainty, new and dropped topics.
+- `guidance list` items carry `direction`, period and `basis` (GAAP / non-GAAP); `--review approved` keeps only
+  reviewed items. `guidance kpis` lists KPI mentions with their source sentence.
+- `price-attribution` lines up minute price moves with what was said: temporal coincidence, never the cause.
+- Investor documents (`invd investor-documents`, `search investor-documents`) are company-published: quote them as such,
+  with title, year and page, never as verified fact.
+- Slides, audio and price attribution need higher plans; a plan error exits 6 and names the plan.
 
-### Live transcripts, price ticks and alerts
-
-`price_tick` frames (`ws listen --prices`, PRO) carry `at`, `call_ms` (the transcript clock), `price`, `return_bps` (vs the last trade before the call), `day_return_bps` (vs the previous close) and `source` (`stream` | `snapshot`); only seconds with a trade are sent, so pre-market and after-hours ticks are sparse. Describe a move as temporal coincidence with what was said, never as caused by it. `invd earnings live` says `live_prices: true` when ticks flow; during the call `invd earnings price-attribution` returns the minute rows so far (`live: true`, `settled: false`, summary fields null) until the post-call run replaces them.
-
-Keyword / guidance alerts (PRO) are webhook subscriptions: `earnings_call.keyword_hit` delivers one POST per mention of a keyword on any live call (speaker, `start_ms`, sentence), `earnings_call.guidance_flash` one per guidance number spoken live. "Alert me when any call mentions 'tariffs'" → `earnings_call_alert_create` with `keywords: ["tariffs"]`, `events: ["earnings_call.keyword_hit"]`, the user's HTTPS endpoint and no `ciks` (every company); later changes go through `earnings_call_alert_update` (keywords, ciks, events, active). CLI:
+### Ownership and insiders
 
 ```bash
-invd webhooks create --body '{"url":"https://hooks.example.com/alerts","events":["earnings_call.keyword_hit"],"filters":{"keywords":["tariffs"]}}' --json   # the secret is printed once
-invd webhooks create --body '{"url":"https://hooks.example.com/invinite","events":["earnings_call.transcript_ready"],"filters":{"ciks":["320193"]}}' --json
-invd webhooks update --id <id> --body '{"keywords":["tariffs","buyback"]}' --json
-invd webhooks deliveries --id <id> --json
+invd holdings AAPL --json
+invd holdings --filer 0000102909 --json
+invd holdings changes AAPL --type new,sold_out --json
+invd insider-trades AAPL --side buy --filed-at-gte 2026-01-01 --json
 ```
+
+13F rows report positions at the quarter end (`--period-end`), filed up to 45 days later; keep filing date and
+position date apart, and value apart from share count. Change types: `new`, `added`, `reduced`, `sold_out`,
+`unchanged`. `--instruments all` adds options and principal amounts.
 
 ### News
 
-`invd news list` (FREE) lists items newest first from SEC EDGAR filings (`rights: public_record`) and the companies' own newsrooms (`rights: issuer`); wire services are never a source. `--ticker` / `--cik` = items that MENTION the company; `--publisher <cik>` = items the company PUBLISHED itself (its verified newsroom publication) — "what did NVIDIA announce" is `--publisher 1045810`, not `--ticker NVDA`. `--publication-type`, `--issuer-category` and `--issuer-tag` narrow the publisher's own publications (the last two need exactly one `--publisher`). Without `--from` / `--to` it pages back through the whole history; with either, the window is at most 92 days. Pages use a cursor, not an offset: `--all` follows `next_url`; by hand pass `next_cursor` as `--cursor` with the same filters.
+```bash
+invd news AAPL --published-at-gte 2026-11-01 --json
+invd news get <id> --json
+invd news text <id> --json
+invd news announcements AAPL --topic product_launch --json
+invd search news buyback --company AAPL --json
+```
 
-- **Attribution duty.** Every item carries `attribution` (`publisher`, `source_url`, `published_at`, `edgar.form` + `edgar.accession` for a filing, `statement`). Whenever you show a headline, lede, `summary_text` or summary block, name the publisher, link `source_url` and give the date (and the form + accession of a filing). The lede, the summary and the developments are Invinite's own wording of the publication (never the publisher's text): present them as a summary of what the publisher stated, not as verified fact, and point to `source_url` for the publisher's own words.
-- **Model use.** `model_processing_allowed` reports the publisher's machine-readable reservation on its ORIGINAL publication; it is informational — every text the API serves (lede, summary, developments) is Invinite's own wording.
-- `invd news get --id <id>` (STANDARD) has Invinite's long summary as `summary_text` / `summary_html` with `summary_words`, `source_words` and `summarized_at` (`content_status: available`, else `no_text` = headline and link only: an item published before summaries started, a metadata-only item or a reserved source), the branded PDF (`pdf`), `sightings`, `companies` and up to 20 developments; `invd news text --id <id>` serves the summary in citable blocks (`index`, `kind` heading / paragraph / list, `heading`, `text`; a `409 revision_changed` means the item was corrected: restart without `--cursor`). `superseded_by` names a corrected successor.
-- `invd news developments` lists product launches, partnerships, contracts, availability (AI-read from the text, `derived: true`): report `claim_status` as stated (`planned` is a plan, not availability) and cite the item's attribution.
-- `invd news search -q <keywords>` searches headlines and texts (`-m lexical` keywords, the default; `-m literal` exact characters; `--field title|lede|summary|any`; default window 365 days, at most 8 passages). It answers `503 search_disabled` until the API enables it; read `coverage` before concluding from few or no hits, and cite each passage with its item's `attribution`.
-- New items as they appear: `invd ws listen --news --tickers NVDA` (STANDARD); a webhook: `"events":["news.published"]` in `invd webhooks create --body` (STANDARD and above, filtered by `ciks`).
+News comes from SEC EDGAR filings and the companies' own newsrooms, never wire services. Every item carries
+`attribution` (publisher, `source_url`, `published_at`, and form + accession for a filing): whenever you show a
+headline or summary, name the publisher, link `source_url` and give the date. Summaries and announcements are
+Invinite's wording of the publication: present them as a summary of what the publisher stated, not as verified fact.
+Report an announcement's status as stated (planned is a plan, not availability).
+
+### Webhooks
 
 ```bash
-invd webhooks create --body '{"url":"https://hooks.example.com/news","events":["news.published"],"filters":{"ciks":["1045810"]}}' --json
+invd webhooks create --body '{"url":"https://hooks.example.com/invinite","events":["event.transcript_ready"],"filters":{"ciks":["0000320193"]}}' --json
+invd webhooks list --json
+invd webhooks deliveries <id> --json
 ```
+
+The signing secret is printed once on create (`rotate-secret` issues a new one). A delete asks first unless `--yes`.
 
 ## Commands Reference
 
-One example per command. `<name>` is a value to fill in; `invd <group> <action> --help` lists every flag. A command about one call also needs the selector described under *Earnings calls* (`--event-id`, or `-i` with `--year` + `--quarter` or `--date`).
+One example per command. `invd <group> <action> --help` lists every flag; values like `evt_01JC8M2X` are the spec's
+examples, replace them with real ids.
 
 <!-- invd:commands:start -->
 <!-- Generated by `pnpm skill:commands` from src/generated/cli-manifest.json and src/hand-written-commands.ts. Edit only inside an invd:hand block; `pnpm skill:commands:check` fails on drift. -->
 
-### company
+### agent-setup
 
-Company search, details, fiscal periods, dividends and splits
+<!-- invd:hand:agent-setup -->
+```bash
+invd agent-setup --claude --local           # ./.mcp.json + the skill under .claude/
+invd agent-setup --codex --global           # ~/.codex/config.toml [mcp_servers] + the skill
+invd agent-setup --all --global --dry-run   # print what would be written
+```
+<!-- /invd:hand:agent-setup -->
+
+### api
+
+<!-- invd:hand:api -->
+```bash
+invd api /v2/companies/AAPL
+invd api GET /v2/filings?company=AAPL --paginate --jq '.data[].accession'
+invd api GET /v2/holdings -F company=AAPL -F limit=100 --dry-run
+invd api POST /v2/webhooks --input webhook.json
+```
+<!-- /invd:hand:api -->
+
+### auth
+
+<!-- invd:hand:auth -->
+```bash
+invd auth login                  # browser sign-in (--no-browser over SSH)
+invd auth status --json          # active key, its source and account (free)
+invd auth token                  # print the key for scripts
+invd auth logout
+```
+<!-- /invd:hand:auth -->
+
+### catalog
+
+Static catalogs: metrics, sections, forms, event types, document kinds, mapping rules
 
 ```bash
-# Company details
-invd company details -i AAPL --json
+# List investor-document kinds (optional: --fields, --limit, --cursor, --all)
+invd catalog document-kinds --json
 
-# Company dividends (optional: --start-date, --end-date, --sort, --limit, --offset, --all)
-invd company dividends -i AAPL --json
+# List event types (optional: --fields, --limit, --cursor, --all)
+invd catalog event-types --json
 
-# Company fiscal periods (optional: --sort, --limit, --offset, --all)
-invd company fiscal-periods -i AAPL --json
+# List SEC forms (optional: --fields, --limit, --cursor, --all)
+invd catalog forms --json
 
-# List available companies
-invd company list --json
+# List standardized mapping rules (optional: --statement, --metric-id, --fields, --limit, --cursor, --all)
+invd catalog mapping-rules --json
 
-# Search companies (optional: --limit, --offset, --all)
-invd company search -q apple --json
+# List standardized metrics (optional: --statement, --fields, --limit, --cursor, --all)
+invd catalog metrics --json
 
-# Stock splits (optional: --sort, --limit, --offset, --all)
-invd company splits -i AAPL --json
+# List filing section ids (optional: --form, --fields, --limit, --cursor, --all)
+invd catalog sections --json
 ```
+
+### companies
+
+Listed companies: list, profile, fiscal periods, dividends and splits
+
+```bash
+# List dividends (optional: --ex-date-gte, --ex-date-gt, --ex-date-lte, --ex-date-lt, --sort, --fields, --limit, --cursor, --all)
+invd companies dividends AAPL --json
+
+# List fiscal periods (optional: --sort, --fields, --limit, --cursor, --all)
+invd companies fiscal-periods AAPL --json
+
+# Get a company (optional: --expand, --fields)
+invd companies get AAPL --json
+
+# List listed companies (optional: --q, --exchange, --sector, --sort, --fields, --limit, --cursor, --all)
+invd companies list -q apple --json
+
+# List stock splits (optional: --sort, --fields, --limit, --cursor, --all)
+invd companies splits AAPL --json
+```
+
+### completion
+
+<!-- invd:hand:completion -->
+```bash
+eval "$(invd completion zsh)"
+invd completion fish > ~/.config/fish/completions/invd.fish
+```
+<!-- /invd:hand:completion -->
 
 ### config
 
 <!-- invd:hand:config -->
 ```bash
-invd config set-key                                   # masked prompt for an API key
-invd config set-url https://api.data.invinite.com     # API host
-invd config show
-invd config reset
+invd config list                                   # every setting and where it comes from
+invd config set output json
+invd config set base_url http://localhost:4000 --local   # ./.invd.toml
+invd config unset pager
+invd config path
 ```
 <!-- /invd:hand:config -->
 
-### earnings
+### documents
 
-Earnings calls: calendar, transcripts, Q&A, extractions, media, search and webhook subscriptions
+Immutable document versions, sections, figures and fact places
 
 ```bash
-# Analysts of a company (optional: --limit, --offset, --all)
-invd earnings analysts -i MSFT --json
+# List where facts appear in a document (optional: --document-version, --fact, --status, --limit, --cursor, --all)
+invd documents fact-places -d dv_01JCA8XK --json
 
-# Earnings call calendar (optional: --from, --to, --status, --session, --exchange, --event-type, --sort, --limit, --offset, --date-kind, --calendar-status, --include-expired, --all)
-invd earnings calendar --json
+# Get a figure
+invd documents figure dv_01JCA8XK --block-id b57 --json
 
-# Call-over-call diff (optional: --event-id, --identifier, --year, --quarter, --date, --event-type, --vs)
-invd earnings diff --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
+# Get a document version (optional: --blocks, --pages, --printed, --neighbors, --footnotes)
+invd documents get dv_01JCA8XK -p 1-3 --json
 
-# Search investor documents (optional: --mode, --case-sensitive, --identifier, --kind, --section, --year, --table, --limit)
-invd earnings document-search -q "Azure growth" -i MSFT --json
-
-# Earnings call by ID (optional: --include)
-invd earnings event --event-id 9655a5db-8968-40be-8c79-7cd1a8aed8e9 --json
-
-# Event history of a company (optional: --from, --to, --include, --event-type, --sort, --limit, --offset, --include-expired, --all)
-invd earnings events -i MSFT --json
-
-# Guidance and KPI extractions (optional: --event-id, --identifier, --year, --quarter, --date, --event-type, --kind, --review, --limit, --offset, --all)
-invd earnings extractions --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
-
-# Guidance history (optional: --period-kind, --basis, --limit)
-invd earnings guidance-history -i MSFT --metric revenue_growth --json
-
-# Live earnings calls
-invd earnings live --json
-
-# Earnings call metrics (optional: --event-id, --identifier, --year, --quarter, --date, --event-type)
-invd earnings metrics --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
-
-# Earnings call participants (optional: --event-id, --identifier, --year, --quarter, --date, --event-type, --include)
-invd earnings participants --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
-
-# Person across earnings calls (optional: --limit, --offset, --all)
-invd earnings person --person-id 9b135e05-d7c2-4d23-9c89-728501ad8e58 --json
-
-# Price moves during a call (optional: --event-id, --identifier, --year, --quarter, --date, --event-type)
-invd earnings price-attribution --event-id dd04abe1-f83f-4e92-8ddf-1f8864e7db30 --json
-
-# Speaker prosody (optional: --event-id, --identifier, --year, --quarter, --date, --event-type, --section)
-invd earnings prosody --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
-
-# Earnings call Q&A (optional: --event-id, --identifier, --year, --quarter, --date, --event-type, --limit, --offset, --include, --all)
-invd earnings qa --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
-
-# Search earnings calls (optional: --mode, --case-sensitive, --event-id, --identifier, --from, --to, --type, --event-type, --limit)
-invd earnings search -q "Azure growth" -m lexical -i MSFT --json
-
-# Live audio stream URL (optional: --event-id, --identifier, --year, --quarter, --date, --event-type)
-invd earnings stream --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
-
-# Transcript version diff (optional: --event-id, --identifier, --year, --quarter, --date, --event-type, --to)
-invd earnings transcript-diff --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --from 3 --json
-
-# Transcript versions (optional: --event-id, --identifier, --year, --quarter, --date, --event-type)
-invd earnings versions --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c --json
+# List a document version's sections (optional: --outline, --limit, --cursor, --all)
+invd documents sections dv_01JCA8XK --json
 ```
 
-<!-- invd:hand:earnings transcript -->
+### events
+
+Earnings calls and other corporate events: transcripts, Q&A, media and call analytics
+
 ```bash
-# Transcript (formats: speakers, text, words, sections, cleaned); --output saves it as text; --pdf prints the URL of the version's branded PDF, --pdf-out saves the file
-invd earnings transcript -i AAPL --year 2026 --quarter 4 --format speakers --json
-invd earnings transcript --event-id <event_id> --format sections --json
-invd earnings transcript -i AAPL --year 2026 --quarter 4 --output aapl-q4.txt
-invd earnings transcript -i AAPL --year 2026 --quarter 4 --pdf-out aapl-q4.pdf
-```
-<!-- /invd:hand:earnings transcript -->
+# Get an event's recording (optional: --save)
+invd events audio evt_01JC8M2X --json
 
-<!-- invd:hand:earnings press-release -->
-```bash
-# Press release of a call; --body includes its text, --output saves it
-invd earnings press-release --event-id <event_id> --body --json
-invd earnings press-release -i AAPL --year 2026 --quarter 4 --body --output release.txt
-```
-<!-- /invd:hand:earnings press-release -->
+# Compare an event with a prior one (optional: --prior)
+invd events comparison evt_01JC8M2X --json
 
-<!-- invd:hand:earnings audio -->
-```bash
-# Call recording (PRO): a permanent URL (one forensic watermark per call); --output saves the file
-invd earnings audio --event-id <event_id> --json
-invd earnings audio --event-id <event_id> --output call.mp3
-```
-<!-- /invd:hand:earnings audio -->
+# Get an event (optional: --expand, --fields)
+invd events get evt_01JC8M2X --json
 
-<!-- invd:hand:earnings slides -->
-```bash
-# Slide deck (PRO): --markdown prints the page markdown, --output saves the PDF
-invd earnings slides --event-id <event_id> --markdown --json
-invd earnings slides -i AAPL --year 2026 --quarter 4 --output deck.pdf
-```
-<!-- /invd:hand:earnings slides -->
+# List events (optional: --type, --status, --scheduled-at-gte, --scheduled-at-gt, --scheduled-at-lte, --scheduled-at-lt, --fiscal-year, --fiscal-quarter, --date-kind, --expand, --sort, --fields, --limit, --cursor, --all)
+invd events list AAPL --json
 
-<!-- invd:hand:earnings documents -->
-```bash
-# A call's documents; --output downloads every row into a directory (a link-only sec_filing row is warned on stderr; use its source_url)
-invd earnings documents --event-id <event_id> --kind cfo_commentary --json
-invd earnings documents --event-id <event_id> --output ./docs
-```
-<!-- /invd:hand:earnings documents -->
+# Get an event's live audio URL
+invd events live-audio evt_01JC8M2X --json
 
-<!-- invd:hand:earnings company-documents -->
-```bash
-# Company IR library (outside the calls' folders unless --include calls); --output downloads every stored file: <year>-<kind>-<document_id>.<ext>
-invd earnings company-documents -i AAPL --section annual_reports,proxy --json
-invd earnings company-documents -i AAPL --kind investor_day_deck --output ./ir-docs
-# The document tree: a category (earnings, events, reports, presentations, governance, esg, shareholder, other) or a folder (prefix)
-invd earnings company-documents -i AAPL --category reports,esg --json
-invd earnings company-documents -i AAPL --group earnings/fy2026/q4 --json
-# The whole tree: the library plus every earnings call's documents (source: call), all pages
-invd earnings company-documents -i AAPL --include calls --all --json
-```
-<!-- /invd:hand:earnings company-documents -->
+# Get an event's press release
+invd events press-release evt_01JC8M2X --json
 
-<!-- invd:hand:earnings document -->
-```bash
-# One company document: metadata, --pages for per-page text, --output to download it
-invd earnings document --document-id <document_id> --pages --json
-invd earnings document --document-id <document_id> --output annual-report.pdf
+# Get an event's price attribution
+invd events price-attribution evt_01JC8M2X --json
+
+# Get an event's speech prosody (optional: --section)
+invd events prosody evt_01JC8M2X --json
+
+# List an event's Q&A pairs (optional: --include, --limit, --cursor, --all)
+invd events qa evt_01JC8M2X --json
+
+# Get an event's slides (optional: --pages, --include)
+invd events slides evt_01JC8M2X --json
+
+# Get an event's call statistics
+invd events stats evt_01JC8M2X --json
+
+# Get an event's transcript (optional: --version, --layer, --include, --save)
+invd events transcript evt_01JC8M2X --json
+
+# Diff two transcript versions
+invd events transcript-diff evt_01JC8M2X -f 1 -t 2 --json
+
+# Get an event's transcript as text (optional: --version, --split)
+invd events transcript-text evt_01JC8M2X --json
+
+# List an event's transcript versions (optional: --limit, --cursor, --all)
+invd events transcript-versions evt_01JC8M2X --json
 ```
-<!-- /invd:hand:earnings document -->
+
+### filers
+
+Every SEC filer (13F managers, pre-IPO issuers, former registrants), listed or not
+
+```bash
+# Get a filer (optional: --expand, --fields)
+invd filers get 0000102909 --json
+
+# List SEC filers (optional: --q, --form, --phase, --listed, --sort, --fields, --limit, --cursor, --all)
+invd filers list -q berkshire --json
+```
+
+### filings
+
+SEC filings, their facts, notes, review chains, full-text search and datasets
+
+```bash
+# List SEC dataset releases (optional: --fields, --limit, --cursor, --all)
+invd filings datasets --json
+
+# List a filing's numeric facts (optional: --tag, --fields, --limit, --cursor, --all)
+invd filings facts 0000320193-26-000026 --json
+
+# Get a filing (optional: --expand, --fields)
+invd filings get 0000320193-26-000026 --json
+
+# List filings (optional: --form, --items, --filed-at-gte, --filed-at-gt, --filed-at-lte, --filed-at-lt, --sort, --fields, --limit, --cursor, --all)
+invd filings list AAPL --json
+
+# List a filing's text facts (optional: --tag, --fields, --limit, --cursor, --all)
+invd filings notes 0000320193-26-000026 --json
+
+# Get a filing's review chain (optional: --max-depth, --max-nodes, --direction, --kind)
+invd filings review-chain 0000320193-26-000026 --json
+```
 
 ### financials
 
-Financial statements (standardized & as-reported)
+Statements: standardized and as-reported, plain, detailed and presentation, point in time
 
 ```bash
-# As-reported balance sheet (optional: --sort, --limit, --offset, --reported-only, --all)
-invd financials as-reported-balance-sheet -i AAPL -p annual --json
-
-# As-reported balance sheet (detailed) (optional: --sort, --limit, --offset, --with-formula, --reported-only, --all)
-invd financials as-reported-balance-sheet-detailed -i AAPL -p annual --json
-
-# As-reported balance sheet (presentation) (optional: --sort, --limit, --offset, --reported-only, --all)
-invd financials as-reported-balance-sheet-presentation -i AAPL -p annual --json
-
-# As-reported cash flow statement (optional: --sort, --limit, --offset, --reported-only, --display-sign, --all)
-invd financials as-reported-cash-flow -i AAPL -p annual --json
-
-# As-reported cash flow statement (detailed) (optional: --sort, --limit, --offset, --with-formula, --reported-only, --display-sign, --all)
-invd financials as-reported-cash-flow-detailed -i AAPL -p annual --json
-
-# As-reported cash flow statement (presentation) (optional: --sort, --limit, --offset, --reported-only, --display-sign, --all)
-invd financials as-reported-cash-flow-presentation -i AAPL -p annual --json
-
-# As-reported income statement (optional: --sort, --limit, --offset, --reported-only, --all)
-invd financials as-reported-income-statement -i AAPL -p annual --json
-
-# As-reported income statement (detailed) (optional: --sort, --limit, --offset, --with-formula, --reported-only, --all)
-invd financials as-reported-income-statement-detailed -i AAPL -p annual --json
-
-# As-reported income statement (presentation) (optional: --sort, --limit, --offset, --reported-only, --all)
-invd financials as-reported-income-statement-presentation -i AAPL -p annual --json
-
-# As-reported snapshot (optional: --calendar-year, --calendar-quarter, --reported-only, --display-sign)
-invd financials as-reported-snapshot -i AAPL,MSFT -p annual --json
-
-# As-reported snapshot (detailed) (optional: --calendar-year, --calendar-quarter, --reported-only, --display-sign, --with-formula)
-invd financials as-reported-snapshot-detailed -i AAPL,MSFT -p annual --json
-
-# As-reported snapshot (presentation) (optional: --calendar-year, --calendar-quarter, --reported-only, --display-sign)
-invd financials as-reported-snapshot-presentation -i AAPL,MSFT -p annual --json
-
-# Standardized balance sheet (optional: --sort, --limit, --offset, --all)
-invd financials balance-sheet -i AAPL -p annual --json
-
-# Standardized balance sheet (detailed) (optional: --sort, --limit, --offset, --with-formula, --all)
-invd financials balance-sheet-detailed -i AAPL -p annual --json
-
-# Standardized balance sheet (presentation) (optional: --sort, --limit, --offset, --all)
-invd financials balance-sheet-presentation -i AAPL -p annual --json
-
-# Standardized cash flow statement (optional: --sort, --limit, --offset, --all)
-invd financials cash-flow -i AAPL -p annual --json
-
-# Standardized cash flow statement (detailed) (optional: --sort, --limit, --offset, --with-formula, --all)
-invd financials cash-flow-detailed -i AAPL -p annual --json
-
-# Standardized cash flow statement (presentation) (optional: --sort, --limit, --offset, --all)
-invd financials cash-flow-presentation -i AAPL -p annual --json
-
-# Standardized income statement (optional: --sort, --limit, --offset, --all)
-invd financials income-statement -i AAPL -p annual --json
-
-# Standardized income statement (detailed) (optional: --sort, --limit, --offset, --with-formula, --all)
-invd financials income-statement-detailed -i AAPL -p annual --json
-
-# Standardized income statement (presentation) (optional: --sort, --limit, --offset, --all)
-invd financials income-statement-presentation -i AAPL -p annual --json
-
-# Standardized snapshot (optional: --calendar-year, --calendar-quarter)
-invd financials snapshot -i AAPL,MSFT -p annual --json
-
-# Standardized snapshot (detailed) (optional: --calendar-year, --calendar-quarter, --with-formula)
-invd financials snapshot-detailed -i AAPL,MSFT -p annual --json
-
-# Standardized snapshot (presentation) (optional: --calendar-year, --calendar-quarter)
-invd financials snapshot-presentation -i AAPL,MSFT -p annual --json
+# Standardized statements [--basis as-reported|standardized, --view summary|detailed|presentation] (optional: --statement, --fiscal-year, --fiscal-quarter, --fiscal-year-gte, --fiscal-year-gt, --fiscal-year-lte, --fiscal-year-lt, --as-of, --filing, --sort, --fields, --limit, --cursor, --all)
+invd financials AAPL -s income-statement --view detailed --json
 ```
 
-### health
+### guidance
 
-Liveness of the API (no API key)
+Guidance items and KPI mentions
 
 ```bash
-# Health check
-invd health --json
+# List KPI mentions (optional: --event, --metric, --sort, --fields, --limit, --cursor, --all)
+invd guidance kpis AAPL --json
+
+# List guidance items (optional: --event, --metric, --period-kind, --basis, --review, --sort, --fields, --limit, --cursor, --all)
+invd guidance list AAPL --json
+```
+
+### holdings
+
+13F holdings and quarter-over-quarter changes
+
+```bash
+# List 13F position changes (optional: --filer, --period-end, --prior-period-end, --type, --fields, --limit, --cursor, --all)
+invd holdings changes AAPL --json
+
+# List 13F holdings (optional: --filer, --accession, --period-end, --instruments, --sort, --fields, --limit, --cursor, --all)
+invd holdings list AAPL --json
 ```
 
 ### insider-trades
 
-Insider transactions of a company
+Form 4 transactions
 
 ```bash
-# Insider trades (optional: --start-date, --end-date, --acquired-disposed, --sort, --limit, --offset, --all)
-invd insider-trades list -i AAPL --json
+# Get an insider trade (optional: --fields)
+invd insider-trades get 0001127602-26-012345:1 --json
+
+# List insider trades (optional: --side, --filed-at-gte, --filed-at-gt, --filed-at-lte, --filed-at-lt, --sort, --fields, --limit, --cursor, --all)
+invd insider-trades list AAPL --json
+```
+
+### investor-documents
+
+Company-published documents and their search
+
+```bash
+# Get an investor document (optional: --expand, --save)
+invd investor-documents get doc_01JC7Q2M --json
+
+# List investor documents (optional: --event, --category, --kind, --fiscal-year, --sort, --fields, --limit, --cursor, --all)
+invd investor-documents list AAPL --json
 ```
 
 ### ipos
@@ -433,63 +502,50 @@ invd insider-trades list -i AAPL --json
 Initial public offerings
 
 ```bash
-# List IPOs (optional: --start-date, --end-date, --sort, --limit, --offset, --all)
+# Get an offering (optional: --fields)
+invd ipos get ipo_0001234567_s1_1 --json
+
+# List offerings (optional: --stage, --is-spac, --listing-date-gte, --listing-date-gt, --listing-date-lte, --listing-date-lt, --company, --sort, --fields, --limit, --cursor, --all)
 invd ipos list --json
-
-# List IPO registrations (SEC) (optional: --start-date, --end-date, --stage, --is-spac, --pending, --sort, --limit, --offset, --all)
-invd ipos registrations --json
 ```
-
-### login
-
-<!-- invd:hand:login -->
-```bash
-invd login     # browser sign-in to your Invinite Data account; stores the key
-```
-<!-- /invd:hand:login -->
-
-### logout
-
-<!-- invd:hand:logout -->
-```bash
-invd logout    # revokes the login and clears stored credentials
-```
-<!-- /invd:hand:logout -->
 
 ### market
 
-Market calendar
+US market holidays
 
 ```bash
-# Market holidays (optional: --sort, --limit, --offset, --all)
+# List market holidays (optional: --date-gte, --date-gt, --date-lte, --date-lt, --sort, --fields, --limit, --cursor, --all)
 invd market holidays --json
 ```
 
-### metadata
+### me
 
-The metrics and filing section ids the API serves
+Your data account's own usage (costs no credits)
 
 ```bash
-# Available metrics
-invd metadata metrics --json
+# Who am I
+invd me show --json
 
-# Available SEC section IDs
-invd metadata section-ids --json
+# Get my usage (optional: --days)
+invd me usage --json
 ```
 
 ### metrics
 
-Ratios, growth and CAGR derived from the statements
+Ratios, growth, CAGR, and the explanation of one standardized fact
 
 ```bash
-# CAGR metrics (optional: --period-years, --sort, --limit, --offset, --all)
-invd metrics cagr -i AAPL --json
+# List CAGRs (optional: --horizon, --fiscal-year-gte, --fiscal-year-gt, --fiscal-year-lte, --fiscal-year-lt, --sort, --fields, --limit, --cursor, --all)
+invd metrics cagr AAPL -p annual --json
 
-# Growth metrics (optional: --growth-type, --sort, --limit, --offset, --all)
-invd metrics growth -i AAPL -p annual --json
+# Explain a standardized fact (optional: --max-depth, --max-members)
+invd metrics explain "0000320193|is_total_revenue|annual|2026|4" --json
 
-# Financial ratios (optional: --category, --sort, --limit, --offset, --all)
-invd metrics ratios -i AAPL -p annual --json
+# List growth rates (optional: --basis, --fiscal-year-gte, --fiscal-year-gt, --fiscal-year-lte, --fiscal-year-lt, --sort, --fields, --limit, --cursor, --all)
+invd metrics growth AAPL -p annual --json
+
+# List ratios (optional: --category, --fiscal-year-gte, --fiscal-year-gt, --fiscal-year-lte, --fiscal-year-lt, --sort, --fields, --limit, --cursor, --all)
+invd metrics ratios AAPL -p annual --json
 ```
 
 ### news
@@ -497,329 +553,169 @@ invd metrics ratios -i AAPL -p annual --json
 News of US companies from SEC filings and their own newsrooms: items, full text with attribution, developments and files
 
 ```bash
-# List company developments from news (optional: --publisher, --topic, --item-id, --from, --to, --effective-from, --effective-to, --limit, --cursor, --all)
-invd news developments --json
+# List announcements (optional: --topic, --item, --announced-at-gte, --announced-at-gt, --announced-at-lte, --announced-at-lt, --effective-from-gte, --effective-to-lte, --sort, --fields, --limit, --cursor, --all)
+invd news announcements AAPL --json
 
-# List news items (optional: --ticker, --cik, --from, --to, --source, --kind, --topic, --earnings, --publisher, --publication-type, --issuer-category, --issuer-tag, --limit, --cursor, --all)
-invd news list --json
+# Get a news item (optional: --fields, --save)
+invd news get nws_01JCB4R8 --json
 
-# Search news (optional: --mode, --case-sensitive, --field, --ticker, --cik, --publisher, --publisher-host, --kind, --topic, --from, --to, --limit)
-invd news search -q "data center revenue" -m lexical -t NVDA --json
+# List news items (optional: --event, --kind, --topic, --published-at-gte, --published-at-gt, --published-at-lte, --published-at-lt, --sort, --fields, --limit, --cursor, --all)
+invd news list AAPL --json
 
-# Get a news item's summary in blocks (optional: --limit, --max-chars, --cursor, --all)
-invd news text --id 06304274-da4a-400e-9d5c-fb4ce04f01c9 --json
+# Get a news item's text (optional: --cursor, --max-chars)
+invd news text nws_01JCB4R8 --json
 ```
 
-<!-- invd:hand:news get -->
-```bash
-# Get a news item with Invinite's summary; --pdf prints its branded PDF's URL, --pdf-out saves the file
-invd news get --id 06304274-da4a-400e-9d5c-fb4ce04f01c9 --json
-invd news get --id 06304274-da4a-400e-9d5c-fb4ce04f01c9 --pdf-out item.pdf
-```
-<!-- /invd:hand:news get -->
+### people
 
-### ownership
-
-13F holdings, holders and position changes of institutional investors
+Executives and analysts, and who took part in which event
 
 ```bash
-# Holdings by company (optional: --min-value, --sort, --limit, --offset, --all)
-invd ownership holdings-by-company -i AAPL --json
+# Get a person (optional: --fields)
+invd people get per_01JC9A7Y --json
 
-# Holdings by investor (optional: --sort, --limit, --offset, --all)
-invd ownership holdings-by-investor --cik 1067983 --json
+# List people (optional: --event, --role, --q, --sort, --fields, --limit, --cursor, --all)
+invd people list AAPL -r analyst --json
 
-# List institutional investors (optional: --ciks, --limit, --offset, --sort, --all)
-invd ownership institutions --json
-
-# Institutional transactions (optional: --cik, --identifier, --start-date, --end-date, --type, --calendar-year, --calendar-quarter, --sort, --limit, --offset, --all)
-invd ownership transactions --cik 1067983 --json
+# List event participations (optional: --event, --person, --role, --fields, --limit, --cursor, --all)
+invd people participants -e evt_01JC8M2X --json
 ```
 
 ### plugin
 
 <!-- invd:hand:plugin -->
 ```bash
-invd plugin install --claude --global    # also --opencode, --codex, --copilot, --all; --local for this project
-invd plugin uninstall --claude --global
+invd plugin install --claude --global
+invd plugin install --all --local
+invd plugin uninstall --all --global
 ```
 <!-- /invd:hand:plugin -->
 
-### sec
+### search
 
-Invinite's SEC document store: filers and issuer lifecycle, filings with their documents, immutable cited document versions (blocks, pages, figures, sections, XBRL fact places), lexical / literal search, 13F holdings research, standardized-statement provenance and metric exports
+Full-text search over SEC filings, transcripts, investor documents and news
 
 ```bash
-# SEC dataset releases
-invd sec datasets --json
+# Search filings (optional: --mode, --case-sensitive, --company, --form, --item, --filed-at-gte, --filed-at-gt, --filed-at-lte, --filed-at-lt, --limit, --cursor, --all)
+invd search filings "supply chain risk" -c AAPL --json
 
-# SEC document (current version) (optional: --blocks, --pages, --printed, --printed-occurrence, --neighbors, --footnotes, --limit)
-invd sec document --accession 0000320193-26-000026 --filename aapl-20260926.htm --json
+# Search investor documents (optional: --company, --kind, --mode, --limit, --cursor, --all)
+invd search investor-documents "capital allocation" -c AAPL --json
 
-# Metric export manifest
-invd sec export --export-id 6a7350b9-df18-517b-b553-96601b1e0508 --json
+# Search news (optional: --company, --field, --mode, --published-at-gte, --published-at-gt, --published-at-lte, --published-at-lt, --limit, --cursor, --all)
+invd search news buyback -c AAPL --json
 
-# XBRL fact places in a document version (optional: --fact-id, --status, --cursor, --limit, --all)
-invd sec fact-places --version-id 8be0b759-1a9d-5f89-8308-bd86185f5e1f --json
-
-# SEC document figure
-invd sec figure --version-id 8be0b759-1a9d-5f89-8308-bd86185f5e1f --block-id b00107 --json
-
-# SEC filer
-invd sec filer --cik 320193 --json
-
-# SEC filer document coverage (optional: --since)
-invd sec filer-coverage --cik 320193 --json
-
-# Find SEC filers (optional: --name, --ticker, --form, --limit)
-invd sec filers --json
-
-# SEC filing and its documents
-invd sec filing -a 0000320193-26-000026 --json
-
-# SEC dataset facts of a filing (optional: --tag)
-invd sec filing-facts --accession 0000320193-26-000026 --json
-
-# Holdings of a 13F filing (optional: --after, --limit, --all)
-invd sec filing-holdings --accession 0000320193-26-000026 --json
-
-# SEC dataset text notes of a filing (optional: --tag)
-invd sec filing-notes --accession 0000320193-26-000026 --json
-
-# SEC filings of a filer (optional: --form, --filed-from, --filed-to, --order, --cursor, --limit, --all)
-invd sec filings -i AAPL --json
-
-# Explain a standardized fact (optional: --max-depth, --max-members, --places)
-invd sec financial-fact --id "320193|is_total_revenue|annual|2026|4" --json
-
-# Standardization rule catalog (optional: --statement, --metric-id)
-invd sec financials-catalog --json
-
-# Filers of an SEC form (optional: --exact, --name, --cik, --cursor, --limit, --all)
-invd sec form-filers -f 13F-HR --json
-
-# Institutional holders of a security (13F) (optional: --cusip, --symbol, --issuer-cik, --instruments, --pinned-at, --cursor, --limit, --all)
-invd sec holders --period-end 2026-06-30 --json
-
-# Position changes in a security (13F) (optional: --prior-period-end, --cusip, --symbol, --issuer-cik, --instruments, --pinned-at, --cursor, --limit, --all)
-invd sec holding-deltas --period-end 2026-06-30 --json
-
-# List SEC issuers (optional: --query, --phase, --form, --public-seen-from, --public-seen-to, --cursor, --limit, --all)
-invd sec issuers --json
-
-# SEC issuer lifecycle (optional: --traverse, --max-hops)
-invd sec lifecycle --cik 320193 --json
-
-# Request an annual metric export (optional: --period-type, --mode, --generation)
-invd sec metric-export -m is_total_revenue -y 2025 --json
-
-# Portfolio of a 13F manager (optional: --instruments, --pinned-at, --cursor, --limit, --all)
-invd sec portfolio --period-end 2026-06-30 --cik 1067983 --json
-
-# SEC review chain of a filing (optional: --max-depth, --max-nodes)
-invd sec review-chain --accession 0000320193-26-000026 --json
-
-# SEC review relations of a filing (optional: --direction, --kind, --history, --cursor, --limit, --all)
-invd sec review-relations --accession 0000320193-26-000026 --json
-
-# Search SEC documents (optional: --mode, --case-sensitive, --cik, --entity-id, --successors, --accession, --version-id, --form, --filename, --item, --exhibit-type, --filed-from, --filed-to, --cursor, --limit, --all)
-invd sec search -q "supply chain concentration" --json
-
-# Sections of an SEC document version (optional: --outline)
-invd sec sections --version-id 8be0b759-1a9d-5f89-8308-bd86185f5e1f --json
-
-# Standardized statement with provenance (optional: --period-type, --fiscal-year-from, --fiscal-year-to, --metric-id, --other-evidence, --limit)
-invd sec statement --cik 320193 --statement income_statement --json
-
-# SEC document version (optional: --blocks, --pages, --printed, --printed-occurrence, --neighbors, --footnotes, --limit)
-invd sec version --version-id 8be0b759-1a9d-5f89-8308-bd86185f5e1f --json
+# Search transcripts (optional: --company, --event, --type, --mode, --conference-date-gte, --conference-date-gt, --conference-date-lte, --conference-date-lt, --limit, --cursor, --all)
+invd search transcripts "gross margin" -c AAPL --json
 ```
-
-<!-- invd:hand:sec save -->
-```bash
-# Save a filing's originals from their permanent public copies (size + SHA-256 verified); every document it
-# cannot save is listed with its reason (no public copy yet, quarantined, too large) and the exit code is 3
-invd sec save --accession 0000320193-26-000024 -o filings/aapl-8k/
-invd sec save --accession 0000320193-26-000024 --filename aapl-20261102.htm --json
-```
-<!-- /invd:hand:sec save -->
-
-<!-- invd:hand:sec save-figure -->
-```bash
-# Save a cited figure's image from its permanent public URL; the citation is version_id#block_id, never a URL
-invd sec save-figure --version-id 402affed-8245-5fe1-814d-d025f60db4ac --block-id b00012 -o figures/
-```
-<!-- /invd:hand:sec save-figure -->
-
-<!-- invd:hand:sec export-file -->
-```bash
-# Download a metric export (.csv.gz) through the key-authorized route, verified against its SHA-256;
-# --sha256 (from invd sec export) also accepts an identical existing file without a request.
-# Exit 4 = partial download, 5 = size / hash / type mismatch: nothing is saved either way
-invd sec export-file --export-id 6a7350b9-df18-517b-b553-96601b1e0508 -o exports/
-invd sec export-file --export-id 6a7350b9-df18-517b-b553-96601b1e0508 -o exports/revenue-2025.csv.gz --sha256 <sha256>
-```
-<!-- /invd:hand:sec export-file -->
 
 ### segments
 
-Financial facts broken down by business and geographic segment
+Segment values (revenue by product, geography …); list-detailed adds lineage (PRO)
 
 ```bash
-# Segmented financials (optional: --segment-id, --sort, --limit, --offset, --all)
-invd segments list -i AAPL -p annual --json
+# List segment values (optional: --metric, --axis, --fiscal-year-gte, --fiscal-year-gt, --fiscal-year-lte, --fiscal-year-lt, --sort, --fields, --limit, --cursor, --all)
+invd segments list AAPL -p annual --json
 
-# Segmented financials (detailed) (optional: --segment-id, --sort, --limit, --offset, --all)
-invd segments list-detailed -i AAPL -p annual --json
-```
-
-### status
-
-Public status and licensing (no API key)
-
-```bash
-# Licensing policy
-invd status licensing --json
-
-# Service status
-invd status show --json
-```
-
-### usage
-
-Your data account's own usage (costs no credits)
-
-```bash
-# Account usage (optional: --days)
-invd usage --json
+# List segment values with lineage (optional: --metric, --axis, --fiscal-year-gte, --fiscal-year-gt, --fiscal-year-lte, --fiscal-year-lt, --sort, --fields, --limit, --cursor, --all)
+invd segments list-detailed AAPL -p annual --json
 ```
 
 ### webhooks
 
-Earnings-call webhook subscriptions (PRO): signed POSTs of the call lifecycle
+Outbound earnings-call lifecycle deliveries (LITE and above)
 
 ```bash
-# Create a webhook (optional: --body-file)
-invd webhooks create --body '{"url":"https://hooks.example.com/invinite","events":["earnings_call.transcript_ready","earnings_call.ended"],"filters":{"ciks":["0000789019","0000320193"]}}' --json
+# Create a webhook (optional: --idempotency-key, --url, --events, --ciks, --keywords, --body, --body-file)
+invd webhooks create --body '{"url":"https://hooks.example.com/invinite","events":["event.transcript_ready","news.published"],"filters":{"ciks":["0000320193"]}}' --json
 
 # Delete a webhook
-invd webhooks delete --id js7a2c9xq4m8v1k6t3w5r0n2b8gnd4fh --json
+invd webhooks delete k57a8x2b4c6d8e0f2g4h6j8k0m2n4p6r --json
 
-# Webhook delivery attempts
-invd webhooks deliveries --id js7a2c9xq4m8v1k6t3w5r0n2b8gnd4fh --json
+# List a webhook's deliveries (optional: --limit, --cursor, --all)
+invd webhooks deliveries k57a8x2b4c6d8e0f2g4h6j8k0m2n4p6r --json
 
-# List webhooks
+# Get a webhook
+invd webhooks get k57a8x2b4c6d8e0f2g4h6j8k0m2n4p6r --json
+
+# List webhooks (optional: --limit, --cursor, --all)
 invd webhooks list --json
 
-# Rotate a webhook signing secret
-invd webhooks rotate-secret --id js7a2c9xq4m8v1k6t3w5r0n2b8gnd4fh --json
+# Rotate a webhook's secret
+invd webhooks rotate-secret k57a8x2b4c6d8e0f2g4h6j8k0m2n4p6r --json
 
 # Send a test delivery
-invd webhooks test --id js7a2c9xq4m8v1k6t3w5r0n2b8gnd4fh --json
+invd webhooks test k57a8x2b4c6d8e0f2g4h6j8k0m2n4p6r --json
 
-# Update a webhook (optional: --body, --body-file)
-invd webhooks update --id js7a2c9xq4m8v1k6t3w5r0n2b8gnd4fh --body '{"events":["earnings_call.transcript_ready"],"active":true}' --json
+# Update a webhook (optional: --keywords, --ciks, --events, --active, --body, --body-file)
+invd webhooks update k57a8x2b4c6d8e0f2g4h6j8k0m2n4p6r --body '{"events":["event.transcript_ready"],"active":true}' --json
 ```
-
-### ws
-
-<!-- invd:hand:ws -->
-```bash
-# Real-time SEC filing stream
-invd ws listen --json
-
-# Follow a live call (event ID or CIK; NDJSON with --json; PRO)
-invd ws listen --earnings <event_id> --json
-invd ws listen --earnings 320193 --names
-
-# Live price ticks of the call's stock next to the transcript (≤ 1/s; per-call only, not with --all-live)
-invd ws listen --earnings <event_id> --prices --json | jq 'select(.type=="price_tick")'
-
-# Keyword alerts on a live call, or across every live call (--all-live needs --keywords)
-invd ws listen --earnings 320193 --keywords tariffs,china --keyword-match stem --json
-invd ws listen --all-live --keywords tariffs --json
-
-# New news items as they are published (STANDARD): one line each, NDJSON with --json
-invd ws listen --news --tickers NVDA
-invd ws listen --news --ciks 1045810 --news-sources ir --json
-invd ws listen --news --earnings-news --news-kinds earnings_results,guidance --json
-```
-<!-- /invd:hand:ws -->
 
 <!-- invd:commands:end -->
 
-## Pagination
-
-Paginated commands (the `--all` ones above) take:
-- `-l, --limit <n>` — max results per page
-- `--offset <n>` — pagination offset
-- `--all` — auto-paginate all results (follows `next_url`; per-company commands merge each company's pages; a page refused with 429 / 503 is retried up to 5 times after the API's `Retry-After`)
-- `-s, --sort <dir>` — `asc` or `desc` (where the operation supports it)
-
-## Common Patterns
+## Common patterns
 
 ### Comparing companies
-Fetch snapshots for multiple tickers at once:
+
 ```bash
-invd financials snapshot -i AAPL,MSFT,GOOGL -p annual --json
+invd catalog metrics --json
+invd companies get AAPL --json
+invd financials AAPL MSFT GOOGL --fiscal-year 2025 --json
+invd metrics ratios AAPL MSFT GOOGL -p annual --category profitability,valuation --json
+invd metrics cagr AAPL MSFT GOOGL -p annual --horizon 5 --json
 ```
 
-### Getting the latest quarterly data
+### The latest quarter
+
 ```bash
-invd financials income-statement -i AAPL -p quarterly --limit 1 --json
+invd financials AAPL --period quarterly --limit 1 --json
 ```
 
-### Finding who owns a stock
-```bash
-invd ownership holdings-by-company -i AAPL --min-value 10000000 --json
-```
+### Who owns a stock, and who is buying
 
-### Searching SEC filings by topic
-Cited passages (`version_id` + `block_id`), no prose answer; 100 credits:
 ```bash
-invd sec search -q "artificial intelligence strategy" -m lexical -c 789019 --json
+invd holdings AAPL --limit 50 --json
+invd holdings changes AAPL --type new,added --json
 ```
 
 ### Reading an earnings call
-Find the call, then read it from the cheapest source to the most detailed:
-```bash
-invd earnings events -i NVDA -s desc -l 4 --json            # pick the event_id
-invd earnings transcript --event-id <event_id> --format sections --json
-invd earnings extractions --event-id <event_id> --kind guidance --json
-invd earnings search -q "gross margin outlook" --event-id <event_id> --json
-invd earnings search -q "data center revenue" --mode literal --event-id <event_id> --json   # exact quote in the call
-invd earnings document-search -q FY2027 -i NVDA --mode literal --json   # exact token in the company's documents
-invd earnings price-attribution --event-id <event_id> --json   # optional: price moves during the call
-```
-`price-attribution` (MCP `earnings_call_price_moves`, STANDARD, 1 credit) lines up minute returns with what was said in that minute: temporal coincidence, not attribution of cause; pre-market bars are sparse, and a `404 price_attribution_unavailable` means the call is not attributed yet.
 
-### What did NVIDIA announce today
-Ask for the company's own publications (publisher = CIK), then read one in full and cite it:
-```bash
-invd news list --publisher 1045810 --from 2026-10-29 --json         # what NVIDIA published itself
-invd news list --ticker NVDA --source edgar --from 2026-10-29 --json   # SEC filings mentioning NVIDIA
-invd news get --id <id> --json                                        # summary_text + attribution
-invd news developments --publisher 1045810 --topic product_launch --json
-```
-Answer with the publisher, the date and the link of each item (`attribution`), and keep "announced" / "planned" claims as such.
+Resolve the call, then read from the cheapest source to the most detailed:
 
-### Reading specific filing sections
-Find the filing, pin the document version, list its sections, then read a section's blocks:
 ```bash
-invd sec filings -i AAPL -f 10-K -l 1 --json                      # pick the accession
-invd sec filing --accession <accession> --json                    # document manifest: the primary filename
-invd sec document --accession <accession> --filename <filename> -l 1 --json   # version.version_id
-invd sec sections --version-id <version_id> --json               # each section's blocks selector
-invd sec version --version-id <version_id> --blocks <blocks> --json
+invd events NVDA --status ended --sort -scheduled_at --limit 1 --json event_id,fiscal_year,fiscal_quarter,has_transcript
+invd events press-release <event_id> --json
+invd guidance NVDA --event <event_id> --json
+invd events qa <event_id> --json
+invd events comparison <event_id> --json
+invd search transcripts "data center revenue" --event <event_id> --mode literal --json
+invd events transcript-text <event_id> --json
 ```
+
+### Reading a filing section
+
+```bash
+invd filings AAPL --form 10-K --limit 1 --json accession,filing_date
+invd filings get 0000320193-26-000026 --expand documents --json
+invd documents sections <version_id> --json
+invd documents get <version_id> --blocks b12-b40 --json
+```
+
+### What a company announced
+
+```bash
+invd news announcements NVDA --announced-at-gte 2026-11-01 --json
+invd news NVDA --published-at-gte 2026-11-01 --json
+invd news text <id> --json
+```
+
+Answer with the publisher, date and link of each item.
 
 ## Tips
 
-- Always use `--json` for data you'll analyze or transform
-- Use `--all` cautiously — some endpoints return thousands of results
-- Company identifiers accept both ticker symbols (AAPL) and CIK numbers
-- For financial statements, `annual` gives the full year, `quarterly` gives each quarter, `ttm` gives trailing twelve months, `ytd` gives year-to-date
-- The `snapshot` command is the most efficient way to get complete financials for one or more companies at once
-- Filing sections return full text — great for detailed analysis of risk factors, MD&A, business descriptions, etc.
-- Following a live call: `invd earnings live --json` lists the calls in progress; `invd ws listen --earnings <event_id>` streams the transcript (PRO) and exits once the final transcript is ready
-- Earnings-call identifiers: `event_id` (UUID) from `invd earnings events` / `calendar` is the most precise selector; ticker + `--year` + `--quarter` uses the company's fiscal quarter
+- Use `--json` (or `--json a,b`) for data you analyse; tables are for people.
+- Use `--all` sparingly and `--dry-run` first: some lists hold thousands of rows.
+- Tickers and CIKs are interchangeable as the company positional; a CIK also reaches a filer without a listing
+  (`invd filers get 0000102909`).
+- Fiscal periods follow the company's fiscal calendar: a fiscal Q4 can end in the next calendar year.
+- Keep `meta.coverage` in mind: `pending` / `partial` means the answer is incomplete.

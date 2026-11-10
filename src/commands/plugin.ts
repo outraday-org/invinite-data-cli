@@ -262,14 +262,11 @@ function removeFile(filePath: string): boolean {
   }
 }
 
-function getPackageRoot(): string {
-  const thisFile = fileURLToPath(import.meta.url);
-  // dist/src/commands/plugin.js → package root (3 levels up)
-  return path.resolve(path.dirname(thisFile), '..', '..', '..');
-}
-
-function getSourceDir(): string {
-  return path.join(getPackageRoot(), 'claude-plugin');
+/** The bundled `claude-plugin/`: two levels above this file under tsx (`src/commands/`), three in the build. */
+export function getSourceDir(): string {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const candidates = [path.resolve(here, '..', '..', '..', 'claude-plugin'), path.resolve(here, '..', '..', 'claude-plugin')];
+  return candidates.find(candidate => fs.existsSync(path.join(candidate, '.claude-plugin'))) ?? candidates[0];
 }
 
 // --- Command registration ---
@@ -367,19 +364,19 @@ export function registerPluginCommands(program: Command): void {
 
 // --- Helpers ---
 
-function resolveRuntimes(opts: Record<string, boolean>): Runtime[] | null {
+export function resolveRuntimes(opts: Record<string, boolean>): Runtime[] | null {
   if (opts.all) return Object.keys(RUNTIMES) as Runtime[];
   const selected = (Object.keys(RUNTIMES) as Runtime[]).filter((r) => opts[r]);
   return selected.length > 0 ? selected : null;
 }
 
-function resolveScope(opts: Record<string, boolean>): 'global' | 'local' | null {
+export function resolveScope(opts: Record<string, boolean>): 'global' | 'local' | null {
   if (opts.global) return 'global';
   if (opts.local) return 'local';
   return null;
 }
 
-async function promptInteractive(
+export async function promptInteractive(
   runtimes: Runtime[] | null,
   scope: 'global' | 'local' | null,
 ): Promise<{ runtimes: Runtime[]; scope: 'global' | 'local' }> {

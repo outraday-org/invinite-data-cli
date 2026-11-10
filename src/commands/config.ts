@@ -1,61 +1,108 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
-import { setApiKey } from '../config/auth.js';
-import { setBaseUrl, showConfig, resetConfig } from '../config/config-manager.js';
+import {
+  SETTINGS,
+  getSetting,
+  globalConfigPath,
+  isSettingKey,
+  localConfigPath,
+  setSetting,
+  unsetSetting,
+  type SettingKey,
+} from '../config/config-manager.js';
+import { OUTPUT_FORMATS } from '../output/render.js';
+import { UsageError, withErrorHandling } from '../shared/errors.js';
 
+function settingKey(key: string): SettingKey {
+  if (!isSettingKey(key)) throw new UsageError(`Unknown setting ${key}. Settings: ${Object.keys(SETTINGS).join(', ')}`);
+  return key;
+}
+
+function checkValue(key: SettingKey, value: string): void {
+  if (key === 'output' && value !== '' && !(OUTPUT_FORMATS as readonly string[]).includes(value)) {
+    throw new UsageError(`output must be one of ${OUTPUT_FORMATS.join(', ')}`);
+  }
+  if (key === 'confirm_credits' && !/^\d+$/.test(value)) throw new UsageError('confirm_credits must be a whole number');
+  if (key === 'base_url') {
+    try {
+      new URL(value);
+    } catch {
+      throw new UsageError(`base_url must be a URL (got ${value})`);
+    }
+  }
+}
+
+const shown = (key: SettingKey, value: string) => (key === 'api_key' && value ? `${value.slice(0, 4)}…` : value);
+
+/**
+ * `invd config`: the settings in `$XDG_CONFIG_HOME/invd/config.toml` (`INVD_CONFIG_DIR` replaces the directory)
+ * and the project file `./.invd.toml` (`--local`). Precedence: flags > env > `./.invd.toml` > `config.toml`.
+ */
 export function registerConfigCommands(program: Command): void {
-  const configCmd = program
+  const config = program
     .command('config')
-    .description('Manage CLI configuration');
+    .description('Local settings: config.toml (XDG) and ./.invd.toml; flags > env > local > global');
 
-  configCmd
-    .command('set-key')
-    .description('Set API key (interactive, masked input)')
-    .action(async () => {
-      const { default: Enquirer } = await import('enquirer');
-      const enquirer = new Enquirer();
-      const response = await enquirer.prompt({
-        type: 'password',
-        name: 'key',
-        message: 'Enter your Invinite API key:',
-      }) as { key: string };
-      await setApiKey(response.key);
-      console.log(chalk.green('API key saved successfully.'));
-    });
-
-  configCmd
-    .command('set-url')
-    .description('Set API base URL')
-    .argument('<url>', 'Base URL for the API')
-    .action((url: string) => {
-      setBaseUrl(url);
-      console.log(chalk.green(`Base URL set to ${url}`));
-    });
-
-  configCmd
-    .command('show')
-    .description('Display current configuration')
-    .action(() => {
-      const cfg = showConfig();
-      console.log(chalk.bold('Current Configuration:'));
-      console.log(`  Base URL:    ${cfg.baseUrl}`);
-      console.log(`  API Key:     ${cfg.apiKeySet ? chalk.green('configured') : chalk.yellow('not set')}`);
-    });
-
-  configCmd
-    .command('reset')
-    .description('Reset all configuration')
-    .action(async () => {
-      const { default: Enquirer } = await import('enquirer');
-      const enquirer = new Enquirer();
-      const response = await enquirer.prompt({
-        type: 'confirm',
-        name: 'confirm',
-        message: 'Are you sure you want to reset all configuration?',
-      }) as { confirm: boolean };
-      if (response.confirm) {
-        resetConfig();
-        console.log(chalk.green('Configuration reset.'));
+  config
+    .command('list')
+    .description('Every setting with its value and where it comes from')
+    .option('--json', 'Print JSON')
+    .addHelpText('before', 'Examples:\n  $ invd config list\n  $ invd config list --json\n')
+    .action(withErrorHandling(async (opts: { json?: boolean }) => {
+      const rows = (Object.keys(SETTINGS) as SettingKey[]).map(key => {
+        const { value, source } = getSetting(key);
+        return { key, value: shown(key, value), source, env: SETTINGS[key].env };
+      });
+      if (opts.json) {
+        console.log(JSON.stringify({ global: globalConfigPath(), local: localConfigPath(), settings: rows }, null, 2));
+        return;
       }
+      for (const row of rows) {
+        console.log(`  ${chalk.bold(row.key.padEnd(16))} ${row.value === '' ? chalk.dim('(unset)') : row.value}  ${chalk.dim(`${row.source} · $${row.env}`)}`);
+      }
+      console.log(chalk.dim(`\nglobal: ${globalConfigPath()}\nlocal:  ${localConfigPath()}`));
+    }));
+
+  config
+    .command('get')
+    .description('Print one setting\'s effective value')
+    .argument('<key>', `One of ${Object.keys(SETTINGS).join(', ')}`)
+    .addHelpText('before', 'Examples:\n  $ invd config get base_url\n  $ invd config get output\n')
+    .action(withErrorHandling(async (key: string) => {
+      const name = settingKey(key);
+      console.log(shown(name, getSetting(name).value));
+    }));
+
+  config
+    .command('set')
+    .description('Write a setting to config.toml (or ./.invd.toml with --local)')
+    .argument('<key>', `One of ${Object.keys(SETTINGS).join(', ')}`)
+    .argument('<value>', 'The value')
+    .option('--local', 'Write ./.invd.toml (this project) instead of the global file')
+    .addHelpText('before', 'Examples:\n  $ invd config set output json\n  $ invd config set base_url http://localhost:4000 --local\n')
+    .action(withErrorHandling(async (key: string, value: string, opts: { local?: boolean }) => {
+      const name = settingKey(key);
+      checkValue(name, value);
+      const path = setSetting(name, value, opts.local ? 'local' : 'global');
+      console.log(chalk.green(`${name} = ${shown(name, value)}`) + chalk.dim(` (${path})`));
+    }));
+
+  config
+    .command('unset')
+    .description('Remove a setting from config.toml (or ./.invd.toml with --local)')
+    .argument('<key>', `One of ${Object.keys(SETTINGS).join(', ')}`)
+    .option('--local', 'Edit ./.invd.toml instead of the global file')
+    .addHelpText('before', 'Examples:\n  $ invd config unset output\n  $ invd config unset base_url --local\n')
+    .action(withErrorHandling(async (key: string, opts: { local?: boolean }) => {
+      const path = unsetSetting(settingKey(key), opts.local ? 'local' : 'global');
+      console.log(chalk.green(`${key} unset`) + chalk.dim(` (${path})`));
+    }));
+
+  config
+    .command('path')
+    .description('Print the global config file path')
+    .addHelpText('before', 'Examples:\n  $ invd config path\n  $ cat "$(invd config path)"\n')
+    .action(() => {
+      console.log(globalConfigPath());
     });
 }

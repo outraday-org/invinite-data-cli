@@ -20,3 +20,28 @@ describe('parseRetryAfter', () => {
     expect(parseRetryAfter('soon')).toBeUndefined();
   });
 });
+
+describe('exit codes', () => {
+  it('maps errors to 1 / 2 / 3 / 4 / 5 / 6', async () => {
+    const { ApiError, AuthRequiredError, EXIT, IntegrityError, PartialDownloadError, PartialResultError, UsageError, exitCodeFor, exitCodeOfCommanderError } = await import('../../../src/shared/errors.js');
+    expect(exitCodeFor(new UsageError('x'))).toBe(EXIT.usage);
+    expect(exitCodeFor(new PartialResultError(new Error('x'), 3, 'c'))).toBe(EXIT.partial);
+    expect(exitCodeFor(new PartialDownloadError(1, 2))).toBe(EXIT.partial);
+    expect(exitCodeFor(new AuthRequiredError())).toBe(EXIT.auth);
+    expect(exitCodeFor(new IntegrityError('x'))).toBe(EXIT.integrity);
+    expect(exitCodeFor(new ApiError(402, 'Payment', 'x'))).toBe(EXIT.credits);
+    expect(exitCodeFor(new ApiError(403, 'Forbidden', 'x', undefined, 'plan_required'))).toBe(EXIT.credits);
+    expect(exitCodeFor(new ApiError(401, 'Unauthorized', 'x'))).toBe(EXIT.auth);
+    expect(exitCodeFor(new ApiError(400, 'Bad', 'x', undefined, 'unknown_parameter'))).toBe(EXIT.usage);
+    expect(exitCodeFor(new ApiError(500, 'Internal', 'x', undefined, 'internal'))).toBe(EXIT.failure);
+    expect(exitCodeFor(new Error('x'))).toBe(EXIT.failure);
+    expect(exitCodeOfCommanderError({ code: 'commander.unknownOption', exitCode: 1 })).toBe(2);
+    expect(exitCodeOfCommanderError({ code: 'commander.helpDisplayed', exitCode: 0 })).toBe(0);
+    expect(exitCodeOfCommanderError({ code: 'commander.version', exitCode: 0 })).toBe(0);
+  });
+
+  it('a partial result names the resume cursor', async () => {
+    const { PartialResultError } = await import('../../../src/shared/errors.js');
+    expect(new PartialResultError(new Error('boom'), 50, 'c9').message).toBe('Stopped after 50 row(s): boom — resume with --cursor c9');
+  });
+});

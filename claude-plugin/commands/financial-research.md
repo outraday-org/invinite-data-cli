@@ -12,13 +12,13 @@ You are a financial research orchestrator. The user has asked you to research or
 
 Break the user's request into independent data retrieval tasks. Think about what data sources you need:
 
-- **Company fundamentals**: company details, financial snapshots
-- **Metrics & ratios**: profitability, valuation, liquidity, solvency ratios, CAGR, growth rates
-- **Statements**: income statements, balance sheets, cash flows (for trend analysis)
-- **Ownership**: institutional holders, ownership transactions, insider trades
-- **Filings**: SEC filing sections (risk factors, MD&A, business descriptions)
-- **Earnings calls**: call calendar, transcripts, management guidance and KPIs, Q&A with analysts, press releases, the diff vs the prior call
-- **Context**: dividends, stock splits, fiscal periods, segments
+- **Company fundamentals**: company profile, financial statements (several companies in one call for a snapshot)
+- **Metrics & ratios**: profitability, valuation, liquidity, leverage and efficiency ratios, CAGR, growth rates (read the metric catalog first)
+- **Statements**: income statements, balance sheets, cash flows, standardized or as-reported, point in time (for trend analysis)
+- **Ownership**: 13F holders, quarter-over-quarter position changes, insider trades
+- **Filings**: SEC filing sections (risk factors, MD&A, business descriptions), full-text filing search
+- **Earnings calls**: call calendar, transcripts, management guidance and KPIs, Q&A with analysts, press releases, the comparison with the prior call
+- **Context**: dividends, stock splits, fiscal periods, segments, company news and announcements
 
 Each independent data need becomes a separate subagent task.
 
@@ -28,7 +28,7 @@ Launch all data retrieval tasks at the same time using the `invinite-data` agent
 
 **Example**: if the user asks "Compare Apple and Microsoft's financial health", spawn subagents in parallel like:
 
-1. `invinite-data`: "Fetch the latest annual financial snapshot for AAPL and MSFT"
+1. `invinite-data`: "Fetch the latest annual standardized financial statements for AAPL and MSFT in one call"
 2. `invinite-data`: "Fetch profitability and liquidity ratios for AAPL, annual period"
 3. `invinite-data`: "Fetch profitability and liquidity ratios for MSFT, annual period"
 4. `invinite-data`: "Fetch 5-year CAGR metrics for AAPL and MSFT"
@@ -37,7 +37,7 @@ Launch all data retrieval tasks at the same time using the `invinite-data` agent
 - Always spawn as many subagents in parallel as possible — do not fetch sequentially
 - Give each subagent a specific, focused task — one clear data request per agent
 - If the user mentions companies by name (not ticker), include "resolve the ticker first" in the subagent prompt
-- For comparative analysis, consider fetching data for all companies in a single snapshot call rather than one per company
+- For comparative analysis, fetch all companies in one call (`invd financials AAPL MSFT --fiscal-year 2025`, `invd metrics ratios AAPL MSFT`) rather than one per company
 
 ## Step 3: Analyze and synthesize
 

@@ -10,6 +10,7 @@ vi.mock('../../../src/config/auth.js', () => ({
   clearApiKey: mockClearApiKey,
   resolveApiKey: mockResolveApiKey,
   setApiKey: mockSetApiKey,
+  keyHint: (key: string) => `${key.slice(0, 4)}…${key.slice(-4)}`,
 }));
 
 // Never the real `conf` file: test files run in parallel workers, and a base URL written here leaked into
@@ -19,7 +20,7 @@ vi.mock('../../../src/config/config-manager.js', () => ({
   DASHBOARD_URL: 'https://app.example.test/data-api',
 }));
 
-import { login, logout, type LoginDependencies } from '../../../src/commands/login.js';
+import { login, logout, parsePastedCallback, type LoginDependencies } from '../../../src/commands/auth.js';
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -95,7 +96,7 @@ describe('login commands', () => {
   it('turns an exchange 401 into an actionable expired-login error', async () => {
     const { dependencies } = loginDependencies(jsonResponse({ ok: false, error: 'Invalid or expired exchange code' }, 401));
 
-    await expect(login(dependencies)).rejects.toThrow('Login expired, run `invd login` again');
+    await expect(login(dependencies)).rejects.toThrow('Login expired, run `invd auth login` again');
     expect(mockSetApiKey).not.toHaveBeenCalled();
   });
 
@@ -129,7 +130,7 @@ describe('login commands', () => {
     };
 
     await expect(login(dependencies)).rejects.toThrow(
-      'OAuth login is not enabled on this deployment. Use `invd config set-key` instead.',
+      'OAuth login is not enabled on this deployment. Use `invd auth login --with-token` instead.',
     );
     expect(dependencies.openBrowser).not.toHaveBeenCalled();
   });
@@ -158,14 +159,74 @@ describe('login commands', () => {
   });
 
   it('instructs users to remove an environment key without clearing storage', async () => {
-    mockResolveApiKey.mockResolvedValue({ key: `invd_${'d'.repeat(64)}`, source: 'environment' });
+    mockResolveApiKey.mockResolvedValue({ key: `invd_${'d'.repeat(64)}`, source: 'environment', origin: 'INVD_API_KEY' });
     const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
     const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
 
     await logout({ fetch: fetchMock });
 
-    expect(log).toHaveBeenCalledWith(expect.stringContaining('INVINITE_DATA_API_KEY'));
+    expect(log).toHaveBeenCalledWith(expect.stringContaining('INVD_API_KEY'));
     expect(fetchMock).toHaveBeenCalledOnce();
     expect(mockClearApiKey).not.toHaveBeenCalled();
+  });
+
+  it('--no-browser: prints the URL, takes the pasted redirect address, checks its state and exchanges its code', async () => {
+    const exchange = { key: `invd_${'e'.repeat(64)}`, keyHint: 'eeee', label: 'CLI login (ssh)' };
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(null, { status: 302, headers: { Location: 'https://clerk.test/oauth/authorize' } }))
+      .mockResolvedValueOnce(jsonResponse({ ok: true, data: exchange }));
+    const printed: string[] = [];
+    vi.spyOn(console, 'error').mockImplementation((line?: unknown) => { printed.push(String(line ?? '')); });
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    const openBrowser = vi.fn();
+    const dependencies: LoginDependencies = {
+      fetch: fetchMock,
+      openBrowser,
+      timeoutMs: 2_000,
+      readPasted: async () => {
+        const loginUrl = new URL(printed.find(line => line.includes('/auth/login')) ?? '');
+        return `http://127.0.0.1:${loginUrl.searchParams.get('port')}/callback?code=pasted-code&state=${loginUrl.searchParams.get('state')}`;
+      },
+    };
+
+    await expect(login(dependencies, { noBrowser: true })).resolves.toEqual(exchange);
+    expect(openBrowser).not.toHaveBeenCalled();
+    expect(fetchMock).toHaveBeenNthCalledWith(2, 'https://data.example.test/auth/exchange', expect.objectContaining({ body: JSON.stringify({ code: 'pasted-code' }) }));
+  });
+
+  it('--no-browser: a loopback callback that wins aborts the waiting paste prompt', async () => {
+    const { dependencies } = loginDependencies(jsonResponse({ ok: true, data: { key: 'invd_x', keyHint: 'x', label: 'l' } }));
+    const printed: string[] = [];
+    vi.spyOn(console, 'error').mockImplementation((line?: unknown) => { printed.push(String(line ?? '')); });
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    let aborted = false;
+    dependencies.readPasted = (_prompt, signal) => {
+      const loginUrl = new URL(printed.find(line => line.includes('/auth/login')) ?? '');
+      void globalThis.fetch(`http://127.0.0.1:${loginUrl.searchParams.get('port')}/callback?code=c&state=${loginUrl.searchParams.get('state')}`);
+      return new Promise((_resolve, reject) => {
+        signal.addEventListener('abort', () => { aborted = true; reject(new Error('aborted')); });
+      });
+    };
+    await expect(login(dependencies, { noBrowser: true })).resolves.toMatchObject({ key: 'invd_x' });
+    expect(aborted).toBe(true);
+  });
+
+  it('--no-browser refuses a pasted address with another state', async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(new Response(null, { status: 302, headers: { Location: 'https://clerk.test' } }));
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const dependencies: LoginDependencies = {
+      fetch: fetchMock,
+      openBrowser: vi.fn(),
+      timeoutMs: 2_000,
+      readPasted: async () => 'http://127.0.0.1:1/callback?code=x&state=forged',
+    };
+    await expect(login(dependencies, { noBrowser: true })).rejects.toThrow('Login state verification failed');
+    expect(mockSetApiKey).not.toHaveBeenCalled();
+  });
+
+  it('reads a pasted redirect URL or a bare code', () => {
+    expect(parsePastedCallback('http://127.0.0.1:5000/callback?code=abc&state=s1')).toEqual({ code: 'abc', state: 's1' });
+    expect(parsePastedCallback('  abc  ')).toEqual({ code: 'abc' });
+    expect(parsePastedCallback('')).toEqual({});
   });
 });

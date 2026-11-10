@@ -9,7 +9,8 @@ export function setJsonMode(enabled: boolean): void {
 }
 
 export function createSpinner(text: string): Ora {
-  if (jsonMode) {
+  // Progress is for a person watching a terminal: silent under --json and when stderr is not a terminal.
+  if (jsonMode || !process.stderr.isTTY) {
     return ora({ text, isSilent: true });
   }
   return ora(text).start();

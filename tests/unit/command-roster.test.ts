@@ -44,6 +44,24 @@ describe('the hand-written roster', () => {
     }
   });
 
+  it('invd financials is one command over its six operations', () => {
+    const financials = loadManifest().operations.filter(operation => operation.group === 'financials');
+    expect(financials).toHaveLength(6);
+    expect(new Set(financials.map(operation => JSON.stringify(operation.select))).size).toBe(6);
+    expect(leaves(createProgram()).filter(leaf => leaf.startsWith('financials'))).toEqual(['financials']);
+  });
+
+  it('the tree is the v2 groups plus the hand-written roster, no command twice', () => {
+    const top = createProgram().commands.map(command => command.name()).sort();
+    expect(top).toEqual([
+      'agent-setup', 'api', 'auth', 'catalog', 'companies', 'completion', 'config', 'documents', 'events', 'filers',
+      'filings', 'financials', 'guidance', 'holdings', 'insider-trades', 'investor-documents', 'ipos', 'market', 'me',
+      'metrics', 'news', 'people', 'plugin', 'search', 'segments', 'webhooks',
+    ]);
+    const tree = leaves(createProgram());
+    expect(new Set(tree).size).toBe(tree.length);
+  });
+
   it('every manifest operation is registered exactly once', () => {
     const tree = leaves(createProgram());
     for (const name of operationNames()) {
@@ -53,8 +71,8 @@ describe('the hand-written roster', () => {
 
   it('a stray hand-written command fails by name', () => {
     const program = createProgram();
-    program.commands.find(command => command.name() === 'earnings')?.command('summary');
+    program.commands.find(command => command.name() === 'companies')?.command('summary');
     program.command('screener');
-    expect(strayCommands(program, operationNames())).toEqual(['earnings summary', 'screener']);
+    expect(strayCommands(program, operationNames())).toEqual(['companies summary', 'screener']);
   });
 });

@@ -12,34 +12,36 @@ import {
 } from '../../../scripts/build-skill-commands.js';
 import { loadManifest } from '../../../src/cli.js';
 import { HAND_WRITTEN_COMMANDS } from '../../../src/hand-written-commands.js';
-import type { ManifestOperation } from '../../../src/spec-manifest.js';
+import { commandName, type ManifestOperation } from '../../../src/spec-manifest.js';
 
 /** The generated lines of a block (hand blocks cut out), so a hand example never counts as the generated one. */
 const generatedPart = (block: string) => block.replace(/<!-- invd:hand:([^>]+?) -->\n[\s\S]*?<!-- \/invd:hand:\1 -->/g, '');
-
-const operationName = (operation: ManifestOperation) => `${operation.group} ${operation.action}`.trim();
 
 const op = (overrides: Partial<ManifestOperation>): ManifestOperation => ({
   operationId: 'thing',
   group: 'things',
   action: 'get',
   method: 'get',
-  path: '/v1/things',
+  path: '/v2/things',
   auth: true,
   summary: 'Get a thing',
+  credits: 1,
+  tier: 'standard',
   params: [],
+  list: false,
   view: 'json',
-  pagination: 'none',
+  fields: [],
   ...overrides,
 });
 
 describe('build-skill-commands', () => {
-  it('names every manifest operation exactly once and gives every roster entry one hand block', () => {
+  it('names every command exactly once (financials once for six operations) and gives every roster entry one hand block', () => {
     const block = renderCommandBlock(loadManifest(), HAND_WRITTEN_COMMANDS, new Map());
     const lines = generatedPart(block).split('\n');
-    for (const operation of loadManifest().operations) {
-      const prefix = `invd ${operationName(operation)}`;
-      const hits = lines.filter(line => line === prefix || line.startsWith(`${prefix} `));
+    for (const name of new Set(loadManifest().operations.map(operation => commandName(operation)))) {
+      const prefix = `invd ${name}`;
+      const hits = lines.filter(line => line.startsWith(`${prefix} `)
+        && !loadManifest().operations.some(other => commandName(other) !== name && commandName(other).startsWith(name) && line.startsWith(`invd ${commandName(other)} `)));
       expect(hits, prefix).toHaveLength(1);
     }
     for (const entry of HAND_WRITTEN_COMMANDS) {
@@ -47,33 +49,33 @@ describe('build-skill-commands', () => {
     }
   });
 
-  it('example: required flags with a placeholder (alias first, enum first value), the required body, --json', () => {
+  it('example: positional and required flags valued from the spec (alias first, enum first value), the required body, --json', () => {
     expect(exampleLine(op({
+      positional: { name: 'company', required: true, variadic: 'comma' },
       params: [
-        { name: 'identifier', in: 'query', required: true, type: 'string', alias: 'i' },
-        { name: 'fiscal_period_type', in: 'query', required: true, type: 'string', enum: ['quarterly', 'annual'], alias: 'p' },
-        { name: 'person_id', in: 'path', required: true, type: 'string' },
-        { name: 'limit', in: 'query', required: false, type: 'integer' },
+        { name: 'company', in: 'query', required: true, type: 'string', flag: 'company', example: 'AAPL,MSFT' },
+        { name: 'period', in: 'query', required: true, type: 'string', enum: ['quarterly', 'annual'], alias: 'p', flag: 'period' },
+        { name: 'person_id', in: 'query', required: true, type: 'string', flag: 'person-id' },
+        { name: 'limit', in: 'query', required: false, type: 'integer', flag: 'limit' },
       ],
-    }))).toBe('invd things get -i <identifier> -p quarterly --person-id <person_id> --json');
-    expect(exampleLine(op({ action: '', body: { required: true, contentType: 'application/json' } })))
+    }))).toBe('invd things get AAPL MSFT -p quarterly --person-id <person_id> --json');
+    expect(exampleLine(op({ action: '', body: { required: true, contentType: 'application/json', fields: [] } })))
       .toBe("invd things --body '<json>' --json");
   });
 
   it('values a flag with the spec example, adds the x-example-params flags and the body example, quoting for the shell', () => {
     expect(exampleLine(op({
+      positional: { name: 'q', required: true, variadic: 'space' },
       params: [
-        { name: 'identifier', in: 'query', required: true, type: 'string', alias: 'i', example: 'AAPL' },
-        { name: 'request', in: 'query', required: true, type: 'string', example: "What are Apple's risks?" },
-        { name: 'event_id', in: 'query', required: false, type: 'string', example: 'cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c' },
-        { name: 'include', in: 'query', required: false, type: 'array', items: 'string', example: ['body', 'pages'] },
-        { name: 'limit', in: 'query', required: false, type: 'integer', example: 5 },
+        { name: 'q', in: 'query', required: true, type: 'string', flag: 'q', example: "What are Apple's risks?" },
+        { name: 'event', in: 'query', required: false, type: 'string', flag: 'event', example: 'cfbcf4f8' },
+        { name: 'filed_at.gte', in: 'query', required: false, type: 'string', flag: 'filed-at-gte', example: '2026-01-01' },
       ],
-      exampleParams: ['event_id', 'include'],
-      body: { required: false, contentType: 'application/json', example: { active: true } },
+      exampleParams: ['event', 'filed_at.gte'],
+      body: { required: false, contentType: 'application/json', example: { active: true }, fields: [] },
     }))).toBe(
-      'invd things get -i AAPL --request "What are Apple\'s risks?" --event-id cfbcf4f8-6d4d-41ef-9197-1c91ff2aef8c'
-        + ` --include body,pages --body '{"active":true}' --json`,
+      'invd things get "What are Apple\'s risks?" --event cfbcf4f8 --filed-at-gte 2026-01-01'
+        + ` --body '{"active":true}' --json`,
     );
     expect(shellWord('it costs $5')).toBe("'it costs $5'");
     expect(shellWord("it's $5")).toBe("'it'\\''s $5'");

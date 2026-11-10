@@ -2,23 +2,13 @@
  * The commands `invd` writes by hand, each with WHY it is not one REST call plus one view. Every other command is
  * generated from the manifest (`src/spec-commands.ts`); `tests/unit/command-roster.test.ts` fails on a hand-written
  * command missing here, on an entry that registers nothing, and on an entry that is also a manifest operation.
- * An entry is a top-level command (`group`, covering its subcommands) or one `group action`.
+ * An entry is a top-level command (covering its subcommands).
  */
 export const HAND_WRITTEN_COMMANDS = [
-  { command: 'login', reason: 'Clerk PKCE sign-in in the browser, then the local credential store' },
-  { command: 'logout', reason: 'clears the local credential store' },
-  { command: 'config', reason: 'local settings (API key, API host)' },
-  { command: 'plugin', reason: 'copies the bundled Claude plugin into agent config dirs' },
-  { command: 'ws', reason: 'WebSocket stream (/v1/ws); --earnings is the live transcript (src/client/earnings-live.ts), --news the news.live channel (src/client/news-live.ts)' },
-  { command: 'earnings transcript', reason: 'renders the transcript as text and saves it with -o' },
-  { command: 'earnings press-release', reason: 'prints the release text with --body and saves it with -o' },
-  { command: 'earnings audio', reason: 'downloads the recording from its URL with -o' },
-  { command: 'earnings slides', reason: 'downloads the deck PDF with -o, prints page markdown with --markdown' },
-  { command: 'earnings documents', reason: 'downloads every document into a directory with -o' },
-  { command: 'earnings company-documents', reason: 'downloads every stored file into a directory with -o' },
-  { command: 'earnings document', reason: 'downloads the file, or fetches and renders its page text with --pages' },
-  { command: 'news get', reason: 'prints the item and saves its PDF with --pdf-out' },
-  { command: 'sec save', reason: "saves a filing's originals from their permanent public URLs (manifest size + SHA-256 verified) and lists every document it cannot save" },
-  { command: 'sec save-figure', reason: "saves a cited figure's image from its permanent public URL" },
-  { command: 'sec export-file', reason: 'streams the key-authorized .csv.gz of GET /v1/sec/exports/{export_id}/file to disk, SHA-256 verified (the spec excludes it: binary)' },
+  { command: 'api', reason: 'raw access to any spec path (method, -F fields, --paginate, --jq): the escape hatch when the tree lags the spec' },
+  { command: 'auth', reason: 'browser sign-in (loopback or pasted redirect), the local key store, status / token / logout' },
+  { command: 'config', reason: 'local settings in config.toml / ./.invd.toml' },
+  { command: 'plugin', reason: 'copies the bundled agent plugin (skill, agent, commands) into agent config dirs' },
+  { command: 'agent-setup', reason: 'writes the MCP connector config and installs the skill in one step' },
+  { command: 'completion', reason: 'prints the bash / zsh / fish completion script generated from the command tree and spec paths' },
 ] as const;
