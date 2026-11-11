@@ -47,8 +47,8 @@ const fixture = () => ({
     },
   },
   paths: {
-    '/v1/legacy': { get: { operationId: 'legacy', responses: object('Thing'), 'x-cli': { group: 'legacy', action: 'get', pagination: 'none' } } },
-    '/v2/things': {
+    '/status/legacy': { get: { operationId: 'legacy', responses: object('Thing'), 'x-cli': { group: 'legacy', action: 'get', pagination: 'none' } } },
+    '/v1/things': {
       get: {
         operationId: 'listThings', summary: 'List things', tags: ['Things'], ...stamps,
         parameters: [
@@ -85,7 +85,7 @@ const fixture = () => ({
         'x-cli': { group: 'things', action: 'create', flags: { url: 'u' }, columns: ['id'] },
       },
     },
-    '/v2/things/{id}': {
+    '/v1/things/{id}': {
       get: {
         operationId: 'getThing', summary: 'Get a thing', tags: ['Things'], ...stamps,
         parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' }, example: 't1' }],
@@ -93,7 +93,7 @@ const fixture = () => ({
         'x-cli': { group: 'things', action: 'get', positional: 'id' },
       },
     },
-    '/v2/sums/a': {
+    '/v1/sums/a': {
       get: {
         operationId: 'getSumA', summary: 'Sum A', tags: ['Shared'], 'x-credits': 1, 'x-tier': 'free',
         parameters: [{ name: 'company', in: 'query', required: true, schema: { type: 'string' } }],
@@ -101,7 +101,7 @@ const fixture = () => ({
         'x-cli': { group: 'sums', action: 'get', positional: 'company', command: 'sums', select: { basis: 'a' } },
       },
     },
-    '/v2/sums/b': {
+    '/v1/sums/b': {
       get: {
         operationId: 'getSumB', summary: 'Sum B', tags: ['Shared'], 'x-credits': 2, 'x-tier': 'pro',
         parameters: [{ name: 'company', in: 'query', required: true, schema: { type: 'string' } }],
@@ -116,8 +116,8 @@ const fixture = () => ({
 const build = (spec: unknown = fixture()) => buildManifest(spec, JSON.stringify(spec));
 const op = (manifest: ReturnType<typeof build>, id: string) => manifest.operations.find(operation => operation.operationId === id);
 
-describe('buildManifest (v2)', () => {
-  it('skips v1 and non-HTTP operations, groups by x-cli, describes single-tag groups by their tag', () => {
+describe('buildManifest', () => {
+  it('skips the paths outside /v1 and non-HTTP operations, groups by x-cli, describes single-tag groups by their tag', () => {
     const manifest = build();
     expect(manifest.operations.map(operation => operation.operationId).sort()).toEqual(['createThing', 'getSumA', 'getSumB', 'getThing', 'listThings']);
     expect(manifest.groups).toEqual([{ name: 'sums', description: 'Shared tag' }, { name: 'things', description: 'Things and more' }]);
@@ -160,28 +160,28 @@ describe('buildManifest (v2)', () => {
 
   it('refuses what the manifest would get wrong, by name', () => {
     const clash = fixture();
-    clash.paths['/v2/things'].get.parameters.push({ name: 'json', in: 'query', schema: { type: 'string' } } as never);
+    clash.paths['/v1/things'].get.parameters.push({ name: 'json', in: 'query', schema: { type: 'string' } } as never);
     expect(() => build(clash)).toThrow('--json collides with an invd flag of its own');
 
     const alias = fixture();
-    alias.paths['/v2/things'].get['x-cli'].flags = { limit: 'h' };
+    alias.paths['/v1/things'].get['x-cli'].flags = { limit: 'h' };
     expect(() => build(alias)).toThrow('-h collides');
 
     const twice = fixture();
-    (twice.paths['/v2/things/{id}'].get['x-cli'] as Record<string, unknown>).action = 'list';
-    expect(() => build(twice)).toThrow('invd things list is also GET /v2/things');
+    (twice.paths['/v1/things/{id}'].get['x-cli'] as Record<string, unknown>).action = 'list';
+    expect(() => build(twice)).toThrow('invd things list is also GET /v1/things');
 
     const stampless = fixture();
-    delete (stampless.paths['/v2/things/{id}'].get as Record<string, unknown>)['x-credits'];
+    delete (stampless.paths['/v1/things/{id}'].get as Record<string, unknown>)['x-credits'];
     expect(() => build(stampless)).toThrow('x-credits / x-tier missing');
 
     const positional = fixture();
-    positional.paths['/v2/things/{id}'].get['x-cli'].positional = 'nope';
+    positional.paths['/v1/things/{id}'].get['x-cli'].positional = 'nope';
     expect(() => build(positional)).toThrow('x-cli.positional names no parameter: nope');
 
     const shared = fixture();
-    shared.paths['/v2/things/{id}'].get.tags = ['Shared'];
-    (shared.paths['/v2/things/{id}'].get['x-cli'] as Record<string, unknown>).group = 'others';
+    shared.paths['/v1/things/{id}'].get.tags = ['Shared'];
+    (shared.paths['/v1/things/{id}'].get['x-cli'] as Record<string, unknown>).group = 'others';
     expect(() => build(shared)).toThrow('shares tag "Shared"');
   });
 });

@@ -38,7 +38,7 @@ export function apiPathOf(rawPath: string, baseUrl = getBaseUrl()): string {
     throw new UsageError(`${rawPath} is not a URL or an API path`);
   }
   if (target.origin !== base.origin) {
-    throw new UsageError(`invd api only calls ${base.origin} (the request carries your API key); refusing ${target.origin}. Pass a path such as /v2/companies/AAPL`);
+    throw new UsageError(`invd api only calls ${base.origin} (the request carries your API key); refusing ${target.origin}. Pass a path such as /v1/companies/AAPL`);
   }
   const prefix = base.pathname.replace(/\/+$/, '');
   const path = prefix && target.pathname.startsWith(`${prefix}/`) ? target.pathname.slice(prefix.length) : target.pathname;
@@ -70,7 +70,7 @@ export async function apiRequestFrom(first: string, second: string | undefined, 
     ? [upper as HttpMethod, second]
     : METHODS.includes(upper as HttpMethod) ? [upper as HttpMethod, ''] : ['GET' as HttpMethod, first];
   if (!METHODS.includes(method)) throw new UsageError(`${first} is not an HTTP method (${METHODS.join(', ')})`);
-  if (!rawPath) throw new UsageError('invd api needs a path, e.g. invd api /v2/companies/AAPL');
+  if (!rawPath) throw new UsageError('invd api needs a path, e.g. invd api /v1/companies/AAPL');
   const url = new URL(apiPathOf(rawPath), 'http://placeholder');
   const query: Record<string, string[]> = {};
   url.searchParams.forEach((value, key) => { (query[key] ??= []).push(value); });
@@ -120,7 +120,7 @@ function print(body: unknown, jq: string | undefined): void {
 
 /**
  * `invd api`: any operation of the spec, raw. `--paginate` follows `next_cursor` / `Link rel="next"` and prints
- * every page (each through `--jq`), so `invd api /v2/filings?company=AAPL --paginate --jq '.data[].accession'`
+ * every page (each through `--jq`), so `invd api /v1/filings?company=AAPL --paginate --jq '.data[].accession'`
  * streams accessions.
  */
 export function registerApiCommand(program: Command): void {
@@ -128,7 +128,7 @@ export function registerApiCommand(program: Command): void {
     .command('api')
     .description('Call any API path directly (the escape hatch for anything the command tree lacks)')
     .argument('<method-or-path>', 'GET (default), POST, PATCH, DELETE … or the path')
-    .argument('[path]', 'The path when a method is given, e.g. /v2/filings?company=AAPL')
+    .argument('[path]', 'The path when a method is given, e.g. /v1/filings?company=AAPL')
     .option('-F, --field <key=value>', 'A parameter (query on GET / DELETE, JSON body field otherwise); typed: numbers, true / false, null, @file', collect, [])
     .option('-f, --raw-field <key=value>', 'Like -F, always a string', collect, [])
     .option('-H, --header <name:value>', 'An extra request header', collect, [])
@@ -141,11 +141,11 @@ export function registerApiCommand(program: Command): void {
     .option('--show-cost', 'Print the credits this command cost to stderr')
     .addHelpText('before', [
       'Examples:',
-      '  $ invd api /v2/companies/AAPL',
-      "  $ invd api GET /v2/filings?company=AAPL --paginate --jq '.data[].accession'",
+      '  $ invd api /v1/companies/AAPL',
+      "  $ invd api GET /v1/filings?company=AAPL --paginate --jq '.data[].accession'",
       '',
     ].join('\n'))
-    .addHelpText('after', '\nPaths: invd completion <shell> completes every /v2 path of the spec after `invd api`.\n')
+    .addHelpText('after', '\nPaths: invd completion <shell> completes every /v1 path of the spec after `invd api`.\n')
     .action(withErrorHandling(async (first: string, second: string | undefined, _raw: Record<string, unknown>, command: Command) => {
       const opts = command.opts<Omit<ApiOpts, 'input'> & { input?: string | boolean }>();
       // commander keeps --input <file> and --no-input in one attribute: a string is the file, false the switch.

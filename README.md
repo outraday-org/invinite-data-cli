@@ -13,7 +13,9 @@ invd holdings AAPL
 invd search filings "supply chain risk" --company AAPL
 ```
 
-Version 4.0 is a new command surface over the v2 API. Coming from 3.x, read [Upgrading from 3.x](#upgrading-from-3x).
+Version 5.0 calls the API at its final `/v1` paths (the 2026-11-11 cut-over moved the redesigned API from `/v2` to
+`/v1` and deleted the old v1); its commands are the 4.0 commands. Coming from 4.x, read
+[Upgrading from 4.x](#upgrading-from-4x); from 3.x, [Upgrading from 3.x](#upgrading-from-3x).
 
 ## Installation
 
@@ -58,7 +60,7 @@ The active key is resolved in this order:
 5. `api_key` in the global `config.toml`
 
 ```bash
-curl -H "Authorization: Bearer $(invd auth token)" https://api.data.invinite.com/v2/me
+curl -H "Authorization: Bearer $(invd auth token)" https://api.data.invinite.com/v1/me
 ```
 
 ## The command grammar
@@ -110,7 +112,7 @@ invd events transcript <event_id>
 and `invd events AAPL` lists Apple's calls.
 
 **Events by fiscal period.** Every command that takes an `event_id` also takes a company and a fiscal period in its
-place; invd resolves the event through `GET /v2/events` and says so on stderr:
+place; invd resolves the event through `GET /v1/events` and says so on stderr:
 
 ```bash
 invd events transcript NVDA 2026Q3
@@ -327,12 +329,12 @@ invd investor-documents get <document_id> --save report.pdf
 The escape hatch for anything the command tree lacks:
 
 ```bash
-invd api /v2/companies/AAPL
-invd api GET /v2/filings?company=AAPL --paginate --jq '.data[].accession'
-invd api GET /v2/holdings -F company=AAPL -F limit=100
-invd api POST /v2/webhooks --input webhook.json
-invd api DELETE /v2/webhooks/<id> --yes
-invd api GET /v2/me -H 'Accept: application/json' --dry-run
+invd api /v1/companies/AAPL
+invd api GET /v1/filings?company=AAPL --paginate --jq '.data[].accession'
+invd api GET /v1/holdings -F company=AAPL -F limit=100
+invd api POST /v1/webhooks --input webhook.json
+invd api DELETE /v1/webhooks/<id> --yes
+invd api GET /v1/me -H 'Accept: application/json' --dry-run
 ```
 
 `-F key=value` is typed (numbers, `true` / `false`, `null`, `@file`), `-f key=value` always a string; both are query
@@ -418,7 +420,7 @@ invd completion bash > ~/.local/share/bash-completion/completions/invd
 invd completion fish > ~/.config/fish/completions/invd.fish
 ```
 
-Completion covers commands, flags, and the `/v2` paths after `invd api`.
+Completion covers commands, flags, and the `/v1` paths after `invd api`.
 
 ## Exit codes
 
@@ -432,9 +434,15 @@ Completion covers commands, flags, and the `/v2` paths after `invd api`.
 | 5 | integrity: a download's checksum or size does not match |
 | 6 | credits exhausted or plan required: 402, `plan_required`, `insufficient_credits` |
 
+## Upgrading from 4.x
+
+5.0 keeps every 4.x command, flag, output and exit code; only the request paths moved from `/v2/...` to `/v1/...`
+(the API's 2026-11-11 cut-over; `/v2/*` answers 404 since, so 4.x no longer works). `invd api` paths are `/v1/...`
+now. Upgrade = install 5.0.
+
 ## Upgrading from 3.x
 
-4.0 replaces the v1 command tree with the v2 noun-verb grammar. No 3.x spelling is kept as an alias.
+4.0 replaced the old v1 command tree with the noun-verb grammar (5.0 keeps it). No 3.x spelling is kept as an alias.
 
 | 3.x | 4.0 |
 |---|---|
@@ -451,21 +459,15 @@ Completion covers commands, flags, and the `/v2` paths after `invd api`.
 | `sec filings\|filing\|document\|sections\|search` | `invd filings list\|get`, `invd documents get\|sections`, `invd search filings` |
 | `ownership …` | `invd holdings list\|changes` |
 | `usage` | `invd me usage` |
-| `ws listen` (WebSocket stream) | no CLI command in 4.0; use the API's `/v2/stream` |
+| `ws listen` (WebSocket stream) | no CLI command in 4.0; use the API's `/v1/stream` |
 | `-i, --identifier AAPL` | the positional company: `invd filings AAPL` |
 | `--offset <n>` | `--cursor <next_cursor>` |
 | `INVINITE_DATA_API_KEY` | still read; `INVD_API_KEY` takes precedence |
 
-### invd 3.x maintenance
+### Older majors
 
-invd 3.x is the CLI of the v1 API and stays installable:
-
-```bash
-npm install -g @invinite-org/invinite-data-cli@3
-```
-
-The v1 API keeps working until it is deleted. 3.x fixes are cut from the `cli-3.x` maintenance branch, started at the
-3.0.0 commit `9bbdb29`, never from `main`.
+invd 3.x (the old v1 API) and 4.x (the `/v2` paths) call routes that were deleted on 2026-11-11; neither works
+against the live API any more. Install 5.x.
 
 ## Development
 

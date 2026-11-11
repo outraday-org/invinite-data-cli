@@ -77,7 +77,7 @@ describe('requests', () => {
     vi.mocked(fetch).mockResolvedValueOnce(page([{ fiscal_year: 2026 }]));
     await run('financials', 'AAPL', '--statement', 'income-statement', '--period', 'quarterly', '--view', 'detailed', '--limit', '4', '--json');
     expect(calls()).toHaveLength(1);
-    expect(calls()[0]?.url).toBe('https://api.example.com/v2/financials/standardized/detailed?company=AAPL&statement=income-statement&period=quarterly&limit=4');
+    expect(calls()[0]?.url).toBe('https://api.example.com/v1/financials/standardized/detailed?company=AAPL&statement=income-statement&period=quarterly&limit=4');
     expect(JSON.parse(out.join('\n'))).toMatchObject({ data: [{ fiscal_year: 2026 }] });
   });
 
@@ -86,7 +86,7 @@ describe('requests', () => {
     await run('financials', 'AAPL', 'MSFT', '--fiscal-year', '2026', '--fiscal-quarter', '3', '--json');
     expect(calls()).toHaveLength(1);
     const url = new URL(calls()[0]?.url ?? '');
-    expect(url.pathname).toBe('/v2/financials/standardized');
+    expect(url.pathname).toBe('/v1/financials/standardized');
     expect(Object.fromEntries(url.searchParams)).toEqual({ company: 'AAPL,MSFT', fiscal_year: '2026', fiscal_quarter: '3', period: 'quarterly' });
     expect(err.join('\n')).toContain('--period quarterly assumed');
   });
@@ -94,7 +94,7 @@ describe('requests', () => {
   it('--basis as-reported picks the as-reported operation; an as-reported flag elsewhere is refused (exit 2)', async () => {
     vi.mocked(fetch).mockResolvedValueOnce(page([]));
     await run('financials', 'AAPL', '--basis', 'as-reported', '--reported-only', '--period', 'annual', '--json');
-    expect(calls()[0]?.url).toContain('/v2/financials/as-reported?company=AAPL&period=annual&reported_only=true');
+    expect(calls()[0]?.url).toContain('/v1/financials/as-reported?company=AAPL&period=annual&reported_only=true');
     expect(await exitOf('financials', 'AAPL', '--reported-only', '--period', 'annual')).toBe(2);
     expect(err.join('\n')).toContain('--reported-only applies to --basis as-reported only');
   });
@@ -102,7 +102,7 @@ describe('requests', () => {
   it("a group's list is its default: invd filings AAPL --form 10-K; --no-<flag> sends false; dotted filters", async () => {
     vi.mocked(fetch).mockImplementation(async () => page([]));
     await run('filings', 'AAPL', '--form', '10-K', '--filed-at-gte', '2025-01-01', '--json');
-    expect(calls()[0]?.url).toBe('https://api.example.com/v2/filings?company=AAPL&form=10-K&filed_at.gte=2025-01-01');
+    expect(calls()[0]?.url).toBe('https://api.example.com/v1/filings?company=AAPL&form=10-K&filed_at.gte=2025-01-01');
     await run('ipos', '--no-is-spac', '--json');
     expect(calls()[1]?.url).toContain('is_spac=false');
   });
@@ -110,17 +110,17 @@ describe('requests', () => {
   it('a member id is the positional and goes in the path, encoded', async () => {
     vi.mocked(fetch).mockResolvedValueOnce(json({ accession: '0000320193-26-000026' }));
     await run('filings', 'get', '0000320193-26-000026', '--json');
-    expect(calls()[0]?.url).toBe('https://api.example.com/v2/filings/0000320193-26-000026');
+    expect(calls()[0]?.url).toBe('https://api.example.com/v1/filings/0000320193-26-000026');
   });
 
-  it('invd events transcript NVDA 2026Q3 resolves the event through GET /v2/events and says so', async () => {
+  it('invd events transcript NVDA 2026Q3 resolves the event through GET /v1/events and says so', async () => {
     vi.mocked(fetch)
       .mockResolvedValueOnce(page([{ event_id: 'ev-1' }]))
       .mockResolvedValueOnce(json({ event: { event_id: 'ev-1' }, turns: [] }));
     await run('events', 'transcript', 'NVDA', '2026Q3', '--json');
     expect(calls().map(call => call.url)).toEqual([
-      'https://api.example.com/v2/events?company=NVDA&fiscal_year=2026&fiscal_quarter=3&limit=1',
-      'https://api.example.com/v2/events/ev-1/transcript',
+      'https://api.example.com/v1/events?company=NVDA&fiscal_year=2026&fiscal_quarter=3&limit=1',
+      'https://api.example.com/v1/events/ev-1/transcript',
     ]);
     expect(err.join('\n')).toContain('resolved NVDA 2026Q3 → event ev-1');
   });
@@ -152,7 +152,7 @@ describe('--dry-run, confirmation, delete', () => {
     await run('holdings', 'AAPL', '--all', '--dry-run', '--output', 'table');
     expect(fetch).not.toHaveBeenCalled();
     const text = out.join('\n');
-    expect(text).toContain('GET https://api.example.com/v2/holdings?company=AAPL');
+    expect(text).toContain('GET https://api.example.com/v1/holdings?company=AAPL');
     expect(text).toContain('credits: 1 × pages');
     expect(text).toContain('dry run: no request was sent');
   });
@@ -161,7 +161,7 @@ describe('--dry-run, confirmation, delete', () => {
     await run('events', 'transcript', 'NVDA', '2026Q3', '--dry-run', '--json');
     const plan = JSON.parse(out.join('\n'));
     expect(plan.steps.map((step: { step: string }) => step.step)).toEqual(['resolve', 'request']);
-    expect(plan.steps[1].request).toContain('/v2/events/<event_id>/transcript');
+    expect(plan.steps[1].request).toContain('/v1/events/<event_id>/transcript');
     expect(plan.credits_estimate).toBe('6');
     expect(fetch).not.toHaveBeenCalled();
   });
@@ -172,7 +172,7 @@ describe('--dry-run, confirmation, delete', () => {
     expect(fetch).not.toHaveBeenCalled();
     vi.mocked(fetch).mockResolvedValueOnce(page([{ accession: 'a' }]));
     await run('search', 'filings', 'supply', 'chain', '--all', '--yes');
-    expect(calls()[0]?.url).toBe('https://api.example.com/v2/search/filings?q=supply+chain');
+    expect(calls()[0]?.url).toBe('https://api.example.com/v1/search/filings?q=supply+chain');
   });
 
   it('a delete needs --yes without a terminal', async () => {
@@ -219,7 +219,7 @@ describe('output', () => {
       .mockResolvedValueOnce(page([{ day: '2026-01-19' }]));
     await run('market', 'holidays', '--all');
     expect(out).toEqual(['{"day":"2026-01-01"}', '{"day":"2026-01-19"}']);
-    expect(calls()[1]?.url).toBe('https://api.example.com/v2/market-holidays?cursor=c2');
+    expect(calls()[1]?.url).toBe('https://api.example.com/v1/market-holidays?cursor=c2');
   });
 
   it('--all that fails after written rows exits 3 with the resume cursor', async () => {

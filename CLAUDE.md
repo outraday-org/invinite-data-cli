@@ -1,17 +1,17 @@
 # invinite-data-cli (`invd`)
 
-`invd` 4.x is the CLI of the Data API **v2** (`/v2/*`). `invd` 3.x is the v1 CLI: it stays installable from npm
-(`@invinite-org/invinite-data-cli@3`) and is fixed only on a `cli-3.x` maintenance branch cut from `9bbdb29` (the
-3.0.0 commit), never from `main`.
+`invd` 5.x is the CLI of the Data API at `/v1/*` — the contract designed as "v2" (backend `tasks/data-api-v2`), moved
+from `/v2` to `/v1` on 2026-11-11 when the old v1 API was deleted. 5.0 = the 4.x commands at the new paths. 4.x
+(`/v2`) and 3.x (old v1) call deleted routes and get no fixes.
 
 ## Commands come from the Data API's spec, not from this repo
 
 Every plain command — one REST call, printed as a table, a key/value list or JSON — is GENERATED. The chain:
 
 ```
-../invinite-data-api  spec/openapi.v2.json x-cli { group, action, positional?, columns?, flags?, command?, select? }
+../invinite-data-api  spec/openapi.contract.json x-cli { group, action, positional?, columns?, flags?, command?, select? }
   → reference bundle (reference/openapi.json + api-contract.json), copied byte for byte here
-  → pnpm cli:manifest → src/generated/cli-manifest.json (committed; /v2 operations only)
+  → pnpm cli:manifest → src/generated/cli-manifest.json (committed; /v1 operations only)
   → src/spec-commands.ts registers each operation as `invd <group> <action>`
 ```
 
@@ -30,7 +30,7 @@ Every plain command — one REST call, printed as a table, a key/value list or J
 - Flags are the parameter names, `_` / `.` → `-` (`filed_at.gte` → `--filed-at-gte`), booleans get `--x` / `--no-x`.
   `x-cli.positional` names the first positional: a company on company lists (several words → `company=A,B`), `q` on
   searches (words joined by a space), the member id on member routes. Every `event_id` command also takes
-  `<company> <YYYYQn>` and resolves the event through `GET /v2/events` (said on stderr). A group's `list` is its
+  `<company> <YYYYQn>` and resolves the event through `GET /v1/events` (said on stderr). A group's `list` is its
   default subcommand (`invd filings AAPL` = `invd filings list AAPL`).
 - `x-cli.command` + `select` make ONE command over several operations: `invd financials` picks one of six by
   `--basis` × `--view`; a flag only some of them have is refused on the others. `IMPLIED` in `src/spec-commands.ts`
@@ -47,7 +47,7 @@ Every plain command — one REST call, printed as a table, a key/value list or J
 `src/hand-written-commands.ts` lists the commands that are NOT one call plus one view (`api`, `auth`, `config`,
 `plugin`, `agent-setup`, `completion`), each with its reason. `tests/unit/command-roster.test.ts` fails on a
 hand-written command missing from it, on a stale entry, on an entry that is also a manifest operation, and on a tree
-that differs from the v2 groups + the roster. There is no WebSocket command in 4.0 (`WS /v2/stream` has no `x-cli`).
+that differs from the v2 groups + the roster. There is no WebSocket command in 4.0 (`WS /v1/stream` has no `x-cli`).
 
 ## Output, errors, exit codes
 

@@ -55,7 +55,7 @@ describe('--show-cost', () => {
     respond({});
     await run('me', 'show', '--json');
     const [url, init] = vi.mocked(fetch).mock.calls[0] ?? [];
-    expect(String(url)).toBe('https://api.example.com/v2/me');
+    expect(String(url)).toBe('https://api.example.com/v1/me');
     expect((init?.headers as Record<string, string>).Authorization).toBe('Bearer test-key');
   });
 });
@@ -99,8 +99,8 @@ describe('loadManifest', () => {
     expect(loadManifest()).toBe(manifest);
   });
 
-  it('carries only /v2 operations', () => {
-    expect(loadManifest().operations.every(operation => operation.path.startsWith('/v2/'))).toBe(true);
+  it('carries only /v1 operations', () => {
+    expect(loadManifest().operations.every(operation => operation.path.startsWith('/v1/'))).toBe(true);
     expect(loadManifest().operations).toHaveLength(82);
   });
 });

@@ -72,7 +72,7 @@ export function createProgram(): Command {
 
   program
     .name('invd')
-    .description('CLI for the Invinite financial data API (v2)')
+    .description('CLI for the Invinite financial data API (v1)')
     .version(packageVersion(), '-V, --version')
     // Root options only before the subcommand: an operation's own `--version` (a transcript version) is its own.
     .enablePositionalOptions()

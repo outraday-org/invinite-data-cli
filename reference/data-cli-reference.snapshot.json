@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "4.1.0",
+    "version": "5.0.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -11,19 +11,19 @@
     },
     "verifiedOn": "2026-11-11",
     "sourceHashes": {
-      "api-contract.json": "247dc7559d9db8a8d0be72fea74777d5bbdfd8af2688a3bf212add308d261221",
-      "openapi.json": "6f9eaf832c9ddbd09a50ffc73185845ab750f10449f010d0f24a83895cad450e",
-      "package.json": "91a7ad5ad2306ef5804be1e75ea73fd6636048f98a6d570dc5199a0a8b519903",
+      "api-contract.json": "45886b19a51ae0b63234cb4ad40c31ef3c6ad65c8fd4b2b4e4b02661dab25c72",
+      "openapi.json": "e36d0409b4df860d4ebb0c8c1dbd4e6b8c45e232037db027b0a3d862804ebe84",
+      "package.json": "ed7d4408a8856c8c93f0971ff414f4335dcb2848f460f78fc96c9e9ed445ffd2",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "ed216f689f39e3dbf72c7d6a1c74ee6cb9c22fbaf9982a9b4ddee2873f2d5536",
-      "src/cli.ts": "3ecc79c68e79a0baec4c12d690d9f41816c23eb3ddebe0f60be44ca31089b7b8",
-      "src/client/api-client.ts": "47a4a56f51c561dfdd69f7f217342cdc1a208a8324a2b3d9771d9e08cfe53c1f",
+      "src/cli.ts": "26d48c37ee48ed0bb4b6b1a1a06ec693324914d2d03c7e1e93e9a9abe2902158",
+      "src/client/api-client.ts": "17d0817be6964b04fd03ccbc5ff91492551d13260664190510d5211a4c6e883e",
       "src/client/download.ts": "b9a75df3cb24a38d029be10c542cd0c891085d32235fe5339d9bfd4b84d14cea",
       "src/client/pagination.ts": "2b759864d496f021ed8b01147a6fce1576315f0b0e789fb3022b2b8857534efe",
       "src/commands/agent-setup.ts": "1856283b329f2b06534e9b016c7891094d690543e93d31ade550286fd2e6082e",
-      "src/commands/api.ts": "b25fb89e6f0186f5460c2d8a94fdfab790c4394d4802b653f7cd29a17a9486eb",
-      "src/commands/auth.ts": "59d550a853dd2b101d3603e00834a39c104a6f549ba113fc8030e053ef6bd81b",
+      "src/commands/api.ts": "fab615ad386272a5e6eb3014b8002943b12ea5667a25489476014f8606afbfb5",
+      "src/commands/auth.ts": "b4c0ce97197076340b7107c027e70d03439962fd1e7e3c33fa02980bfd490904",
       "src/commands/completion.ts": "d7aeaa835ac1fe16b3c9a0165a1a5e8a85cb31262f498499d829bcb7a5f88d73",
       "src/commands/config.ts": "d4df7e4483870b752f524646fb90669ca772c071466ef31fe55c26f691695b3e",
       "src/commands/plugin.ts": "642729e5b4d164927b9b003447cfe49dbb99e5abce43b4208f1a040b7e05df32",
@@ -32,7 +32,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "9ba8cc2f0b10c1de92f2d1197b4cda45ea23032894fd529bc93d680413ab86c6",
+      "src/generated/cli-manifest.json": "9b071891bfd2040d262b1dac37398b9517543427a0ef4fcb1925c9b839a8f605",
       "src/hand-written-commands.ts": "a49989ee20d7831ef5e639d09b4d353ade78db014a3c7710f3915ae408c60770",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
@@ -42,14 +42,14 @@
       "src/shared/options.ts": "6783cfa83b301857903bbde46edc238cd7adf80f05f0f33a7a883136de8a27b8",
       "src/shared/prompt.ts": "7736cb146f84382ff17badbabcdf69add6673c4a3695c38759486601f3c87d99",
       "src/shared/spinner.ts": "0abf59a75df47a20ad70d7e8c109f9a964aa9cc681fd7cfe081aa8b0ffaa7ac7",
-      "src/spec-commands.ts": "a5192136757d56a03ac8a5b5e4e98b268093267ba073db326590519e9e6ead0f",
+      "src/spec-commands.ts": "cb99fc54ec76ada90e83ea35d9032e867fc3c846b773ba54bea2a99dcac77a68",
       "src/spec-flags.ts": "2a19ffd30dbbcd8e85164c7ddde6d7e63650eed5c77dc369161876f42729bfbb",
       "src/spec-manifest.ts": "d3b5c1b3c3a473f7991c02bd8b204d7ee6ac67b67e1d0ec1855c7345328cc104",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "6f9eaf832c9ddbd09a50ffc73185845ab750f10449f010d0f24a83895cad450e",
-    "revision": "c4c037100e6dfdf6e06b70fd1307a9f39b538028",
-    "fingerprint": "661b549fd00f2c45d9dfa2475e4330a565573d61f141c680a88ff998f161ba34"
+    "specSha256": "e36d0409b4df860d4ebb0c8c1dbd4e6b8c45e232037db027b0a3d862804ebe84",
+    "revision": "5910efb62b15d91324316aa4c194c4dee43a5733",
+    "fingerprint": "0d40bfce0e71b95d8238f5cdf9bbc27c04c5529282a2fabedcc0b17227a264a2"
   },
   "globalOptions": [
     {
@@ -125,7 +125,7 @@
     },
     {
       "id": "ipos",
-      "description": "Initial public offerings"
+      "description": "Offerings from registration to listing"
     },
     {
       "id": "market",
@@ -133,7 +133,7 @@
     },
     {
       "id": "me",
-      "description": "Your data account's own usage (costs no credits)"
+      "description": "The caller's account and usage (0 credits)"
     },
     {
       "id": "metrics",
@@ -141,7 +141,7 @@
     },
     {
       "id": "news",
-      "description": "News of US companies from SEC filings and their own newsrooms: items, full text with attribution, developments and files"
+      "description": "News items, full text, search and announcements"
     },
     {
       "id": "people",
@@ -161,7 +161,7 @@
     },
     {
       "id": "webhooks",
-      "description": "Outbound earnings-call lifecycle deliveries (LITE and above)"
+      "description": "Outbound event deliveries"
     }
   ],
   "commands": [
@@ -221,7 +221,7 @@
         },
         {
           "name": "path",
-          "description": "The path when a method is given, e.g. /v2/filings?company=AAPL",
+          "description": "The path when a method is given, e.g. /v1/filings?company=AAPL",
           "required": false
         }
       ],
@@ -316,7 +316,7 @@
       "command": "auth status",
       "group": "auth",
       "origin": "hand",
-      "description": "Show which key is active, where it comes from, and the account it belongs to (GET /v2/me, free)",
+      "description": "Show which key is active, where it comes from, and the account it belongs to (GET /v1/me, free)",
       "source": "src/commands/auth.ts",
       "operations": [],
       "arguments": [],
@@ -352,7 +352,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/catalog/document-kinds"
+          "path": "/v1/catalog/document-kinds"
         }
       ],
       "arguments": [],
@@ -435,7 +435,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/catalog/event-types"
+          "path": "/v1/catalog/event-types"
         }
       ],
       "arguments": [],
@@ -518,7 +518,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/catalog/forms"
+          "path": "/v1/catalog/forms"
         }
       ],
       "arguments": [],
@@ -601,7 +601,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/catalog/mapping-rules"
+          "path": "/v1/catalog/mapping-rules"
         }
       ],
       "arguments": [],
@@ -694,7 +694,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/catalog/metrics"
+          "path": "/v1/catalog/metrics"
         }
       ],
       "arguments": [],
@@ -782,7 +782,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/catalog/sections"
+          "path": "/v1/catalog/sections"
         }
       ],
       "arguments": [],
@@ -870,7 +870,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/dividends"
+          "path": "/v1/dividends"
         }
       ],
       "arguments": [
@@ -990,7 +990,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/fiscal-periods"
+          "path": "/v1/fiscal-periods"
         }
       ],
       "arguments": [
@@ -1088,7 +1088,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/companies/{company}"
+          "path": "/v1/companies/{company}"
         }
       ],
       "arguments": [
@@ -1167,7 +1167,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/companies"
+          "path": "/v1/companies"
         }
       ],
       "arguments": [],
@@ -1276,7 +1276,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/splits"
+          "path": "/v1/splits"
         }
       ],
       "arguments": [
@@ -1481,7 +1481,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/fact-places"
+          "path": "/v1/fact-places"
         }
       ],
       "arguments": [],
@@ -1579,7 +1579,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/document-versions/{version_id}/figures/{block_id}"
+          "path": "/v1/document-versions/{version_id}/figures/{block_id}"
         }
       ],
       "arguments": [
@@ -1658,7 +1658,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/document-versions/{version_id}"
+          "path": "/v1/document-versions/{version_id}"
         }
       ],
       "arguments": [
@@ -1762,7 +1762,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/document-versions/{version_id}/sections"
+          "path": "/v1/document-versions/{version_id}/sections"
         }
       ],
       "arguments": [
@@ -1860,7 +1860,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/events/{event_id}/audio"
+          "path": "/v1/events/{event_id}/audio"
         }
       ],
       "arguments": [
@@ -1871,7 +1871,7 @@
         },
         {
           "name": "fiscal_period",
-          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v2/events",
+          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v1/events",
           "required": false
         }
       ],
@@ -1949,7 +1949,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/events/{event_id}/comparison"
+          "path": "/v1/events/{event_id}/comparison"
         }
       ],
       "arguments": [
@@ -1960,7 +1960,7 @@
         },
         {
           "name": "fiscal_period",
-          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v2/events",
+          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v1/events",
           "required": false
         }
       ],
@@ -2033,7 +2033,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/events/{event_id}"
+          "path": "/v1/events/{event_id}"
         }
       ],
       "arguments": [
@@ -2044,7 +2044,7 @@
         },
         {
           "name": "fiscal_period",
-          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v2/events",
+          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v1/events",
           "required": false
         }
       ],
@@ -2117,7 +2117,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/events"
+          "path": "/v1/events"
         }
       ],
       "arguments": [
@@ -2270,7 +2270,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/events/{event_id}/live-audio"
+          "path": "/v1/events/{event_id}/live-audio"
         }
       ],
       "arguments": [
@@ -2281,7 +2281,7 @@
         },
         {
           "name": "fiscal_period",
-          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v2/events",
+          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v1/events",
           "required": false
         }
       ],
@@ -2349,7 +2349,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/events/{event_id}/press-release"
+          "path": "/v1/events/{event_id}/press-release"
         }
       ],
       "arguments": [
@@ -2360,7 +2360,7 @@
         },
         {
           "name": "fiscal_period",
-          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v2/events",
+          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v1/events",
           "required": false
         }
       ],
@@ -2428,7 +2428,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/events/{event_id}/price-attribution"
+          "path": "/v1/events/{event_id}/price-attribution"
         }
       ],
       "arguments": [
@@ -2439,7 +2439,7 @@
         },
         {
           "name": "fiscal_period",
-          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v2/events",
+          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v1/events",
           "required": false
         }
       ],
@@ -2507,7 +2507,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/events/{event_id}/prosody"
+          "path": "/v1/events/{event_id}/prosody"
         }
       ],
       "arguments": [
@@ -2518,7 +2518,7 @@
         },
         {
           "name": "fiscal_period",
-          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v2/events",
+          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v1/events",
           "required": false
         }
       ],
@@ -2596,7 +2596,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/events/{event_id}/qa"
+          "path": "/v1/events/{event_id}/qa"
         }
       ],
       "arguments": [
@@ -2607,7 +2607,7 @@
         },
         {
           "name": "fiscal_period",
-          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v2/events",
+          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v1/events",
           "required": false
         }
       ],
@@ -2698,7 +2698,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/events/{event_id}/slides"
+          "path": "/v1/events/{event_id}/slides"
         }
       ],
       "arguments": [
@@ -2709,7 +2709,7 @@
         },
         {
           "name": "fiscal_period",
-          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v2/events",
+          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v1/events",
           "required": false
         }
       ],
@@ -2787,7 +2787,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/events/{event_id}/stats"
+          "path": "/v1/events/{event_id}/stats"
         }
       ],
       "arguments": [
@@ -2798,7 +2798,7 @@
         },
         {
           "name": "fiscal_period",
-          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v2/events",
+          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v1/events",
           "required": false
         }
       ],
@@ -2866,7 +2866,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/events/{event_id}/transcript"
+          "path": "/v1/events/{event_id}/transcript"
         }
       ],
       "arguments": [
@@ -2877,7 +2877,7 @@
         },
         {
           "name": "fiscal_period",
-          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v2/events",
+          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v1/events",
           "required": false
         }
       ],
@@ -2977,7 +2977,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/events/{event_id}/transcript-diff"
+          "path": "/v1/events/{event_id}/transcript-diff"
         }
       ],
       "arguments": [
@@ -2988,7 +2988,7 @@
         },
         {
           "name": "fiscal_period",
-          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v2/events",
+          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v1/events",
           "required": false
         }
       ],
@@ -3066,7 +3066,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/events/{event_id}/transcript-text"
+          "path": "/v1/events/{event_id}/transcript-text"
         }
       ],
       "arguments": [
@@ -3077,7 +3077,7 @@
         },
         {
           "name": "fiscal_period",
-          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v2/events",
+          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v1/events",
           "required": false
         }
       ],
@@ -3159,7 +3159,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/events/{event_id}/transcript-versions"
+          "path": "/v1/events/{event_id}/transcript-versions"
         }
       ],
       "arguments": [
@@ -3170,7 +3170,7 @@
         },
         {
           "name": "fiscal_period",
-          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v2/events",
+          "description": "With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v1/events",
           "required": false
         }
       ],
@@ -3253,7 +3253,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/filers/{cik}"
+          "path": "/v1/filers/{cik}"
         }
       ],
       "arguments": [
@@ -3332,7 +3332,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/filers"
+          "path": "/v1/filers"
         }
       ],
       "arguments": [],
@@ -3458,7 +3458,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/datasets"
+          "path": "/v1/datasets"
         }
       ],
       "arguments": [],
@@ -3541,7 +3541,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/filings/{accession}/facts"
+          "path": "/v1/filings/{accession}/facts"
         }
       ],
       "arguments": [
@@ -3635,7 +3635,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/filings/{accession}"
+          "path": "/v1/filings/{accession}"
         }
       ],
       "arguments": [
@@ -3714,7 +3714,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/filings"
+          "path": "/v1/filings"
         }
       ],
       "arguments": [
@@ -3842,7 +3842,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/filings/{accession}/notes"
+          "path": "/v1/filings/{accession}/notes"
         }
       ],
       "arguments": [
@@ -3936,7 +3936,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/filings/{accession}/review-chain"
+          "path": "/v1/filings/{accession}/review-chain"
         }
       ],
       "arguments": [
@@ -4035,7 +4035,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/financials/as-reported"
+          "path": "/v1/financials/as-reported"
         }
       ],
       "arguments": [
@@ -4229,7 +4229,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/kpis"
+          "path": "/v1/kpis"
         }
       ],
       "arguments": [
@@ -4337,7 +4337,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/guidance"
+          "path": "/v1/guidance"
         }
       ],
       "arguments": [
@@ -4464,7 +4464,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/holding-changes"
+          "path": "/v1/holding-changes"
         }
       ],
       "arguments": [
@@ -4573,7 +4573,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/holdings"
+          "path": "/v1/holdings"
         }
       ],
       "arguments": [
@@ -4694,7 +4694,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/insider-trades/{id}"
+          "path": "/v1/insider-trades/{id}"
         }
       ],
       "arguments": [
@@ -4768,7 +4768,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/insider-trades"
+          "path": "/v1/insider-trades"
         }
       ],
       "arguments": [
@@ -4895,7 +4895,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/investor-documents/{document_id}"
+          "path": "/v1/investor-documents/{document_id}"
         }
       ],
       "arguments": [
@@ -4984,7 +4984,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/investor-documents"
+          "path": "/v1/investor-documents"
         }
       ],
       "arguments": [
@@ -5104,7 +5104,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/ipos/{ipo_id}"
+          "path": "/v1/ipos/{ipo_id}"
         }
       ],
       "arguments": [
@@ -5178,7 +5178,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/ipos"
+          "path": "/v1/ipos"
         }
       ],
       "arguments": [],
@@ -5312,7 +5312,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/market-holidays"
+          "path": "/v1/market-holidays"
         }
       ],
       "arguments": [],
@@ -5424,7 +5424,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/me"
+          "path": "/v1/me"
         }
       ],
       "arguments": [],
@@ -5492,7 +5492,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/me/usage"
+          "path": "/v1/me/usage"
         }
       ],
       "arguments": [],
@@ -5565,7 +5565,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/metrics/cagr"
+          "path": "/v1/metrics/cagr"
         }
       ],
       "arguments": [
@@ -5704,7 +5704,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/facts/{fact_id}"
+          "path": "/v1/facts/{fact_id}"
         }
       ],
       "arguments": [
@@ -5788,7 +5788,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/metrics/growth"
+          "path": "/v1/metrics/growth"
         }
       ],
       "arguments": [
@@ -5926,7 +5926,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/metrics/ratios"
+          "path": "/v1/metrics/ratios"
         }
       ],
       "arguments": [
@@ -6060,7 +6060,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/announcements"
+          "path": "/v1/announcements"
         }
       ],
       "arguments": [
@@ -6198,7 +6198,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/news/{id}"
+          "path": "/v1/news/{id}"
         }
       ],
       "arguments": [
@@ -6282,7 +6282,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/news"
+          "path": "/v1/news"
         }
       ],
       "arguments": [
@@ -6415,7 +6415,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/news/{id}/text"
+          "path": "/v1/news/{id}/text"
         }
       ],
       "arguments": [
@@ -6499,7 +6499,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/people/{person_id}"
+          "path": "/v1/people/{person_id}"
         }
       ],
       "arguments": [
@@ -6573,7 +6573,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/people"
+          "path": "/v1/people"
         }
       ],
       "arguments": [
@@ -6694,7 +6694,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/participants"
+          "path": "/v1/participants"
         }
       ],
       "arguments": [],
@@ -6890,7 +6890,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/search/filings"
+          "path": "/v1/search/filings"
         }
       ],
       "arguments": [
@@ -7033,7 +7033,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/search/investor-documents"
+          "path": "/v1/search/investor-documents"
         }
       ],
       "arguments": [
@@ -7141,7 +7141,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/search/news"
+          "path": "/v1/search/news"
         }
       ],
       "arguments": [
@@ -7275,7 +7275,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/search/transcripts"
+          "path": "/v1/search/transcripts"
         }
       ],
       "arguments": [
@@ -7408,7 +7408,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/segments"
+          "path": "/v1/segments"
         }
       ],
       "arguments": [
@@ -7547,7 +7547,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/segments/detailed"
+          "path": "/v1/segments/detailed"
         }
       ],
       "arguments": [
@@ -7686,7 +7686,7 @@
       "operations": [
         {
           "method": "POST",
-          "path": "/v2/webhooks"
+          "path": "/v1/webhooks"
         }
       ],
       "arguments": [],
@@ -7789,7 +7789,7 @@
       "operations": [
         {
           "method": "DELETE",
-          "path": "/v2/webhooks/{id}"
+          "path": "/v1/webhooks/{id}"
         }
       ],
       "arguments": [
@@ -7863,7 +7863,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/webhooks/{id}/deliveries"
+          "path": "/v1/webhooks/{id}/deliveries"
         }
       ],
       "arguments": [
@@ -7952,7 +7952,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/webhooks/{id}"
+          "path": "/v1/webhooks/{id}"
         }
       ],
       "arguments": [
@@ -8026,7 +8026,7 @@
       "operations": [
         {
           "method": "GET",
-          "path": "/v2/webhooks"
+          "path": "/v1/webhooks"
         }
       ],
       "arguments": [],
@@ -8109,7 +8109,7 @@
       "operations": [
         {
           "method": "POST",
-          "path": "/v2/webhooks/{id}:rotate-secret"
+          "path": "/v1/webhooks/{id}:rotate-secret"
         }
       ],
       "arguments": [
@@ -8183,7 +8183,7 @@
       "operations": [
         {
           "method": "POST",
-          "path": "/v2/webhooks/{id}:test"
+          "path": "/v1/webhooks/{id}:test"
         }
       ],
       "arguments": [
@@ -8257,7 +8257,7 @@
       "operations": [
         {
           "method": "PATCH",
-          "path": "/v2/webhooks/{id}"
+          "path": "/v1/webhooks/{id}"
         }
       ],
       "arguments": [

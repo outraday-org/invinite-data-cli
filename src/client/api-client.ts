@@ -7,7 +7,7 @@ export type QueryValue = string | string[] | undefined;
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 export interface RequestOptions {
-  /** A path under the base URL (`/v2/filings`); a query string on it is kept. */
+  /** A path under the base URL (`/v1/filings`); a query string on it is kept. */
   path: string;
   method?: HttpMethod;
   /** An array value is sent as a repeated parameter (`a=1&a=2`); `undefined` / `''` are dropped. */

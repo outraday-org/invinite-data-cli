@@ -172,7 +172,7 @@ function addPositionals(command: Command, operation: ManifestOperation): void {
   const description = param?.description ?? positional.name;
   if (positional.name === 'event_id') {
     command.argument('<event_id>', `${description}; or a company followed by a fiscal period (NVDA 2026Q3)`);
-    command.argument('[fiscal_period]', 'With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v2/events');
+    command.argument('[fiscal_period]', 'With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v1/events');
     return;
   }
   const name = positional.variadic ? `${positional.name}...` : positional.name;
@@ -276,7 +276,7 @@ async function planRequest(operation: ManifestOperation, positionals: unknown[],
       if (!period) throw new UsageError(`${second} is not a fiscal period (expected e.g. 2026Q3)`);
       lookup = {
         request: {
-          path: '/v2/events',
+          path: '/v1/events',
           query: { company: String(first), fiscal_year: period.fiscalYear, fiscal_quarter: period.fiscalQuarter, limit: '1' },
         },
         company: String(first),
@@ -419,8 +419,8 @@ async function resolveLookup(plan: Plan): Promise<Plan> {
   const { body } = await apiCall({ ...plan.lookup.request, silent: true });
   const row = isRecord(body) && Array.isArray(body.data) ? body.data[0] : undefined;
   const eventId = isRecord(row) && typeof row.event_id === 'string' ? row.event_id : undefined;
-  if (!eventId) throw new Error(`No event for ${plan.lookup.company} ${plan.lookup.period} (GET /v2/events)`);
-  console.error(chalk.dim(`resolved ${plan.lookup.company} ${plan.lookup.period} → event ${eventId} (GET /v2/events, ${plan.lookup.credits} credit)`));
+  if (!eventId) throw new Error(`No event for ${plan.lookup.company} ${plan.lookup.period} (GET /v1/events)`);
+  console.error(chalk.dim(`resolved ${plan.lookup.company} ${plan.lookup.period} → event ${eventId} (GET /v1/events, ${plan.lookup.credits} credit)`));
   return { request: { ...plan.request, path: plan.request.path.replace('{event_id}', encodeURIComponent(eventId)) } };
 }
 

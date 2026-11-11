@@ -5,9 +5,9 @@
  *   pnpm cli:manifest          rewrite the manifest
  *   pnpm cli:manifest:check    the drift gate
  *
- * Only the `/v2` operations become commands (the bundle still carries v1 until task 12 deletes it; `invd` 3.x is
- * the v1 CLI). The spec's `x-cli` is validated at its source (`invinite-data-api` conventions lint); this builder
- * derives what the v2 `x-cli` no longer states — list-ness from the response envelope, the view from the shape,
+ * Only the `/v1` operations become commands (`/health` and `/status*` stay hand-written; since invd 5.0 the contract
+ * designed as v2 is served under `/v1`). The spec's `x-cli` is validated at its source (`invinite-data-api`
+ * conventions lint); this builder derives what the §7 `x-cli` no longer states — list-ness from the response envelope, the view from the shape,
  * body flags from the request schema, the download object — and refuses what the MANIFEST would get wrong: flag
  * names that collide with the program's own, an unmappable parameter type, one command spelled twice.
  */
@@ -60,7 +60,7 @@ export const GROUP_DESCRIPTIONS: Readonly<Record<string, string>> = {
  * Spec aliases `invd` cannot honour because commander owns the letter (`-h` is help). Listed one by one so a new
  * collision still fails the build; proposed upstream as decision D8 of task 10 (`x-cli.flags.horizon: "H"`).
  */
-export const DROPPED_ALIASES: Readonly<Record<string, string>> = { 'GET /v2/metrics/cagr horizon': 'h' };
+export const DROPPED_ALIASES: Readonly<Record<string, string>> = { 'GET /v1/metrics/cagr horizon': 'h' };
 
 /** The parameter a positional joins several words into: company lists with `,`, search text with a space. */
 const VARIADIC: Readonly<Record<string, 'comma' | 'space'>> = { company: 'comma', q: 'space' };
@@ -278,7 +278,7 @@ export function buildManifest(rawSpec: unknown, specText: string): Manifest {
   const commands = new Map<string, string>();
 
   for (const [path, item] of Object.entries(spec.paths)) {
-    if (!path.startsWith('/v2/')) continue;
+    if (!path.startsWith('/v1/')) continue;
     const shared = Array.isArray(item.parameters) ? item.parameters : [];
     for (const [method, rawOperation] of Object.entries(item)) {
       if (!isMethod(method)) continue; // `parameters`, and the non-HTTP `ws`

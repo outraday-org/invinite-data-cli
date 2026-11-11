@@ -29,38 +29,38 @@ describe('invd api', () => {
   });
 
   it('method optional (GET), the path query kept, -F typed on GET into the query and into the body otherwise', async () => {
-    expect(await apiRequestFrom('/v2/filings?company=AAPL', undefined, { field: ['limit=5'] }))
-      .toEqual({ path: '/v2/filings', method: 'GET', query: { company: ['AAPL'], limit: ['5'] } });
-    expect(await apiRequestFrom('post', '/v2/webhooks', { field: ['active=true', 'n=3'], rawField: ['url=https://x'], header: ['Idempotency-Key: k1'] }))
-      .toEqual({ path: '/v2/webhooks', method: 'POST', query: {}, headers: { 'Idempotency-Key': 'k1' }, body: { active: true, n: 3, url: 'https://x' } });
-    await expect(apiRequestFrom('FETCH', '/v2/x', {})).rejects.toThrow('not an HTTP method');
+    expect(await apiRequestFrom('/v1/filings?company=AAPL', undefined, { field: ['limit=5'] }))
+      .toEqual({ path: '/v1/filings', method: 'GET', query: { company: ['AAPL'], limit: ['5'] } });
+    expect(await apiRequestFrom('post', '/v1/webhooks', { field: ['active=true', 'n=3'], rawField: ['url=https://x'], header: ['Idempotency-Key: k1'] }))
+      .toEqual({ path: '/v1/webhooks', method: 'POST', query: {}, headers: { 'Idempotency-Key': 'k1' }, body: { active: true, n: 3, url: 'https://x' } });
+    await expect(apiRequestFrom('FETCH', '/v1/x', {})).rejects.toThrow('not an HTTP method');
     await expect(apiRequestFrom('GET', undefined as unknown as string, {})).rejects.toThrow();
   });
 
   it('an absolute URL is followed only on the API origin; another host is refused before any request (the key)', async () => {
-    expect(apiPathOf('https://api.example.com/v2/companies/AAPL?x=1', 'https://api.example.com')).toBe('/v2/companies/AAPL?x=1');
-    expect(apiPathOf('https://h.test/api/v2/me', 'https://h.test/api')).toBe('/v2/me');
-    expect(apiPathOf('v2/me', 'https://api.example.com')).toBe('/v2/me');
-    for (const foreign of ['https://evil.test/v2/me', '//evil.test/v2/me', 'http://api.example.com/v2/me', 'file:///etc/passwd']) {
+    expect(apiPathOf('https://api.example.com/v1/companies/AAPL?x=1', 'https://api.example.com')).toBe('/v1/companies/AAPL?x=1');
+    expect(apiPathOf('https://h.test/api/v1/me', 'https://h.test/api')).toBe('/v1/me');
+    expect(apiPathOf('v1/me', 'https://api.example.com')).toBe('/v1/me');
+    for (const foreign of ['https://evil.test/v1/me', '//evil.test/v1/me', 'http://api.example.com/v1/me', 'file:///etc/passwd']) {
       expect(() => apiPathOf(foreign, 'https://api.example.com'), foreign).toThrow('invd api only calls https://api.example.com');
     }
-    await expect(createProgram().parseAsync(['node', 'invd', 'api', 'GET', 'https://evil.test/v2/me'])).rejects.toThrow('exit 2');
+    await expect(createProgram().parseAsync(['node', 'invd', 'api', 'GET', 'https://evil.test/v1/me'])).rejects.toThrow('exit 2');
     expect(fetch).not.toHaveBeenCalled();
   });
 
-  it('invd api GET /v2/filings?company=AAPL --paginate --jq .data[].accession streams accessions across pages', async () => {
+  it('invd api GET /v1/filings?company=AAPL --paginate --jq .data[].accession streams accessions across pages', async () => {
     vi.mocked(fetch)
       .mockResolvedValueOnce(json({ data: [{ accession: 'a1' }, { accession: 'a2' }], has_more: true, next_cursor: 'c2', meta: {} }))
       .mockResolvedValueOnce(json({ data: [{ accession: 'a3' }], has_more: false, next_cursor: null, meta: {} }));
-    await createProgram().parseAsync(['node', 'invd', 'api', 'GET', '/v2/filings?company=AAPL', '--paginate', '--jq', '.data[].accession']);
+    await createProgram().parseAsync(['node', 'invd', 'api', 'GET', '/v1/filings?company=AAPL', '--paginate', '--jq', '.data[].accession']);
     expect(out).toEqual(['a1\na2', 'a3']);
-    expect(String(vi.mocked(fetch).mock.calls[1]?.[0])).toBe('https://api.example.com/v2/filings?company=AAPL&cursor=c2');
+    expect(String(vi.mocked(fetch).mock.calls[1]?.[0])).toBe('https://api.example.com/v1/filings?company=AAPL&cursor=c2');
   });
 
   it('--dry-run sends nothing; DELETE needs --yes without a terminal', async () => {
-    await createProgram().parseAsync(['node', 'invd', 'api', '/v2/companies/AAPL', '--dry-run']);
-    expect(out.join('\n')).toContain('GET https://api.example.com/v2/companies/AAPL');
-    await expect(createProgram().parseAsync(['node', 'invd', 'api', 'DELETE', '/v2/webhooks/wh_1'])).rejects.toThrow('exit 2');
+    await createProgram().parseAsync(['node', 'invd', 'api', '/v1/companies/AAPL', '--dry-run']);
+    expect(out.join('\n')).toContain('GET https://api.example.com/v1/companies/AAPL');
+    await expect(createProgram().parseAsync(['node', 'invd', 'api', 'DELETE', '/v1/webhooks/wh_1'])).rejects.toThrow('exit 2');
     expect(fetch).not.toHaveBeenCalled();
   });
 });
@@ -75,13 +75,13 @@ describe('invd completion', () => {
 
   it('bash / zsh / fish scripts carry the commands and the spec paths after invd api', () => {
     const program = createProgram();
-    const bash = completionScript('bash', program, ['/v2/filings', '/v2/companies/{company}']);
+    const bash = completionScript('bash', program, ['/v1/filings', '/v1/companies/{company}']);
     expect(bash).toContain('complete -o default -F _invd invd');
-    expect(bash).toContain("'/v2/filings /v2/companies/{company}'");
+    expect(bash).toContain("'/v1/filings /v1/companies/{company}'");
     expect(completionScript('zsh', program, [])).toContain('bashcompinit');
-    const fish = completionScript('fish', program, ['/v2/filings']);
+    const fish = completionScript('fish', program, ['/v1/filings']);
     expect(fish).toContain("complete -c invd -f -a '(__invd_complete)'");
-    expect(fish).toContain("'/v2/filings'");
+    expect(fish).toContain("'/v1/filings'");
     expect(() => completionScript('tcsh', program, [])).toThrow('Unknown shell tcsh');
   });
 });

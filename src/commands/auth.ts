@@ -288,7 +288,7 @@ export async function logout(dependencies: Pick<LoginDependencies, 'fetch'> = de
   console.log(chalk.green('Logged out locally.'));
 }
 
-/** `invd auth status`: where the key comes from and, unless `offline`, what `GET /v2/me` says about it (free). */
+/** `invd auth status`: where the key comes from and, unless `offline`, what `GET /v1/me` says about it (free). */
 export async function status(opts: { offline?: boolean; json?: boolean } = {}): Promise<void> {
   const resolved = await resolveApiKey();
   const summary: Record<string, unknown> = {
@@ -298,7 +298,7 @@ export async function status(opts: { offline?: boolean; json?: boolean } = {}): 
     origin: resolved.origin,
   };
   if (!opts.offline) {
-    const { body } = await apiCall<Record<string, unknown>>({ path: '/v2/me', silent: true });
+    const { body } = await apiCall<Record<string, unknown>>({ path: '/v1/me', silent: true });
     const account = body?.account;
     const plan = body?.plan;
     if (typeof account === 'object' && account !== null) {
@@ -341,7 +341,7 @@ export function registerAuthCommands(program: Command): void {
 
   auth
     .command('status')
-    .description('Show which key is active, where it comes from, and the account it belongs to (GET /v2/me, free)')
+    .description('Show which key is active, where it comes from, and the account it belongs to (GET /v1/me, free)')
     .option('--offline', 'Do not call the API')
     .option('--json', 'Print JSON')
     .addHelpText('before', 'Examples:\n  $ invd auth status\n  $ invd auth status --offline --json\n')

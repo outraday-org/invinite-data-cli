@@ -39,7 +39,7 @@ serves the earlier roster; use whatever tools it lists, or the CLI.
 | News items, text, announcements, news search | `get_news` | `invd news list\|get\|text\|announcements`, `invd search news` |
 | Account and usage | `get_account` | `invd me show\|usage` |
 | Webhooks | `manage_webhooks` | `invd webhooks …` |
-| Any other operation | `search_endpoints` + `call_api` | `invd api GET /v2/…` |
+| Any other operation | `search_endpoints` + `call_api` | `invd api GET /v1/…` |
 
 MCP resources `invinite://catalog/metrics`, `invinite://catalog/sections`, `invinite://catalog/event-types`,
 `invinite://catalog/forms` and `invinite://catalog/document-kinds` are the catalogs (`invd catalog metrics`, `invd catalog sections`, `invd catalog event-types`, `invd catalog forms`,
@@ -74,10 +74,10 @@ An auth failure exits 4: reconnect the MCP connector, or tell the user to run `i
   `invd financials AAPL MSFT`), the member id on member commands (`invd companies get AAPL`,
   `invd filings get 0000320193-26-000026`, `invd events transcript <event_id>`).
 - Every command that takes an `event_id` also takes a company plus a fiscal period: `invd events transcript NVDA 2026Q3`
-  resolves the event through `GET /v2/events` (one extra credit; the resolution is noted on stderr).
+  resolves the event through `GET /v1/events` (one extra credit; the resolution is noted on stderr).
 - Flags are the API parameters with dashes (`fiscal_year` → `--fiscal-year`, `filed_at[gte]` → `--filed-at-gte`).
   `invd <group> <action> --help` lists them with the API's descriptions, the credit cost and plan, and the row fields.
-- `invd api` calls any path the tree lacks: `invd api GET /v2/filings?company=AAPL --paginate --jq '.data[].accession'`.
+- `invd api` calls any path the tree lacks: `invd api GET /v1/filings?company=AAPL --paginate --jq '.data[].accession'`.
 
 ## Output, pagination and cost
 
@@ -251,10 +251,10 @@ invd agent-setup --all --global --dry-run   # print what would be written
 
 <!-- invd:hand:api -->
 ```bash
-invd api /v2/companies/AAPL
-invd api GET /v2/filings?company=AAPL --paginate --jq '.data[].accession'
-invd api GET /v2/holdings -F company=AAPL -F limit=100 --dry-run
-invd api POST /v2/webhooks --input webhook.json
+invd api /v1/companies/AAPL
+invd api GET /v1/filings?company=AAPL --paginate --jq '.data[].accession'
+invd api GET /v1/holdings -F company=AAPL -F limit=100 --dry-run
+invd api POST /v1/webhooks --input webhook.json
 ```
 <!-- /invd:hand:api -->
 
@@ -499,7 +499,7 @@ invd investor-documents list AAPL --json
 
 ### ipos
 
-Initial public offerings
+Offerings from registration to listing
 
 ```bash
 # Get an offering (optional: --fields)
@@ -520,7 +520,7 @@ invd market holidays --json
 
 ### me
 
-Your data account's own usage (costs no credits)
+The caller's account and usage (0 credits)
 
 ```bash
 # Who am I
@@ -550,7 +550,7 @@ invd metrics ratios AAPL -p annual --json
 
 ### news
 
-News of US companies from SEC filings and their own newsrooms: items, full text with attribution, developments and files
+News items, full text, search and announcements
 
 ```bash
 # List announcements (optional: --topic, --item, --announced-at-gte, --announced-at-gt, --announced-at-lte, --announced-at-lt, --effective-from-gte, --effective-to-lte, --sort, --fields, --limit, --cursor, --all)
@@ -623,7 +623,7 @@ invd segments list-detailed AAPL -p annual --json
 
 ### webhooks
 
-Outbound earnings-call lifecycle deliveries (LITE and above)
+Outbound event deliveries
 
 ```bash
 # Create a webhook (optional: --idempotency-key, --url, --events, --ciks, --keywords, --body, --body-file)

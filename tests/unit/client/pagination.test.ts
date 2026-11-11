@@ -25,15 +25,15 @@ describe('cursor pagination', () => {
     expect(nextCursorOf({ data: [], has_more: true, next_cursor: 'c2' })).toBe('c2');
     expect(nextCursorOf({ data: [], has_more: false, next_cursor: 'c2' })).toBeUndefined();
     expect(nextCursorOf({ data: [], has_more: true, next_cursor: null })).toBeUndefined();
-    expect(linkNext('<https://api.example.com/v2/x?cursor=a>; rel="next", <https://y>; rel="prev"')).toBe('https://api.example.com/v2/x?cursor=a');
+    expect(linkNext('<https://api.example.com/v1/x?cursor=a>; rel="next", <https://y>; rel="prev"')).toBe('https://api.example.com/v1/x?cursor=a');
     expect(linkNext('<https://y>; rel="prev"')).toBeUndefined();
   });
 
   it('the next request keeps every filter and adds the cursor; a Link-only page follows the link', () => {
-    const request = { path: '/v2/filings', query: { company: 'AAPL', form: '10-K' } };
+    const request = { path: '/v1/filings', query: { company: 'AAPL', form: '10-K' } };
     expect(nextRequest(request, page({ has_more: true, next_cursor: 'c2' }))?.query).toEqual({ company: 'AAPL', form: '10-K', cursor: 'c2' });
-    const linked = nextRequest(request, page({ data: [] }, { Link: '<https://api.example.com/v2/filings?company=AAPL&cursor=z>; rel="next"' }));
-    expect(linked).toMatchObject({ path: '/v2/filings', query: { company: ['AAPL'], cursor: ['z'] } });
+    const linked = nextRequest(request, page({ data: [] }, { Link: '<https://api.example.com/v1/filings?company=AAPL&cursor=z>; rel="next"' }));
+    expect(linked).toMatchObject({ path: '/v1/filings', query: { company: ['AAPL'], cursor: ['z'] } });
     expect(nextRequest(request, page({ has_more: false, next_cursor: null }))).toBeUndefined();
   });
 
@@ -41,12 +41,12 @@ describe('cursor pagination', () => {
     vi.mocked(fetch)
       .mockResolvedValueOnce(json({ data: [2], has_more: true, next_cursor: 'c3' }))
       .mockResolvedValueOnce(json({ data: [3], has_more: false, next_cursor: null }));
-    const request = { path: '/v2/filings', query: { company: 'AAPL' } };
+    const request = { path: '/v1/filings', query: { company: 'AAPL' } };
     const bodies: unknown[] = [];
     for await (const current of walkPages(request, page({ data: [1], has_more: true, next_cursor: 'c2' }))) bodies.push(current.body);
     expect(bodies.map(body => (body as { data: number[] }).data[0])).toEqual([1, 2, 3]);
-    expect(String(vi.mocked(fetch).mock.calls[0]?.[0])).toBe('https://api.example.com/v2/filings?company=AAPL&cursor=c2');
-    expect(String(vi.mocked(fetch).mock.calls[1]?.[0])).toBe('https://api.example.com/v2/filings?company=AAPL&cursor=c3');
+    expect(String(vi.mocked(fetch).mock.calls[0]?.[0])).toBe('https://api.example.com/v1/filings?company=AAPL&cursor=c2');
+    expect(String(vi.mocked(fetch).mock.calls[1]?.[0])).toBe('https://api.example.com/v1/filings?company=AAPL&cursor=c3');
   });
 
   it('waits out a 429 by its Retry-After, then continues', async () => {
@@ -56,7 +56,7 @@ describe('cursor pagination', () => {
       .mockResolvedValueOnce(json({ data: [2], has_more: false }));
     const pages: unknown[] = [];
     const walk = (async () => {
-      for await (const current of walkPages({ path: '/v2/x' }, page({ data: [1], has_more: true, next_cursor: 'c' }))) pages.push(current.body);
+      for await (const current of walkPages({ path: '/v1/x' }, page({ data: [1], has_more: true, next_cursor: 'c' }))) pages.push(current.body);
     })();
     await vi.advanceTimersByTimeAsync(2_000);
     await walk;
@@ -72,7 +72,7 @@ describe('cursor pagination', () => {
   it('throws a non-retryable page failure', async () => {
     vi.mocked(fetch).mockResolvedValueOnce(json({ code: 'cursor_mismatch', detail: 'changed' }, 400));
     const walk = async () => {
-      for await (const _current of walkPages({ path: '/v2/x' }, page({ data: [1], has_more: true, next_cursor: 'c' }))) { /* drain */ }
+      for await (const _current of walkPages({ path: '/v1/x' }, page({ data: [1], has_more: true, next_cursor: 'c' }))) { /* drain */ }
     };
     await expect(walk()).rejects.toMatchObject({ statusCode: 400, code: 'cursor_mismatch' });
   });

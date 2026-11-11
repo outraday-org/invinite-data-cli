@@ -22,7 +22,7 @@ const op = (overrides: Partial<ManifestOperation>): ManifestOperation => ({
   group: 'things',
   action: 'get',
   method: 'get',
-  path: '/v2/things',
+  path: '/v1/things',
   auth: true,
   summary: 'Get a thing',
   credits: 1,
