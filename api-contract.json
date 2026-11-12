@@ -1,23 +1,110 @@
 {
   "schemaVersion": 1,
   "openapi": "openapi.json",
+  "problem_codes": [
+    {
+      "code": "invalid_parameter",
+      "title": "Invalid parameter",
+      "remedy": "Check the parameter against the operation's reference.",
+      "anchor": "invalid_parameter"
+    },
+    {
+      "code": "unknown_parameter",
+      "title": "Unknown parameter",
+      "remedy": "Remove the parameter the operation does not declare.",
+      "anchor": "unknown_parameter"
+    },
+    {
+      "code": "cursor_mismatch",
+      "title": "Cursor does not match the filters",
+      "remedy": "Send the cursor only with the filters it was issued for, or start again without a cursor.",
+      "anchor": "cursor_mismatch"
+    },
+    {
+      "code": "not_covered",
+      "title": "Not covered",
+      "remedy": "Search for the company with GET /v1/companies?q=…, or read its coverage with GET /v1/companies/{company}?expand=coverage.",
+      "anchor": "not_covered"
+    },
+    {
+      "code": "excluded",
+      "title": "Excluded",
+      "remedy": "Use other content; this item is not available under your licence.",
+      "anchor": "excluded"
+    },
+    {
+      "code": "not_found",
+      "title": "Not found",
+      "remedy": "Check the id, or list the collection to find a valid one.",
+      "anchor": "not_found"
+    },
+    {
+      "code": "plan_required",
+      "title": "Plan required",
+      "remedy": "Upgrade the plan, or use an operation of your tier (GET /v1/me).",
+      "anchor": "plan_required"
+    },
+    {
+      "code": "insufficient_credits",
+      "title": "Insufficient credits",
+      "remedy": "Wait for the next period or add credits (GET /v1/me/usage).",
+      "anchor": "insufficient_credits"
+    },
+    {
+      "code": "rate_limited",
+      "title": "Rate limited",
+      "remedy": "Retry after the number of seconds in Retry-After.",
+      "anchor": "rate_limited"
+    },
+    {
+      "code": "idempotency_in_flight",
+      "title": "Idempotent request in flight",
+      "remedy": "Retry the same request after the first one answers.",
+      "anchor": "idempotency_in_flight"
+    },
+    {
+      "code": "internal",
+      "title": "Internal error",
+      "remedy": "Retry once, and report the request_id if it repeats.",
+      "anchor": "internal"
+    },
+    {
+      "code": "unauthorized",
+      "title": "Unauthorized",
+      "remedy": "Send a valid key as Authorization: Bearer <key>.",
+      "anchor": "unauthorized"
+    },
+    {
+      "code": "forbidden",
+      "title": "Forbidden",
+      "remedy": "Use a key that may call this operation.",
+      "anchor": "forbidden"
+    },
+    {
+      "code": "unavailable",
+      "title": "Service unavailable",
+      "remedy": "Retry after the number of seconds in Retry-After.",
+      "anchor": "unavailable"
+    }
+  ],
   "provenance": {
     "secdoorsOpenapiSha256": "0fa8e776624a84cd08a6203f66d56c3c84b315750be1e4c0d223dab2f60400a1",
     "repository": "https://github.com/outraday-org/invinite-data-api",
     "version": "1.0.0",
-    "specSha256": "e36d0409b4df860d4ebb0c8c1dbd4e6b8c45e232037db027b0a3d862804ebe84",
+    "specSha256": "bb1c174ff1f32dd4f3b1462b38c61dcd9cbb91067142a6b1f3488e3243667764",
     "sourceHashes": {
-      "openapi.json": "e36d0409b4df860d4ebb0c8c1dbd4e6b8c45e232037db027b0a3d862804ebe84",
+      "openapi.json": "bb1c174ff1f32dd4f3b1462b38c61dcd9cbb91067142a6b1f3488e3243667764",
       "package.json": "0af821a121d141397f644a16149fd817abbd345b13641d1f4522095021542286",
-      "scripts/export-reference.ts": "c33120594eabc12f414917196ddb94b5e48445c72ab0325f5d7ec546f938a634",
+      "scripts/export-reference.ts": "d925c60f0f895b7b55ae7506e30b1f70a82316e3650c5f7bba0c02f64fb2f09a",
       "scripts/gen-secdoors-types.ts": "860afc486f8041ddfbb515bf5a5a0de8ac9c7237af1a0238d0c08aece7dece1e",
       "scripts/generate-openapi.ts": "fd07fe65502eb0b2a29c8851ee1d26b802e0898d8b3be4f28b3bae39be061fb3",
       "scripts/operation-ids.snapshot.json": "a71dcb91d573d0654cd48eb1054e00582d40494fa6b7ea0ab24f98040c117ec0",
       "scripts/reference-artifacts.ts": "0ef8e67cb5454a3f50f43de77b0be1aebb7897164ddf3f5288b58dc7d0f47255",
       "scripts/reference-env.ts": "105b341c463b24e99d349d50a96634f83b1b8dca8a669c84730dc93f24e122e0",
-      "src/lib/secStore/secdoors-openapi.json": "697e710ccaae07e78cde7c50d900b3a5b32db4ba1a7c5c9ef26a0a1c43cb1dd0"
+      "src/lib/secStore/secdoors-openapi.json": "697e710ccaae07e78cde7c50d900b3a5b32db4ba1a7c5c9ef26a0a1c43cb1dd0",
+      "src/lib/v2/problem.ts": "f2ee756f5b131a18ab97573372b8022a5e4c97f3bccdeb719623bd802b94be86"
     },
-    "revision": "b4c2e44d6000f0721df0f7fb6009f9f30057c9cc",
-    "fingerprint": "5820c725639699e081566caf74fa17bb82cc88c115411026bfd0daea23a329c0"
+    "revision": "0cfaa6fc4f6361473eabaca57a95fef59744b707",
+    "fingerprint": "ab12b9b3d1092a744489950fc599c9944249c17f1ffb34c6282aef354861beb3"
   }
 }

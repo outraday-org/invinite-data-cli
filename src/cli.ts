@@ -64,7 +64,7 @@ function topHelp(): string {
   ].join('\n');
 }
 
-const EXIT_HELP = '\nExit codes: 0 ok · 1 failure · 2 usage · 3 partial · 4 auth required · 5 integrity · 6 credits / plan\n';
+const EXIT_HELP = '\nExit codes: 0 ok · 1 refused / failed · 2 usage · 3 not found · 4 auth required · 5 integrity · 6 credits / plan · 7 partial · 130 / 143 interrupted\n';
 
 export function createProgram(): Command {
   const program = new Command();

@@ -85,14 +85,17 @@ export function registerAgentSetupCommand(program: Command): void {
     .option('-g, --global', 'User-wide (home directory)')
     .option('-l, --local', 'This project (current directory)')
     .option('--dry-run', 'Print what would be written; write nothing')
+    .option('--no-input', 'Never prompt (a missing agent or scope fails with exit 2 instead)')
     .addHelpText('before', 'Examples:\n  $ invd agent-setup --claude --local\n  $ invd agent-setup --all --global --dry-run\n')
     .action(withErrorHandling(async (opts: Record<string, boolean>) => {
       let runtimes: Runtime[] | null = opts.all ? [...AGENT_RUNTIMES] : AGENT_RUNTIMES.filter(runtime => opts[runtime]);
       if (runtimes.length === 0) runtimes = null;
       let scope = resolveScope(opts);
       if (!runtimes || !scope) {
-        if (!process.stdin.isTTY) throw new UsageError('Name the agent (--claude, --codex, --all) and the scope (--global or --local)');
-        const answers = await promptInteractive(runtimes, scope);
+        const answers = await promptInteractive(runtimes, scope, {
+          input: opts.input,
+          answers: 'the agent (--claude, --codex or --all) and the scope (--global or --local)',
+        });
         runtimes = answers.runtimes;
         scope = answers.scope;
       }
@@ -107,9 +110,9 @@ export function registerAgentSetupCommand(program: Command): void {
         const skillRoot = scope === 'global' ? config.globalDir : config.localDir ? path.resolve(process.cwd(), config.localDir) : null;
         if (skillRoot && !dryRun) config.install(sourceDir, skillRoot);
         const verb = dryRun ? 'would write' : 'wrote';
-        console.log(chalk.green(`  ✓ ${config.label}`) + chalk.dim(` — ${verb} MCP ${connector.name} → ${mcp}${skillRoot ? `; skill → ${skillRoot}` : ''}`));
+        console.error(chalk.green(`  ✓ ${config.label}`) + chalk.dim(` — ${verb} MCP ${connector.name} → ${mcp}${skillRoot ? `; skill → ${skillRoot}` : ''}`));
       }
-      console.log(dryRun
+      console.error(dryRun
         ? chalk.bold('\nDry run: nothing was written.')
         : chalk.bold(`\nDone. Restart the agent; it asks you to sign in to ${connector.url} the first time it uses a tool.`));
     }));

@@ -60,7 +60,8 @@ Claude Code or Codex in one step.
 ### CLI
 
 Install with `npm install -g @invinite-org/invinite-data-cli`, then run `invd auth login`. The key is resolved in this
-order: `INVD_API_KEY` > `INVINITE_DATA_API_KEY` > `./.env` (either name) > OS keychain > `api_key` in `config.toml`.
+order: `INVD_API_KEY` > `INVINITE_DATA_API_KEY` > `./.env` (either name) > OS keychain > `api_key` in
+`~/.config/invinite/invd.toml`.
 `invd auth status` shows which key is active and whose account it is (free).
 
 An auth failure exits 4: reconnect the MCP connector, or tell the user to run `invd auth login` (or set
@@ -101,9 +102,14 @@ incomplete instead of "nothing found".
 Before a large pull (`--all`, many companies, `search filings` at 100 credits a page) check what is left with
 `invd me usage --json` (free) and estimate with `--dry-run`. If the pull would not fit, say so before starting it.
 
-Exit codes: 0 ok, 1 failure, 2 usage (incl. `invalid_parameter`, `unknown_parameter`, `cursor_mismatch`), 3 partial
-(an interrupted `--all`: resume with the printed `--cursor`), 4 auth required, 5 download integrity, 6 credits
-exhausted or plan required (`plan_required`, `insufficient_credits`).
+Exit codes: 0 ok, 1 refused or failed, 2 usage (incl. `invalid_parameter`, `unknown_parameter`, `cursor_mismatch`, or
+a needed answer under `--no-input`), 3 not found (`not_found`, `not_covered`), 4 auth required, 5 download integrity,
+6 credits exhausted or plan required (`plan_required`, `insufficient_credits`), 7 partial (an `--all` cut by a failure:
+resume with the printed `--cursor`), 130 / 143 interrupted.
+
+An error is at most three stderr lines: `✗ <detail>  (<code>)`, then what to do (an `invd` command, else the API's
+`remedy`), then the request id and docs link. Follow the remedy line; with `--json` the problem body (`code`, `param`,
+`remedy`, `request_id`) follows as one JSON line on stderr.
 
 ## Working with the data
 

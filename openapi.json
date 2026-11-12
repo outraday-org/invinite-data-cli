@@ -11947,6 +11947,7 @@
           "status",
           "detail",
           "code",
+          "remedy",
           "request_id",
           "docs_url"
         ],
@@ -12042,6 +12043,11 @@
                 }
               }
             }
+          },
+          "remedy": {
+            "type": "string",
+            "description": "What to do next: one imperative sentence ending with a period, surface neutral (no CLI command, no HTTP status number). A per-code default when the operation gives none",
+            "example": "Pass a limit of at most 200, or walk the pages with next_cursor."
           },
           "request_id": {
             "type": "string",

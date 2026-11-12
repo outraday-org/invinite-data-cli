@@ -71,7 +71,7 @@ describe('help', () => {
     program.exitOverride();
     expect(() => program.parse(['node', 'invd', '--help'])).toThrow();
     expect(text.startsWith('Most used:')).toBe(true);
-    expect(text).toContain('Exit codes: 0 ok');
+    expect(text).toContain('Exit codes: 0 ok · 1 refused / failed · 2 usage · 3 not found · 4 auth required · 5 integrity · 6 credits / plan · 7 partial · 130 / 143 interrupted');
   });
 
   it('every generated command leads its help with two examples', () => {

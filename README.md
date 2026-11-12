@@ -13,8 +13,9 @@ invd holdings AAPL
 invd search filings "supply chain risk" --company AAPL
 ```
 
-Version 5.0 calls the API at its final `/v1` paths (the 2026-11-11 cut-over moved the redesigned API from `/v2` to
-`/v1` and deleted the old v1); its commands are the 4.0 commands. Coming from 4.x, read
+Version 6.0 keeps the 5.0 commands and follows the conventions shared with the Web CLI `inv`: one exit-code table
+(not found 3, partial 7, interrupted 130 / 143), a three-line error with the API's remedy, and the config file in
+`~/.config/invinite/invd.toml`. Coming from 5.x, read [Upgrading from 5.x](#upgrading-from-5x); from 4.x,
 [Upgrading from 4.x](#upgrading-from-4x); from 3.x, [Upgrading from 3.x](#upgrading-from-3x).
 
 ## Installation
@@ -57,7 +58,7 @@ The active key is resolved in this order:
 2. `INVINITE_DATA_API_KEY` (the 3.x name, still read)
 3. `./.env` in the current directory (either name)
 4. the OS keychain (via the optional `keytar` package)
-5. `api_key` in the global `config.toml`
+5. `api_key` in the global `invd.toml`
 
 ```bash
 curl -H "Authorization: Bearer $(invd auth token)" https://api.data.invinite.com/v1/me
@@ -263,7 +264,8 @@ invd webhooks delete <id>
 
 ## Output
 
-Data goes to stdout; progress, cost lines and coverage notes go to stderr, so a pipe only ever sees data.
+Data goes to stdout; progress, cost lines, confirmations and coverage notes go to stderr, so a pipe only ever sees
+data.
 
 | Flag | Effect |
 |---|---|
@@ -297,7 +299,8 @@ invd holdings AAPL --all --output csv > aapl-holders.csv
 invd filings AAPL --cursor eyJ2IjoyfQ
 ```
 
-An interrupted `--all` exits 3 and prints the `--cursor` to resume from.
+An `--all` cut short by a failure after some rows exits 7 and prints the `--cursor` to resume from; Ctrl-C prints the
+same resume line and exits 130.
 
 ### Credits
 
@@ -360,11 +363,14 @@ invd config path
 | `pager` | `INVD_PAGER` | pager for long terminal output |
 | `api_key` | `INVD_API_KEY` | the key (global file only; prefer `invd auth login`) |
 
-The global file is `$XDG_CONFIG_HOME/invd/config.toml` (`INVD_CONFIG_DIR` replaces the directory); `--local` writes
-`./.invd.toml` for this project. Precedence: flags > environment > `./.invd.toml` > `config.toml`. A project file
+The global file is `$XDG_CONFIG_HOME/invinite/invd.toml` (`~/.config/invinite/invd.toml`; `%APPDATA%\invinite` on
+Windows; `INVD_CONFIG_DIR` replaces the directory). The directory is shared with the Web CLI `inv` (`config.json`); invd
+touches only `invd.toml` there, and keys are never shared. `--local` writes `./.invd.toml` for this project.
+Precedence: flags > environment > `./.invd.toml` > `invd.toml`. A project file
 never holds `api_key`, and its `base_url` may only name a loopback host (`localhost`, `127.0.0.1`, `[::1]`): a cloned
-repository cannot send your key elsewhere. `invd api` likewise refuses an absolute URL on another host. 3.x settings
-are imported once on first run.
+repository cannot send your key elsewhere. `invd api` likewise refuses an absolute URL on another host. The settings of
+an older install (`~/.config/invd/config.toml` of 4.x / 5.x, else the 3.x file) are carried into `invd.toml` once,
+with one line on stderr; the old file is left in place.
 
 ## AI agents
 
@@ -422,17 +428,42 @@ invd completion fish > ~/.config/fish/completions/invd.fish
 
 Completion covers commands, flags, and the `/v1` paths after `invd api`.
 
-## Exit codes
+## Errors and exit codes
+
+An error prints at most three lines on stderr: what failed (with the problem `code`), what to do (an `invd` command
+where invd knows one, else the API's `remedy`), and the request id with the docs link. No HTTP status number. Under
+`--json` the whole problem body follows as one JSON line on stderr.
+
+```
+$ invd filings AAPL --limit 500
+✗ limit: must be <= 200  (invalid_parameter)
+  Pass a limit of at most 200.
+  req_01JC…  ·  https://data.invinite.com/docs/errors#invalid_parameter
+$ echo $?
+2
+```
+
+The exit codes are the same in `invd` and the Web CLI `inv`:
 
 | Code | Meaning |
 |---|---|
 | 0 | ok |
-| 1 | failure |
-| 2 | usage: a bad flag or argument, and the API's `invalid_parameter` / `unknown_parameter` / `cursor_mismatch` |
-| 3 | partial: an interrupted `--all` (resume with the printed `--cursor`) or a short download |
-| 4 | auth required: no key, 401, forbidden |
+| 1 | refused or failed (any other problem `code`, a network error) |
+| 2 | usage: a bad flag or argument, the API's `invalid_parameter` / `unknown_parameter` / `cursor_mismatch`, or an answer is needed under `--no-input` |
+| 3 | not found: `not_found`, `not_covered`, a 404 |
+| 4 | auth required: no key, 401, `unauthorized` / `forbidden` |
 | 5 | integrity: a download's checksum or size does not match |
 | 6 | credits exhausted or plan required: 402, `plan_required`, `insufficient_credits` |
+| 7 | partial: an `--all` cut short by a failure (resume with the printed `--cursor`) or a short download |
+| 130 / 143 | interrupted (Ctrl-C / SIGTERM); an `--all` walk prints its resume cursor first |
+
+## Upgrading from 5.x
+
+6.0 keeps every 5.x command, flag and output. Breaking: exit codes (partial 3 → 7, not found 1 → 3, Ctrl-C 130
+everywhere); the error print (three lines, no HTTP status); the config file moves from `~/.config/invd/config.toml` to
+`~/.config/invinite/invd.toml` (carried over once on first run); confirmations of `invd auth`, `invd config set` /
+`unset`, `invd plugin` and `invd agent-setup` go to stderr, and `plugin install` / `uninstall` and `agent-setup` take
+`--no-input`.
 
 ## Upgrading from 4.x
 
@@ -467,7 +498,7 @@ now. Upgrade = install 5.0.
 ### Older majors
 
 invd 3.x (the old v1 API) and 4.x (the `/v2` paths) call routes that were deleted on 2026-11-11; neither works
-against the live API any more. Install 5.x.
+against the live API any more. Install 6.x.
 
 ## Development
 

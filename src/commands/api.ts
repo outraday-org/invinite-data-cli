@@ -8,6 +8,7 @@ import { runJq } from '../output/jq.js';
 import { emit } from '../output/render.js';
 import { PartialResultError, UsageError, withErrorHandling } from '../shared/errors.js';
 import { confirmOrRefuse, readStdin } from '../shared/prompt.js';
+import { resumeOnInterrupt } from '../shared/signals.js';
 import { setJsonMode } from '../shared/spinner.js';
 
 const METHODS: readonly HttpMethod[] = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
@@ -167,6 +168,7 @@ export function registerApiCommand(program: Command): void {
       }
       let written = 0;
       let cursor: string | undefined;
+      const unregister = resumeOnInterrupt(() => ({ written, cursor }));
       try {
         for await (const page of walkPages(request, first_)) {
           print(page.body, opts.jq);
@@ -176,6 +178,8 @@ export function registerApiCommand(program: Command): void {
       } catch (error) {
         if (written > 0) throw new PartialResultError(error, written, cursor);
         throw error;
+      } finally {
+        unregister();
       }
     }));
 }

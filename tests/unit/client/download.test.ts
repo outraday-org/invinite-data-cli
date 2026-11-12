@@ -5,9 +5,11 @@ import { join } from 'node:path';
 
 vi.mock('../../../src/shared/spinner.js', () => ({
   createSpinner: vi.fn().mockReturnValue({ succeed: vi.fn(), fail: vi.fn() }),
+  stopSpinners: vi.fn(),
 }));
 
 import { downloadToFile, extensionFor, writeTextFile } from '../../../src/client/download.js';
+import { installSignalExit } from '../../../src/shared/signals.js';
 
 function streamOf(chunks: string[], failAfter?: number): ReadableStream<Uint8Array> {
   let i = 0;
@@ -96,6 +98,7 @@ describe('downloadToFile', () => {
     });
     (fetch as any).mockResolvedValue({ ok: true, status: 200, body });
     const exit = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never);
+    installSignalExit(); // the one shared handler (bin/invd.ts installs it); the download only registers a cleanup
     const listeners = process.listenerCount(signal);
     const file = join(dir, 'call.mp3');
 

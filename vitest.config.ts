@@ -8,5 +8,7 @@ export default defineConfig({
     include: ['tests/**/*.test.ts'],
     // Never the person's real config: `resetConfig()` in the config tests clears it, API key included.
     env: { INVD_CONFIG_DIR: mkdtempSync(join(tmpdir(), 'invd-test-config-')) },
+    // A temporary home for every test file (os.homedir, HOME, XDG_CONFIG_HOME, APPDATA): tests/setup.ts.
+    setupFiles: ['tests/setup.ts'],
   },
 });

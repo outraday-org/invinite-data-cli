@@ -7,6 +7,7 @@ import { Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import type { ReadableStream as WebReadableStream } from 'node:stream/web';
 import { IntegrityError, PartialDownloadError } from '../shared/errors.js';
+import { onInterrupt } from '../shared/signals.js';
 import { createSpinner } from '../shared/spinner.js';
 
 export interface SaveOptions {
@@ -33,24 +34,19 @@ async function prepareTarget(file: string, opts: SaveOptions): Promise<string> {
   return path;
 }
 
-/** Exit codes of the signals that abort a write (128 + signal number, as a shell reports them). */
-const ABORT_SIGNALS: Record<string, number> = { SIGINT: 130, SIGTERM: 143 };
-
 /**
  * Runs `write(part, signal)` against `<path>.part` and renames it onto `path` on success, so a
  * failed write never leaves a partial file or clobbers an existing one. While it runs, SIGINT /
- * SIGTERM (Ctrl-C) abort `signal`, remove the `.part` file synchronously and exit with 130 / 143 —
- * a listener replaces Node's default exit, which would skip the cleanup.
+ * SIGTERM (Ctrl-C) abort `signal` and remove the `.part` file synchronously before the shared
+ * interrupt exit (130 / 143, `src/shared/signals.ts`).
  */
 async function writeViaPart(path: string, write: (part: string, signal: AbortSignal) => Promise<void>): Promise<void> {
   const part = `${path}.part`;
   const controller = new AbortController();
-  const onSignal = (signal: NodeJS.Signals) => {
+  const unregister = onInterrupt(() => {
     controller.abort();
     rmSync(part, { force: true });
-    process.exit(ABORT_SIGNALS[signal]);
-  };
-  for (const signal of Object.keys(ABORT_SIGNALS)) process.once(signal, onSignal);
+  });
   try {
     await write(part, controller.signal);
     await rename(part, path);
@@ -58,7 +54,7 @@ async function writeViaPart(path: string, write: (part: string, signal: AbortSig
     await rm(part, { force: true });
     throw error;
   } finally {
-    for (const signal of Object.keys(ABORT_SIGNALS)) process.off(signal, onSignal);
+    unregister();
   }
 }
 
@@ -119,7 +115,7 @@ const mediaType = (value: string | null | undefined): string => (value ?? '').sp
 
 /**
  * Streams `open(signal)`'s body to `file` through `writeViaPart`, verifying what is known before the rename: the
- * media type, the size (short = `PartialDownloadError`, exit 4; a broken stream too) and the SHA-256 (else
+ * media type, the size (short = `PartialDownloadError`, exit 7; a broken stream too) and the SHA-256 (else
  * `IntegrityError`, exit 5) — a failed check saves nothing. Resume rule for immutable files: an existing target whose
  * SHA-256 equals `expected.sha256` is complete (`skipped`, no request); any other existing target needs `force`.
  * `open` is the request: keyless `fetch` of a permanent public URL, or `apiDownload` for a key-authorized stream.

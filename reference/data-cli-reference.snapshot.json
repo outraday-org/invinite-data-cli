@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "5.0.0",
+    "version": "6.0.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -9,47 +9,48 @@
     "engines": {
       "node": ">=20"
     },
-    "verifiedOn": "2026-11-11",
+    "verifiedOn": "2026-11-12",
     "sourceHashes": {
-      "api-contract.json": "45886b19a51ae0b63234cb4ad40c31ef3c6ad65c8fd4b2b4e4b02661dab25c72",
-      "openapi.json": "e36d0409b4df860d4ebb0c8c1dbd4e6b8c45e232037db027b0a3d862804ebe84",
-      "package.json": "ed7d4408a8856c8c93f0971ff414f4335dcb2848f460f78fc96c9e9ed445ffd2",
+      "api-contract.json": "c475bbfe85c1d58a64ede821cb80571e62d2d97946a8cc92275d19e88d81fd73",
+      "openapi.json": "bb1c174ff1f32dd4f3b1462b38c61dcd9cbb91067142a6b1f3488e3243667764",
+      "package.json": "1e9ad02a6b943931a2fed2317d2f2d3a16e4dce2c305515da00fd9b2cc1f1798",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "ed216f689f39e3dbf72c7d6a1c74ee6cb9c22fbaf9982a9b4ddee2873f2d5536",
-      "src/cli.ts": "26d48c37ee48ed0bb4b6b1a1a06ec693324914d2d03c7e1e93e9a9abe2902158",
+      "src/cli.ts": "73cc0cdfe9e3817327f4385f707b5239fe49af30dab13cbd5b000b85bdf639e1",
       "src/client/api-client.ts": "17d0817be6964b04fd03ccbc5ff91492551d13260664190510d5211a4c6e883e",
-      "src/client/download.ts": "b9a75df3cb24a38d029be10c542cd0c891085d32235fe5339d9bfd4b84d14cea",
+      "src/client/download.ts": "7e7ff500f176d859a0d94788b02b364218580eee9834a8394262d22cb2b0dda4",
       "src/client/pagination.ts": "2b759864d496f021ed8b01147a6fce1576315f0b0e789fb3022b2b8857534efe",
-      "src/commands/agent-setup.ts": "1856283b329f2b06534e9b016c7891094d690543e93d31ade550286fd2e6082e",
-      "src/commands/api.ts": "fab615ad386272a5e6eb3014b8002943b12ea5667a25489476014f8606afbfb5",
-      "src/commands/auth.ts": "b4c0ce97197076340b7107c027e70d03439962fd1e7e3c33fa02980bfd490904",
+      "src/commands/agent-setup.ts": "a0a1be911a6942aa22647347d27ba3667a5810b197d787500292763b65abec90",
+      "src/commands/api.ts": "2f56e36b3df6223e2e3f97c8d9c46f36eced601364eb7ad6be762d21e171a203",
+      "src/commands/auth.ts": "1f3369f5d1de59064e6b2b3f9e11b925695a8055fe91284ab9ea0dc5871fb223",
       "src/commands/completion.ts": "d7aeaa835ac1fe16b3c9a0165a1a5e8a85cb31262f498499d829bcb7a5f88d73",
-      "src/commands/config.ts": "d4df7e4483870b752f524646fb90669ca772c071466ef31fe55c26f691695b3e",
-      "src/commands/plugin.ts": "642729e5b4d164927b9b003447cfe49dbb99e5abce43b4208f1a040b7e05df32",
-      "src/config/auth.ts": "6d4168a6ca96caafdac588e39cb70fb6a5312ce4f55a8250b607bbe8d9501193",
-      "src/config/config-manager.ts": "3f7559c920db06b615032d68a3609dc978c9e33de9e23c600862acb55a986dc7",
+      "src/commands/config.ts": "0830211879fdfc44052c917b93ec0233451bba7ca4870275aa4dac30fe3f7130",
+      "src/commands/plugin.ts": "d571726eeac6b194c825f31dcd5a25e6b46764d8d941732c7b88327cccae372d",
+      "src/config/auth.ts": "23ade6f5f4a2feb427b8554651a55a30ba1fc026d5488fada70b9a90e838086a",
+      "src/config/config-manager.ts": "e5f89c8be2c63e0ceae36b1e95c80d4518e4d818d77453bf1f03a0d113c4766f",
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "9b071891bfd2040d262b1dac37398b9517543427a0ef4fcb1925c9b839a8f605",
-      "src/hand-written-commands.ts": "a49989ee20d7831ef5e639d09b4d353ade78db014a3c7710f3915ae408c60770",
+      "src/generated/cli-manifest.json": "dab607dd705b87a4114d922b268c2a95daf66914227b1c61e9331a4fbb2262cb",
+      "src/hand-written-commands.ts": "83b0b0412d6e59d1e2c345dba6efd80ee4bcfeb37e6072a713e1272e624c2eca",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
       "src/output/render.ts": "320d0a99ebf23c3d81cef46b4e6ed1360579ac980285b0c626b50b844fbd950b",
-      "src/shared/errors.ts": "a5ef08956995850067d1c4972d55f8f877791f3503f3a2b4f95427fe58beba0d",
+      "src/shared/errors.ts": "e70752d8176ed7354eb6d2b781adbc6921326e5dbac7e5d8c3f6fb2382a518e3",
       "src/shared/json-mode.ts": "24d4b4a71475ba6301d0c8fe79d70d9304b058d9bb145203bdc545a51e84a85a",
       "src/shared/options.ts": "6783cfa83b301857903bbde46edc238cd7adf80f05f0f33a7a883136de8a27b8",
       "src/shared/prompt.ts": "7736cb146f84382ff17badbabcdf69add6673c4a3695c38759486601f3c87d99",
-      "src/shared/spinner.ts": "0abf59a75df47a20ad70d7e8c109f9a964aa9cc681fd7cfe081aa8b0ffaa7ac7",
-      "src/spec-commands.ts": "cb99fc54ec76ada90e83ea35d9032e867fc3c846b773ba54bea2a99dcac77a68",
+      "src/shared/signals.ts": "5c5122b38e35700a9304bf77f06b900a80e3bc42da6241f93313181117b2fa6b",
+      "src/shared/spinner.ts": "62e25b34f62faaaa298fbe4664cb0b1eb52fd62b4c82f498718bd14e608d0d87",
+      "src/spec-commands.ts": "3757f1d394440023505ae56e3f99b4bdc62c1b438c369dd8c7857116aceb6ed7",
       "src/spec-flags.ts": "2a19ffd30dbbcd8e85164c7ddde6d7e63650eed5c77dc369161876f42729bfbb",
       "src/spec-manifest.ts": "d3b5c1b3c3a473f7991c02bd8b204d7ee6ac67b67e1d0ec1855c7345328cc104",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "e36d0409b4df860d4ebb0c8c1dbd4e6b8c45e232037db027b0a3d862804ebe84",
-    "revision": "5910efb62b15d91324316aa4c194c4dee43a5733",
-    "fingerprint": "0d40bfce0e71b95d8238f5cdf9bbc27c04c5529282a2fabedcc0b17227a264a2"
+    "specSha256": "bb1c174ff1f32dd4f3b1462b38c61dcd9cbb91067142a6b1f3488e3243667764",
+    "revision": "fcc48a89cc41488f9fcf8a2db673da56c1c44815",
+    "fingerprint": "4729a0742dd8f9a9d6a4e5dda995ffad7efe64c30f315bc1dc173b1f6fcb11ee"
   },
   "globalOptions": [
     {
@@ -85,7 +86,7 @@
     },
     {
       "id": "config",
-      "description": "Local settings: config.toml (XDG) and ./.invd.toml; flags > env > local > global"
+      "description": "Local settings: ~/.config/invinite/invd.toml (XDG) and ./.invd.toml; flags > env > local > global"
     },
     {
       "id": "documents",
@@ -202,6 +203,11 @@
         {
           "flags": "--dry-run",
           "description": "Print what would be written; write nothing",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a missing agent or scope fails with exit 2 instead)",
           "required": false
         }
       ]
@@ -1427,7 +1433,7 @@
       "command": "config set",
       "group": "config",
       "origin": "hand",
-      "description": "Write a setting to config.toml (or ./.invd.toml with --local)",
+      "description": "Write a setting to invd.toml (or ./.invd.toml with --local)",
       "source": "src/commands/config.ts",
       "operations": [],
       "arguments": [
@@ -1454,7 +1460,7 @@
       "command": "config unset",
       "group": "config",
       "origin": "hand",
-      "description": "Remove a setting from config.toml (or ./.invd.toml with --local)",
+      "description": "Remove a setting from invd.toml (or ./.invd.toml with --local)",
       "source": "src/commands/config.ts",
       "operations": [],
       "arguments": [
@@ -6832,6 +6838,11 @@
           "flags": "-l, --local",
           "description": "Install locally (current directory)",
           "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (missing runtimes or scope fail with exit 2 instead)",
+          "required": false
         }
       ]
     },
@@ -6877,6 +6888,11 @@
         {
           "flags": "-l, --local",
           "description": "Uninstall locally (current directory)",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (missing runtimes or scope fail with exit 2 instead)",
           "required": false
         }
       ]

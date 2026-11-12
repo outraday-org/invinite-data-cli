@@ -24,6 +24,7 @@ import {
 import { PartialResultError, UsageError, withErrorHandling } from './shared/errors.js';
 import { splitList } from './shared/options.js';
 import { confirmOrRefuse, readStdin } from './shared/prompt.js';
+import { resumeOnInterrupt } from './shared/signals.js';
 import { GLOBAL_PARAM_FLAGS } from './spec-flags.js';
 import {
   commandName,
@@ -442,12 +443,16 @@ async function saveDownload(operation: ManifestOperation, body: unknown, file: s
   console.error(chalk.green(`${saved.skipped ? 'Already saved' : 'Saved'} ${saved.path} (${saved.bytes} bytes, sha256 ${saved.sha256})`));
 }
 
-/** `--all`: every page streamed in the chosen format; a failure after written rows exits 3 with the resume cursor. */
+/**
+ * `--all`: every page streamed in the chosen format; a failure after written rows exits 7 with the resume cursor,
+ * Ctrl-C prints the cursor and exits 130 (`resumeOnInterrupt`).
+ */
 async function streamAll(request: RequestOptions, first: Awaited<ReturnType<typeof apiCall>>, shape: ShapeInfo, settings: OutputSettings): Promise<void> {
   let written = 0;
   let cursor: string | undefined;
   let columns: string[] | undefined;
   const collected: unknown[] = [];
+  const unregister = resumeOnInterrupt(() => ({ written, cursor }));
   try {
     for await (const page of walkPages(request, first)) {
       const note = coverageNote(page.body);
@@ -473,6 +478,8 @@ async function streamAll(request: RequestOptions, first: Awaited<ReturnType<type
   } catch (error) {
     if (written > 0) throw new PartialResultError(error, written, cursor);
     throw error;
+  } finally {
+    unregister();
   }
   if (settings.format === 'table' || settings.format === 'plain') {
     emit(humanText({ data: collected }, shape, settings), { human: true });

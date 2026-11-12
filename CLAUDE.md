@@ -1,8 +1,10 @@
 # invinite-data-cli (`invd`)
 
-`invd` 5.x is the CLI of the Data API at `/v1/*` — the contract designed as "v2" (backend `tasks/data-api-v2`), moved
-from `/v2` to `/v1` on 2026-11-11 when the old v1 API was deleted. 5.0 = the 4.x commands at the new paths. 4.x
-(`/v2`) and 3.x (old v1) call deleted routes and get no fixes.
+`invd` 6.x is the CLI of the Data API at `/v1/*` — the contract designed as "v2" (backend `tasks/data-api-v2`), moved
+from `/v2` to `/v1` on 2026-11-11 when the old v1 API was deleted. 5.0 = the 4.x commands at the new paths; 6.0 = the
+5.0 commands on the conventions shared with the Web CLI `inv` (backend `tasks/cli-api-alignment` C1–C4: exit codes,
+three-line error with the API `remedy`, flag meanings, `~/.config/invinite/invd.toml`). 4.x (`/v2`) and 3.x (old v1)
+call deleted routes and get no fixes.
 
 ## Commands come from the Data API's spec, not from this repo
 
@@ -39,7 +41,8 @@ Every plain command — one REST call, printed as a table, a key/value list or J
   (`src/output/options.ts`: `--json [fields]`, `--output`, `--jq`, `--plain`, `--fields`, `--all`, `--dry-run`, `--yes`,
   `--no-input`, `--show-cost`), so an operation's own `--version` never meets the root's.
 - `--all` walks `next_cursor` / `Link rel="next"` (`src/client/pagination.ts`); a page refused with 429 / 503 is retried
-  after its `Retry-After` (`PAGE_RETRY`, bounded); a failure after written rows is exit 3 with the resume cursor.
+  after its `Retry-After` (`PAGE_RETRY`, bounded); a failure after written rows is exit 7 with the resume cursor, Ctrl-C
+  prints the same cursor (`resumeOnInterrupt`) and exits 130.
 - An operation whose spec `security` is empty sends no key (`auth: false` in the manifest).
 
 ## The hand-written ROSTER
@@ -52,22 +55,36 @@ that differs from the v2 groups + the roster. There is no WebSocket command in 4
 ## Output, errors, exit codes
 
 - Data to stdout (table on a terminal, tab-separated when piped, or JSON / JSONL / CSV); progress, cost, the
-  `meta.coverage` note (`pending` / `partial`) and hints to stderr. `NO_COLOR` / `FORCE_COLOR`; human output longer
+  `meta.coverage` note (`pending` / `partial`), confirmations and hints to stderr. A hand-written command prints only
+  the value it was asked for on stdout (`config get / list / path`, `auth token`, `auth status`). `NO_COLOR` / `FORCE_COLOR`; human output longer
   than the terminal goes through `INVD_PAGER` / `PAGER`.
-- Errors are RFC 9457 problems: `ApiError` keeps `title`, `detail`, `code` and the whole body (`--json` prints it as one
-  JSON line on stderr). Exit codes (`EXIT` in `src/shared/errors.ts`): 0 ok, 1 failure, 2 usage (commander errors via
-  `bin/invd.ts`, `UsageError`, problem codes `invalid_parameter` / `unknown_parameter` / `cursor_mismatch`), 3 partial
-  (interrupted `--all`, short download), 4 auth (no key, 401, `unauthorized` / `forbidden`), 5 integrity, 6 credits /
-  plan (402, `plan_required`, `insufficient_credits`).
+- Errors are RFC 9457 problems: `ApiError` keeps `title`, `detail`, `code` and the whole body. `printError` prints at
+  most three lines (C2): `✗ <detail>  (<code>)` (one per `errors[]` item, max 5), the remedy (`apiErrorHint`'s `invd`
+  command for `unauthorized` / 401, `plan_required`, `insufficient_credits`, `not_covered`, else the body's `remedy`),
+  then `request_id  ·  docs_url`; never the HTTP status; `Error:` for `✗` under `NO_COLOR` / `TERM=dumb`. `--json`
+  adds the body as one JSON line on stderr. Exit codes (`EXIT` in `src/shared/errors.ts`, shared with `inv`): 0 ok, 1
+  refused / failed, 2 usage (commander errors via `bin/invd.ts`, `UsageError`, problem codes `invalid_parameter` /
+  `unknown_parameter` / `cursor_mismatch`, a needed answer under `--no-input`), 3 not found (`not_found`,
+  `not_covered`, 404), 4 auth (no key, 401, `unauthorized` / `forbidden`), 5 integrity, 6 credits / plan (402,
+  `plan_required`, `insufficient_credits`), 7 partial (an `--all` cut by a failure, short download).
+- Interrupts: `src/shared/signals.ts` is the one SIGINT / SIGTERM handler (`installSignalExit` in `bin/invd.ts`): it stops
+  the spinners, runs the cleanups registered with `onInterrupt` (download `.part` removal, `auth login` server, walk
+  resume line) and exits 130 / 143. Never add a `process.on('SIGINT')` elsewhere.
+- Prompts: `confirmOrRefuse` (`--yes` / `--no-input`) and `promptInteractive` (`plugin`, `agent-setup`) refuse with exit
+  2 naming the flags that answer them under `--no-input` or without a terminal.
 - Downloads go through `saveVerified` (`src/client/download.ts`): `.part` + rename after the size / SHA-256 / media
   type checks; files are fetched keyless from their stated public `url`.
 
 ## Config and keys
 
-`src/config/config-manager.ts`: `$XDG_CONFIG_HOME/invd/config.toml` (`INVD_CONFIG_DIR` replaces the directory; the
-tests always set it), `./.invd.toml` (`--local`), precedence flags > env > local > global; flat TOML only
-(`src/config/toml.ts`). The 3.x `conf` JSON is imported once. Keys (`src/config/auth.ts`): `INVD_API_KEY` >
-`INVINITE_DATA_API_KEY` > `./.env` (either name) > keychain (optional `keytar`) > `config.toml api_key` (never a project
+`src/config/config-manager.ts`: `$XDG_CONFIG_HOME/invinite/invd.toml` (`~/.config/invinite`, `%APPDATA%\invinite`;
+`INVD_CONFIG_DIR` replaces the directory; `vitest.config.ts` sets it, and a test that deletes it must mock
+`os.homedir()` — `homedir()` does not follow `$HOME` on macOS), `./.invd.toml` (`--local`), precedence flags > env >
+local > global; flat TOML only (`src/config/toml.ts`). The directory is shared with the Web CLI `inv`
+(`config.json`): invd reads, writes and deletes only `invd.toml` there and never removes the directory. An older
+install is carried over once (5.x / 4.x `invd/config.toml`, else the 3.x `conf` JSON from its platform path, never
+from `INVD_CONFIG_DIR`), old file kept, one stderr line. Keys (`src/config/auth.ts`): `INVD_API_KEY` >
+`INVINITE_DATA_API_KEY` > `./.env` (either name) > keychain (optional `keytar`) > `invd.toml api_key` (never a project
 file). A project file's `base_url` must be a loopback host and `invd api` refuses an absolute URL off the API origin:
 nothing a cloned repository or a pasted URL holds may send the key to another host. The update notice (`src/update-notifier.ts`) checks npm once a day — never in CI, under vitest, without a
 terminal on stderr, or with `INVD_NO_UPDATE_NOTIFIER`.

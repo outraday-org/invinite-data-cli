@@ -162,12 +162,34 @@ describe('login commands', () => {
     mockResolveApiKey.mockResolvedValue({ key: `invd_${'d'.repeat(64)}`, source: 'environment', origin: 'INVD_API_KEY' });
     const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
     const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    const stderr = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
     await logout({ fetch: fetchMock });
 
-    expect(log).toHaveBeenCalledWith(expect.stringContaining('INVD_API_KEY'));
+    expect(stderr).toHaveBeenCalledWith(expect.stringContaining('INVD_API_KEY'));
+    expect(log).not.toHaveBeenCalled();
     expect(fetchMock).toHaveBeenCalledOnce();
     expect(mockClearApiKey).not.toHaveBeenCalled();
+  });
+
+  it.each([['SIGINT', 130], ['SIGTERM', 143]] as const)('%s while waiting closes the callback server and exits %i', async (signal, code) => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(new Response(null, { status: 302, headers: { Location: 'https://clerk.test/oauth/authorize' } }));
+    let port = '';
+    const dependencies: LoginDependencies = {
+      fetch: fetchMock,
+      timeoutMs: 2_000,
+      openBrowser: async (url) => {
+        port = new URL(url).searchParams.get('port') ?? '';
+        setTimeout(() => process.emit(signal, signal), 0);
+      },
+    };
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never);
+
+    await expect(login(dependencies)).rejects.toThrow('Login cancelled');
+    expect(exit).toHaveBeenCalledWith(code);
+    await expect(globalThis.fetch(`http://127.0.0.1:${port}/callback`)).rejects.toThrow();
+    exit.mockRestore();
   });
 
   it('--no-browser: prints the URL, takes the pasted redirect address, checks its state and exchanges its code', async () => {

@@ -69,6 +69,29 @@ describe('the hand-written roster', () => {
     }
   });
 
+  it('no option of any command claims -h (help) or -V (the root version); invd metrics cagr -h shows help', () => {
+    const program = createProgram();
+    const claims: string[] = [];
+    const visit = (command: Command, path: string[]): void => {
+      for (const option of command.options) {
+        if (command === program && option.long === '--version') continue;
+        if (option.short === '-h' || option.short === '-V') claims.push(`${[...path, option.flags].join(' ')}`);
+      }
+      command.commands.forEach(child => visit(child, [...path, child.name()]));
+    };
+    visit(program, ['invd']);
+    expect(claims).toEqual([]);
+
+    let help = '';
+    const write = { writeOut: (chunk: string) => { help += chunk; } };
+    program.configureOutput(write);
+    const metrics = program.commands.find(command => command.name() === 'metrics');
+    metrics?.commands.forEach(command => command.configureOutput(write));
+    expect(() => program.parse(['node', 'invd', 'metrics', 'cagr', '-h'])).toThrow();
+    expect(help).toContain('Usage: invd metrics cagr');
+    expect(help).toContain('--horizon');
+  });
+
   it('a stray hand-written command fails by name', () => {
     const program = createProgram();
     program.commands.find(command => command.name() === 'companies')?.command('summary');

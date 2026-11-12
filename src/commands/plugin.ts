@@ -4,6 +4,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
+import { UsageError, withErrorHandling } from '../shared/errors.js';
+
+/** The flags that answer `promptInteractive`'s two questions on `plugin install` / `uninstall`. */
+const PLUGIN_ANSWERS = 'the runtimes (--claude, --opencode, --codex, --copilot or --all) and the scope (--global or --local)';
 
 export type Runtime = 'claude' | 'opencode' | 'codex' | 'copilot';
 
@@ -286,12 +290,13 @@ export function registerPluginCommands(program: Command): void {
     .option('--all', 'Install for all supported runtimes')
     .option('-g, --global', 'Install globally (user home)')
     .option('-l, --local', 'Install locally (current directory)')
-    .action(async (opts) => {
+    .option('--no-input', 'Never prompt (missing runtimes or scope fail with exit 2 instead)')
+    .action(withErrorHandling(async (opts: Record<string, boolean>) => {
       let runtimes = resolveRuntimes(opts);
       let scope = resolveScope(opts);
 
       if (!runtimes || !scope) {
-        const answers = await promptInteractive(runtimes, scope);
+        const answers = await promptInteractive(runtimes, scope, { input: opts.input, answers: PLUGIN_ANSWERS });
         runtimes = answers.runtimes;
         scope = answers.scope;
       }
@@ -307,17 +312,17 @@ export function registerPluginCommands(program: Command): void {
         const targetDir = scope === 'global' ? config.globalDir : config.localDir;
 
         if (!targetDir) {
-          console.log(chalk.yellow(`  ${config.label} does not support ${scope} install, skipping.`));
+          console.error(chalk.yellow(`  ${config.label} does not support ${scope} install, skipping.`));
           continue;
         }
 
         const resolvedTarget = scope === 'local' ? path.resolve(process.cwd(), targetDir) : targetDir;
         config.install(sourceDir, resolvedTarget);
-        console.log(chalk.green(`  ✓ ${config.label}`) + chalk.dim(` → ${resolvedTarget}`));
+        console.error(chalk.green(`  ✓ ${config.label}`) + chalk.dim(` → ${resolvedTarget}`));
       }
 
-      console.log(chalk.bold('\nPlugin installed successfully.'));
-    });
+      console.error(chalk.bold('\nPlugin installed successfully.'));
+    }));
 
   pluginCmd
     .command('uninstall')
@@ -329,12 +334,13 @@ export function registerPluginCommands(program: Command): void {
     .option('--all', 'Uninstall from all supported runtimes')
     .option('-g, --global', 'Uninstall globally (user home)')
     .option('-l, --local', 'Uninstall locally (current directory)')
-    .action(async (opts) => {
+    .option('--no-input', 'Never prompt (missing runtimes or scope fail with exit 2 instead)')
+    .action(withErrorHandling(async (opts: Record<string, boolean>) => {
       let runtimes = resolveRuntimes(opts);
       let scope = resolveScope(opts);
 
       if (!runtimes || !scope) {
-        const answers = await promptInteractive(runtimes, scope);
+        const answers = await promptInteractive(runtimes, scope, { input: opts.input, answers: PLUGIN_ANSWERS });
         runtimes = answers.runtimes;
         scope = answers.scope;
       }
@@ -344,7 +350,7 @@ export function registerPluginCommands(program: Command): void {
         const targetDir = scope === 'global' ? config.globalDir : config.localDir;
 
         if (!targetDir) {
-          console.log(chalk.yellow(`  ${config.label} does not support ${scope} uninstall, skipping.`));
+          console.error(chalk.yellow(`  ${config.label} does not support ${scope} uninstall, skipping.`));
           continue;
         }
 
@@ -352,14 +358,14 @@ export function registerPluginCommands(program: Command): void {
         const removed = uninstallRuntime(runtime, resolvedTarget);
 
         if (removed > 0) {
-          console.log(chalk.green(`  ✓ ${config.label}`) + chalk.dim(` — removed ${removed} file(s) from ${resolvedTarget}`));
+          console.error(chalk.green(`  ✓ ${config.label}`) + chalk.dim(` — removed ${removed} file(s) from ${resolvedTarget}`));
         } else {
-          console.log(chalk.dim(`  ${config.label} — nothing to remove`));
+          console.error(chalk.dim(`  ${config.label} — nothing to remove`));
         }
       }
 
-      console.log(chalk.bold('\nPlugin uninstalled.'));
-    });
+      console.error(chalk.bold('\nPlugin uninstalled.'));
+    }));
 }
 
 // --- Helpers ---
@@ -376,10 +382,18 @@ export function resolveScope(opts: Record<string, boolean>): 'global' | 'local' 
   return null;
 }
 
+/**
+ * Asks for the runtimes and / or the scope the flags left open. Under `--no-input` (`input: false`) or without a
+ * terminal on stdin it refuses with exit 2 naming `answers`, the flags that answer it.
+ */
 export async function promptInteractive(
   runtimes: Runtime[] | null,
   scope: 'global' | 'local' | null,
+  flags: { input?: boolean; answers: string },
 ): Promise<{ runtimes: Runtime[]; scope: 'global' | 'local' }> {
+  if (flags.input === false || !process.stdin.isTTY) {
+    throw new UsageError(`Name ${flags.answers}; invd does not prompt ${flags.input === false ? 'under --no-input' : 'without a terminal'}.`);
+  }
   const { default: Enquirer } = await import('enquirer');
   const enquirer = new Enquirer();
 
@@ -396,7 +410,7 @@ export async function promptInteractive(
     runtimes = response.runtimes;
 
     if (runtimes.length === 0) {
-      console.log(chalk.yellow('No runtimes selected.'));
+      console.error(chalk.yellow('No runtimes selected.'));
       process.exit(0);
     }
   }

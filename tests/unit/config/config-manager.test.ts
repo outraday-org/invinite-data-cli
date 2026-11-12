@@ -1,8 +1,18 @@
-import { mkdirSync, mkdtempSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { parseToml, stringifyToml } from '../../../src/config/toml.js';
+
+/**
+ * `os.homedir()` is mocked for this whole file: it does not follow $HOME on every platform, and a test that reached
+ * the real home once overwrote a person's config. Every test starts on a fresh temporary home.
+ */
+const home = vi.hoisted(() => ({ dir: '' }));
+vi.mock('node:os', async (importOriginal) => {
+  const os = await importOriginal<typeof import('node:os')>();
+  return { ...os, default: { ...os, homedir: () => home.dir }, homedir: () => home.dir };
+});
 
 describe('flat TOML', () => {
   it('reads strings, numbers, booleans and comments; writes them back sorted', () => {
@@ -30,10 +40,11 @@ describe('config-manager', () => {
 
   beforeEach(() => {
     vi.resetModules();
+    home.dir = mkdtempSync(join(tmpdir(), 'invd-home-'));
     dir = mkdtempSync(join(tmpdir(), 'invd-cfg-'));
     cwd = mkdtempSync(join(tmpdir(), 'invd-cwd-'));
     process.env.INVD_CONFIG_DIR = dir;
-    for (const key of ['INVD_BASE_URL', 'INVD_OUTPUT', 'INVD_CONFIRM_CREDITS', 'INVD_PAGER', 'INVD_API_KEY']) delete process.env[key];
+    for (const key of ['INVD_BASE_URL', 'INVD_OUTPUT', 'INVD_CONFIRM_CREDITS', 'INVD_PAGER', 'INVD_API_KEY', 'XDG_CONFIG_HOME']) delete process.env[key];
     vi.spyOn(process, 'cwd').mockReturnValue(cwd);
   });
 
@@ -69,10 +80,10 @@ describe('config-manager', () => {
     expect(config.getBaseUrl()).toBe('https://staging.example');
   });
 
-  it('writes $INVD_CONFIG_DIR/config.toml with mode 0600 and keeps a stored key there', async () => {
+  it('writes $INVD_CONFIG_DIR/invd.toml with mode 0600 and keeps a stored key there', async () => {
     const config = await load();
     config.setStoredApiKey('sk-test');
-    const path = join(dir, 'config.toml');
+    const path = join(dir, 'invd.toml');
     expect(readFileSync(path, 'utf8')).toContain('api_key = "sk-test"');
     expect(statSync(path).mode & 0o777).toBe(0o600);
     expect(config.getStoredApiKey()).toBe('sk-test');
@@ -80,24 +91,103 @@ describe('config-manager', () => {
     expect(config.getStoredApiKey()).toBeUndefined();
   });
 
-  it('XDG_CONFIG_HOME/invd without INVD_CONFIG_DIR', async () => {
+  it('XDG_CONFIG_HOME/invinite/invd.toml without INVD_CONFIG_DIR', async () => {
     delete process.env.INVD_CONFIG_DIR;
     process.env.XDG_CONFIG_HOME = '/tmp/xdg-test';
     const config = await load();
-    expect(config.globalConfigPath()).toBe('/tmp/xdg-test/invd/config.toml');
+    expect(config.globalConfigPath()).toBe('/tmp/xdg-test/invinite/invd.toml');
   });
 
-  it('imports the 3.x conf file once (base URL, stored key), skipping the retired default host', async () => {
-    writeFileSync(join(dir, 'config.json'), JSON.stringify({ baseUrl: 'http://localhost:4000', apiKey: 'old-key' }));
+  /** The (mocked, temporary) home directory with neither INVD_CONFIG_DIR nor XDG_CONFIG_HOME. */
+  const freshHome = (): string => {
+    delete process.env.INVD_CONFIG_DIR;
+    return home.dir;
+  };
+
+  it.skipIf(process.platform === 'win32')('fresh home: invd config set writes ~/.config/invinite/invd.toml (0600), nothing else', async () => {
+    const homeDir = freshHome();
+    const config = await load();
+    config.setSetting('output', 'json');
+    const path = join(homeDir, '.config', 'invinite', 'invd.toml');
+    expect(config.globalConfigPath()).toBe(path);
+    expect(readFileSync(path, 'utf8')).toContain('output = "json"');
+    expect(statSync(path).mode & 0o777).toBe(0o600);
+    expect(existsSync(join(homeDir, '.config', 'invd'))).toBe(false);
+  });
+
+  it.skipIf(process.platform === 'win32')('carries the 5.x ~/.config/invd/config.toml over once: old file untouched, one stderr line', async () => {
+    const homeDir = freshHome();
+    const stderr = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const old = join(homeDir, '.config', 'invd', 'config.toml');
+    mkdirSync(join(homeDir, '.config', 'invd'), { recursive: true });
+    const oldText = 'output = "csv"\napi_key = "invd_old"\n';
+    writeFileSync(old, oldText);
+    const config = await load();
+    expect(config.getSetting('output')).toEqual({ value: 'csv', source: 'global' });
+    expect(config.getStoredApiKey()).toBe('invd_old');
+    const target = join(homeDir, '.config', 'invinite', 'invd.toml');
+    expect(statSync(target).mode & 0o777).toBe(0o600);
+    expect(readFileSync(old, 'utf8')).toBe(oldText);
+    expect(stderr).toHaveBeenCalledTimes(1);
+    expect(String(stderr.mock.calls[0]?.[0])).toBe(`Carried invd settings over from ${old} to ${target} (the old file is left in place)`);
+    // Once: a later change to the old file is not carried again (invd.toml exists now).
+    writeFileSync(old, 'output = "plain"\n');
+    vi.resetModules();
+    expect((await load()).getSetting('output').value).toBe('csv');
+    expect(stderr).toHaveBeenCalledTimes(1);
+  });
+
+  it('under INVD_CONFIG_DIR the 5.x config.toml in that directory is carried over', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    writeFileSync(join(dir, 'config.toml'), 'base_url = "http://localhost:4000"\n');
     const config = await load();
     expect(config.getBaseUrl()).toBe('http://localhost:4000');
+    expect(readFileSync(join(dir, 'invd.toml'), 'utf8')).toContain('base_url = "http://localhost:4000"');
+  });
+
+  it.skipIf(process.platform === 'win32')('imports the 3.x conf file once (base URL, stored key), skipping the retired default host', async () => {
+    freshHome();
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const config = await load();
+    const [conf] = config.legacyConfPaths();
+    mkdirSync(join(conf ?? '', '..'), { recursive: true });
+    writeFileSync(conf ?? '', JSON.stringify({ baseUrl: 'http://localhost:4000', apiKey: 'old-key' }));
+    expect(config.getBaseUrl()).toBe('http://localhost:4000');
     expect(config.getStoredApiKey()).toBe('old-key');
+  });
+
+  it('never reads, writes or deletes the Web CLI config.json beside invd.toml', async () => {
+    const shared = join(dir, 'config.json');
+    const webCli = '{"token":"invw_x","baseUrl":"https://evil.example"}\n';
+    writeFileSync(shared, webCli);
+    const stdout: string[] = [];
+    vi.spyOn(console, 'log').mockImplementation((line?: unknown) => { stdout.push(String(line ?? '')); });
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const { createProgram } = await import('../../../src/cli.js');
+    const config = await load();
+    const run = (...args: string[]) => createProgram().parseAsync(['node', 'invd', 'config', ...args]);
+    await run('set', 'output', 'json');
+    expect(stdout).toEqual([]);
+    await run('get', 'output');
+    expect(stdout).toEqual(['json']);
+    await run('get', 'base_url');
+    expect(stdout.at(-1)).toBe(config.DEFAULT_BASE_URL);
+    await run('list');
+    await run('list', '--json');
+    await run('path');
+    expect(stdout.at(-1)).toBe(join(dir, 'invd.toml'));
+    await run('unset', 'output');
+    expect(readFileSync(shared, 'utf8')).toBe(webCli);
+    config.resetConfig();
+    expect(existsSync(join(dir, 'invd.toml'))).toBe(false);
+    expect(readFileSync(shared, 'utf8')).toBe(webCli);
+    expect(config.getStoredApiKey()).toBeUndefined();
   });
 
   it('rewrites a persisted retired host once, on stderr; leaves a chosen host alone', async () => {
     const stderr = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     mkdirSync(dir, { recursive: true });
-    writeFileSync(join(dir, 'config.toml'), 'base_url = "https://data.invinite.com"\n');
+    writeFileSync(join(dir, 'invd.toml'), 'base_url = "https://data.invinite.com"\n');
     const config = await load();
     expect(config.getBaseUrl()).toBe(config.DEFAULT_BASE_URL);
     expect(config.getBaseUrl()).toBe(config.DEFAULT_BASE_URL);
@@ -115,6 +205,7 @@ describe('API key precedence', () => {
   });
 
   it('INVD_API_KEY > INVINITE_DATA_API_KEY > ./.env (either name) > config', async () => {
+    home.dir = mkdtempSync(join(tmpdir(), 'invd-home-'));
     const cwd = mkdtempSync(join(tmpdir(), 'invd-key-'));
     vi.spyOn(process, 'cwd').mockReturnValue(cwd);
     process.env.INVD_CONFIG_DIR = mkdtempSync(join(tmpdir(), 'invd-cfg-'));

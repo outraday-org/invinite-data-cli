@@ -10,6 +10,7 @@ import { clearApiKey, keyHint, resolveApiKey, setApiKey, type ResolvedApiKey } f
 import { DASHBOARD_URL, getBaseUrl } from '../config/config-manager.js';
 import { AuthRequiredError, UsageError, withErrorHandling } from '../shared/errors.js';
 import { readStdin } from '../shared/prompt.js';
+import { onInterrupt } from '../shared/signals.js';
 
 const CALLBACK_TIMEOUT_MS = 5 * 60 * 1000;
 const KEY_LIFETIME_MS = 90 * 24 * 60 * 60 * 1000;
@@ -200,8 +201,11 @@ export async function login(
   loginUrl.searchParams.set('state', state);
   loginUrl.searchParams.set('hostname', hostname().slice(0, 64));
 
-  const handleInterrupt = (): void => settleError(new Error('Login cancelled'));
-  process.once('SIGINT', handleInterrupt);
+  // Ctrl-C / SIGTERM: close the callback server, then the shared interrupt exit (130 / 143).
+  const unregisterInterrupt = onInterrupt(() => {
+    settleError(new Error('Login cancelled'));
+    server.close();
+  });
   const timeout = setTimeout(() => settleError(new Error('Login timed out. Run `invd auth login` again.')), dependencies.timeoutMs);
   const pasteAbort = new AbortController();
 
@@ -235,16 +239,16 @@ export async function login(
     }
     const data = await callback;
     const approximateExpiry = new Date(Date.now() + KEY_LIFETIME_MS).toLocaleDateString();
-    console.log(chalk.green('Logged in successfully.'));
-    console.log(`  Key hint:   ${data.keyHint}`);
-    console.log(`  Label:      ${data.label}`);
-    console.log(`  Expires:    approximately ${approximateExpiry} (90 days)`);
-    console.log(chalk.dim(`This sign-in is also listed on your keys page: ${DASHBOARD_URL}/keys`));
+    console.error(chalk.green('Logged in successfully.'));
+    console.error(`  Key hint:   ${data.keyHint}`);
+    console.error(`  Label:      ${data.label}`);
+    console.error(`  Expires:    approximately ${approximateExpiry} (90 days)`);
+    console.error(chalk.dim(`This sign-in is also listed on your keys page: ${DASHBOARD_URL}/keys`));
     return data;
   } finally {
     clearTimeout(timeout);
     pasteAbort.abort();
-    process.off('SIGINT', handleInterrupt);
+    unregisterInterrupt();
     await closeServer(server);
   }
 }
@@ -255,7 +259,7 @@ export async function logout(dependencies: Pick<LoginDependencies, 'fetch'> = de
     resolved = await resolveApiKey();
   } catch (error) {
     if (error instanceof AuthRequiredError) {
-      console.log('Not logged in.');
+      console.error('Not logged in.');
       return;
     }
     throw error;
@@ -276,16 +280,16 @@ export async function logout(dependencies: Pick<LoginDependencies, 'fetch'> = de
   }
 
   if (resolved.source === 'environment') {
-    console.log(`The active key comes from ${resolved.origin}. Remove that environment variable to finish logging out.`);
+    console.error(`The active key comes from ${resolved.origin}. Remove that environment variable to finish logging out.`);
     return;
   }
   if (resolved.source === 'dotenv') {
-    console.log(`The active key comes from the current directory's ${resolved.origin}. Remove it from that file to finish logging out.`);
+    console.error(`The active key comes from the current directory's ${resolved.origin}. Remove it from that file to finish logging out.`);
     return;
   }
 
   await clearApiKey();
-  console.log(chalk.green('Logged out locally.'));
+  console.error(chalk.green('Logged out locally.'));
 }
 
 /** `invd auth status`: where the key comes from and, unless `offline`, what `GET /v1/me` says about it (free). */
@@ -313,7 +317,7 @@ export async function status(opts: { offline?: boolean; json?: boolean } = {}): 
     console.log(JSON.stringify(summary, null, 2));
     return;
   }
-  console.log(chalk.green('Logged in.'));
+  console.error(chalk.green('Logged in.'));
   for (const [key, value] of Object.entries(summary)) {
     console.log(`  ${key.padEnd(8)}  ${typeof value === 'object' ? JSON.stringify(value) : String(value)}`);
   }
@@ -333,7 +337,7 @@ export function registerAuthCommands(program: Command): void {
         const key = (await readStdin()).trim();
         if (!key) throw new UsageError('--with-token: stdin held no key');
         const where = await setApiKey(key);
-        console.log(chalk.green(`API key saved (${where === 'keychain' ? 'OS keychain' : 'config.toml'}): ${keyHint(key)}`));
+        console.error(chalk.green(`API key saved (${where === 'keychain' ? 'OS keychain' : 'invd.toml'}): ${keyHint(key)}`));
         return;
       }
       await login(defaultDependencies, { noBrowser: opts.browser === false });

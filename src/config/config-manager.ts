@@ -17,7 +17,7 @@ export const LEGACY_BASE_URLS: readonly string[] = ['https://data.invinite.com']
 
 /**
  * The settings `invd config` knows, each with its environment variable. Precedence: flags > env > `./.invd.toml`
- * > `$XDG_CONFIG_HOME/invd/config.toml` (`INVD_CONFIG_DIR` replaces the directory) > the default.
+ * > `$XDG_CONFIG_HOME/invinite/invd.toml` (`INVD_CONFIG_DIR` replaces the directory) > the default.
  */
 export const SETTINGS = {
   base_url: { env: 'INVD_BASE_URL', default: DEFAULT_BASE_URL, description: 'API origin' },
@@ -36,20 +36,40 @@ export type SettingSource = 'env' | 'local' | 'global' | 'default';
 
 export const isSettingKey = (key: string): key is SettingKey => Object.hasOwn(SETTINGS, key);
 
-/** `$INVD_CONFIG_DIR`, else `$XDG_CONFIG_HOME/invd`, else `~/.config/invd` (`%APPDATA%\invd` on Windows). */
+/**
+ * `$INVD_CONFIG_DIR`, else `$XDG_CONFIG_HOME/invinite`, else `~/.config/invinite` (`%APPDATA%\invinite` on Windows):
+ * the directory shared with the Web CLI `inv` (backend `tasks/cli-api-alignment` C4). It may hold `inv`'s
+ * `config.json`: `invd` reads, writes and deletes only `invd.toml` there and never removes the directory.
+ */
 export function configDir(): string {
   if (process.env.INVD_CONFIG_DIR) return process.env.INVD_CONFIG_DIR;
-  if (process.env.XDG_CONFIG_HOME) return join(process.env.XDG_CONFIG_HOME, 'invd');
-  if (process.platform === 'win32' && process.env.APPDATA) return join(process.env.APPDATA, 'invd');
-  return join(homedir(), '.config', 'invd');
+  if (process.env.XDG_CONFIG_HOME) return join(process.env.XDG_CONFIG_HOME, 'invinite');
+  if (process.platform === 'win32' && process.env.APPDATA) return join(process.env.APPDATA, 'invinite');
+  return join(homedir(), '.config', 'invinite');
 }
 
-export const globalConfigPath = (): string => join(configDir(), 'config.toml');
+export const globalConfigPath = (): string => join(configDir(), 'invd.toml');
 export const localConfigPath = (): string => join(process.cwd(), '.invd.toml');
 
-/** Where 3.x's `conf` package kept its JSON (`invinite-data-cli-nodejs`), per platform. */
+/**
+ * Where 4.x / 5.x kept the global file (`invd/config.toml` under the same roots as `configDir()`; under
+ * `INVD_CONFIG_DIR` the old name in that directory), first match wins.
+ */
+export function legacyTomlPaths(): string[] {
+  if (process.env.INVD_CONFIG_DIR) return [join(process.env.INVD_CONFIG_DIR, 'config.toml')];
+  return [
+    ...(process.env.XDG_CONFIG_HOME ? [join(process.env.XDG_CONFIG_HOME, 'invd', 'config.toml')] : []),
+    ...(process.platform === 'win32' && process.env.APPDATA ? [join(process.env.APPDATA, 'invd', 'config.toml')] : []),
+    join(homedir(), '.config', 'invd', 'config.toml'),
+  ];
+}
+
+/**
+ * Where 3.x's `conf` package kept its JSON (`invinite-data-cli-nodejs`), per platform. Never under `INVD_CONFIG_DIR`:
+ * a `config.json` there may be the Web CLI's.
+ */
 export function legacyConfPaths(): string[] {
-  if (process.env.INVD_CONFIG_DIR) return [join(process.env.INVD_CONFIG_DIR, 'config.json')];
+  if (process.env.INVD_CONFIG_DIR) return [];
   const home = homedir();
   if (process.platform === 'darwin') return [join(home, 'Library/Preferences/invinite-data-cli-nodejs/config.json')];
   if (process.platform === 'win32') {
@@ -79,24 +99,38 @@ function writeFile(path: string, values: Record<string, TomlValue>): void {
 
 let imported = false;
 
+/** The 3.x `conf` JSON's settings (base URL unless the retired default, the config-stored key). */
+function readLegacyConf(path: string): Record<string, TomlValue> {
+  const legacy = JSON.parse(readFileSync(path, 'utf8')) as { baseUrl?: unknown; apiKey?: unknown };
+  const values: Record<string, TomlValue> = {};
+  if (typeof legacy.baseUrl === 'string' && legacy.baseUrl && legacy.baseUrl !== DEFAULT_BASE_URL
+    && !LEGACY_BASE_URLS.includes(legacy.baseUrl.replace(/\/+$/, ''))) values.base_url = legacy.baseUrl;
+  if (typeof legacy.apiKey === 'string' && legacy.apiKey) values.api_key = legacy.apiKey;
+  return values;
+}
+
 /**
- * The 3.x settings (base URL, the config-stored key) carried into `config.toml` once, the first time 4.x reads a
- * config while no `config.toml` exists. The old file is left in place (3.x may still be installed elsewhere).
+ * An older install's settings carried into `invd.toml` once, the first time 6.x reads a config while no `invd.toml`
+ * exists: the 4.x / 5.x `invd/config.toml` first, else the 3.x `conf` JSON. The old file is left in place (an older
+ * `invd` may still be installed elsewhere); one stderr line names both paths.
  */
 function importLegacyOnce(): void {
   if (imported) return;
   imported = true;
   const target = globalConfigPath();
   if (existsSync(target)) return;
-  for (const path of legacyConfPaths()) {
+  const sources: Array<[string, (path: string) => Record<string, TomlValue>]> = [
+    ...legacyTomlPaths().map((path): [string, typeof readFile] => [path, readFile]),
+    ...legacyConfPaths().map((path): [string, typeof readLegacyConf] => [path, readLegacyConf]),
+  ];
+  for (const [path, read] of sources) {
     if (!existsSync(path)) continue;
     try {
-      const legacy = JSON.parse(readFileSync(path, 'utf8')) as { baseUrl?: unknown; apiKey?: unknown };
-      const values: Record<string, TomlValue> = {};
-      if (typeof legacy.baseUrl === 'string' && legacy.baseUrl && legacy.baseUrl !== DEFAULT_BASE_URL
-        && !LEGACY_BASE_URLS.includes(legacy.baseUrl.replace(/\/+$/, ''))) values.base_url = legacy.baseUrl;
-      if (typeof legacy.apiKey === 'string' && legacy.apiKey) values.api_key = legacy.apiKey;
-      if (Object.keys(values).length > 0) writeFile(target, values);
+      const values = read(path);
+      if (Object.keys(values).length === 0) return;
+      writeFile(target, values);
+      // stderr: this runs inside `--json` commands, whose stdout is machine output.
+      console.error(`Carried invd settings over from ${path} to ${target} (the old file is left in place)`);
     } catch {
       // unreadable: nothing to carry over
     }
@@ -192,7 +226,7 @@ export function deleteStoredApiKey(): void {
   if (existsSync(globalConfigPath())) unsetSetting('api_key');
 }
 
-/** Removes the global config file (the keychain entry is `invd auth logout`'s). */
+/** Removes the global `invd.toml` only, never its directory (it may hold the Web CLI's `config.json`); the keychain entry is `invd auth logout`'s. */
 export function resetConfig(): void {
   rmSync(globalConfigPath(), { force: true });
   imported = true;

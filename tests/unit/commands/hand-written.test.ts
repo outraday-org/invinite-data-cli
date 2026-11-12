@@ -120,13 +120,35 @@ describe('invd agent-setup', () => {
     const cwd = mkdtempSync(join(tmpdir(), 'invd-agent-'));
     vi.spyOn(process, 'cwd').mockReturnValue(cwd);
     const lines: string[] = [];
-    vi.spyOn(console, 'log').mockImplementation((line?: unknown) => { lines.push(String(line ?? '')); });
+    const stdout = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    vi.spyOn(console, 'error').mockImplementation((line?: unknown) => { lines.push(String(line ?? '')); });
     writeFileSync(join(cwd, 'keep.txt'), '');
     await createProgram().parseAsync(['node', 'invd', 'agent-setup', '--claude', '--local', '--dry-run']);
     expect(lines.join('\n')).toContain('would write MCP invinite-financial-data');
+    expect(stdout).not.toHaveBeenCalled();
     const { readdirSync } = await import('node:fs');
     expect(readdirSync(cwd)).toEqual(['keep.txt']);
     vi.restoreAllMocks();
+  });
+});
+
+describe('--no-input on the hand-written prompts', () => {
+  beforeEach(() => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    vi.spyOn(process, 'exit').mockImplementation(((code?: number) => { throw new Error(`exit ${code ?? 0}`); }) as never);
+  });
+  afterEach(() => vi.restoreAllMocks());
+
+  it.each([
+    [['plugin', 'install', '--no-input'], ['--claude', '--all', '--global', '--local']],
+    [['plugin', 'uninstall', '--claude', '--no-input'], ['--global', '--local']],
+    [['agent-setup', '--no-input'], ['--claude', '--codex', '--all', '--global', '--local']],
+  ])('invd %j exits 2 and names the flags that answer it', async (args, flags) => {
+    const errors: string[] = [];
+    vi.spyOn(console, 'error').mockImplementation((line?: unknown) => { errors.push(String(line ?? '')); });
+    await expect(createProgram().parseAsync(['node', 'invd', ...args])).rejects.toThrow('exit 2');
+    for (const flag of flags) expect(errors.join('\n')).toContain(flag);
+    expect(errors.join('\n')).toContain('under --no-input');
   });
 });
 

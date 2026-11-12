@@ -2,10 +2,12 @@ import chalk from 'chalk';
 import { isJsonMode } from './json-mode.js';
 
 /**
- * Exit codes (`invd --help` and the README list them): 0 ok, 1 failure, 2 usage, 3 partial (an unsaved download or
- * an interrupted `--all`), 4 authentication required, 5 integrity, 6 credits exhausted / plan required.
+ * Exit codes, shared with the Web CLI `inv` (backend `tasks/cli-api-alignment` C1; `invd --help` and the README list
+ * them): 0 ok, 1 refused / failed, 2 usage (or an answer needed under `--no-input`), 3 not found, 4 not signed in / not
+ * allowed, 5 integrity, 6 plan / credits, 7 partial (an unsaved download, an `--all` cut by a failure). 130 / 143 =
+ * interrupted (SIGINT / SIGTERM, `src/shared/signals.ts`).
  */
-export const EXIT = { ok: 0, failure: 1, usage: 2, partial: 3, auth: 4, integrity: 5, credits: 6 } as const;
+export const EXIT = { ok: 0, failure: 1, usage: 2, notFound: 3, auth: 4, integrity: 5, credits: 6, partial: 7 } as const;
 
 /** A v2 error answer (RFC 9457 problem+json): `code` is stable, `detail` says what happened. */
 export class ApiError extends Error {
@@ -48,7 +50,7 @@ export class AuthRequiredError extends Error {
 
 /**
  * Part of the answer was written, the rest failed: `--all` stopped on a page after earlier pages were printed
- * (`cursor` resumes it). Exit 3, so a script can resume exactly these.
+ * (`cursor` resumes it). Exit 7, so a script can resume exactly these (a walk the person stopped exits 130).
  */
 export class PartialResultError extends Error {
   readonly exitCode = EXIT.partial;
@@ -62,7 +64,7 @@ export class PartialResultError extends Error {
 
 /**
  * A download whose bytes stopped short of the length the server announced: nothing was saved (the `.part` file is
- * removed). Exit 3 (partial), so a script can retry exactly these.
+ * removed). Exit 7 (partial), so a script can retry exactly these.
  */
 export class PartialDownloadError extends Error {
   readonly exitCode = EXIT.partial;
@@ -89,6 +91,8 @@ const CODE_EXIT: Readonly<Record<string, number>> = {
   invalid_parameter: EXIT.usage,
   unknown_parameter: EXIT.usage,
   cursor_mismatch: EXIT.usage,
+  not_found: EXIT.notFound,
+  not_covered: EXIT.notFound,
   unauthorized: EXIT.auth,
   forbidden: EXIT.auth,
   plan_required: EXIT.credits,
@@ -102,6 +106,7 @@ export function exitCodeFor(error: unknown): number {
     if (byCode !== undefined) return byCode;
     if (error.statusCode === 401) return EXIT.auth;
     if (error.statusCode === 402) return EXIT.credits;
+    if (error.statusCode === 404) return EXIT.notFound;
     return EXIT.failure;
   }
   if (error instanceof Error && 'exitCode' in error && typeof error.exitCode === 'number') return error.exitCode;
@@ -131,33 +136,74 @@ const field = (body: unknown, key: string): string | undefined => {
   return typeof value === 'string' && value !== '' ? value : undefined;
 };
 
-/** One dim line after an `ApiError` a person can act on. */
+/**
+ * The `invd` command that fixes an `ApiError`, for the four cases `invd` knows better than the API's surface-neutral
+ * `remedy` (which names HTTP paths, not commands); `undefined` otherwise.
+ */
 export function apiErrorHint(error: ApiError): string | undefined {
   if (error.code === 'unauthorized' || error.statusCode === 401) return 'Run: invd auth login';
-  if (error.code === 'plan_required') return `This operation needs a higher plan: ${field(error.body, 'docs_url') ?? 'invd me show'}`;
+  if (error.code === 'plan_required') return 'This operation needs a higher plan: invd me show';
   if (error.code === 'insufficient_credits') return 'Credits exhausted for this period: invd me show';
   if (error.code === 'not_covered') return 'Find the company: invd companies list --q <name>';
-  return field(error.body, 'docs_url');
+  return undefined;
 }
 
-/** Prints an error the way every command does (red line, detail, hint, the problem as JSON under `--json`). */
+/** Most `errors[]` items printed before "… and N more". */
+const MAX_ISSUES = 5;
+
+/** `✗`, or the word `Error:` where a symbol may not render (`NO_COLOR`, `TERM=dumb`). */
+const marker = (): string => (process.env.NO_COLOR || process.env.TERM === 'dumb' ? 'Error:' : '✗');
+
+/** The `errors[]` items (`{param, code, detail}`) of a problem body that carry a detail. */
+function issuesOf(body: unknown): Array<{ code?: string; detail: string }> {
+  const items: unknown = typeof body === 'object' && body !== null ? Reflect.get(body, 'errors') : undefined;
+  if (!Array.isArray(items)) return [];
+  return items.flatMap((item: unknown) => {
+    const detail = field(item, 'detail');
+    return detail ? [{ code: field(item, 'code'), detail }] : [];
+  });
+}
+
+/**
+ * An API error in at most three parts (C2): what failed (`✗ <detail>` with the `code`; one line per `errors[]` item
+ * when there are several), what to do (the `invd` hint, else the body's `remedy`), then the request id and the docs
+ * URL. Never the HTTP status: the code says it.
+ */
+function apiErrorLines(error: ApiError): string[] {
+  const issues = issuesOf(error.body);
+  const failed = issues.length > 1
+    ? issues.slice(0, MAX_ISSUES).map(issue => ({ detail: issue.detail, code: issue.code ?? error.code }))
+    : [{ detail: error.message || error.errorType, code: error.code }];
+  const lines = failed.map(({ detail, code }) => `${chalk.red(`${marker()} ${detail}`)}${code ? chalk.dim(`  (${code})`) : ''}`);
+  if (issues.length > MAX_ISSUES) lines.push(chalk.red(`  … and ${issues.length - MAX_ISSUES} more`));
+  const remedy = apiErrorHint(error) ?? field(error.body, 'remedy');
+  if (remedy) lines.push(`  ${remedy}`);
+  const reference = [field(error.body, 'request_id'), field(error.body, 'docs_url')].filter(Boolean).join('  ·  ');
+  if (reference) lines.push(chalk.dim(`  ${reference}`));
+  return lines;
+}
+
+/** Under `--json`: the problem body (code, param, errors[], remedy, request_id) as one JSON line, for scripts. */
+function printJsonBody(error: ApiError): void {
+  if (!isJsonMode() || error.body === undefined || error.body === null) return;
+  console.error(JSON.stringify(typeof error.body === 'object' ? error.body : { status: error.statusCode, body: error.body }));
+}
+
+/**
+ * Prints an error the way every command does: an `ApiError` in its three lines (+ the body as JSON under `--json`),
+ * a `PartialResultError` as its cause followed by the resume line, anything else as one line.
+ */
 export function printError(error: unknown): void {
-  if (error instanceof ApiError) {
-    const code = error.code && error.code !== error.errorType ? ` (${error.code})` : '';
-    console.error(chalk.red(`Error ${error.statusCode}: ${error.errorType}${code}`));
-    console.error(error.message);
-    const requestId = field(error.body, 'request_id');
-    if (requestId) console.error(chalk.dim(`request id: ${requestId}`));
-    const line = apiErrorHint(error);
-    if (line) console.error(chalk.dim(line));
-    if (isJsonMode() && error.body !== undefined && error.body !== null) {
-      // The problem body (code, param, errors[], request_id) as one JSON line, for scripts.
-      console.error(JSON.stringify(typeof error.body === 'object' ? error.body : { status: error.statusCode, body: error.body }));
-    }
+  if (error instanceof PartialResultError) {
+    printError(error.cause);
+    console.error(chalk.yellow(`Stopped after ${error.written} row(s)${error.cursor ? ` — resume with --cursor ${error.cursor}` : ''}`));
+  } else if (error instanceof ApiError) {
+    for (const line of apiErrorLines(error)) console.error(line);
+    printJsonBody(error);
   } else if (error instanceof Error) {
-    console.error(chalk.red('Error:'), error.message);
+    console.error(chalk.red(`${marker()} ${error.message}`));
   } else {
-    console.error(chalk.red('An unexpected error occurred'));
+    console.error(chalk.red(`${marker()} An unexpected error occurred`));
   }
 }
 

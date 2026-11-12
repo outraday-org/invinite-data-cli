@@ -2,7 +2,10 @@
 import { CommanderError } from 'commander';
 import { createProgram } from '../src/cli.js';
 import { exitCodeOfCommanderError } from '../src/shared/errors.js';
+import { installSignalExit } from '../src/shared/signals.js';
 
+// Ctrl-C / SIGTERM exit 130 / 143 in every command, after the cleanups a command registered (onInterrupt).
+installSignalExit();
 try {
   await createProgram().parseAsync();
 } catch (error) {

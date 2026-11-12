@@ -7,7 +7,7 @@
 export const HAND_WRITTEN_COMMANDS = [
   { command: 'api', reason: 'raw access to any spec path (method, -F fields, --paginate, --jq): the escape hatch when the tree lags the spec' },
   { command: 'auth', reason: 'browser sign-in (loopback or pasted redirect), the local key store, status / token / logout' },
-  { command: 'config', reason: 'local settings in config.toml / ./.invd.toml' },
+  { command: 'config', reason: 'local settings in invd.toml / ./.invd.toml' },
   { command: 'plugin', reason: 'copies the bundled agent plugin (skill, agent, commands) into agent config dirs' },
   { command: 'agent-setup', reason: 'writes the MCP connector config and installs the skill in one step' },
   { command: 'completion', reason: 'prints the bash / zsh / fish completion script generated from the command tree and spec paths' },

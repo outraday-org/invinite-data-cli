@@ -35,13 +35,14 @@ function checkValue(key: SettingKey, value: string): void {
 const shown = (key: SettingKey, value: string) => (key === 'api_key' && value ? `${value.slice(0, 4)}…` : value);
 
 /**
- * `invd config`: the settings in `$XDG_CONFIG_HOME/invd/config.toml` (`INVD_CONFIG_DIR` replaces the directory)
- * and the project file `./.invd.toml` (`--local`). Precedence: flags > env > `./.invd.toml` > `config.toml`.
+ * `invd config`: the settings in `$XDG_CONFIG_HOME/invinite/invd.toml` (`INVD_CONFIG_DIR` replaces the directory)
+ * and the project file `./.invd.toml` (`--local`). Precedence: flags > env > `./.invd.toml` > `invd.toml`. A value
+ * asked for (`list`, `get`, `path`) goes to stdout; confirmations go to stderr.
  */
 export function registerConfigCommands(program: Command): void {
   const config = program
     .command('config')
-    .description('Local settings: config.toml (XDG) and ./.invd.toml; flags > env > local > global');
+    .description('Local settings: ~/.config/invinite/invd.toml (XDG) and ./.invd.toml; flags > env > local > global');
 
   config
     .command('list')
@@ -60,7 +61,7 @@ export function registerConfigCommands(program: Command): void {
       for (const row of rows) {
         console.log(`  ${chalk.bold(row.key.padEnd(16))} ${row.value === '' ? chalk.dim('(unset)') : row.value}  ${chalk.dim(`${row.source} · $${row.env}`)}`);
       }
-      console.log(chalk.dim(`\nglobal: ${globalConfigPath()}\nlocal:  ${localConfigPath()}`));
+      console.error(chalk.dim(`\nglobal: ${globalConfigPath()}\nlocal:  ${localConfigPath()}`));
     }));
 
   config
@@ -75,7 +76,7 @@ export function registerConfigCommands(program: Command): void {
 
   config
     .command('set')
-    .description('Write a setting to config.toml (or ./.invd.toml with --local)')
+    .description('Write a setting to invd.toml (or ./.invd.toml with --local)')
     .argument('<key>', `One of ${Object.keys(SETTINGS).join(', ')}`)
     .argument('<value>', 'The value')
     .option('--local', 'Write ./.invd.toml (this project) instead of the global file')
@@ -84,18 +85,18 @@ export function registerConfigCommands(program: Command): void {
       const name = settingKey(key);
       checkValue(name, value);
       const path = setSetting(name, value, opts.local ? 'local' : 'global');
-      console.log(chalk.green(`${name} = ${shown(name, value)}`) + chalk.dim(` (${path})`));
+      console.error(chalk.green(`${name} = ${shown(name, value)}`) + chalk.dim(` (${path})`));
     }));
 
   config
     .command('unset')
-    .description('Remove a setting from config.toml (or ./.invd.toml with --local)')
+    .description('Remove a setting from invd.toml (or ./.invd.toml with --local)')
     .argument('<key>', `One of ${Object.keys(SETTINGS).join(', ')}`)
     .option('--local', 'Edit ./.invd.toml instead of the global file')
     .addHelpText('before', 'Examples:\n  $ invd config unset output\n  $ invd config unset base_url --local\n')
     .action(withErrorHandling(async (key: string, opts: { local?: boolean }) => {
       const path = unsetSetting(settingKey(key), opts.local ? 'local' : 'global');
-      console.log(chalk.green(`${key} unset`) + chalk.dim(` (${path})`));
+      console.error(chalk.green(`${key} unset`) + chalk.dim(` (${path})`));
     }));
 
   config

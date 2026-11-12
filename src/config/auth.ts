@@ -78,7 +78,7 @@ export async function resolveApiKey(): Promise<ResolvedApiKey> {
     if (keychainKey) return { key: keychainKey, source: 'keychain', origin: 'OS keychain' };
   }
   const storedKey = getStoredApiKey();
-  if (storedKey) return { key: storedKey, source: 'config', origin: 'config.toml api_key' };
+  if (storedKey) return { key: storedKey, source: 'config', origin: 'invd.toml api_key' };
   throw new AuthRequiredError();
 }
 
