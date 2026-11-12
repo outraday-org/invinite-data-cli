@@ -204,7 +204,7 @@ A filing's `documents` carry the `version_id` of each immutable document version
 invd events AAPL                                    # calendar and history (earnings calls by default)
 invd events AAPL --status upcoming
 invd events list AAPL --type all --sort -scheduled_at --limit 10
-invd events get AAPL 2026Q3
+invd events get AAPL 2026Q4                         # + the 8-K (results_filing) and 10-K (periodic_report) accessions; --json: both objects
 invd events transcript AAPL 2026Q3                  # turns with speaker and start_ms
 invd events transcript-text AAPL 2026Q3 --split sections
 invd events qa AAPL 2026Q3

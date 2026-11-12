@@ -1,6 +1,6 @@
 {
   "specVersion": "2026-11-11",
-  "specSha256": "bb1c174ff1f32dd4f3b1462b38c61dcd9cbb91067142a6b1f3488e3243667764",
+  "specSha256": "592309fd913bec0b152be8c6bc72210b261a3890306d15cd680570553bc7a770",
   "groups": [
     {
       "name": "catalog",
@@ -1380,7 +1380,9 @@
       "columns": [
         "event_id",
         "symbol",
-        "scheduled_at"
+        "scheduled_at",
+        "results_filing.accession",
+        "periodic_report.accession"
       ],
       "fields": [
         "event_id",
@@ -1412,6 +1414,8 @@
         "has_documents",
         "webcast_url",
         "video",
+        "results_filing",
+        "periodic_report",
         "observations",
         "calendar"
       ]
@@ -1629,6 +1633,8 @@
         "has_documents",
         "webcast_url",
         "video",
+        "results_filing",
+        "periodic_report",
         "observations",
         "calendar"
       ]

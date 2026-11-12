@@ -5206,6 +5206,84 @@
               }
             }
           },
+          "results_filing": {
+            "type": "object",
+            "nullable": true,
+            "required": [
+              "accession",
+              "form",
+              "accepted_at",
+              "edgar_index_url"
+            ],
+            "description": "The results filing: the earnings 8-K / 6-K (or its first attributed filing) whose EDGAR acceptance stamped `results_released_at`. Read the document with the SEC filing operations by `accession`. null before the results are filed. Appended 2026-11",
+            "properties": {
+              "accession": {
+                "type": "string",
+                "description": "SEC accession number (0000320193-26-000024)"
+              },
+              "form": {
+                "type": "string",
+                "description": "Form type (8-K, 8-K/A, 6-K, 6-K/A)"
+              },
+              "accepted_at": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true,
+                "description": "EDGAR acceptance time (ISO 8601 UTC)"
+              },
+              "edgar_index_url": {
+                "type": "string",
+                "nullable": true,
+                "description": "The filing's EDGAR index page; null when the CIK is unknown"
+              }
+            }
+          },
+          "periodic_report": {
+            "type": "object",
+            "nullable": true,
+            "required": [
+              "accession",
+              "form",
+              "period_end",
+              "filing_date",
+              "accepted_at",
+              "edgar_index_url"
+            ],
+            "description": "The periodic report of the event's fiscal period: the 10-Q (10-QT) for a fiscal Q1–Q3, the 10-K (10-KT, 20-F, 40-F) for a fiscal Q4. null until it is filed and attributed; never an amendment. A foreign filer has none for Q1–Q3 (no quarterly form). Appended 2026-11",
+            "properties": {
+              "accession": {
+                "type": "string",
+                "description": "SEC accession number (0000320193-26-000024)"
+              },
+              "form": {
+                "type": "string",
+                "description": "Form type (10-Q, 10-QT, 10-K, 10-KT, 20-F, 40-F)"
+              },
+              "period_end": {
+                "type": "string",
+                "format": "date",
+                "nullable": true,
+                "description": "Period end the filing reports (YYYY-MM-DD)"
+              },
+              "filing_date": {
+                "type": "string",
+                "format": "date",
+                "nullable": true,
+                "description": "SEC filing date (YYYY-MM-DD)"
+              },
+              "accepted_at": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true,
+                "description": "EDGAR acceptance time (ISO 8601 UTC)"
+              },
+              "edgar_index_url": {
+                "type": "string",
+                "nullable": true,
+                "description": "The filing's EDGAR index page; null when the CIK is unknown"
+              }
+            }
+          },
           "observations": {
             "type": "array",
             "description": "Date / time observations, oldest first (at most 50)",
@@ -26220,7 +26298,7 @@
                     }
                   ],
                   "has_more": true,
-                  "next_cursor": "eyJ2IjoyLCJhZnRlciI6WyIyMDExLTAxLTE4IDIyOjAwOjAwKzAwIiwiN2Q2NWUzZDAtNGI1Mi00MDAwLTk2YzItMmNlNDczMzE5NDlhIl0sImYiOiJjZmQ3ZjkwODU3N2ZiNDQ0In0",
+                  "next_cursor": "eyJ2IjoyLCJhZnRlciI6WyIyMDExLTAxLTE4IDIyOjAwOjAwKzAwIiwiN2Q2NWUzZDAtNGI1Mi00MDAwLTk2YzItMmNlNDczMzE5NDlhIl0sImYiOiI0NjhjMWFlZGVjYzg4MTFiIn0",
                   "meta": {}
                 }
               }
@@ -26446,7 +26524,9 @@
           "columns": [
             "event_id",
             "symbol",
-            "scheduled_at"
+            "scheduled_at",
+            "results_filing.accession",
+            "periodic_report.accession"
           ]
         },
         "x-example-params": []
@@ -27999,7 +28079,7 @@
                       "name": "Operator",
                       "title": null,
                       "role": "operator",
-                      "person_id": "6682be14-22ff-45d6-820e-c0018cdfc35f",
+                      "person_id": "1695c8d2-ce64-4c91-8de4-d9ec847e655e",
                       "start_ms": 800,
                       "end_ms": 24977,
                       "speaker_confidence": 1,
