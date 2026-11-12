@@ -1,4 +1,5 @@
 import { readdirSync, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
 import type { Command, Option } from 'commander';
 import { createProgram } from '../../src/cli.js';
@@ -8,11 +9,14 @@ import { createProgram } from '../../src/cli.js';
  * agent and commands names a registered command, and every flag on it is one that command (or the program) declares —
  * the drift a renamed command or flag leaves behind. A span naming a placeholder command (`invd <group> …`) is skipped.
  */
+/** The repository root: tests run in a temporary working directory (tests/setup.ts). */
+const ROOT = fileURLToPath(new URL('../../', import.meta.url));
+
 const DOCUMENTS = [
   'README.md',
   'claude-plugin/skills/invinite-data-cli/SKILL.md',
   'claude-plugin/agents/invinite-data.md',
-  ...readdirSync('claude-plugin/commands').map(file => `claude-plugin/commands/${file}`),
+  ...readdirSync(`${ROOT}claude-plugin/commands`).map(file => `claude-plugin/commands/${file}`),
 ];
 
 /** Shell-like words of one line: quotes group, `#` starts a comment, a pipe or redirect ends the invd command. */
@@ -135,14 +139,14 @@ describe('invd command spellings in the docs', () => {
   for (const document of DOCUMENTS) {
     it(`${document}: every invd line names a real command with real flags`, () => {
       const program = createProgram();
-      const lines = invdLines(readFileSync(document, 'utf8'));
+      const lines = invdLines(readFileSync(`${ROOT}${document}`, 'utf8'));
       const bad = lines.flatMap(line => problems(program, line).map(problem => `${line}  →  ${problem}`));
       expect(bad).toEqual([]);
     });
   }
 
   it('reads the fenced and inline spellings of the README and the skill', () => {
-    for (const document of DOCUMENTS.slice(0, 2)) expect(invdLines(readFileSync(document, 'utf8')).length, document).toBeGreaterThan(10);
+    for (const document of DOCUMENTS.slice(0, 2)) expect(invdLines(readFileSync(`${ROOT}${document}`, 'utf8')).length, document).toBeGreaterThan(10);
   });
 
   it('catches a renamed flag, a missing command and a stray positional', () => {

@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { parseRetryAfter } from '../../../src/shared/errors.js';
 
@@ -44,6 +45,25 @@ describe('exit codes', () => {
     expect(exitCodeOfCommanderError({ code: 'commander.unknownOption', exitCode: 1 })).toBe(2);
     expect(exitCodeOfCommanderError({ code: 'commander.helpDisplayed', exitCode: 0 })).toBe(0);
     expect(exitCodeOfCommanderError({ code: 'commander.version', exitCode: 0 })).toBe(0);
+  });
+
+  it('every problem code of the bundled API contract has its C1 exit code (a new API code fails here)', async () => {
+    const { ApiError, EXIT, exitCodeFor } = await import('../../../src/shared/errors.js');
+    const contract = JSON.parse(readFileSync(new URL('../../../api-contract.json', import.meta.url), 'utf8')) as {
+      problem_codes: Array<{ code: string }>;
+    };
+    const expected: Record<string, number> = {
+      invalid_parameter: EXIT.usage, unknown_parameter: EXIT.usage, cursor_mismatch: EXIT.usage,
+      not_found: EXIT.notFound, not_covered: EXIT.notFound,
+      unauthorized: EXIT.auth, forbidden: EXIT.auth,
+      plan_required: EXIT.credits, insufficient_credits: EXIT.credits,
+      excluded: EXIT.failure, rate_limited: EXIT.failure, idempotency_in_flight: EXIT.failure,
+      internal: EXIT.failure, unavailable: EXIT.failure,
+    };
+    const codes = contract.problem_codes.map(entry => entry.code);
+    expect([...codes].sort()).toEqual(Object.keys(expected).sort());
+    // A 400 status: the code alone decides (no 401 / 402 / 404 status fallback in play).
+    for (const code of codes) expect(exitCodeFor(new ApiError(400, 'T', 'x', undefined, code)), code).toBe(expected[code]);
   });
 
   it('a partial result names the resume cursor', async () => {

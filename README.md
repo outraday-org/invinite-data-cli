@@ -436,8 +436,8 @@ where invd knows one, else the API's `remedy`), and the request id with the docs
 
 ```
 $ invd filings AAPL --limit 500
-✗ limit: must be <= 200  (invalid_parameter)
-  Pass a limit of at most 200.
+✗ limit: must be <= 200.  (invalid_parameter)
+  Pass a limit of at most 200, or walk the pages with next_cursor.
   req_01JC…  ·  https://data.invinite.com/docs/errors#invalid_parameter
 $ echo $?
 2

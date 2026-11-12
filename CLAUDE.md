@@ -78,8 +78,8 @@ that differs from the v2 groups + the roster. There is no WebSocket command in 4
 ## Config and keys
 
 `src/config/config-manager.ts`: `$XDG_CONFIG_HOME/invinite/invd.toml` (`~/.config/invinite`, `%APPDATA%\invinite`;
-`INVD_CONFIG_DIR` replaces the directory; `vitest.config.ts` sets it, and a test that deletes it must mock
-`os.homedir()` — `homedir()` does not follow `$HOME` on macOS), `./.invd.toml` (`--local`), precedence flags > env >
+`INVD_CONFIG_DIR` replaces the directory; `vitest.config.ts` sets it, and `tests/setup.ts` gives every test file a
+temporary home, XDG roots and working directory — `tests/unit/shared/test-home.test.ts` guards it), `./.invd.toml` (`--local`), precedence flags > env >
 local > global; flat TOML only (`src/config/toml.ts`). The directory is shared with the Web CLI `inv`
 (`config.json`): invd reads, writes and deletes only `invd.toml` there and never removes the directory. An older
 install is carried over once (5.x / 4.x `invd/config.toml`, else the 3.x `conf` JSON from its platform path, never
