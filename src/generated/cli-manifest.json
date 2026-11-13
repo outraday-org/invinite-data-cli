@@ -1,6 +1,6 @@
 {
-  "specVersion": "2026-11-11",
-  "specSha256": "8167256054d43974ac269ffc8ca92e57061d348a99083463e058eb7b919e1291",
+  "specVersion": "2026-11-13",
+  "specSha256": "d0dec5954759eba22df78d5570edc8ef62f180b2cb1faef038aea1ba99d798a5",
   "groups": [
     {
       "name": "catalog",
@@ -720,8 +720,6 @@
         "sector",
         "industry",
         "sic",
-        "sic_sector",
-        "sic_industry",
         "fama_sector",
         "fama_industry",
         "exchange",

@@ -2,8 +2,8 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Invinite API",
-    "description": "Invinite financial data API. Each operation has a base credit cost: `x-credits` is the base cost; responses add 1 credit per started 1,000 rows beyond the first 1,000; `X-Credits-Charged` reports the final debit and `X-Credits-Remaining` what is left of the plan's included credits after it. A `304 Not Modified` costs nothing. `GET /v1/me/usage` returns your account's usage by day, product family and key (it costs no credits).\n\n**Coverage.** Financial data covers SEC registrants and US listings; a foreign suffix (`SAP.DE`, `VOD.L`) or a crypto pair (`X:BTCUSD`) is not a known company and answers 404. A known company with no data in a family (for example no statements yet) answers 404 with `code: not_covered`; an empty page of a covered company stays 200 with an empty list. `GET /v1/companies` lists every known company.\n\n## Webhooks\n\nAccounts on LITE and above subscribe with `POST /v1/webhooks` to the `event.*` lifecycle events (filtered by company) and, on STANDARD and above, to `news.published` (one delivery per new news item, filtered by the companies it mentions); see `x-webhooks` for each `data` object. What a subscription may hold depends on the plan (a create / update beyond it is refused with the plan's limit; `event.test` needs no subscription — the test route and the disabled notice send it to any subscription):\n\n| Plan | Webhooks | Events | CIKs per webhook | Keywords per webhook |\n|---|---|---|---|---|\n| FREE | 0 | — | — | — |\n| LITE | 5 | `.scheduled`, `.rescheduled`, `.started`, `.ended`, `.transcript_ready`, `.assets_ready` | ≤ 10 | — |\n| STANDARD | 15 | LITE + `.transcript_provisional`, `.transcript_corrected`, `.documents_updated`, `news.published` | ≤ 25 | — |\n| PRO / ENTERPRISE | 50 | STANDARD + `.guidance_flash`, `.keyword_hit` | ≤ 100 | ≤ 20 (on ≤ 10 webhooks) |\n\nEvery delivery is a `POST` with `Content-Type: application/json`, `X-Invinite-Event`, `X-Invinite-Delivery` and `X-Invinite-Signature: t=<unix seconds>,v1=<hex>` where `v1` = HMAC-SHA256(secret, `<t>.<raw body>`); during a secret rotation the header carries one `v1` per valid secret. Reject a signature older than 5 minutes. Any 2xx within 10 s acknowledges; redirects are not followed. A failed delivery is retried after 1 min, 5 min, 30 min, 2 h, 6 h, 12 h, 24 h (8 attempts in all, the same delivery id each time). A subscription is disabled after 8 consecutive dead-lettered deliveries (a final `event.test` with `notice: subscription_disabled` is sent). Deliveries are at-least-once and unordered: dedupe on the delivery id, order by `created_at`.\n\n## Licensing\n\n| Tier | display | redistribute | rag | train | audio | resell |\n| --- | --- | --- | --- | --- | --- | --- |\n| FREE | ✓ | – | – | – | – | – |\n| LITE | ✓ | – | – | – | – | – |\n| STANDARD | ✓ | – | ✓ | – | – | – |\n| PRO | ✓ | ✓ | ✓ | – | ✓ | – |\n\nInvinite data may be shown and, from PRO, redistributed inside the licensee's own product with attribution (\"Source: Invinite\" on screen or in the API response that carries it). It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.\n\nPolicy version: 2026-10-draft. Draft — pending counsel sign-off.\n\nAudio files carry a forensic watermark that identifies the recording. Audio is subject to per-company takedown and may not be re-hosted.\n\nSEC data: Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.\n\nNews: News text is Invinite's own summary of the issuer's or the SEC's publication (the publisher's text and media are never served); the licensee shows the attribution (publisher, source URL and date) next to it; the resale rule applies.\n\nPDF documents: Branded PDFs of transcripts and news items are permanent URLs to one shared file per version. They may be shown, downloaded and forwarded unmodified with the notice page intact; the resale rule applies unchanged. News PDFs carry Invinite's summary of the issuer's or the SEC's publication under the attribution stated on their notice page; a PDF disappears when the item is taken down or its source's reuse is denied.\n\nEvery `/v1/*` data operation carries `x-license`, the minimum use right its data ships with; `GET /status/licensing` serves the same matrix per route, rendered at [data.invinite.com/docs/licensing](https://data.invinite.com/docs/licensing). `/v1/me` and `/v1/me/usage` serve no licensed data and carry none.\n\n## Status\n\n[`/status`](/status) reports whether each product family works (a status and its uptime over 7, 30 and 90 days); [`/status/licensing`](/status/licensing) serves the licensing matrix per route. The status routes need no API key and are cached for 5 minutes. The public status page is [status.data.invinite.com](https://status.data.invinite.com): a snapshot of `/status` every 15 minutes plus an external reachability probe of the API.\n\nUptime is the share of requests answered without a server error, measured by the API per product family; a window with too little traffic to judge shows no figure. Status reflects the last 24 hours.\n\nProduct families: Company, Financials, SEC Filings, Insider Trades, Institutional Ownership, IPOs, Market, Metadata, Earnings Calls, News, WebSocket, Account.",
-    "version": "2026-11-11"
+    "description": "Invinite financial data API. Each operation has a base credit cost: `x-credits` is the base cost; responses add 1 credit per started 1,000 rows beyond the first 1,000; `X-Credits-Charged` reports the final debit and `X-Credits-Remaining` what is left of the plan's included credits after it. A `304 Not Modified` costs nothing. `GET /v1/me/usage` returns your account's usage by day, product family and key (it costs no credits).\n\n**Coverage.** Financial data covers US SEC registrants and their US listings; a symbol that is not a US SEC registrant (or a crypto pair such as `X:BTCUSD`) is not a known company and answers 404. A known company with no data in a family (for example no statements yet) answers 404 with `code: not_covered`; an empty page of a covered company stays 200 with an empty list. `GET /v1/companies` lists every known company.\n\n## Webhooks\n\nAccounts on LITE and above subscribe with `POST /v1/webhooks` to the `event.*` lifecycle events (filtered by company) and, on STANDARD and above, to `news.published` (one delivery per new news item, filtered by the companies it mentions); see `x-webhooks` for each `data` object. What a subscription may hold depends on the plan (a create / update beyond it is refused with the plan's limit; `event.test` needs no subscription — the test route and the disabled notice send it to any subscription):\n\n| Plan | Webhooks | Events | CIKs per webhook | Keywords per webhook |\n|---|---|---|---|---|\n| FREE | 0 | — | — | — |\n| LITE | 5 | `.scheduled`, `.rescheduled`, `.started`, `.ended`, `.transcript_ready`, `.assets_ready` | ≤ 10 | — |\n| STANDARD | 15 | LITE + `.transcript_provisional`, `.transcript_corrected`, `.documents_updated`, `news.published` | ≤ 25 | — |\n| PRO / ENTERPRISE | 50 | STANDARD + `.guidance_flash`, `.keyword_hit` | ≤ 100 | ≤ 20 (on ≤ 10 webhooks) |\n\nEvery delivery is a `POST` with `Content-Type: application/json`, `X-Invinite-Event`, `X-Invinite-Delivery` and `X-Invinite-Signature: t=<unix seconds>,v1=<hex>` where `v1` = HMAC-SHA256(secret, `<t>.<raw body>`); during a secret rotation the header carries one `v1` per valid secret. Reject a signature older than 5 minutes. Any 2xx within 10 s acknowledges; redirects are not followed. A failed delivery is retried after 1 min, 5 min, 30 min, 2 h, 6 h, 12 h, 24 h (8 attempts in all, the same delivery id each time). A subscription is disabled after 8 consecutive dead-lettered deliveries (a final `event.test` with `notice: subscription_disabled` is sent). Deliveries are at-least-once and unordered: dedupe on the delivery id, order by `created_at`.\n\n## Licensing\n\n| Tier | display | redistribute | rag | train | audio | resell |\n| --- | --- | --- | --- | --- | --- | --- |\n| FREE | ✓ | – | – | – | – | – |\n| LITE | ✓ | – | – | – | – | – |\n| STANDARD | ✓ | – | ✓ | – | – | – |\n| PRO | ✓ | ✓ | ✓ | – | ✓ | – |\n\nInvinite data may be shown and, from PRO, redistributed inside the licensee's own product with attribution (\"Source: Invinite\" on screen or in the API response that carries it). It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.\n\nPolicy version: 2026-10-draft. Draft — pending counsel sign-off.\n\nAudio files carry a forensic watermark that identifies the recording. Audio is subject to per-company takedown and may not be re-hosted.\n\nSEC data: Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.\n\nNews: News text is Invinite's own summary of the issuer's or the SEC's publication (the publisher's text and media are never served); the licensee shows the attribution (publisher, source URL and date) next to it; the resale rule applies.\n\nPDF documents: Branded PDFs of transcripts and news items are permanent URLs to one shared file per version. They may be shown, downloaded and forwarded unmodified with the notice page intact; the resale rule applies unchanged. News PDFs carry Invinite's summary of the issuer's or the SEC's publication under the attribution stated on their notice page; a PDF disappears when the item is taken down or its source's reuse is denied.\n\nEvery `/v1/*` data operation carries `x-license`, the minimum use right its data ships with; `GET /status/licensing` serves the same matrix per route, rendered at [data.invinite.com/docs/licensing](https://data.invinite.com/docs/licensing). `/v1/me` and `/v1/me/usage` serve no licensed data and carry none.\n\n## Status\n\n[`/status`](/status) reports whether each product family works (a status and its uptime over 7, 30 and 90 days); [`/status/licensing`](/status/licensing) serves the licensing matrix per route. The status routes need no API key and are cached for 5 minutes. The public status page is [status.data.invinite.com](https://status.data.invinite.com): a snapshot of `/status` every 15 minutes plus an external reachability probe of the API.\n\nUptime is the share of requests answered without a server error, measured by the API per product family; a window with too little traffic to judge shows no figure. Status reflects the last 24 hours.\n\nProduct families: Company, Financials, SEC Filings, Insider Trades, Institutional Ownership, IPOs, Market, Metadata, Earnings Calls, News, WebSocket, Account.",
+    "version": "2026-11-13"
   },
   "components": {
     "securitySchemes": {
@@ -446,8 +446,6 @@
           "sector",
           "industry",
           "sic",
-          "sic_sector",
-          "sic_industry",
           "fama_sector",
           "fama_industry",
           "exchange",
@@ -499,23 +497,15 @@
           },
           "sector": {
             "type": "string",
-            "description": "Sector classification"
+            "description": "Sector, from the issuer's SIC code (SEC mapping)"
           },
           "industry": {
             "type": "string",
-            "description": "Industry classification"
+            "description": "Industry, from the issuer's SIC code (SEC mapping)"
           },
           "sic": {
             "type": "string",
             "description": "SIC code"
-          },
-          "sic_sector": {
-            "type": "string",
-            "description": "SIC sector name"
-          },
-          "sic_industry": {
-            "type": "string",
-            "description": "SIC industry name"
           },
           "fama_sector": {
             "type": "string",
@@ -563,7 +553,7 @@
           "market_cap": {
             "type": "number",
             "nullable": true,
-            "description": "Market capitalization"
+            "description": "Market capitalization; null for ETFs (no AUM source)"
           },
           "shares_outstanding": {
             "type": "number",
@@ -13308,8 +13298,6 @@
                   "sector": "Technology",
                   "industry": "Electronic Computers",
                   "sic": "3571",
-                  "sic_sector": "",
-                  "sic_industry": "",
                   "fama_sector": null,
                   "fama_industry": null,
                   "exchange": "XNAS",
