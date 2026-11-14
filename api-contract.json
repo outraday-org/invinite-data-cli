@@ -88,23 +88,23 @@
     }
   ],
   "provenance": {
-    "secdoorsOpenapiSha256": "f915120fd94f830af0c3530677c176110874b6fa4a10f686ebe6e8b8348cfebe",
+    "secdoorsOpenapiSha256": "0b6a93e6a6eaf27f4e9224567e50db6a939a309884df62013aead9212d5f210f",
     "repository": "https://github.com/outraday-org/invinite-data-api",
     "version": "1.0.0",
-    "specSha256": "2464e88e15ed691914d204323e8cd6115c6d9fee872511f5d30dd0e08f39193f",
+    "specSha256": "6e4299570cf3d6efab790dbd681e7afbce405d5df4eff9675d3040341e5c88f0",
     "sourceHashes": {
-      "openapi.json": "2464e88e15ed691914d204323e8cd6115c6d9fee872511f5d30dd0e08f39193f",
+      "openapi.json": "6e4299570cf3d6efab790dbd681e7afbce405d5df4eff9675d3040341e5c88f0",
       "package.json": "0af821a121d141397f644a16149fd817abbd345b13641d1f4522095021542286",
       "scripts/export-reference.ts": "d925c60f0f895b7b55ae7506e30b1f70a82316e3650c5f7bba0c02f64fb2f09a",
       "scripts/gen-secdoors-types.ts": "860afc486f8041ddfbb515bf5a5a0de8ac9c7237af1a0238d0c08aece7dece1e",
       "scripts/generate-openapi.ts": "fd07fe65502eb0b2a29c8851ee1d26b802e0898d8b3be4f28b3bae39be061fb3",
-      "scripts/operation-ids.snapshot.json": "a71dcb91d573d0654cd48eb1054e00582d40494fa6b7ea0ab24f98040c117ec0",
+      "scripts/operation-ids.snapshot.json": "8d06f87dadb6181fa0ac248c87578921a83baca0ae86e75a1d58182ad2a77c33",
       "scripts/reference-artifacts.ts": "0ef8e67cb5454a3f50f43de77b0be1aebb7897164ddf3f5288b58dc7d0f47255",
       "scripts/reference-env.ts": "105b341c463b24e99d349d50a96634f83b1b8dca8a669c84730dc93f24e122e0",
-      "src/lib/secStore/secdoors-openapi.json": "b9b3d00c9e77d87bdeec4d15240373c743cf0a39551971c07aa0d405ee3bbcd1",
+      "src/lib/secStore/secdoors-openapi.json": "ce2b50bda2ea10b930220a322d42a22ff2198532a2d0b695d562826b39eaa4ae",
       "src/lib/v2/problem.ts": "f2ee756f5b131a18ab97573372b8022a5e4c97f3bccdeb719623bd802b94be86"
     },
-    "revision": "46665e4b88b91f09dc471741634fb9de898092f4",
-    "fingerprint": "9122e6de9adc6fb89a786f14045a20d0b1b6fc400cbb14544a3951bb3a359496"
+    "revision": "8ccbd620e118c051c0a5a9dc178e5417a69100ef",
+    "fingerprint": "38b3db4874ac48924b102b4eec2d68c3342d6adbbf703c4d2d41b18806b6979d"
   }
 }

@@ -553,7 +553,7 @@
           "market_cap": {
             "type": "number",
             "nullable": true,
-            "description": "Market capitalization; null for ETFs (no AUM source)"
+            "description": "Market capitalization; for an ETF: fund net assets from its latest public N-PORT report (single-class funds only), else null"
           },
           "shares_outstanding": {
             "type": "number",
@@ -759,6 +759,11 @@
               }
             },
             "nullable": true
+          },
+          "private_offerings_count": {
+            "type": "integer",
+            "description": "Number of Form D private offerings naming the filer (`phase=pre_ipo` lists); null on other lists and while Form D data is not served (optional: answers captured before release 5.7 lack it)",
+            "nullable": true
           }
         },
         "title": "Filer"
@@ -906,6 +911,24 @@
               }
             },
             "nullable": true
+          },
+          "fund": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/FilerFund"
+              }
+            ],
+            "nullable": true,
+            "description": "With `expand=fund`: the registered investment company's fund series (SEC N-CEN census, risk/return prospectus data, N-PORT net assets); null for a filer without fund series and while fund data is not served"
+          },
+          "private_offerings": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/FilerPrivateOfferings"
+              }
+            ],
+            "nullable": true,
+            "description": "With `expand=private_offerings`: summary of the filer's Form D private offerings (GET /v1/offerings?company=); null for a filer without Form D offerings and while Form D data is not served. Only for filers the SEC registry knows"
           }
         },
         "title": "FilerDetail"
@@ -946,6 +969,401 @@
           }
         },
         "title": "ProposedTicker"
+      },
+      "FilerFund": {
+        "type": "object",
+        "description": "A registered investment company's fund series (SEC N-CEN, risk/return prospectus data, N-PORT)",
+        "required": [
+          "investment_company_type",
+          "series_count",
+          "series"
+        ],
+        "properties": {
+          "investment_company_type": {
+            "type": "string",
+            "example": "N-1A",
+            "nullable": true,
+            "description": "Registration form of the investment company: N-1A (open-end fund, ETF) or N-2 (closed-end fund); null when mixed or unknown"
+          },
+          "series_count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of fund series"
+          },
+          "series": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FilerFundSeries"
+            },
+            "description": "The fund series"
+          }
+        },
+        "title": "FilerFund"
+      },
+      "FilerFundSeries": {
+        "type": "object",
+        "description": "One fund series of a registered investment company",
+        "required": [
+          "fund_key",
+          "series_id",
+          "series_name",
+          "registrant_cik",
+          "is_etf",
+          "is_index",
+          "is_fund_of_funds",
+          "is_money_market",
+          "is_target_date",
+          "exchange",
+          "share_classes",
+          "advisers",
+          "expense_ratio_net",
+          "expense_ratio_gross",
+          "expense_ratio_as_of",
+          "expense_ratio_class_id",
+          "returns",
+          "creation_unit_shares",
+          "redeemed_creation_unit_shares",
+          "creation_cash_pct_avg",
+          "authorized_participant_count",
+          "net_assets_usd",
+          "net_assets_as_of",
+          "net_assets_scope",
+          "latest_report_date",
+          "ncen_report_period",
+          "rr_report_period",
+          "ncen_accession_number",
+          "rr_accession_number",
+          "nport_accession_number"
+        ],
+        "properties": {
+          "fund_key": {
+            "type": "string",
+            "example": "S000002277",
+            "description": "The fund: its SEC series id, or cik:<registrant CIK> for a unit investment trust that files without a series"
+          },
+          "series_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "SEC series id (S + 9 digits); null for a fund without a series"
+          },
+          "series_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Fund (series) name as reported"
+          },
+          "registrant_cik": {
+            "type": "string",
+            "description": "Registrant (trust) CIK, 10 digits"
+          },
+          "is_etf": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "Exchange-traded fund (N-CEN)"
+          },
+          "is_index": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "Index fund (N-CEN)"
+          },
+          "is_fund_of_funds": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "Fund of funds (N-CEN)"
+          },
+          "is_money_market": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "Money market fund (N-CEN)"
+          },
+          "is_target_date": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "Target-date fund (N-CEN)"
+          },
+          "exchange": {
+            "type": "string",
+            "example": "ARCX",
+            "nullable": true,
+            "description": "Exchange the fund's shares list on (MIC), as stated in N-CEN; null when none or unmapped"
+          },
+          "share_classes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FilerFundShareClass"
+            },
+            "description": "Share classes with their tickers"
+          },
+          "advisers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FilerFundAdviser"
+            },
+            "description": "Investment advisers (N-CEN)"
+          },
+          "expense_ratio_net": {
+            "type": "number",
+            "example": 0.0003,
+            "nullable": true,
+            "description": "Net annual expense ratio from the prospectus (fraction: 0.0003 = 0.03 %); null without prospectus fee data"
+          },
+          "expense_ratio_gross": {
+            "type": "number",
+            "nullable": true,
+            "description": "Gross annual expense ratio from the prospectus (fraction)"
+          },
+          "expense_ratio_as_of": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "Date the expense ratio is stated as of"
+          },
+          "expense_ratio_class_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "SEC class id the expense ratio belongs to"
+          },
+          "returns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FilerFundReturn"
+            },
+            "description": "Average annual total returns per share class (prospectus)"
+          },
+          "creation_unit_shares": {
+            "type": "number",
+            "nullable": true,
+            "description": "Shares per creation unit (ETF, N-CEN)"
+          },
+          "redeemed_creation_unit_shares": {
+            "type": "number",
+            "nullable": true,
+            "description": "Shares per redeemed creation unit (ETF, N-CEN)"
+          },
+          "creation_cash_pct_avg": {
+            "type": "number",
+            "nullable": true,
+            "description": "Average cash share of creation baskets in percent (16.39 = 16.39 %, N-CEN)"
+          },
+          "authorized_participant_count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of authorized participants (ETF, N-CEN)"
+          },
+          "net_assets_usd": {
+            "type": "number",
+            "nullable": true,
+            "description": "Net assets in USD from the latest public N-PORT report"
+          },
+          "net_assets_as_of": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "Report date of the net assets"
+          },
+          "net_assets_scope": {
+            "type": "string",
+            "enum": [
+              "fund",
+              "series"
+            ],
+            "nullable": true,
+            "description": "fund = the fund's net assets; series = the total of a multi-class fund (never one class's assets)"
+          },
+          "latest_report_date": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "Report date of the newest public N-PORT report"
+          },
+          "ncen_report_period": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "Period end of the N-CEN report the census comes from"
+          },
+          "rr_report_period": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "Period end of the prospectus risk/return data the fees and returns come from"
+          },
+          "ncen_accession_number": {
+            "type": "string",
+            "nullable": true,
+            "description": "Accession number of the N-CEN report"
+          },
+          "rr_accession_number": {
+            "type": "string",
+            "nullable": true,
+            "description": "Accession number of the prospectus filing (risk/return data)"
+          },
+          "nport_accession_number": {
+            "type": "string",
+            "nullable": true,
+            "description": "Accession number of the N-PORT report the net assets come from"
+          }
+        },
+        "title": "FilerFundSeries"
+      },
+      "FilerFundShareClass": {
+        "type": "object",
+        "description": "One share class of a fund series",
+        "required": [
+          "class_id",
+          "ticker",
+          "class_name"
+        ],
+        "properties": {
+          "class_id": {
+            "type": "string",
+            "example": "C000007593",
+            "description": "SEC class id (C + 9 digits)"
+          },
+          "ticker": {
+            "type": "string",
+            "nullable": true,
+            "description": "Ticker of the class as the filer stated it"
+          },
+          "class_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Class name as reported"
+          }
+        },
+        "title": "FilerFundShareClass"
+      },
+      "FilerFundAdviser": {
+        "type": "object",
+        "description": "One investment adviser of a fund series (N-CEN)",
+        "required": [
+          "name",
+          "crd",
+          "lei",
+          "is_affiliated",
+          "role"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Adviser name as reported"
+          },
+          "crd": {
+            "type": "string",
+            "nullable": true,
+            "description": "Adviser CRD number"
+          },
+          "lei": {
+            "type": "string",
+            "nullable": true,
+            "description": "Adviser LEI"
+          },
+          "is_affiliated": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "Whether the adviser is an affiliated person of the fund"
+          },
+          "role": {
+            "type": "string",
+            "nullable": true,
+            "description": "Adviser role as reported: Advisor, Subadvisor, Terminated Advisor, …"
+          }
+        },
+        "title": "FilerFundAdviser"
+      },
+      "FilerFundReturn": {
+        "type": "object",
+        "description": "Average annual total returns of one share class from the fund's prospectus (fractions: 0.1541 = 15.41 %)",
+        "required": [
+          "class_id",
+          "as_of",
+          "one_year",
+          "five_year",
+          "ten_year",
+          "since_inception"
+        ],
+        "properties": {
+          "class_id": {
+            "type": "string",
+            "description": "SEC class id the returns belong to"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "Period end the returns are stated as of"
+          },
+          "one_year": {
+            "type": "number",
+            "nullable": true,
+            "description": "1-year average annual total return (fraction)"
+          },
+          "five_year": {
+            "type": "number",
+            "nullable": true,
+            "description": "5-year average annual total return (fraction)"
+          },
+          "ten_year": {
+            "type": "number",
+            "nullable": true,
+            "description": "10-year average annual total return (fraction)"
+          },
+          "since_inception": {
+            "type": "number",
+            "nullable": true,
+            "description": "Average annual total return since inception (fraction)"
+          }
+        },
+        "title": "FilerFundReturn"
+      },
+      "FilerPrivateOfferings": {
+        "type": "object",
+        "description": "Summary of the Form D offerings naming the filer (primary issuer or co-issuer)",
+        "required": [
+          "count",
+          "first_filed",
+          "latest_filed",
+          "total_sold",
+          "latest_exemptions",
+          "latest_offering_id"
+        ],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of offerings"
+          },
+          "first_filed": {
+            "type": "string",
+            "nullable": true,
+            "format": "date",
+            "description": "Earliest filing date over the offerings"
+          },
+          "latest_filed": {
+            "type": "string",
+            "nullable": true,
+            "format": "date",
+            "description": "Latest filing date over the offerings"
+          },
+          "total_sold": {
+            "type": "number",
+            "nullable": true,
+            "description": "Sum of the amounts sold the offerings state (USD); null when none states one"
+          },
+          "latest_exemptions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Exemptions claimed by the latest offering, as filed"
+          },
+          "latest_offering_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "Offering id of the latest offering (GET /v1/offerings/{offering_id})"
+          }
+        },
+        "title": "FilerPrivateOfferings"
       },
       "Person": {
         "type": "object",
@@ -4344,6 +4762,113 @@
         },
         "title": "HoldingChange"
       },
+      "FundHolding": {
+        "type": "object",
+        "required": [
+          "fund_key",
+          "accession_number",
+          "class_tickers"
+        ],
+        "properties": {
+          "fund_key": {
+            "type": "string",
+            "description": "The fund: its SEC series id, or cik:<registrant CIK> for a unit investment trust that files without a series"
+          },
+          "series_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "SEC series id (S + 9 digits); null for a fund without a series"
+          },
+          "series_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Fund (series) name as reported"
+          },
+          "registrant_cik": {
+            "type": "string",
+            "nullable": true,
+            "description": "Registrant (trust) CIK, 10 digits"
+          },
+          "registrant_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Registrant (trust) name as reported"
+          },
+          "class_tickers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Tickers of the fund's share classes (SEC Series and Class list; a unit trust's own SEC-stated tickers)"
+          },
+          "report_date": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "Date the holdings are reported as of (YYYY-MM-DD)"
+          },
+          "accession_number": {
+            "type": "string",
+            "description": "NPORT-P accession number of the report"
+          },
+          "issuer_cik": {
+            "type": "string",
+            "nullable": true,
+            "description": "Issuer CIK of the holding, 10 digits; null when it did not resolve (or on accession= rows, as filed)"
+          },
+          "issuer_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Issuer name"
+          },
+          "cusip": {
+            "type": "string",
+            "nullable": true,
+            "description": "Holding CUSIP; null on company= rows (a fund's positions in the issuer summed)"
+          },
+          "isin": {
+            "type": "string",
+            "nullable": true,
+            "description": "Holding ISIN; null on company= rows"
+          },
+          "ticker": {
+            "type": "string",
+            "nullable": true,
+            "description": "Holding ticker (company= rows: the requested company's ticker; else as the fund stated it)"
+          },
+          "value_usd": {
+            "type": "number",
+            "nullable": true,
+            "description": "Value in USD as the fund reported it; null when none was stated"
+          },
+          "pct_nav": {
+            "type": "number",
+            "nullable": true,
+            "description": "Percent of the fund's net assets (7.1 = 7.1 %)"
+          },
+          "balance": {
+            "type": "number",
+            "nullable": true,
+            "description": "Shares, principal or contracts held (see unit); null when the summed positions state different units"
+          },
+          "unit": {
+            "type": "string",
+            "nullable": true,
+            "description": "Unit of balance: NS shares, PA principal amount, NC contracts, OU other"
+          },
+          "asset_cat": {
+            "type": "string",
+            "nullable": true,
+            "description": "N-PORT asset category (EC equity common, EP equity preferred, DBT debt, …)"
+          },
+          "issuer_resolution": {
+            "type": "string",
+            "nullable": true,
+            "description": "How issuer_cik was found: cusip_cache, isin, ticker, not_equity (no issuer for a non-equity holding) or unresolved; null on accession= rows"
+          }
+        },
+        "title": "FundHolding"
+      },
       "InsiderTrade": {
         "type": "object",
         "required": [
@@ -4363,7 +4888,21 @@
           "share_price",
           "total",
           "shares_owned_following_transaction",
-          "side"
+          "side",
+          "transaction_date",
+          "deemed_execution_date",
+          "owner_cik",
+          "direct_indirect",
+          "nature_of_ownership",
+          "is_derivative",
+          "conversion_exercise_price",
+          "exercise_date",
+          "expiration_date",
+          "underlying_security_title",
+          "underlying_shares",
+          "footnotes",
+          "is_10b5_1",
+          "source"
         ],
         "properties": {
           "id": {
@@ -4461,9 +5000,117 @@
               "buy",
               "sell"
             ]
+          },
+          "transaction_date": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "example": "2026-11-10",
+            "description": "Date of the transaction (YYYY-MM-DD); sec_api rows (realtime Form 4 feed) leave it null"
+          },
+          "deemed_execution_date": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "Deemed execution date (YYYY-MM-DD) when the filing states one"
+          },
+          "owner_cik": {
+            "type": "string",
+            "nullable": true,
+            "example": "0001496686",
+            "description": "CIK of the reporting owner (10 digits); one row per owner of a joint filing; sec_api rows (realtime Form 4 feed) leave it null"
+          },
+          "direct_indirect": {
+            "type": "string",
+            "enum": [
+              "D",
+              "I"
+            ],
+            "nullable": true,
+            "example": "D",
+            "description": "Ownership form: D = direct, I = indirect; sec_api rows (realtime Form 4 feed) leave it null"
+          },
+          "nature_of_ownership": {
+            "type": "string",
+            "nullable": true,
+            "description": "Nature of an indirect ownership as filed (e.g. By Trust)"
+          },
+          "is_derivative": {
+            "type": "boolean",
+            "example": false,
+            "description": "true = a derivative-security line (option, RSU, warrant); false = a non-derivative line (sec_api rows are always false)"
+          },
+          "conversion_exercise_price": {
+            "type": "number",
+            "nullable": true,
+            "description": "Conversion or exercise price of a derivative security"
+          },
+          "exercise_date": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "Date the derivative becomes exercisable (YYYY-MM-DD)"
+          },
+          "expiration_date": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "Expiration date of the derivative (YYYY-MM-DD)"
+          },
+          "underlying_security_title": {
+            "type": "string",
+            "nullable": true,
+            "description": "Title of the security underlying a derivative"
+          },
+          "underlying_shares": {
+            "type": "number",
+            "nullable": true,
+            "description": "Number of underlying shares of a derivative"
+          },
+          "footnotes": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/InsiderTradeFootnote"
+            },
+            "description": "The filing's footnotes referenced by this line; sec_api rows (realtime Form 4 feed) leave it null"
+          },
+          "is_10b5_1": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "true = the filer marked the transaction as made under a Rule 10b5-1 trading plan; sec_api rows (realtime Form 4 feed) leave it null"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "sec_api",
+              "f345"
+            ],
+            "example": "sec_api",
+            "description": "Origin of the row: sec_api = the realtime Form 4 feed; f345 = the SEC insider transactions dataset (Forms 3, 4, 5), whose rows carry the fields above"
           }
         },
         "title": "InsiderTrade"
+      },
+      "InsiderTradeFootnote": {
+        "type": "object",
+        "description": "One footnote of an insider filing",
+        "required": [
+          "id",
+          "text"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "F1",
+            "description": "Footnote id as filed (F1, F2, …)"
+          },
+          "text": {
+            "type": "string",
+            "description": "Footnote text"
+          }
+        },
+        "title": "InsiderTradeFootnote"
       },
       "Ipo": {
         "type": "object",
@@ -4979,6 +5626,295 @@
           "us_code"
         ],
         "title": "IpoListing"
+      },
+      "Offering": {
+        "type": "object",
+        "description": "One Form D private offering (Regulation D / Section 4(a)(5) exempt offering): the latest filing's facts and the held filing history",
+        "required": [
+          "offering_id",
+          "file_number",
+          "first_accession",
+          "latest_accession",
+          "accessions",
+          "primary_issuer_cik",
+          "issuer_name",
+          "co_issuer_ciks",
+          "filed_first",
+          "filed_latest",
+          "sale_date",
+          "first_sale_yet_to_occur",
+          "amendment_count",
+          "original_held",
+          "is_amendment",
+          "exemptions",
+          "industry_group",
+          "investment_fund_type",
+          "is_40_act",
+          "security_types",
+          "is_business_combination",
+          "more_than_one_year",
+          "min_investment",
+          "total_offering_amount",
+          "total_sold",
+          "total_remaining",
+          "indefinite_amount",
+          "has_non_accredited",
+          "non_accredited_count",
+          "investor_count",
+          "revenue_range",
+          "net_asset_value_range",
+          "sales_commission",
+          "finders_fee",
+          "related_persons",
+          "sic_code",
+          "jurisdiction",
+          "entity_type",
+          "year_of_inc"
+        ],
+        "properties": {
+          "offering_id": {
+            "type": "string",
+            "example": "021-528681",
+            "description": "Offering id: SEC's Form D file number (one per offering; every amendment keeps it), or the first accession number for an offering whose filings state none"
+          },
+          "file_number": {
+            "type": "string",
+            "nullable": true,
+            "description": "Form D file number (021-…); null when the offering is keyed by its first accession"
+          },
+          "first_accession": {
+            "type": "string",
+            "description": "Accession number of the earliest held filing of the offering"
+          },
+          "latest_accession": {
+            "type": "string",
+            "description": "Accession number of the latest filing (the row's facts are from it)"
+          },
+          "accessions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Accession numbers of the held filings, in filing order"
+          },
+          "primary_issuer_cik": {
+            "type": "string",
+            "example": "0001991882",
+            "description": "Primary issuer CIK, 10 digits"
+          },
+          "issuer_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Primary issuer name as filed"
+          },
+          "co_issuer_ciks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "CIKs of the other issuers of the offering, 10 digits"
+          },
+          "filed_first": {
+            "type": "string",
+            "nullable": true,
+            "format": "date",
+            "description": "Filing date of the earliest held filing"
+          },
+          "filed_latest": {
+            "type": "string",
+            "nullable": true,
+            "format": "date",
+            "description": "Filing date of the latest filing"
+          },
+          "sale_date": {
+            "type": "string",
+            "nullable": true,
+            "format": "date",
+            "description": "Date of first sale as filed"
+          },
+          "first_sale_yet_to_occur": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "The first sale has yet to occur"
+          },
+          "amendment_count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of held amendments (D/A)"
+          },
+          "original_held": {
+            "type": "boolean",
+            "description": "The original Form D is inside the held window (five years of quarterly data sets); false = the history starts with an amendment"
+          },
+          "is_amendment": {
+            "type": "boolean",
+            "description": "The latest filing is an amendment (D/A)"
+          },
+          "exemptions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Federal exemptions and exclusions claimed, as filed: 06b (Rule 506(b)), 06c (Rule 506(c)), 04 (Rule 504), 4a5, 3C, 3C.1, 3C.7, …"
+          },
+          "industry_group": {
+            "type": "string",
+            "nullable": true,
+            "description": "Industry group as filed (Pooled Investment Fund, Other Technology, …)"
+          },
+          "investment_fund_type": {
+            "type": "string",
+            "nullable": true,
+            "description": "Investment fund type as filed (Hedge Fund, Private Equity Fund, …)"
+          },
+          "is_40_act": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "The issuer is registered (or must register) under the Investment Company Act of 1940"
+          },
+          "security_types": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "equity",
+                "debt",
+                "option_to_acquire",
+                "security_to_be_acquired",
+                "pooled_investment_fund",
+                "tenant_in_common",
+                "mineral_property",
+                "other"
+              ]
+            },
+            "description": "Types of securities offered"
+          },
+          "is_business_combination": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "The offering is made in connection with a business combination"
+          },
+          "more_than_one_year": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "The offering is expected to last more than one year"
+          },
+          "min_investment": {
+            "type": "number",
+            "nullable": true,
+            "description": "Minimum investment accepted from an outside investor (USD)"
+          },
+          "total_offering_amount": {
+            "type": "number",
+            "nullable": true,
+            "description": "Total offering amount (USD); null when indefinite"
+          },
+          "total_sold": {
+            "type": "number",
+            "nullable": true,
+            "description": "Total amount sold (USD)"
+          },
+          "total_remaining": {
+            "type": "number",
+            "nullable": true,
+            "description": "Total amount remaining to be sold (USD); null when indefinite"
+          },
+          "indefinite_amount": {
+            "type": "boolean",
+            "description": "The offering amount is stated as indefinite"
+          },
+          "has_non_accredited": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "Securities were sold to non-accredited investors"
+          },
+          "non_accredited_count": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Number of non-accredited investors who invested"
+          },
+          "investor_count": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Total number of investors who invested"
+          },
+          "revenue_range": {
+            "type": "string",
+            "nullable": true,
+            "description": "Issuer revenue range as filed (No Revenues, $1 - $1,000,000, Decline to Disclose, …)"
+          },
+          "net_asset_value_range": {
+            "type": "string",
+            "nullable": true,
+            "description": "Issuer net asset value range as filed (funds)"
+          },
+          "sales_commission": {
+            "type": "number",
+            "nullable": true,
+            "description": "Sales commissions (USD)"
+          },
+          "finders_fee": {
+            "type": "number",
+            "nullable": true,
+            "description": "Finders' fees (USD)"
+          },
+          "related_persons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OfferingRelatedPerson"
+            },
+            "description": "Related persons as filed"
+          },
+          "sic_code": {
+            "type": "string",
+            "nullable": true,
+            "description": "SIC code of the issuer"
+          },
+          "jurisdiction": {
+            "type": "string",
+            "nullable": true,
+            "description": "Jurisdiction of incorporation as filed"
+          },
+          "entity_type": {
+            "type": "string",
+            "nullable": true,
+            "description": "Entity type as filed (Corporation, Limited Partnership, …)"
+          },
+          "year_of_inc": {
+            "type": "string",
+            "nullable": true,
+            "description": "Year of incorporation as filed (a year, or Over Five Years / Within Last Five Years)"
+          }
+        },
+        "title": "Offering"
+      },
+      "OfferingRelatedPerson": {
+        "type": "object",
+        "description": "A related person of a Form D offering (executive officer, director, promoter) as filed",
+        "required": [
+          "name",
+          "relationships",
+          "clarification"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name as filed (first, middle, last)"
+          },
+          "relationships": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Relationships as filed: Executive Officer, Director, Promoter"
+          },
+          "clarification": {
+            "type": "string",
+            "nullable": true,
+            "description": "Clarification of the relationship as filed"
+          }
+        },
+        "title": "OfferingRelatedPerson"
       },
       "Event": {
         "type": "object",
@@ -13708,12 +14644,12 @@
           {
             "schema": {
               "type": "string",
-              "pattern": "^(lifecycle|proposed_symbols|former_names|successors)(,(lifecycle|proposed_symbols|former_names|successors))*$"
+              "pattern": "^(lifecycle|proposed_symbols|former_names|successors|fund|private_offerings)(,(lifecycle|proposed_symbols|former_names|successors|fund|private_offerings))*$"
             },
             "in": "query",
             "name": "expand",
             "required": false,
-            "description": "Optional objects to include: `lifecycle`, `proposed_symbols`, `former_names`, `successors` (comma list)",
+            "description": "Optional objects to include: `lifecycle`, `proposed_symbols`, `former_names`, `successors`, `fund`, `private_offerings` (comma list)",
             "example": "lifecycle"
           },
           {
@@ -26497,6 +27433,275 @@
         ]
       }
     },
+    "/v1/fund-holdings": {
+      "get": {
+        "operationId": "listFundHoldings",
+        "summary": "List N-PORT fund holdings",
+        "tags": [
+          "Holdings"
+        ],
+        "description": "N-PORT fund and ETF positions from the funds' quarterly public reports (about 60 days after the report date): by issuer (`company=`, one row per fund holding it, from each fund's latest report on or before `period_end`, its positions in the issuer summed), by fund (`filer=` registrant CIK, `series=` when the registrant files for several funds: that fund's positions) or by filing (`accession=`, an NPORT-P filing's reported holdings as filed); exactly one of `company`, `filer` or `accession` (`series` alone needs `filer`). `period_end` defaults to today. Order: value in USD, descending (`company=`, `filer=`), the filing's line order (`accession=`); several companies are read one after another. A fund row is not a 13F `Holding` (different row type, R16): `/v1/holdings` keeps the 13F managers.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "query",
+            "name": "company",
+            "required": false,
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required.",
+            "example": "AAPL"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "filer",
+            "required": false,
+            "description": "Fund registrant CIK (one): its fund portfolio",
+            "example": "0000036405"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "series",
+            "required": false,
+            "description": "SEC series id of one fund (S + 9 digits; a unit investment trust without a series: cik:<registrant CIK>); with filer=, required when the registrant files for more than one fund",
+            "example": "S000002277"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "accession",
+            "required": false,
+            "description": "NPORT-P filing: its reported holdings as filed",
+            "example": "0001752724-26-123456"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "query",
+            "name": "period_end",
+            "required": false,
+            "description": "Each fund's latest report on or before this date",
+            "example": "2026-06-30"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "-value_usd"
+              ],
+              "default": "-value_usd"
+            },
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "description": "Sort field: `-value_usd` (the only order the store serves); the id tiebreaker is always appended",
+            "example": "-value_usd"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "description": "Comma list of root-level fields to keep (R7)",
+            "example": "fiscal_year,period_end"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 25
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "description": "Rows per page (default 25, max 1 000 on 13F rows)",
+            "example": 100
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+            "example": "eyJ2IjoyfQ"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of rows",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/Cache-Control"
+              },
+              "X-Credits-Charged": {
+                "$ref": "#/components/headers/X-Credits-Charged"
+              },
+              "X-Credits-Remaining": {
+                "$ref": "#/components/headers/X-Credits-Remaining"
+              },
+              "X-RateLimit-Limit-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Second"
+              },
+              "X-RateLimit-Remaining-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Second"
+              },
+              "X-RateLimit-Limit-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Minute"
+              },
+              "X-RateLimit-Remaining-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Minute"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
+              },
+              "RateLimit": {
+                "$ref": "#/components/headers/RateLimit"
+              },
+              "RateLimit-Policy": {
+                "$ref": "#/components/headers/RateLimit-Policy"
+              },
+              "Link": {
+                "$ref": "#/components/headers/Link"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "A page of FundHolding rows (the list envelope, R3)",
+                  "type": "object",
+                  "required": [
+                    "data",
+                    "has_more",
+                    "next_cursor",
+                    "meta"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "description": "The rows of this page",
+                      "items": {
+                        "$ref": "#/components/schemas/FundHolding"
+                      }
+                    },
+                    "has_more": {
+                      "type": "boolean",
+                      "description": "true when a next page exists"
+                    },
+                    "next_cursor": {
+                      "type": "string",
+                      "description": "Opaque cursor of the next page; null on the last page",
+                      "nullable": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "description": "Page metadata",
+                      "properties": {
+                        "coverage": {
+                          "$ref": "#/components/schemas/MetaCoverage"
+                        },
+                        "source": {
+                          "$ref": "#/components/schemas/MetaSource"
+                        },
+                        "pinned_at": {
+                          "type": "string",
+                          "description": "Instant the page reads the fund reports at",
+                          "format": "date-time",
+                          "nullable": true
+                        },
+                        "counting": {
+                          "type": "string",
+                          "description": "How fund positions are counted (documented rule)",
+                          "nullable": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          }
+        },
+        "x-tier": "standard",
+        "x-credits": 1,
+        "x-license": "redistribute",
+        "x-cache-control": "private, max-age=300",
+        "x-cli": {
+          "group": "fund-holdings",
+          "action": "list",
+          "positional": "company",
+          "flags": {
+            "filer": "F",
+            "series": "s",
+            "period_end": "p",
+            "limit": "l"
+          },
+          "columns": [
+            "series_name",
+            "ticker",
+            "value_usd",
+            "pct_nav",
+            "report_date"
+          ]
+        },
+        "x-example-params": [
+          "company"
+        ]
+      }
+    },
     "/v1/insider-trades": {
       "get": {
         "operationId": "listInsiderTrades",
@@ -26573,6 +27778,38 @@
             "required": false,
             "description": "`filed_at` before this value",
             "example": "2025-01-01"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "query",
+            "name": "transaction_date.gte",
+            "required": false,
+            "description": "`transaction_date` on or after this value (rows without a transaction date are excluded)",
+            "example": "2025-01-01"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "query",
+            "name": "transaction_date.lte",
+            "required": false,
+            "description": "`transaction_date` on or before this value (rows without a transaction date are excluded)",
+            "example": "2025-01-01"
+          },
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "is_derivative",
+            "required": false,
+            "description": "true = only derivative-security lines; false = only non-derivative lines",
+            "example": false
           },
           {
             "schema": {
@@ -26737,7 +27974,21 @@
                       "total": 842913,
                       "shares_owned_following_transaction": 27598,
                       "shares_owned_before_transaction": 29997,
-                      "side": "sell"
+                      "side": "sell",
+                      "transaction_date": null,
+                      "deemed_execution_date": null,
+                      "owner_cik": null,
+                      "direct_indirect": null,
+                      "nature_of_ownership": null,
+                      "is_derivative": false,
+                      "conversion_exercise_price": null,
+                      "exercise_date": null,
+                      "expiration_date": null,
+                      "underlying_security_title": null,
+                      "underlying_shares": null,
+                      "footnotes": null,
+                      "is_10b5_1": null,
+                      "source": "sec_api"
                     }
                   ],
                   "has_more": true,
@@ -26802,6 +28053,7 @@
           },
           "columns": [
             "filed_at",
+            "transaction_date",
             "reporting_person_name",
             "side",
             "shares",
@@ -26912,7 +28164,21 @@
                   "total": 842913,
                   "shares_owned_following_transaction": 27598,
                   "shares_owned_before_transaction": 29997,
-                  "side": "sell"
+                  "side": "sell",
+                  "transaction_date": null,
+                  "deemed_execution_date": null,
+                  "owner_cik": null,
+                  "direct_indirect": null,
+                  "nature_of_ownership": null,
+                  "is_derivative": false,
+                  "conversion_exercise_price": null,
+                  "exercise_date": null,
+                  "expiration_date": null,
+                  "underlying_security_title": null,
+                  "underlying_shares": null,
+                  "footnotes": null,
+                  "is_10b5_1": null,
+                  "source": "sec_api"
                 }
               }
             }
@@ -27575,6 +28841,421 @@
             "issuer_name",
             "stage",
             "listing_date"
+          ]
+        },
+        "x-example-params": []
+      }
+    },
+    "/v1/offerings": {
+      "get": {
+        "operationId": "listOfferings",
+        "summary": "List Form D private offerings",
+        "tags": [
+          "IPOs"
+        ],
+        "description": "Form D private offerings (Regulation D and Section 4(a)(5) exempt offerings) from the SEC's quarterly Form D data sets, five years held: one row per offering (SEC's Form D file number; every amendment folds into it) with the latest filing's facts — issuer and co-issuers, exemptions as filed, industry group, security types, offering / sold / remaining amounts (USD), investors, related persons — and the held filing history. Filters: `company=` (one issuer CIK or listed ticker), `filed_at.gte|lte` (latest filing date), `exemption=`, `industry=`, `total_sold.gte`, `is_amendment`. Order: latest filing date descending, then offering id. An issuer CIK the SEC registry and the data set do not know answers 404; a known issuer without offerings an empty page. Form D is research data, not limited to listed companies: `company=` answers any Form D issuer CIK (funds, private companies; a ticker resolves only for a listed company), and the list is not gated by the coverage of the financial families.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "query",
+            "name": "company",
+            "required": false,
+            "description": "Issuer: a CIK (all digits, any padding; any Form D issuer, listed or not) or the ticker of a listed company — ONE value; matches the primary issuer and co-issuers. Without it: every offering",
+            "example": "0001991882"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "query",
+            "name": "filed_at.gte",
+            "required": false,
+            "description": "Latest filing on or after this date",
+            "example": "2026-01-01"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "query",
+            "name": "filed_at.lte",
+            "required": false,
+            "description": "Latest filing on or before this date",
+            "example": "2026-09-30"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9.()]{1,12}$"
+            },
+            "in": "query",
+            "name": "exemption",
+            "required": false,
+            "description": "Offerings claiming this exemption, as filed (06b, 06c, 04, 3C.7, …)",
+            "example": "06c"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 80
+            },
+            "in": "query",
+            "name": "industry",
+            "required": false,
+            "description": "Industry group as filed (case-insensitive exact match)",
+            "example": "Pooled Investment Fund"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "minimum": 0
+            },
+            "in": "query",
+            "name": "total_sold.gte",
+            "required": false,
+            "description": "Total amount sold at least this many USD",
+            "example": 1000000
+          },
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "is_amendment",
+            "required": false,
+            "description": "true = offerings whose latest filing is an amendment (D/A); false = an original Form D",
+            "example": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "-filed_latest"
+              ],
+              "default": "-filed_latest"
+            },
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "description": "Sort field: `-filed_latest` (the only order the store serves); the offering id tiebreaker is always appended",
+            "example": "-filed_latest"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "description": "Comma list of root-level fields to keep (R7)",
+            "example": "fiscal_year,period_end"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 25
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "description": "Rows per page (default 25, max 200)",
+            "example": 25
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+            "example": "eyJ2IjoyfQ"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of rows",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/Cache-Control"
+              },
+              "X-Credits-Charged": {
+                "$ref": "#/components/headers/X-Credits-Charged"
+              },
+              "X-Credits-Remaining": {
+                "$ref": "#/components/headers/X-Credits-Remaining"
+              },
+              "X-RateLimit-Limit-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Second"
+              },
+              "X-RateLimit-Remaining-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Second"
+              },
+              "X-RateLimit-Limit-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Minute"
+              },
+              "X-RateLimit-Remaining-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Minute"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
+              },
+              "RateLimit": {
+                "$ref": "#/components/headers/RateLimit"
+              },
+              "RateLimit-Policy": {
+                "$ref": "#/components/headers/RateLimit-Policy"
+              },
+              "Link": {
+                "$ref": "#/components/headers/Link"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "A page of Offering rows (the list envelope, R3)",
+                  "type": "object",
+                  "required": [
+                    "data",
+                    "has_more",
+                    "next_cursor",
+                    "meta"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "description": "The rows of this page",
+                      "items": {
+                        "$ref": "#/components/schemas/Offering"
+                      }
+                    },
+                    "has_more": {
+                      "type": "boolean",
+                      "description": "true when a next page exists"
+                    },
+                    "next_cursor": {
+                      "type": "string",
+                      "description": "Opaque cursor of the next page; null on the last page",
+                      "nullable": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "description": "Page metadata",
+                      "properties": {
+                        "coverage": {
+                          "$ref": "#/components/schemas/MetaCoverage"
+                        },
+                        "pinned_at": {
+                          "type": "string",
+                          "description": "Instant the page reads the offerings at",
+                          "format": "date-time",
+                          "nullable": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          }
+        },
+        "x-tier": "standard",
+        "x-credits": 1,
+        "x-license": "redistribute",
+        "x-cache-control": "private, max-age=300",
+        "x-cli": {
+          "group": "offerings",
+          "action": "list",
+          "positional": "company",
+          "flags": {
+            "exemption": "e",
+            "industry": "i",
+            "limit": "l"
+          },
+          "columns": [
+            "issuer_name",
+            "filed_latest",
+            "industry_group",
+            "total_sold",
+            "amendment_count"
+          ]
+        },
+        "x-example-params": []
+      }
+    },
+    "/v1/offerings/{offering_id}": {
+      "get": {
+        "operationId": "getOffering",
+        "summary": "Get a Form D private offering",
+        "tags": [
+          "IPOs"
+        ],
+        "description": "One Form D private offering by its id (the Form D file number, e.g. `021-528681`), with the latest filing's facts and the held filing history; an unknown id answers 404. Form D is research data, not limited to listed companies: `company=` answers any Form D issuer CIK (funds, private companies; a ticker resolves only for a listed company), and the list is not gated by the coverage of the financial families.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "description": "Comma list of root-level fields to keep (R7)",
+            "example": "fiscal_year,period_end"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^(\\d{3}-\\d{1,8}|\\d{10}-\\d{2}-\\d{6})$"
+            },
+            "in": "path",
+            "name": "offering_id",
+            "required": true,
+            "description": "Offering id: the Form D file number, or the first accession number of an offering whose filings state none",
+            "example": "021-528681"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The resource",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/Cache-Control"
+              },
+              "X-Credits-Charged": {
+                "$ref": "#/components/headers/X-Credits-Charged"
+              },
+              "X-Credits-Remaining": {
+                "$ref": "#/components/headers/X-Credits-Remaining"
+              },
+              "X-RateLimit-Limit-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Second"
+              },
+              "X-RateLimit-Remaining-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Second"
+              },
+              "X-RateLimit-Limit-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Minute"
+              },
+              "X-RateLimit-Remaining-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Minute"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
+              },
+              "RateLimit": {
+                "$ref": "#/components/headers/RateLimit"
+              },
+              "RateLimit-Policy": {
+                "$ref": "#/components/headers/RateLimit-Policy"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Offering"
+                }
+              }
+            }
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          }
+        },
+        "x-tier": "standard",
+        "x-credits": 1,
+        "x-license": "redistribute",
+        "x-cache-control": "private, max-age=300",
+        "x-cli": {
+          "group": "offerings",
+          "action": "get",
+          "positional": "offering_id",
+          "flags": {},
+          "columns": [
+            "issuer_name",
+            "filed_latest",
+            "total_sold",
+            "amendment_count"
           ]
         },
         "x-example-params": []
@@ -34853,7 +36534,7 @@
     },
     {
       "name": "Holdings",
-      "description": "13F holdings and quarter-over-quarter changes"
+      "description": "13F holdings, quarter-over-quarter changes and N-PORT fund holdings"
     },
     {
       "name": "Insider trades",
@@ -34861,7 +36542,7 @@
     },
     {
       "name": "IPOs",
-      "description": "Offerings from registration to listing"
+      "description": "Offerings from registration to listing, and Form D private offerings"
     },
     {
       "name": "Events",

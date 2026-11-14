@@ -455,6 +455,15 @@ Statements: standardized and as-reported, plain, detailed and presentation, poin
 invd financials AAPL -s income-statement --view detailed --json
 ```
 
+### fund-holdings
+
+N-PORT fund holdings: the funds holding a company, or one fund's quarter-end portfolio
+
+```bash
+# List N-PORT fund holdings (optional: --filer, --series, --accession, --period-end, --sort, --fields, --limit, --cursor, --all)
+invd fund-holdings list AAPL --json
+```
+
 ### guidance
 
 Guidance items and KPI mentions
@@ -487,7 +496,7 @@ Form 4 transactions
 # Get an insider trade (optional: --fields)
 invd insider-trades get 0001127602-26-012345:1 --json
 
-# List insider trades (optional: --side, --filed-at-gte, --filed-at-gt, --filed-at-lte, --filed-at-lt, --sort, --fields, --limit, --cursor, --all)
+# List insider trades (optional: --side, --filed-at-gte, --filed-at-gt, --filed-at-lte, --filed-at-lt, --transaction-date-gte, --transaction-date-lte, --is-derivative, --sort, --fields, --limit, --cursor, --all)
 invd insider-trades list AAPL --json
 ```
 
@@ -570,6 +579,18 @@ invd news list AAPL --json
 
 # Get a news item's text (optional: --cursor, --max-chars)
 invd news text nws_01JCB4R8 --json
+```
+
+### offerings
+
+Form D private offerings (Regulation D exemptions), amendments folded per offering
+
+```bash
+# Get a Form D private offering (optional: --fields)
+invd offerings get 021-528681 --json
+
+# List Form D private offerings (optional: --filed-at-gte, --filed-at-lte, --exemption, --industry, --total-sold-gte, --is-amendment, --sort, --fields, --limit, --cursor, --all)
+invd offerings list 0001991882 --json
 ```
 
 ### people

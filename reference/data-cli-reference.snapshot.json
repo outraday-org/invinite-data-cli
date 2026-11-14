@@ -11,8 +11,8 @@
     },
     "verifiedOn": "2026-11-14",
     "sourceHashes": {
-      "api-contract.json": "f965ae8a30d8c20a0e99f5302961c38818e558badf74b47862b04d59a9926f9d",
-      "openapi.json": "2464e88e15ed691914d204323e8cd6115c6d9fee872511f5d30dd0e08f39193f",
+      "api-contract.json": "c48a2b3285426d17d932e93bc88a31652c01a78059da7d6eedb0c8b55de43396",
+      "openapi.json": "6e4299570cf3d6efab790dbd681e7afbce405d5df4eff9675d3040341e5c88f0",
       "package.json": "9a63d5965bb753bf924d12a633262ea4fafd5bf57db75fdabbf54ec13e52ab9c",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
@@ -32,7 +32,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "5d7be184b532fb9d125b65fb4533a6f43b51dff8399db238c2787d4946afa62e",
+      "src/generated/cli-manifest.json": "b498ab06f76889fdf03eb26f8af8c2a64db9d304b41811f890b59b642e2e5d6e",
       "src/hand-written-commands.ts": "83b0b0412d6e59d1e2c345dba6efd80ee4bcfeb37e6072a713e1272e624c2eca",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
@@ -48,9 +48,9 @@
       "src/spec-manifest.ts": "d3b5c1b3c3a473f7991c02bd8b204d7ee6ac67b67e1d0ec1855c7345328cc104",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "2464e88e15ed691914d204323e8cd6115c6d9fee872511f5d30dd0e08f39193f",
-    "revision": "c6fd128a034cecb428697a37d5d10e91d496e5a4",
-    "fingerprint": "7bf7c7294fc213e957087582c6b231c47a0ca159e0a86c73d2267c7eb7f5a904"
+    "specSha256": "6e4299570cf3d6efab790dbd681e7afbce405d5df4eff9675d3040341e5c88f0",
+    "revision": "30ac91343cf5a71379354da3dea0da0f87225474",
+    "fingerprint": "4fa8641861b53b5451d7e3bfeef626311f501bc2da0bd2dcb33e451c6c7f88f4"
   },
   "globalOptions": [
     {
@@ -109,6 +109,10 @@
       "description": "Statements: standardized and as-reported, plain, detailed and presentation, point in time"
     },
     {
+      "id": "fund-holdings",
+      "description": "N-PORT fund holdings: the funds holding a company, or one fund's quarter-end portfolio"
+    },
+    {
       "id": "guidance",
       "description": "Guidance items and KPI mentions"
     },
@@ -143,6 +147,10 @@
     {
       "id": "news",
       "description": "News items, full text, search and announcements"
+    },
+    {
+      "id": "offerings",
+      "description": "Form D private offerings (Regulation D exemptions), amendments folded per offering"
     },
     {
       "id": "people",
@@ -3272,7 +3280,7 @@
       "options": [
         {
           "flags": "--expand <value>",
-          "description": "Optional objects to include: `lifecycle`, `proposed_symbols`, `former_names`, `successors` (comma list) (e.g. lifecycle)",
+          "description": "Optional objects to include: `lifecycle`, `proposed_symbols`, `former_names`, `successors`, `fund`, `private_offerings` (comma list) (e.g. lifecycle)",
           "required": false
         },
         {
@@ -4227,6 +4235,123 @@
       ]
     },
     {
+      "command": "fund-holdings list",
+      "group": "fund-holdings",
+      "origin": "spec",
+      "description": "List N-PORT fund holdings",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/fund-holdings"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "company",
+          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. (one or more; sent as a comma list)",
+          "required": false
+        }
+      ],
+      "options": [
+        {
+          "flags": "-F, --filer <value>",
+          "description": "Fund registrant CIK (one): its fund portfolio (e.g. 0000036405)",
+          "required": false
+        },
+        {
+          "flags": "-s, --series <value>",
+          "description": "SEC series id of one fund (S + 9 digits; a unit investment trust without a series: cik:<registrant CIK>); with filer=, required when the registrant files for more than one fund (e.g. S000002277)",
+          "required": false
+        },
+        {
+          "flags": "--accession <value>",
+          "description": "NPORT-P filing: its reported holdings as filed (e.g. 0001752724-26-123456)",
+          "required": false
+        },
+        {
+          "flags": "-p, --period-end <value>",
+          "description": "Each fund's latest report on or before this date (e.g. 2026-06-30)",
+          "required": false
+        },
+        {
+          "flags": "--sort <value>",
+          "description": "Sort field: `-value_usd` (the only order the store serves); the id tiebreaker is always appended (default: \"-value_usd\"; e.g. -value_usd)",
+          "required": false,
+          "choices": [
+            "-value_usd"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 1 000 on 13F rows) (default: 25; e.g. 100)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
       "command": "guidance kpis",
       "group": "guidance",
       "origin": "spec",
@@ -4812,6 +4937,26 @@
         {
           "flags": "--filed-at-lt <value>",
           "description": "`filed_at` before this value (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--transaction-date-gte <value>",
+          "description": "`transaction_date` on or after this value (rows without a transaction date are excluded) (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--transaction-date-lte <value>",
+          "description": "`transaction_date` on or before this value (rows without a transaction date are excluded) (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--is-derivative",
+          "description": "true = only derivative-security lines; false = only non-derivative lines (e.g. false) (sends true)",
+          "required": false
+        },
+        {
+          "flags": "--no-is-derivative",
+          "description": "Sends is_derivative=false",
           "required": false
         },
         {
@@ -6472,6 +6617,212 @@
         {
           "flags": "--fields <list>",
           "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "offerings get",
+      "group": "offerings",
+      "origin": "spec",
+      "description": "Get a Form D private offering",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/offerings/{offering_id}"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "offering_id",
+          "description": "Offering id: the Form D file number, or the first accession number of an offering whose filings state none",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "offerings list",
+      "group": "offerings",
+      "origin": "spec",
+      "description": "List Form D private offerings",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/offerings"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "company",
+          "description": "Issuer: a CIK (all digits, any padding; any Form D issuer, listed or not) or the ticker of a listed company — ONE value; matches the primary issuer and co-issuers. Without it: every offering (one or more; sent as a comma list)",
+          "required": false
+        }
+      ],
+      "options": [
+        {
+          "flags": "--filed-at-gte <value>",
+          "description": "Latest filing on or after this date (e.g. 2026-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--filed-at-lte <value>",
+          "description": "Latest filing on or before this date (e.g. 2026-09-30)",
+          "required": false
+        },
+        {
+          "flags": "-e, --exemption <value>",
+          "description": "Offerings claiming this exemption, as filed (06b, 06c, 04, 3C.7, …) (e.g. 06c)",
+          "required": false
+        },
+        {
+          "flags": "-i, --industry <value>",
+          "description": "Industry group as filed (case-insensitive exact match) (e.g. Pooled Investment Fund)",
+          "required": false
+        },
+        {
+          "flags": "--total-sold-gte <value>",
+          "description": "Total amount sold at least this many USD (e.g. 1000000)",
+          "required": false
+        },
+        {
+          "flags": "--is-amendment",
+          "description": "true = offerings whose latest filing is an amendment (D/A); false = an original Form D (e.g. false) (sends true)",
+          "required": false
+        },
+        {
+          "flags": "--no-is-amendment",
+          "description": "Sends is_amendment=false",
+          "required": false
+        },
+        {
+          "flags": "--sort <value>",
+          "description": "Sort field: `-filed_latest` (the only order the store serves); the offering id tiebreaker is always appended (default: \"-filed_latest\"; e.g. -filed_latest)",
+          "required": false,
+          "choices": [
+            "-filed_latest"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
           "required": false
         },
         {

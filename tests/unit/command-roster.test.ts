@@ -55,8 +55,8 @@ describe('the hand-written roster', () => {
     const top = createProgram().commands.map(command => command.name()).sort();
     expect(top).toEqual([
       'agent-setup', 'api', 'auth', 'catalog', 'companies', 'completion', 'config', 'documents', 'events', 'filers',
-      'filings', 'financials', 'guidance', 'holdings', 'insider-trades', 'investor-documents', 'ipos', 'market', 'me',
-      'metrics', 'news', 'people', 'plugin', 'search', 'segments', 'webhooks',
+      'filings', 'financials', 'fund-holdings', 'guidance', 'holdings', 'insider-trades', 'investor-documents', 'ipos',
+      'market', 'me', 'metrics', 'news', 'offerings', 'people', 'plugin', 'search', 'segments', 'webhooks',
     ]);
     const tree = leaves(createProgram());
     expect(new Set(tree).size).toBe(tree.length);

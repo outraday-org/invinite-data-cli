@@ -1,6 +1,6 @@
 {
   "specVersion": "2026-11-13",
-  "specSha256": "2464e88e15ed691914d204323e8cd6115c6d9fee872511f5d30dd0e08f39193f",
+  "specSha256": "6e4299570cf3d6efab790dbd681e7afbce405d5df4eff9675d3040341e5c88f0",
   "groups": [
     {
       "name": "catalog",
@@ -29,6 +29,10 @@
     {
       "name": "financials",
       "description": "Statements: standardized and as-reported, plain, detailed and presentation, point in time"
+    },
+    {
+      "name": "fund-holdings",
+      "description": "N-PORT fund holdings: the funds holding a company, or one fund's quarter-end portfolio"
     },
     {
       "name": "guidance",
@@ -65,6 +69,10 @@
     {
       "name": "news",
       "description": "News items, full text, search and announcements"
+    },
+    {
+      "name": "offerings",
+      "description": "Form D private offerings (Regulation D exemptions), amendments folded per offering"
     },
     {
       "name": "people",
@@ -2249,9 +2257,9 @@
           "in": "query",
           "required": false,
           "type": "string",
-          "pattern": "^(lifecycle|proposed_symbols|former_names|successors)(,(lifecycle|proposed_symbols|former_names|successors))*$",
+          "pattern": "^(lifecycle|proposed_symbols|former_names|successors|fund|private_offerings)(,(lifecycle|proposed_symbols|former_names|successors|fund|private_offerings))*$",
           "example": "lifecycle",
-          "description": "Optional objects to include: `lifecycle`, `proposed_symbols`, `former_names`, `successors` (comma list)",
+          "description": "Optional objects to include: `lifecycle`, `proposed_symbols`, `former_names`, `successors`, `fund`, `private_offerings` (comma list)",
           "flag": "expand"
         },
         {
@@ -2297,7 +2305,9 @@
         "lifecycle",
         "proposed_symbols",
         "former_names",
-        "successors"
+        "successors",
+        "fund",
+        "private_offerings"
       ]
     },
     {
@@ -2421,7 +2431,8 @@
         "phase",
         "forms",
         "stated_tickers",
-        "listing"
+        "listing",
+        "private_offerings_count"
       ]
     },
     {
@@ -4196,6 +4207,147 @@
       ]
     },
     {
+      "operationId": "listFundHoldings",
+      "group": "fund-holdings",
+      "action": "list",
+      "method": "get",
+      "path": "/v1/fund-holdings",
+      "auth": true,
+      "summary": "List N-PORT fund holdings",
+      "credits": 1,
+      "tier": "standard",
+      "params": [
+        {
+          "name": "company",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "AAPL",
+          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required.",
+          "flag": "company"
+        },
+        {
+          "name": "filer",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "0000036405",
+          "description": "Fund registrant CIK (one): its fund portfolio",
+          "alias": "F",
+          "flag": "filer"
+        },
+        {
+          "name": "series",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "S000002277",
+          "description": "SEC series id of one fund (S + 9 digits; a unit investment trust without a series: cik:<registrant CIK>); with filer=, required when the registrant files for more than one fund",
+          "alias": "s",
+          "flag": "series"
+        },
+        {
+          "name": "accession",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "0001752724-26-123456",
+          "description": "NPORT-P filing: its reported holdings as filed",
+          "flag": "accession"
+        },
+        {
+          "name": "period_end",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-06-30",
+          "description": "Each fund's latest report on or before this date",
+          "alias": "p",
+          "flag": "period-end"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "-value_usd"
+          ],
+          "default": "-value_usd",
+          "example": "-value_usd",
+          "description": "Sort field: `-value_usd` (the only order the store serves); the id tiebreaker is always appended",
+          "flag": "sort"
+        },
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "fiscal_year,period_end",
+          "description": "Comma list of root-level fields to keep (R7)",
+          "flag": "fields"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 100,
+          "description": "Rows per page (default 25, max 1 000 on 13F rows)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        }
+      ],
+      "positional": {
+        "name": "company",
+        "required": false,
+        "variadic": "comma"
+      },
+      "exampleParams": [
+        "company"
+      ],
+      "list": true,
+      "view": "table",
+      "columns": [
+        "series_name",
+        "ticker",
+        "value_usd",
+        "pct_nav",
+        "report_date"
+      ],
+      "fields": [
+        "fund_key",
+        "series_id",
+        "series_name",
+        "registrant_cik",
+        "registrant_name",
+        "class_tickers",
+        "report_date",
+        "accession_number",
+        "issuer_cik",
+        "issuer_name",
+        "cusip",
+        "isin",
+        "ticker",
+        "value_usd",
+        "pct_nav",
+        "balance",
+        "unit",
+        "asset_cat",
+        "issuer_resolution"
+      ]
+    },
+    {
       "operationId": "listKpis",
       "group": "guidance",
       "action": "kpis",
@@ -4814,7 +4966,21 @@
         "total",
         "shares_owned_following_transaction",
         "shares_owned_before_transaction",
-        "side"
+        "side",
+        "transaction_date",
+        "deemed_execution_date",
+        "owner_cik",
+        "direct_indirect",
+        "nature_of_ownership",
+        "is_derivative",
+        "conversion_exercise_price",
+        "exercise_date",
+        "expiration_date",
+        "underlying_security_title",
+        "underlying_shares",
+        "footnotes",
+        "is_10b5_1",
+        "source"
       ]
     },
     {
@@ -4888,6 +5054,33 @@
           "flag": "filed-at-lt"
         },
         {
+          "name": "transaction_date.gte",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2025-01-01",
+          "description": "`transaction_date` on or after this value (rows without a transaction date are excluded)",
+          "flag": "transaction-date-gte"
+        },
+        {
+          "name": "transaction_date.lte",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2025-01-01",
+          "description": "`transaction_date` on or before this value (rows without a transaction date are excluded)",
+          "flag": "transaction-date-lte"
+        },
+        {
+          "name": "is_derivative",
+          "in": "query",
+          "required": false,
+          "type": "boolean",
+          "example": false,
+          "description": "true = only derivative-security lines; false = only non-derivative lines",
+          "flag": "is-derivative"
+        },
+        {
           "name": "sort",
           "in": "query",
           "required": false,
@@ -4940,6 +5133,7 @@
       "view": "table",
       "columns": [
         "filed_at",
+        "transaction_date",
         "reporting_person_name",
         "side",
         "shares",
@@ -4966,7 +5160,21 @@
         "total",
         "shares_owned_following_transaction",
         "shares_owned_before_transaction",
-        "side"
+        "side",
+        "transaction_date",
+        "deemed_execution_date",
+        "owner_cik",
+        "direct_indirect",
+        "nature_of_ownership",
+        "is_derivative",
+        "conversion_exercise_price",
+        "exercise_date",
+        "expiration_date",
+        "underlying_security_title",
+        "underlying_shares",
+        "footnotes",
+        "is_10b5_1",
+        "source"
       ]
     },
     {
@@ -6568,6 +6776,267 @@
         "coverage",
         "has_more",
         "next_cursor"
+      ]
+    },
+    {
+      "operationId": "getOffering",
+      "group": "offerings",
+      "action": "get",
+      "method": "get",
+      "path": "/v1/offerings/{offering_id}",
+      "auth": true,
+      "summary": "Get a Form D private offering",
+      "credits": 1,
+      "tier": "standard",
+      "params": [
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "fiscal_year,period_end",
+          "description": "Comma list of root-level fields to keep (R7)",
+          "flag": "fields"
+        },
+        {
+          "name": "offering_id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "pattern": "^(\\d{3}-\\d{1,8}|\\d{10}-\\d{2}-\\d{6})$",
+          "example": "021-528681",
+          "description": "Offering id: the Form D file number, or the first accession number of an offering whose filings state none",
+          "flag": "offering-id"
+        }
+      ],
+      "positional": {
+        "name": "offering_id",
+        "required": true
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "issuer_name",
+        "filed_latest",
+        "total_sold",
+        "amendment_count"
+      ],
+      "fields": [
+        "offering_id",
+        "file_number",
+        "first_accession",
+        "latest_accession",
+        "accessions",
+        "primary_issuer_cik",
+        "issuer_name",
+        "co_issuer_ciks",
+        "filed_first",
+        "filed_latest",
+        "sale_date",
+        "first_sale_yet_to_occur",
+        "amendment_count",
+        "original_held",
+        "is_amendment",
+        "exemptions",
+        "industry_group",
+        "investment_fund_type",
+        "is_40_act",
+        "security_types",
+        "is_business_combination",
+        "more_than_one_year",
+        "min_investment",
+        "total_offering_amount",
+        "total_sold",
+        "total_remaining",
+        "indefinite_amount",
+        "has_non_accredited",
+        "non_accredited_count",
+        "investor_count",
+        "revenue_range",
+        "net_asset_value_range",
+        "sales_commission",
+        "finders_fee",
+        "related_persons",
+        "sic_code",
+        "jurisdiction",
+        "entity_type",
+        "year_of_inc"
+      ]
+    },
+    {
+      "operationId": "listOfferings",
+      "group": "offerings",
+      "action": "list",
+      "method": "get",
+      "path": "/v1/offerings",
+      "auth": true,
+      "summary": "List Form D private offerings",
+      "credits": 1,
+      "tier": "standard",
+      "params": [
+        {
+          "name": "company",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "0001991882",
+          "description": "Issuer: a CIK (all digits, any padding; any Form D issuer, listed or not) or the ticker of a listed company — ONE value; matches the primary issuer and co-issuers. Without it: every offering",
+          "flag": "company"
+        },
+        {
+          "name": "filed_at.gte",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-01-01",
+          "description": "Latest filing on or after this date",
+          "flag": "filed-at-gte"
+        },
+        {
+          "name": "filed_at.lte",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-09-30",
+          "description": "Latest filing on or before this date",
+          "flag": "filed-at-lte"
+        },
+        {
+          "name": "exemption",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "pattern": "^[A-Za-z0-9.()]{1,12}$",
+          "example": "06c",
+          "description": "Offerings claiming this exemption, as filed (06b, 06c, 04, 3C.7, …)",
+          "alias": "e",
+          "flag": "exemption"
+        },
+        {
+          "name": "industry",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "Pooled Investment Fund",
+          "description": "Industry group as filed (case-insensitive exact match)",
+          "alias": "i",
+          "flag": "industry"
+        },
+        {
+          "name": "total_sold.gte",
+          "in": "query",
+          "required": false,
+          "type": "number",
+          "example": 1000000,
+          "description": "Total amount sold at least this many USD",
+          "flag": "total-sold-gte"
+        },
+        {
+          "name": "is_amendment",
+          "in": "query",
+          "required": false,
+          "type": "boolean",
+          "example": false,
+          "description": "true = offerings whose latest filing is an amendment (D/A); false = an original Form D",
+          "flag": "is-amendment"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "-filed_latest"
+          ],
+          "default": "-filed_latest",
+          "example": "-filed_latest",
+          "description": "Sort field: `-filed_latest` (the only order the store serves); the offering id tiebreaker is always appended",
+          "flag": "sort"
+        },
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "fiscal_year,period_end",
+          "description": "Comma list of root-level fields to keep (R7)",
+          "flag": "fields"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, max 200)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        }
+      ],
+      "positional": {
+        "name": "company",
+        "required": false,
+        "variadic": "comma"
+      },
+      "list": true,
+      "view": "table",
+      "columns": [
+        "issuer_name",
+        "filed_latest",
+        "industry_group",
+        "total_sold",
+        "amendment_count"
+      ],
+      "fields": [
+        "offering_id",
+        "file_number",
+        "first_accession",
+        "latest_accession",
+        "accessions",
+        "primary_issuer_cik",
+        "issuer_name",
+        "co_issuer_ciks",
+        "filed_first",
+        "filed_latest",
+        "sale_date",
+        "first_sale_yet_to_occur",
+        "amendment_count",
+        "original_held",
+        "is_amendment",
+        "exemptions",
+        "industry_group",
+        "investment_fund_type",
+        "is_40_act",
+        "security_types",
+        "is_business_combination",
+        "more_than_one_year",
+        "min_investment",
+        "total_offering_amount",
+        "total_sold",
+        "total_remaining",
+        "indefinite_amount",
+        "has_non_accredited",
+        "non_accredited_count",
+        "investor_count",
+        "revenue_range",
+        "net_asset_value_range",
+        "sales_commission",
+        "finders_fee",
+        "related_persons",
+        "sic_code",
+        "jurisdiction",
+        "entity_type",
+        "year_of_inc"
       ]
     },
     {

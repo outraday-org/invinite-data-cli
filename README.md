@@ -3,7 +3,7 @@
 `invd` is the command-line interface for the [Invinite Data API](https://invinite.com/docs/data-api/overview) (v2):
 listed companies and every SEC filer, standardized and as-reported financial statements, ratios, growth and CAGR,
 segments, SEC filings and immutable document versions, earnings calls (transcripts, Q&A, guidance, slides, audio),
-13F holdings, insider trades, IPOs, news and full-text search — from your terminal, a script or an AI agent.
+13F and N-PORT fund holdings, insider trades, IPOs and Form D offerings, news and full-text search — from your terminal, a script or an AI agent.
 
 ```bash
 invd financials AAPL --period quarterly --limit 4
@@ -81,11 +81,12 @@ Commands are noun-verb over the API's groups:
 | `guidance` | guidance items and KPI mentions |
 | `people` | executives and analysts, and who took part in which event |
 | `holdings` | 13F holdings and quarter-over-quarter changes |
-| `insider-trades` | Form 4 transactions |
+| `fund-holdings` | N-PORT fund holdings: the funds holding a company, or one fund's quarter-end portfolio |
+| `insider-trades` | Form 4 transactions (trade date, owner CIK, derivative and 10b5-1 flags where the SEC Form 3/4/5 dataset has them) |
 | `investor-documents` | company-published documents (annual reports, decks, letters) |
 | `news` | news from SEC filings and the companies' own newsrooms, with attribution |
 | `search` | full-text search over filings, transcripts, investor documents and news |
-| `ipos`, `market` | offerings; US market holidays |
+| `ipos`, `offerings`, `market` | offerings from registration to listing; Form D private offerings; US market holidays |
 | `catalog` | static catalogs: metrics, sections, forms, event types, document kinds, mapping rules |
 | `me` | your account and usage (free) |
 | `webhooks` | outbound event deliveries |
@@ -232,7 +233,10 @@ invd holdings AAPL                                  # 13F holders of a company
 invd holdings --filer 0000102909                    # one manager's portfolio
 invd holdings AAPL --period-end 2026-06-30 --instruments all
 invd holdings changes AAPL --type new,sold_out
+invd fund-holdings NVDA                             # N-PORT funds holding a company (quarter-end, report_date per fund)
+invd fund-holdings --filer 0000036405 --series S000002277   # one fund's portfolio
 invd insider-trades AAPL --filed-at-gte 2026-01-01
+invd insider-trades NVDA --transaction-date-gte 2026-10-01 --is-derivative false
 invd insider-trades get 0001127602-26-012345:1
 ```
 
@@ -247,6 +251,9 @@ invd search news buyback --company AAPL
 invd investor-documents AAPL --kind investor_presentation
 invd search investor-documents "capital allocation" --company AAPL
 invd ipos list --stage priced
+invd offerings 0001318605                           # Form D private offerings of an issuer
+invd offerings get 021-528681                       # one offering (its Form D file number)
+invd filers get 0000036405 --expand fund,private_offerings
 invd market holidays --date-gte 2026-01-01
 ```
 
