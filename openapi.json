@@ -14074,7 +14074,9 @@
                       "last_seen": "2026-11-02T22:00:00.000Z",
                       "mean_difficulty": 0.552,
                       "scored_question_count": 5,
-                      "role": "analyst"
+                      "role": "analyst",
+                      "image_url": null,
+                      "image_kind": null
                     }
                   ],
                   "has_more": false,
@@ -14247,7 +14249,9 @@
                   "last_seen": "2026-10-28T21:30:00.000Z",
                   "mean_difficulty": null,
                   "scored_question_count": 0,
-                  "role": "executive"
+                  "role": "executive",
+                  "image_url": null,
+                  "image_kind": null
                 }
               }
             }
@@ -14487,7 +14491,9 @@
                           "quote": "At this time, all participants are in a listen-only mode.",
                           "start_ms": 800
                         }
-                      ]
+                      ],
+                      "image_url": null,
+                      "image_kind": null
                     }
                   ],
                   "has_more": false,

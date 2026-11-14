@@ -11,8 +11,8 @@
     },
     "verifiedOn": "2026-11-14",
     "sourceHashes": {
-      "api-contract.json": "8cd502167bf892ec8fbc259dc41ebd987d84ae4c064f64fbffef1531f373ba8f",
-      "openapi.json": "2006941427c6852f11b470aa7d77365c150810d2c3209539890f791e18097833",
+      "api-contract.json": "f965ae8a30d8c20a0e99f5302961c38818e558badf74b47862b04d59a9926f9d",
+      "openapi.json": "2464e88e15ed691914d204323e8cd6115c6d9fee872511f5d30dd0e08f39193f",
       "package.json": "22f8f7f76e8953cc79f0e957c37ae357c0ef65bd283ac203a99b8f95b3a3c446",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
@@ -32,7 +32,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "a48ecc9b0bd1bebf0d0ffd9db49c86bf7605b850f3068284d88e7ba7ca080fc2",
+      "src/generated/cli-manifest.json": "5d7be184b532fb9d125b65fb4533a6f43b51dff8399db238c2787d4946afa62e",
       "src/hand-written-commands.ts": "83b0b0412d6e59d1e2c345dba6efd80ee4bcfeb37e6072a713e1272e624c2eca",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
@@ -48,9 +48,9 @@
       "src/spec-manifest.ts": "d3b5c1b3c3a473f7991c02bd8b204d7ee6ac67b67e1d0ec1855c7345328cc104",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "2006941427c6852f11b470aa7d77365c150810d2c3209539890f791e18097833",
-    "revision": "b622cd530e5cdf05a909daba63e5152fd1216a30",
-    "fingerprint": "28e70ae1e3f8a4f3e6605d4cb71a4a5fab943df450b5da4a10ce58ac1734e449"
+    "specSha256": "2464e88e15ed691914d204323e8cd6115c6d9fee872511f5d30dd0e08f39193f",
+    "revision": "05de50c875c9542222d803ad7ae1ab972eb1e714",
+    "fingerprint": "1ac1ec85063143c05131914da8140bd7a311ee2e34de33772e21fc5c5acbaba5"
   },
   "globalOptions": [
     {
