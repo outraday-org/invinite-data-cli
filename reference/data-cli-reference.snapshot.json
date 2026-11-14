@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "6.5.0",
+    "version": "6.6.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -13,7 +13,7 @@
     "sourceHashes": {
       "api-contract.json": "c48a2b3285426d17d932e93bc88a31652c01a78059da7d6eedb0c8b55de43396",
       "openapi.json": "6e4299570cf3d6efab790dbd681e7afbce405d5df4eff9675d3040341e5c88f0",
-      "package.json": "9a63d5965bb753bf924d12a633262ea4fafd5bf57db75fdabbf54ec13e52ab9c",
+      "package.json": "0f54b0ae8eede36206dac824591c48df01677c7d7f61e1f9981ad4b1947f8df5",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "ed216f689f39e3dbf72c7d6a1c74ee6cb9c22fbaf9982a9b4ddee2873f2d5536",
@@ -49,8 +49,8 @@
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
     "specSha256": "6e4299570cf3d6efab790dbd681e7afbce405d5df4eff9675d3040341e5c88f0",
-    "revision": "30ac91343cf5a71379354da3dea0da0f87225474",
-    "fingerprint": "4fa8641861b53b5451d7e3bfeef626311f501bc2da0bd2dcb33e451c6c7f88f4"
+    "revision": "64d1cbe8ecbdfdd1ee61f130bc3678a4157a01d6",
+    "fingerprint": "6ba73496b855551c75841b3eb0c9b254728a766058040f3ba3b70ac882a96ec9"
   },
   "globalOptions": [
     {
