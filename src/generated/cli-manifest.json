@@ -1,6 +1,6 @@
 {
   "specVersion": "2026-11-13",
-  "specSha256": "d0dec5954759eba22df78d5570edc8ef62f180b2cb1faef038aea1ba99d798a5",
+  "specSha256": "2006941427c6852f11b470aa7d77365c150810d2c3209539890f791e18097833",
   "groups": [
     {
       "name": "catalog",
@@ -6610,7 +6610,8 @@
         "person_id",
         "name",
         "role",
-        "current_firm"
+        "current_firm",
+        "image_url"
       ],
       "fields": [
         "person_id",
@@ -6627,7 +6628,9 @@
         "last_seen",
         "mean_difficulty",
         "scored_question_count",
-        "role"
+        "role",
+        "image_url",
+        "image_kind"
       ]
     },
     {
@@ -6764,7 +6767,9 @@
         "last_seen",
         "mean_difficulty",
         "scored_question_count",
-        "role"
+        "role",
+        "image_url",
+        "image_kind"
       ]
     },
     {
@@ -6865,7 +6870,9 @@
         "role",
         "confidence",
         "resolved_by",
-        "evidence"
+        "evidence",
+        "image_url",
+        "image_kind"
       ]
     },
     {

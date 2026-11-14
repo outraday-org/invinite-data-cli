@@ -218,6 +218,8 @@ invd events transcript-diff <event_id> --from 1 --to 2
 invd guidance AAPL --event <event_id>
 invd guidance kpis AAPL --metric subscribers
 invd people list AAPL --role analyst
+invd people get <person_id>                          # + image_url (a photo or the company / firm logo; empty = show initials)
+invd people list AAPL --fields name,image_url,image_kind --json
 invd search transcripts "gross margin" --company AAPL --type qa
 ```
 

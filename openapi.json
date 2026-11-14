@@ -1051,6 +1051,21 @@
               "operator",
               "other"
             ]
+          },
+          "image_url": {
+            "type": "string",
+            "nullable": true,
+            "description": "Permanent public URL of the person's image: a photo (executives and investor-relations hosts, from the company's website or proxy statement), else the logo of the company or the analyst's firm. Null when none is known or speaker images are not yet published; show initials then"
+          },
+          "image_kind": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "photo",
+              "company_logo",
+              "firm_logo"
+            ],
+            "description": "What `image_url` shows: photo (the person), company_logo (the company of an executive or investor-relations host) or firm_logo (the analyst's firm); null exactly when `image_url` is null"
           }
         },
         "title": "Person"
@@ -1135,6 +1150,21 @@
                 }
               }
             }
+          },
+          "image_url": {
+            "type": "string",
+            "nullable": true,
+            "description": "Permanent public URL of the person's image: a photo (executives and investor-relations hosts, from the company's website or proxy statement), else the logo of the company or the analyst's firm. Null when none is known or speaker images are not yet published; show initials then"
+          },
+          "image_kind": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "photo",
+              "company_logo",
+              "firm_logo"
+            ],
+            "description": "What `image_url` shows: photo (the person), company_logo (the company of an executive or investor-relations host) or firm_logo (the analyst's firm); null exactly when `image_url` is null"
           }
         },
         "description": "One person's participation in one event",
@@ -14264,7 +14294,8 @@
             "person_id",
             "name",
             "role",
-            "current_firm"
+            "current_firm",
+            "image_url"
           ]
         },
         "x-example-params": []
