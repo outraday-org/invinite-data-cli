@@ -4,11 +4,5 @@
     },
     "permissions": {
         "defaultMode": "bypassPermissions"
-    },
-    "statusLine": {
-        "type": "command",
-        "command": "node .claude/statusline.js",
-        "padding": 0,
-        "refreshInterval": 30
     }
 }
