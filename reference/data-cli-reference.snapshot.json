@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "6.6.0",
+    "version": "6.7.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -9,11 +9,11 @@
     "engines": {
       "node": ">=20"
     },
-    "verifiedOn": "2026-11-14",
+    "verifiedOn": "2026-11-15",
     "sourceHashes": {
-      "api-contract.json": "c48a2b3285426d17d932e93bc88a31652c01a78059da7d6eedb0c8b55de43396",
-      "openapi.json": "6e4299570cf3d6efab790dbd681e7afbce405d5df4eff9675d3040341e5c88f0",
-      "package.json": "0f54b0ae8eede36206dac824591c48df01677c7d7f61e1f9981ad4b1947f8df5",
+      "api-contract.json": "808019a842fae9d2f4ddbd2adc41fe254f2df27e2f9abe08f02fe352f13b30fe",
+      "openapi.json": "1c703f412c765cfdc72246199341e9143ae97a20c522e51a6e761bff566e38c9",
+      "package.json": "30f0b76165265bdbd0250bfa61fa1d9e09f7a2d5fc6194bfa49226fe40b186d1",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "ed216f689f39e3dbf72c7d6a1c74ee6cb9c22fbaf9982a9b4ddee2873f2d5536",
@@ -32,7 +32,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "b498ab06f76889fdf03eb26f8af8c2a64db9d304b41811f890b59b642e2e5d6e",
+      "src/generated/cli-manifest.json": "b53bdc578bfbcc1c8961079fff2758cc9b068b3e8a890fe8464ce5c7e6a0f588",
       "src/hand-written-commands.ts": "83b0b0412d6e59d1e2c345dba6efd80ee4bcfeb37e6072a713e1272e624c2eca",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
@@ -43,14 +43,14 @@
       "src/shared/prompt.ts": "7736cb146f84382ff17badbabcdf69add6673c4a3695c38759486601f3c87d99",
       "src/shared/signals.ts": "5c5122b38e35700a9304bf77f06b900a80e3bc42da6241f93313181117b2fa6b",
       "src/shared/spinner.ts": "62e25b34f62faaaa298fbe4664cb0b1eb52fd62b4c82f498718bd14e608d0d87",
-      "src/spec-commands.ts": "3757f1d394440023505ae56e3f99b4bdc62c1b438c369dd8c7857116aceb6ed7",
+      "src/spec-commands.ts": "da970a9a254783c7ad6dd866e51d968f846aee7d4bcf5fa2f3122022f6bf8d7b",
       "src/spec-flags.ts": "2a19ffd30dbbcd8e85164c7ddde6d7e63650eed5c77dc369161876f42729bfbb",
       "src/spec-manifest.ts": "d3b5c1b3c3a473f7991c02bd8b204d7ee6ac67b67e1d0ec1855c7345328cc104",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "6e4299570cf3d6efab790dbd681e7afbce405d5df4eff9675d3040341e5c88f0",
-    "revision": "64d1cbe8ecbdfdd1ee61f130bc3678a4157a01d6",
-    "fingerprint": "6ba73496b855551c75841b3eb0c9b254728a766058040f3ba3b70ac882a96ec9"
+    "specSha256": "1c703f412c765cfdc72246199341e9143ae97a20c522e51a6e761bff566e38c9",
+    "revision": "8a9d41e1a2d3102c2e932d88f223f2539ff5ad5a",
+    "fingerprint": "808062060f6c135dfee015123a5715b0390a852aa5dd71867b7b8e02031a9298"
   },
   "globalOptions": [
     {
@@ -91,6 +91,14 @@
     {
       "id": "documents",
       "description": "Immutable document versions, sections, figures and fact places"
+    },
+    {
+      "id": "etf-holdings",
+      "description": "ETF composition: one ETF's freshest holdings (issuer file, else N-PORT) or the ETFs holding a company"
+    },
+    {
+      "id": "etf-weights",
+      "description": "ETF sector, country and asset-class weights of the freshest composition"
     },
     {
       "id": "events",
@@ -1836,6 +1844,213 @@
         {
           "flags": "--fields <list>",
           "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "etf-holdings list",
+      "group": "etf-holdings",
+      "origin": "spec",
+      "description": "List ETF holdings (daily issuer files or N-PORT)",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/etf-holdings"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "etf",
+          "description": "ETF ticker: the fund's freshest composition (one ETF)",
+          "required": false
+        }
+      ],
+      "options": [
+        {
+          "flags": "-c, --company <value>",
+          "description": "Ticker (`NVDA`) or CIK of ONE company: the ETFs holding it (from the ETFs' issuer files). Exactly one of `etf` or `company` is required. (e.g. NVDA)",
+          "required": false
+        },
+        {
+          "flags": "-a, --as-of <value>",
+          "description": "With etf=: the composition stored on or before this date (issuer files about 30 days back, older dates from the N-PORT report); default the freshest (e.g. 2026-11-12)",
+          "required": false
+        },
+        {
+          "flags": "--sort <value>",
+          "description": "Sort field: `-weight_pct` with etf= (default), `-market_value_usd` with company= (default); the only orders the store serves (e.g. -weight_pct)",
+          "required": false,
+          "choices": [
+            "-weight_pct",
+            "-market_value_usd"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 1 000 on 13F rows) (default: 25; e.g. 100)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "etf-weights list",
+      "group": "etf-weights",
+      "origin": "spec",
+      "description": "List ETF sector, country and asset-class weights",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/etf-weights"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "etf",
+          "description": "ETF ticker",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "-d, --dimension <value>",
+          "description": "sector, country or asset_class; a comma list for several (default all three) (e.g. sector)",
+          "required": false
+        },
+        {
+          "flags": "-a, --as-of <value>",
+          "description": "With etf=: the composition stored on or before this date (issuer files about 30 days back, older dates from the N-PORT report); default the freshest (e.g. 2026-11-12)",
+          "required": false
+        },
+        {
+          "flags": "--limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
           "required": false
         },
         {
