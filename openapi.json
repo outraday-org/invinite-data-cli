@@ -28161,9 +28161,70 @@
                           "type": "integer",
                           "description": "company=: how many ETFs the store reads an issuer file for (the ETFs this list can name)",
                           "nullable": true
+                        },
+                        "snapshot_changed": {
+                          "type": "boolean",
+                          "description": "true when the composition (etf=) or the ETFs holding the company (company=) changed since the first page of this walk (a newer issuer file arrived): restart from the first page for one consistent answer",
+                          "nullable": true
                         }
                       }
                     }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "etf_symbol": "SPY",
+                      "etf_name": "SPDR S&P 500 ETF TRUST",
+                      "series_id": null,
+                      "source": "issuer_daily",
+                      "as_of": "2026-11-12",
+                      "line": 1,
+                      "name": "APPLE INC",
+                      "ticker": "AAPL",
+                      "cusip": "037833100",
+                      "isin": null,
+                      "sedol": "2046251",
+                      "asset_class": "equity",
+                      "shares": 178410117,
+                      "market_value_usd": null,
+                      "notional_value_usd": null,
+                      "weight_pct": 7.904389,
+                      "sector": "Technology",
+                      "sector_basis": "derived_sic",
+                      "country": "US",
+                      "country_basis": "nport",
+                      "issuer_cik": "0000320193",
+                      "issuer_resolution": "cusip_cache"
+                    }
+                  ],
+                  "has_more": true,
+                  "next_cursor": "eyJ2IjoyLCJhZnRlciI6WzAsImV5SjJJam94TENKeElqb2laR0ZoTURFMU5tRmlNR1F4TUdFNVptUTRaR1ExWlRjMElpd2ljQ0k2SWpJd01qWXRNVEV0TVRWVU1UZzZNelk2TWpZdU9UWXlOVGMyS3pBd09qQXdJaXdpYXlJNld5SXdMalU1TmpJMUlpd2lNalVpWFN3aWN5STZJbk51WVhBNk1UcHBjM04xWlhKZlpHRnBi…",
+                  "meta": {
+                    "coverage": {
+                      "state": "complete",
+                      "through": null,
+                      "retry_after_s": null
+                    },
+                    "source": "issuer_daily",
+                    "as_of": "2026-11-12",
+                    "reason": null,
+                    "composition": {
+                      "newest_issuer_as_of": "2026-11-12",
+                      "nport_report_date": "2026-06-30",
+                      "stored_from": "2026-11-12",
+                      "stored_to": "2026-11-12",
+                      "stored_dates": [
+                        {
+                          "as_of": "2026-11-12",
+                          "source": "issuer_daily",
+                          "status": "ready",
+                          "positions_count": 505
+                        }
+                      ]
+                    },
+                    "issuer_sourced_etfs": null,
+                    "snapshot_changed": false
                   }
                 }
               }
@@ -28410,9 +28471,54 @@
                             "weights_unavailable"
                           ],
                           "nullable": true
+                        },
+                        "weight_pct_sum": {
+                          "type": "number",
+                          "description": "What the buckets of one dimension sum to, in percent (every weighted position once). About 100 for a plain fund; a leveraged or inverse fund is far from 100 (swaps and futures count at notional exposure in the Derivatives bucket): draw a pie chart only when this is about 100. null without buckets",
+                          "nullable": true
+                        },
+                        "weight_basis": {
+                          "type": "string",
+                          "description": "How the position weights were stated: stated = the issuer file states each weight, net_assets = market value over the stated net assets, sum = market value over the sum of the non-derivative positions, nport = the N-PORT percent of net assets, none = no weight was stated or derivable (then reason is weights_unavailable)",
+                          "enum": [
+                            "stated",
+                            "net_assets",
+                            "sum",
+                            "nport",
+                            "none"
+                          ],
+                          "nullable": true
                         }
                       }
                     }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "etf_symbol": "SPY",
+                      "source": "issuer_daily",
+                      "as_of": "2026-11-12",
+                      "dimension": "asset_class",
+                      "bucket": "equity",
+                      "weight_pct": 99.871328,
+                      "positions": 504,
+                      "basis": "issuer_stated"
+                    }
+                  ],
+                  "has_more": false,
+                  "next_cursor": null,
+                  "meta": {
+                    "coverage": {
+                      "state": "complete",
+                      "through": null,
+                      "retry_after_s": null
+                    },
+                    "source": "issuer_daily",
+                    "as_of": "2026-11-12",
+                    "reason": null,
+                    "weight_pct_sum": 99.967472,
+                    "weight_basis": "stated"
                   }
                 }
               }
