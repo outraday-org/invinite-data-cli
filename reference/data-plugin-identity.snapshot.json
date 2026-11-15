@@ -39,7 +39,7 @@
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
     "version": "6.7.0",
-    "specSha256": "1c703f412c765cfdc72246199341e9143ae97a20c522e51a6e761bff566e38c9",
+    "specSha256": "bf5888c378fd7308a4159d3ebbbe54ad43ecfdb25a59f160bc1c1684cc87403c",
     "sourceHashes": {
       "claude-plugin/.claude-plugin/plugin.json": "6361034d87657f7d2da79657a8e62743e735e24b8390a1b2f337c61cb71c07b4",
       "claude-plugin/.mcp.json": "a473ef1b56c55c29434aa2864d3bc0b250b4954890af437308ff9d66bc85d0d5",
@@ -55,7 +55,7 @@
       "scripts/snapshot-data-plugin-packaging.ts": "98945657178e4d4468963f9ef9b7d85025fde6c25444dbc3adb1c2334aac899e",
       "src/commands/plugin.ts": "d571726eeac6b194c825f31dcd5a25e6b46764d8d941732c7b88327cccae372d"
     },
-    "revision": "8a9d41e1a2d3102c2e932d88f223f2539ff5ad5a",
-    "fingerprint": "490e706e9fef32e0d6d70466dddef6c879423f39e12f1512057e60670ad6c7ef"
+    "revision": "8100a0dbe18391ba01a6e0dc3b3648c24e6d0e78",
+    "fingerprint": "440a18149f3490ca9771b9e78030f31001a81e01db594e3a87ceb2e0f9c23675"
   }
 }
