@@ -359,6 +359,24 @@ invd documents get dv_01JCA8XK -p 1-3 --json
 invd documents sections dv_01JCA8XK --json
 ```
 
+### etf-holdings
+
+ETF composition: one ETF's freshest holdings (issuer file, else N-PORT) or the ETFs holding a company
+
+```bash
+# List ETF holdings (daily issuer files or N-PORT) (optional: --company, --as-of, --sort, --fields, --limit, --cursor, --all)
+invd etf-holdings list SPY --json
+```
+
+### etf-weights
+
+ETF sector, country and asset-class weights of the freshest composition
+
+```bash
+# List ETF sector, country and asset-class weights (optional: --dimension, --as-of, --fields, --limit, --cursor, --all)
+invd etf-weights list SPY -d sector --json
+```
+
 ### events
 
 Earnings calls and other corporate events: transcripts, Q&A, media and call analytics

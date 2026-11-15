@@ -415,6 +415,33 @@ export function coverageNote(body: unknown): string | undefined {
   return `coverage: ${coverage.state}${through} — ${meaning}${retry}`;
 }
 
+const SOURCE_LABELS: Readonly<Record<string, string>> = {
+  issuer_daily: 'issuer file (daily)',
+  issuer_monthly: 'issuer file (monthly)',
+  nport: 'SEC N-PORT report',
+};
+
+const REASON_LABELS: Readonly<Record<string, string>> = {
+  single_asset_trust: 'the fund holds one asset; there is no holdings list',
+};
+
+/**
+ * The header line of an answer that states where its rows come from (`meta.source` + `meta.as_of`, e.g. an ETF's
+ * composition from the issuer's daily file or the fund's N-PORT report) and the reason of a deliberate empty answer
+ * (`meta.reason`). Printed above the table on stderr; machine output keeps both in its rows / `meta`.
+ */
+export function sourceNote(body: unknown): string | undefined {
+  const source = pick(body, 'meta.source');
+  const asOf = pick(body, 'meta.as_of');
+  const reason = pick(body, 'meta.reason');
+  const parts = [
+    ...(typeof source === 'string' ? [`source: ${SOURCE_LABELS[source] ?? source}`] : []),
+    ...(typeof asOf === 'string' ? [`as of ${asOf}`] : []),
+    ...(typeof reason === 'string' ? [REASON_LABELS[reason] ?? reason] : []),
+  ];
+  return parts.length > 0 ? parts.join(' · ') : undefined;
+}
+
 async function resolveLookup(plan: Plan): Promise<Plan> {
   if (!plan.lookup) return plan;
   const { body } = await apiCall({ ...plan.lookup.request, silent: true });
@@ -453,6 +480,8 @@ async function streamAll(request: RequestOptions, first: Awaited<ReturnType<type
   let columns: string[] | undefined;
   const collected: unknown[] = [];
   const unregister = resumeOnInterrupt(() => ({ written, cursor }));
+  const header = sourceNote(first.body);
+  if (header && (settings.format === 'table' || settings.format === 'plain') && !settings.jq) console.error(chalk.cyan(header));
   try {
     for await (const page of walkPages(request, first)) {
       const note = coverageNote(page.body);
@@ -512,6 +541,8 @@ async function runOperation(operation: ManifestOperation, positionals: unknown[]
   }
   const note = coverageNote(first.body);
   if (note) console.error(chalk.yellow(note));
+  const header = sourceNote(first.body);
+  if (header && (settings.format === 'table' || settings.format === 'plain') && !settings.jq) console.error(chalk.cyan(header));
   if (first.body === undefined) {
     if (settings.format === 'table' || settings.format === 'plain') console.error(chalk.green('Done.'));
     return;

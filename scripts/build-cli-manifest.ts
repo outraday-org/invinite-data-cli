@@ -49,6 +49,8 @@ export const GROUP_DESCRIPTIONS: Readonly<Record<string, string>> = {
   companies: 'Listed companies: list, profile, fiscal periods, dividends and splits',
   events: 'Earnings calls and other corporate events: transcripts, Q&A, media and call analytics',
   filers: 'Every SEC filer (13F managers, pre-IPO issuers, former registrants), listed or not',
+  'etf-holdings': 'ETF composition: one ETF\'s freshest holdings (issuer file, else N-PORT) or the ETFs holding a company',
+  'etf-weights': 'ETF sector, country and asset-class weights of the freshest composition',
   'fund-holdings': 'N-PORT fund holdings: the funds holding a company, or one fund\'s quarter-end portfolio',
   holdings: '13F holdings and quarter-over-quarter changes',
   ipos: 'Offerings from registration to listing',

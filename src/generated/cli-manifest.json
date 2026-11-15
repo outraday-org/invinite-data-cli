@@ -1,6 +1,6 @@
 {
   "specVersion": "2026-11-13",
-  "specSha256": "6e4299570cf3d6efab790dbd681e7afbce405d5df4eff9675d3040341e5c88f0",
+  "specSha256": "1c703f412c765cfdc72246199341e9143ae97a20c522e51a6e761bff566e38c9",
   "groups": [
     {
       "name": "catalog",
@@ -13,6 +13,14 @@
     {
       "name": "documents",
       "description": "Immutable document versions, sections, figures and fact places"
+    },
+    {
+      "name": "etf-holdings",
+      "description": "ETF composition: one ETF's freshest holdings (issuer file, else N-PORT) or the ETFs holding a company"
+    },
+    {
+      "name": "etf-weights",
+      "description": "ETF sector, country and asset-class weights of the freshest composition"
     },
     {
       "name": "events",
@@ -1247,6 +1255,228 @@
         "title",
         "blocks",
         "block_spans"
+      ]
+    },
+    {
+      "operationId": "listEtfHoldings",
+      "group": "etf-holdings",
+      "action": "list",
+      "method": "get",
+      "path": "/v1/etf-holdings",
+      "auth": true,
+      "summary": "List ETF holdings (daily issuer files or N-PORT)",
+      "credits": 1,
+      "tier": "standard",
+      "params": [
+        {
+          "name": "etf",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "SPY",
+          "description": "ETF ticker: the fund's freshest composition (one ETF)",
+          "flag": "etf"
+        },
+        {
+          "name": "company",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "NVDA",
+          "description": "Ticker (`NVDA`) or CIK of ONE company: the ETFs holding it (from the ETFs' issuer files). Exactly one of `etf` or `company` is required.",
+          "alias": "c",
+          "flag": "company"
+        },
+        {
+          "name": "as_of",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-11-12",
+          "description": "With etf=: the composition stored on or before this date (issuer files about 30 days back, older dates from the N-PORT report); default the freshest",
+          "alias": "a",
+          "flag": "as-of"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "-weight_pct",
+            "-market_value_usd"
+          ],
+          "example": "-weight_pct",
+          "description": "Sort field: `-weight_pct` with etf= (default), `-market_value_usd` with company= (default); the only orders the store serves",
+          "flag": "sort"
+        },
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "fiscal_year,period_end",
+          "description": "Comma list of root-level fields to keep (R7)",
+          "flag": "fields"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 100,
+          "description": "Rows per page (default 25, max 1 000 on 13F rows)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        }
+      ],
+      "positional": {
+        "name": "etf",
+        "required": false
+      },
+      "exampleParams": [
+        "etf"
+      ],
+      "list": true,
+      "view": "table",
+      "columns": [
+        "etf_symbol",
+        "name",
+        "ticker",
+        "weight_pct",
+        "market_value_usd",
+        "source",
+        "as_of"
+      ],
+      "fields": [
+        "etf_symbol",
+        "etf_name",
+        "series_id",
+        "source",
+        "as_of",
+        "line",
+        "name",
+        "ticker",
+        "cusip",
+        "isin",
+        "sedol",
+        "asset_class",
+        "shares",
+        "market_value_usd",
+        "notional_value_usd",
+        "weight_pct",
+        "sector",
+        "sector_basis",
+        "country",
+        "country_basis",
+        "issuer_cik",
+        "issuer_resolution"
+      ]
+    },
+    {
+      "operationId": "listEtfWeights",
+      "group": "etf-weights",
+      "action": "list",
+      "method": "get",
+      "path": "/v1/etf-weights",
+      "auth": true,
+      "summary": "List ETF sector, country and asset-class weights",
+      "credits": 1,
+      "tier": "standard",
+      "params": [
+        {
+          "name": "etf",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "example": "SPY",
+          "description": "ETF ticker",
+          "flag": "etf"
+        },
+        {
+          "name": "dimension",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "sector",
+          "description": "sector, country or asset_class; a comma list for several (default all three)",
+          "alias": "d",
+          "flag": "dimension"
+        },
+        {
+          "name": "as_of",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-11-12",
+          "description": "With etf=: the composition stored on or before this date (issuer files about 30 days back, older dates from the N-PORT report); default the freshest",
+          "alias": "a",
+          "flag": "as-of"
+        },
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "fiscal_year,period_end",
+          "description": "Comma list of root-level fields to keep (R7)",
+          "flag": "fields"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, max 200)",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        }
+      ],
+      "positional": {
+        "name": "etf",
+        "required": true
+      },
+      "exampleParams": [
+        "dimension"
+      ],
+      "list": true,
+      "view": "table",
+      "columns": [
+        "dimension",
+        "bucket",
+        "weight_pct",
+        "positions",
+        "basis"
+      ],
+      "fields": [
+        "etf_symbol",
+        "source",
+        "as_of",
+        "dimension",
+        "bucket",
+        "weight_pct",
+        "positions",
+        "basis"
       ]
     },
     {

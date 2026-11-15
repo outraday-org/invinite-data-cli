@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createProgram, loadManifest } from '../../src/cli.js';
-import { coverageNote, parseFiscalPeriod, wireValue } from '../../src/spec-commands.js';
+import { coverageNote, parseFiscalPeriod, sourceNote, wireValue } from '../../src/spec-commands.js';
 import { UsageError } from '../../src/shared/errors.js';
 import { setJsonMode } from '../../src/shared/spinner.js';
 import type { ManifestParam } from '../../src/spec-manifest.js';
@@ -285,6 +285,35 @@ describe('output', () => {
     vi.mocked(fetch).mockResolvedValueOnce(page([], null, { coverage: { state: 'partial', through: '2026-11-09' } }));
     await run('holdings', 'AAPL', '--json');
     expect(err.join('\n')).toContain('coverage: partial through 2026-11-09');
+  });
+
+  it('invd etf-holdings SPY: the table header names source + as-of; --company lists the ETFs holding a company', async () => {
+    expect(sourceNote({ meta: { source: 'nport', as_of: '2026-09-30', reason: null } })).toBe('source: SEC N-PORT report · as of 2026-09-30');
+    expect(sourceNote({ meta: { source: 'issuer_daily', as_of: '2026-11-13', reason: 'single_asset_trust' } })).toContain('holds one asset');
+    expect(sourceNote({ meta: { coverage: { state: 'complete' } } })).toBeUndefined();
+    const meta = { coverage: { state: 'complete' }, source: 'issuer_daily', as_of: '2026-11-13', reason: null };
+    vi.mocked(fetch).mockResolvedValueOnce(page([{ etf_symbol: 'SPY', name: 'NVIDIA CORP', ticker: 'NVDA', weight_pct: 7.4, source: 'issuer_daily', as_of: '2026-11-13' }], null, meta));
+    await run('etf-holdings', 'SPY', '--as-of', '2026-11-13', '--output', 'table');
+    const url = new URL(calls()[0]?.url ?? '');
+    expect(url.pathname).toBe('/v1/etf-holdings');
+    expect(url.searchParams.get('etf')).toBe('SPY');
+    expect(url.searchParams.get('as_of')).toBe('2026-11-13');
+    expect(err.join('\n')).toContain('source: issuer file (daily) · as of 2026-11-13');
+    expect(out.join('\n')).toContain('NVIDIA CORP');
+    vi.mocked(fetch).mockResolvedValueOnce(page([{ etf_symbol: 'QQQ', source: 'issuer_daily', as_of: '2026-11-13' }], null, { ...meta, source: null, as_of: null }));
+    await run('etf-holdings', '--company', 'NVDA', '--json');
+    expect(new URL(calls()[1]?.url ?? '').searchParams.get('company')).toBe('NVDA');
+  });
+
+  it('invd etf-weights SPY --dimension sector sends the dimension; --json keeps the header off stderr', async () => {
+    const meta = { coverage: { state: 'complete' }, source: 'issuer_monthly', as_of: '2026-10-31' };
+    vi.mocked(fetch).mockResolvedValueOnce(page([{ dimension: 'sector', bucket: 'Information Technology', weight_pct: 31.2, positions: 68, basis: 'issuer_stated' }], null, meta));
+    await run('etf-weights', 'SPY', '--dimension', 'sector', '--json');
+    const url = new URL(calls()[0]?.url ?? '');
+    expect(url.pathname).toBe('/v1/etf-weights');
+    expect(url.searchParams.get('dimension')).toBe('sector');
+    expect(err.join('\n')).not.toContain('source:');
+    expect(out.join('\n')).toContain('Information Technology');
   });
 });
 
