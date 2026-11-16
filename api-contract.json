@@ -94,12 +94,12 @@
     }
   ],
   "provenance": {
-    "secdoorsOpenapiSha256": "0375cd1623e6e74fd506a85728453711bb43d986a89e502456bcca4b26f9a32c",
+    "secdoorsOpenapiSha256": "a1a55a764e15ebf79d3c0fa4051731546b33106833b55c9527d047aae095727d",
     "repository": "https://github.com/outraday-org/invinite-data-api",
     "version": "1.0.0",
-    "specSha256": "d0581d70d473580506b1610b4e41c25c63d50c815f461a5fb3c32158bf403a09",
+    "specSha256": "999332e693651f422ac7b3026f3959bd238d42195b36a92127e345d24a68b2aa",
     "sourceHashes": {
-      "openapi.json": "d0581d70d473580506b1610b4e41c25c63d50c815f461a5fb3c32158bf403a09",
+      "openapi.json": "999332e693651f422ac7b3026f3959bd238d42195b36a92127e345d24a68b2aa",
       "package.json": "925e808886369c41dcb1a21170bc1972613cc169d2fbf66ebdd38be5d82179be",
       "scripts/export-reference.ts": "d925c60f0f895b7b55ae7506e30b1f70a82316e3650c5f7bba0c02f64fb2f09a",
       "scripts/gen-secdoors-types.ts": "860afc486f8041ddfbb515bf5a5a0de8ac9c7237af1a0238d0c08aece7dece1e",
@@ -107,10 +107,10 @@
       "scripts/operation-ids.snapshot.json": "6290aeb6f687ed0323acd9e54c76d8ca162f940df47d94f609505e013bd95f3a",
       "scripts/reference-artifacts.ts": "0ef8e67cb5454a3f50f43de77b0be1aebb7897164ddf3f5288b58dc7d0f47255",
       "scripts/reference-env.ts": "105b341c463b24e99d349d50a96634f83b1b8dca8a669c84730dc93f24e122e0",
-      "src/lib/secStore/secdoors-openapi.json": "a02d98662dba2453ed92dad9b7ae6fbc8993b35c06a913c1d586018dd0a9d0d3",
+      "src/lib/secStore/secdoors-openapi.json": "b9d58ba4e7ed700493a4d7793abb34fbfa68606a796f1c305d6f5ddefa5c9371",
       "src/lib/v2/problem.ts": "96e10d94f2d2ae3d16014a6267668b59ff2b4212ea109183fbb50cd09974df36"
     },
-    "revision": "d3d149b3be542b5436ac3e3617cad1923c429627",
-    "fingerprint": "5c73bdcb3ab16a430a90ccd94186ec10499d1faa56071f3c4a8755ae32f3d3d4"
+    "revision": "064fd5c4d5fccc948f24faa794f40a7ac99dbf34",
+    "fingerprint": "53eb58d6c9a97b42b95e53cd16994ed36cf330b129837713a0cb85c9091e435d"
   }
 }

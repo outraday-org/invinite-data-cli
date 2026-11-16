@@ -479,6 +479,20 @@ The exit codes are the same in `invd` and the Web CLI `inv`:
 | 7 | partial: an `--all` cut short by a failure (resume with the printed `--cursor`) or a short download |
 | 130 / 143 | interrupted (Ctrl-C / SIGTERM); an `--all` walk prints its resume cursor first |
 
+## Changes in 7.2
+
+7.2 follows Data API release 6.2 (US ETFs):
+
+- `invd companies dividends`, `invd companies splits` and `invd filings` take a US ETF ticker (`invd companies
+  dividends TQQQ`, `invd filings TQQQ`). That works for a fund registrant such as SPY and for a series of a
+  multi-series trust such as TQQQ. A trust series lists only the filings
+  that name its series. The company-only commands (financials, metrics, insider trades, events, transcripts, guidance,
+  people, investor documents, IPOs) answer an ETF with one `not_covered` error that names it.
+- Alerts accept an ETF for the `dividend`, `event_countdown` (dividend dates), `filing` and `filing_keyword` types.
+- **Breaking (output):** `invd companies get` shows `sector`, `industry` and `sic` as `—` for a US ETF (`null` in
+  `--json`, empty in CSV), together with `state` / `city`; the API made the three fields nullable. Scripts that
+  expected a string there must accept null. Every command, flag and exit code is unchanged.
+
 ## Upgrading from 6.x
 
 7.0 follows the Data API's alerts release: the `webhooks` group is gone with `/v1/webhooks`. Its replacement is

@@ -356,7 +356,7 @@
           },
           "sector": {
             "type": "string",
-            "description": "Sector",
+            "description": "Sector; null for a US ETF",
             "nullable": true
           },
           "fiscal_year_end": {
@@ -497,15 +497,18 @@
           },
           "sector": {
             "type": "string",
-            "description": "Sector, from the issuer's SIC code (SEC mapping)"
+            "description": "Sector, from the issuer's SIC code (SEC mapping); null for a US ETF (no SIC-derived values are shown for a fund)",
+            "nullable": true
           },
           "industry": {
             "type": "string",
-            "description": "Industry, from the issuer's SIC code (SEC mapping)"
+            "description": "Industry, from the issuer's SIC code (SEC mapping); null for a US ETF (no SIC-derived values are shown for a fund)",
+            "nullable": true
           },
           "sic": {
             "type": "string",
-            "description": "SIC code"
+            "description": "SIC code; null for a US ETF (no SIC-derived values are shown for a fund)",
+            "nullable": true
           },
           "fama_sector": {
             "type": "string",
@@ -621,12 +624,12 @@
           "city": {
             "type": "string",
             "nullable": true,
-            "description": "City"
+            "description": "City; null for a US ETF"
           },
           "state": {
             "type": "string",
             "nullable": true,
-            "description": "State or province"
+            "description": "State or province; null for a US ETF"
           },
           "zip_code": {
             "type": "string",
@@ -1636,7 +1639,7 @@
         "properties": {
           "cik": {
             "type": "string",
-            "description": "SEC CIK, 10 digits",
+            "description": "SEC CIK, 10 digits; for a US ETF that is a series of a trust (TQQQ) the trust's CIK, empty (\"\") for such an ETF without a registrant link",
             "example": "0000320193"
           },
           "ticker": {
@@ -11068,7 +11071,7 @@
       "AlertCondition": {
         "type": "object",
         "title": "AlertCondition",
-        "description": "What the alert watches; the fields depend on `type` (each field names the types that take it; any other field is refused). Companies: `ciks` / `symbols` (at most 100 in all) or, for single-company types, `cik` / `symbol`. A symbol is resolved to its CIK at create. Price types (`price`, `price_move`, `volume_spike`, `price_reminder`) watch ONE instrument: `symbol` + `asset_class`. Coverage: `filing_keyword`, `fundamental_metric` and `earnings_results` work only for companies whose filings and financials Invinite processes (any other company answers 404 `not_covered`); `earnings_call_keyword` takes any company with captured calls.",
+        "description": "What the alert watches; the fields depend on `type` (each field names the types that take it; any other field is refused). Companies: `ciks` / `symbols` (at most 100 in all) or, for single-company types, `cik` / `symbol`. A symbol is resolved to its CIK at create. Price types (`price`, `price_move`, `volume_spike`, `price_reminder`) watch ONE instrument: `symbol` + `asset_class`. Coverage: `filing_keyword`, `fundamental_metric` and `earnings_results` work only for companies whose filings and financials Invinite processes (any other company answers 404 `not_covered`); `earnings_call_keyword` takes any company with captured calls. US ETFs: `dividend`, `event_countdown` (`ex_dividend` / `dividend_payment`), `filing` and `filing_keyword` take an ETF ticker (SPY or a trust series such as TQQQ; a series ETF is stored by symbol and fires only on events that name it, never on another series' filing of its trust); `earnings_call`, `earnings_call_keyword`, `earnings_results`, `fundamental_metric` and an `earnings_call` countdown refuse an ETF by name (400 `invalid_parameter`), `news` / `news_keyword` a series ETF.",
         "properties": {
           "ciks": {
             "type": "array",
@@ -11086,7 +11089,7 @@
               "type": "string",
               "maxLength": 12
             },
-            "description": "Companies by ticker. Same types as `ciks`"
+            "description": "Companies by ticker. Same types as `ciks`; a US ETF ticker for the types that take ETFs"
           },
           "cik": {
             "type": "string",
@@ -11095,7 +11098,7 @@
           "symbol": {
             "type": "string",
             "maxLength": 64,
-            "description": "The company by ticker. Same types as `cik`; price types: the instrument (a US stock / ETF ticker, or a crypto slug / ticker)"
+            "description": "The company (or, for the types that take ETFs, the US ETF) by ticker. Same types as `cik`; price types: the instrument (a US stock / ETF ticker, or a crypto slug / ticker)"
           },
           "form_types": {
             "type": "array",
@@ -11785,7 +11788,7 @@
       "AlertConditionInput": {
         "type": "object",
         "title": "AlertConditionInput",
-        "description": "What the alert watches; the fields depend on `type` (each field names the types that take it; any other field is refused). Companies: `ciks` / `symbols` (at most 100 in all) or, for single-company types, `cik` / `symbol`. A symbol is resolved to its CIK at create. Price types (`price`, `price_move`, `volume_spike`, `price_reminder`) watch ONE instrument: `symbol` + `asset_class`. Coverage: `filing_keyword`, `fundamental_metric` and `earnings_results` work only for companies whose filings and financials Invinite processes (any other company answers 404 `not_covered`); `earnings_call_keyword` takes any company with captured calls. (request form)",
+        "description": "What the alert watches; the fields depend on `type` (each field names the types that take it; any other field is refused). Companies: `ciks` / `symbols` (at most 100 in all) or, for single-company types, `cik` / `symbol`. A symbol is resolved to its CIK at create. Price types (`price`, `price_move`, `volume_spike`, `price_reminder`) watch ONE instrument: `symbol` + `asset_class`. Coverage: `filing_keyword`, `fundamental_metric` and `earnings_results` work only for companies whose filings and financials Invinite processes (any other company answers 404 `not_covered`); `earnings_call_keyword` takes any company with captured calls. (request form) US ETFs: `dividend`, `event_countdown` (`ex_dividend` / `dividend_payment`), `filing` and `filing_keyword` take an ETF ticker (SPY or a trust series such as TQQQ; a series ETF is stored by symbol and fires only on events that name it, never on another series' filing of its trust); `earnings_call`, `earnings_call_keyword`, `earnings_results`, `fundamental_metric` and an `earnings_call` countdown refuse an ETF by name (400 `invalid_parameter`), `news` / `news_keyword` a series ETF.",
         "properties": {
           "ciks": {
             "type": "array",
@@ -11803,7 +11806,7 @@
               "type": "string",
               "maxLength": 12
             },
-            "description": "Companies by ticker. Same types as `ciks`"
+            "description": "Companies by ticker. Same types as `ciks`; a US ETF ticker for the types that take ETFs"
           },
           "cik": {
             "type": "string",
@@ -11812,7 +11815,7 @@
           "symbol": {
             "type": "string",
             "maxLength": 64,
-            "description": "The company by ticker. Same types as `cik`; price types: the instrument (a US stock / ETF ticker, or a crypto slug / ticker)"
+            "description": "The company (or, for the types that take ETFs, the US ETF) by ticker. Same types as `cik`; price types: the instrument (a US stock / ETF ticker, or a crypto slug / ticker)"
           },
           "form_types": {
             "type": "array",
@@ -16963,7 +16966,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -17674,7 +17677,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -17907,6 +17910,7 @@
         "tags": [
           "Reference"
         ],
+        "description": "Keyed by ticker: a US ETF of either identity (SPY, TQQQ) answers like a company.",
         "parameters": [
           {
             "schema": {
@@ -17916,7 +17920,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -18168,7 +18172,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "free",
         "x-credits": 1,
         "x-license": "redistribute",
@@ -18196,6 +18199,7 @@
         "tags": [
           "Reference"
         ],
+        "description": "Keyed by ticker: a US ETF of either identity (SPY, TQQQ) answers like a company.",
         "parameters": [
           {
             "schema": {
@@ -18205,7 +18209,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -18407,7 +18411,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "free",
         "x-credits": 1,
         "x-license": "redistribute",
@@ -20293,7 +20296,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -20753,7 +20756,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -21777,7 +21780,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -22246,7 +22249,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -22856,7 +22859,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -23963,7 +23966,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -24476,7 +24479,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -24817,7 +24820,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -25153,7 +25156,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -25488,7 +25491,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -25821,7 +25824,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -26363,7 +26366,7 @@
         "tags": [
           "Filings"
         ],
-        "description": "A company’s SEC filings by filing date (newest first by default). Several companies are read one after another: all filings of the first company in the request’s order, then the next; `meta.form_facet` sums the forms of the companies read on the page. `items` is applied to the store’s pages, so a page can hold fewer than `limit` rows while `has_more` is true; follow `next_cursor` until `has_more` is false.",
+        "description": "A company’s SEC filings by filing date (newest first by default). Several companies are read one after another: all filings of the first company in the request’s order, then the next; `meta.form_facet` sums the forms of the companies read on the page. `items` is applied to the store’s pages, so a page can hold fewer than `limit` rows while `has_more` is true; follow `next_cursor` until `has_more` is false. For a US ETF that is a series of a multi-series trust (TQQQ), only the accessions naming its series (`series_id`) are listed, never the whole trust; an ETF that is its own SEC registrant (SPY, QQQ) lists its registrant's filings.",
         "parameters": [
           {
             "schema": {
@@ -26373,7 +26376,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -27542,7 +27545,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -28997,7 +29000,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -29313,7 +29316,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -29603,7 +29606,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -30561,7 +30564,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -31155,7 +31158,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -32121,7 +32124,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -34947,7 +34950,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -35281,7 +35284,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -35611,7 +35614,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -35890,7 +35893,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -36376,7 +36379,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -36655,7 +36658,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -37411,7 +37414,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
@@ -37679,7 +37682,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on `/v1/dividends`, `/v1/splits` and `/v1/filings` (a trust series' filings are the accessions naming its series; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link). The company-only families (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs) answer one 404 `not_covered` naming the ETF (\"TQQQ is an ETF: … exists only for companies\"); on the other lists a series ETF such as TQQQ is not a known company.",
             "example": "AAPL"
           },
           {
