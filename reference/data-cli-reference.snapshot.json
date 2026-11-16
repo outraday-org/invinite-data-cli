@@ -11,8 +11,8 @@
     },
     "verifiedOn": "2026-11-16",
     "sourceHashes": {
-      "api-contract.json": "a8df72e2ba996e2ab0da6b339e35273e630ed6dd14125291bf754ee77f88d9a7",
-      "openapi.json": "169e6b54438a077cbc7d1f73e9517f42d1a7876cc6de00e01810bfff40a44371",
+      "api-contract.json": "9cabaeb0ed9838787519dab4a58374a0d07aab389ac34811f64f2e431088c926",
+      "openapi.json": "d0581d70d473580506b1610b4e41c25c63d50c815f461a5fb3c32158bf403a09",
       "package.json": "e3414dea71b10dadfa050be775803babb892c4b830c4b2139ed8e47798eda283",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
@@ -33,7 +33,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "3722a1d68ceca9ddbf52e256430d60038f6ab9d6bdf54aa6e939442fae38bf2f",
+      "src/generated/cli-manifest.json": "6f275a9644062c58de32d8867a3d6014f5d976eb74061beb02b52ea2aab2c26b",
       "src/hand-written-commands.ts": "2d608d50bc24f0475a1a8b002eb2abca15578409993439689403417ea96547fd",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
@@ -49,9 +49,9 @@
       "src/spec-manifest.ts": "d3b5c1b3c3a473f7991c02bd8b204d7ee6ac67b67e1d0ec1855c7345328cc104",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "169e6b54438a077cbc7d1f73e9517f42d1a7876cc6de00e01810bfff40a44371",
-    "revision": "f776fbc07650ff75cbeaec515e98702be9f7b951",
-    "fingerprint": "2769b9dba381ba0852e3de4a32838b878947b9224409c23327009e1c07f907d9"
+    "specSha256": "d0581d70d473580506b1610b4e41c25c63d50c815f461a5fb3c32158bf403a09",
+    "revision": "5627d8c9616f42fa075407bd0bca17899e27f845",
+    "fingerprint": "9f46dbaa41f24d476e5710ff9212f02bca10099fda4b407f14f3f377d41d6009"
   },
   "globalOptions": [
     {
@@ -586,7 +586,7 @@
         },
         {
           "flags": "--symbol <value>",
-          "description": "The company by ticker. Same types as `cik` (body condition.symbol)",
+          "description": "The company by ticker. Same types as `cik`; price types: the instrument (a US stock / ETF ticker, or a crypto slug / ticker) (body condition.symbol)",
           "required": false
         },
         {
@@ -706,12 +706,12 @@
         },
         {
           "flags": "--time-of-day-minutes <value>",
-          "description": "Local minute of the day the reminder fires (default 540 = 09:00). event_countdown (body condition.time_of_day_minutes)",
+          "description": "Local minute of the day the reminder fires (event_countdown: default 540 = 09:00). event_countdown, price_reminder (body condition.time_of_day_minutes)",
           "required": false
         },
         {
           "flags": "--timezone <value>",
-          "description": "IANA time zone. event_countdown (body condition.timezone)",
+          "description": "IANA time zone (price_reminder: default America/New_York). event_countdown, price_reminder (body condition.timezone)",
           "required": false
         },
         {
@@ -725,7 +725,97 @@
           "required": false
         },
         {
-          "flags": "--mode <value>",
+          "flags": "--asset-class <value>",
+          "description": "The instrument's market: `us_stock` (US stocks and ETFs) or `crypto` (coins by CoinGecko slug or ticker). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder (body condition.asset_class)",
+          "required": false
+        },
+        {
+          "flags": "--operator <value>",
+          "description": "`crosses_*` fire when the price crosses `level`; `above` / `below` also fire at once when the price is already on that side. price (body condition.operator)",
+          "required": false
+        },
+        {
+          "flags": "--level <value>",
+          "description": "The price level (> 0). price (body condition.level)",
+          "required": false
+        },
+        {
+          "flags": "--direction <value>",
+          "description": "Which move fires. price_move (body condition.direction)",
+          "required": false
+        },
+        {
+          "flags": "--pct <value>",
+          "description": "The move in percent of the baseline. price_move (body condition.pct)",
+          "required": false
+        },
+        {
+          "flags": "--baseline <value>",
+          "description": "What the move is measured from (ignored with window_minutes); gap_open = the session open against the prior close, once per session. price_move (body condition.baseline)",
+          "required": false
+        },
+        {
+          "flags": "--window-minutes <value>",
+          "description": "Measure the move against the price this many minutes ago instead of the baseline. price_move (body condition.window_minutes)",
+          "required": false
+        },
+        {
+          "flags": "--condition-mode <value>",
+          "description": "`relative` = a closed bar's volume ≥ multiple × its baseline; `absolute` = ≥ threshold; `session` = today's cumulative volume ≥ multiple × the 20-session average daily volume (US stocks). volume_spike (body condition.mode)",
+          "required": false
+        },
+        {
+          "flags": "--interval <value>",
+          "description": "The bar evaluated at its close (relative / absolute). volume_spike (body condition.interval)",
+          "required": false
+        },
+        {
+          "flags": "--multiple <value>",
+          "description": "Volume multiple of the baseline (relative / session). volume_spike (body condition.multiple)",
+          "required": false
+        },
+        {
+          "flags": "--threshold <value>",
+          "description": "Bar volume threshold, > 0 (absolute). volume_spike (body condition.threshold)",
+          "required": false
+        },
+        {
+          "flags": "--lookback-bars <value>",
+          "description": "Bars in the baseline, 5–200 (rvol_slot: sessions, 2–20). volume_spike (body condition.lookback_bars)",
+          "required": false
+        },
+        {
+          "flags": "--baseline-mode <value>",
+          "description": "The volume baseline: the mean or the median of the previous bars, or `rvol_slot` = the mean of the same time-of-day bar of earlier sessions (default flat_mean). volume_spike (body condition.baseline_mode)",
+          "required": false
+        },
+        {
+          "flags": "--price-direction <value>",
+          "description": "Only bars that closed up / down (default any). volume_spike (body condition.price_direction)",
+          "required": false
+        },
+        {
+          "flags": "--frequency <value>",
+          "description": "When the reminder fires: once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. price_reminder (body condition.frequency)",
+          "required": false
+        },
+        {
+          "flags": "--at <value>",
+          "description": "The instant of a `once` reminder (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z). price_reminder (body condition.at)",
+          "required": false
+        },
+        {
+          "flags": "--weekday <value>",
+          "description": "Day of a weekly reminder, 0 = Sunday. price_reminder (body condition.weekday)",
+          "required": false
+        },
+        {
+          "flags": "--days <list>",
+          "description": "Several weekdays (0 = Sunday) of a daily / weekly reminder. price_reminder (body condition.days)",
+          "required": false
+        },
+        {
+          "flags": "--trigger-mode <value>",
           "description": "`once` = the alert becomes `triggered` after its first fire (default every_time) (body trigger.mode)",
           "required": false
         },
@@ -1501,7 +1591,7 @@
         },
         {
           "flags": "--symbol <value>",
-          "description": "The company by ticker. Same types as `cik` (body condition.symbol)",
+          "description": "The company by ticker. Same types as `cik`; price types: the instrument (a US stock / ETF ticker, or a crypto slug / ticker) (body condition.symbol)",
           "required": false
         },
         {
@@ -1621,12 +1711,12 @@
         },
         {
           "flags": "--time-of-day-minutes <value>",
-          "description": "Local minute of the day the reminder fires (default 540 = 09:00). event_countdown (body condition.time_of_day_minutes)",
+          "description": "Local minute of the day the reminder fires (event_countdown: default 540 = 09:00). event_countdown, price_reminder (body condition.time_of_day_minutes)",
           "required": false
         },
         {
           "flags": "--timezone <value>",
-          "description": "IANA time zone. event_countdown (body condition.timezone)",
+          "description": "IANA time zone (price_reminder: default America/New_York). event_countdown, price_reminder (body condition.timezone)",
           "required": false
         },
         {
@@ -1640,7 +1730,97 @@
           "required": false
         },
         {
-          "flags": "--mode <value>",
+          "flags": "--asset-class <value>",
+          "description": "The instrument's market: `us_stock` (US stocks and ETFs) or `crypto` (coins by CoinGecko slug or ticker). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder (body condition.asset_class)",
+          "required": false
+        },
+        {
+          "flags": "--operator <value>",
+          "description": "`crosses_*` fire when the price crosses `level`; `above` / `below` also fire at once when the price is already on that side. price (body condition.operator)",
+          "required": false
+        },
+        {
+          "flags": "--level <value>",
+          "description": "The price level (> 0). price (body condition.level)",
+          "required": false
+        },
+        {
+          "flags": "--direction <value>",
+          "description": "Which move fires. price_move (body condition.direction)",
+          "required": false
+        },
+        {
+          "flags": "--pct <value>",
+          "description": "The move in percent of the baseline. price_move (body condition.pct)",
+          "required": false
+        },
+        {
+          "flags": "--baseline <value>",
+          "description": "What the move is measured from (ignored with window_minutes); gap_open = the session open against the prior close, once per session. price_move (body condition.baseline)",
+          "required": false
+        },
+        {
+          "flags": "--window-minutes <value>",
+          "description": "Measure the move against the price this many minutes ago instead of the baseline. price_move (body condition.window_minutes)",
+          "required": false
+        },
+        {
+          "flags": "--condition-mode <value>",
+          "description": "`relative` = a closed bar's volume ≥ multiple × its baseline; `absolute` = ≥ threshold; `session` = today's cumulative volume ≥ multiple × the 20-session average daily volume (US stocks). volume_spike (body condition.mode)",
+          "required": false
+        },
+        {
+          "flags": "--interval <value>",
+          "description": "The bar evaluated at its close (relative / absolute). volume_spike (body condition.interval)",
+          "required": false
+        },
+        {
+          "flags": "--multiple <value>",
+          "description": "Volume multiple of the baseline (relative / session). volume_spike (body condition.multiple)",
+          "required": false
+        },
+        {
+          "flags": "--threshold <value>",
+          "description": "Bar volume threshold, > 0 (absolute). volume_spike (body condition.threshold)",
+          "required": false
+        },
+        {
+          "flags": "--lookback-bars <value>",
+          "description": "Bars in the baseline, 5–200 (rvol_slot: sessions, 2–20). volume_spike (body condition.lookback_bars)",
+          "required": false
+        },
+        {
+          "flags": "--baseline-mode <value>",
+          "description": "The volume baseline: the mean or the median of the previous bars, or `rvol_slot` = the mean of the same time-of-day bar of earlier sessions (default flat_mean). volume_spike (body condition.baseline_mode)",
+          "required": false
+        },
+        {
+          "flags": "--price-direction <value>",
+          "description": "Only bars that closed up / down (default any). volume_spike (body condition.price_direction)",
+          "required": false
+        },
+        {
+          "flags": "--frequency <value>",
+          "description": "When the reminder fires: once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. price_reminder (body condition.frequency)",
+          "required": false
+        },
+        {
+          "flags": "--at <value>",
+          "description": "The instant of a `once` reminder (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z). price_reminder (body condition.at)",
+          "required": false
+        },
+        {
+          "flags": "--weekday <value>",
+          "description": "Day of a weekly reminder, 0 = Sunday. price_reminder (body condition.weekday)",
+          "required": false
+        },
+        {
+          "flags": "--days <list>",
+          "description": "Several weekdays (0 = Sunday) of a daily / weekly reminder. price_reminder (body condition.days)",
+          "required": false
+        },
+        {
+          "flags": "--trigger-mode <value>",
           "description": "`once` = the alert becomes `triggered` after its first fire (default every_time) (body trigger.mode)",
           "required": false
         },
@@ -3084,6 +3264,16 @@
           "required": false
         },
         {
+          "flags": "--max-events-per-minute <value>",
+          "description": "Events per minute this destination receives at most (a token bucket across all delivery machines); events over it stay queued and go out as the bucket refills, never dropped; default 600 (body max_events_per_minute)",
+          "required": false
+        },
+        {
+          "flags": "--digest-seconds <value>",
+          "description": "Digest window: new events are held until the oldest is this many seconds old, then go out together as ONE alert.fired.batch (≤ 500 events / 1 MB per request); retries are not held. Not with preset claude_routine; default null (off) (body digest_seconds)",
+          "required": false
+        },
+        {
           "flags": "--body <json>",
           "description": "The whole JSON request body (flags above override its fields)",
           "required": false
@@ -3658,6 +3848,16 @@
         {
           "flags": "--preset <value>",
           "description": "(body preset)",
+          "required": false
+        },
+        {
+          "flags": "--max-events-per-minute <value>",
+          "description": "Events per minute this destination receives at most (a token bucket across all delivery machines); events over it stay queued and go out as the bucket refills, never dropped (body max_events_per_minute)",
+          "required": false
+        },
+        {
+          "flags": "--digest-seconds <value>",
+          "description": "Digest window: new events are held until the oldest is this many seconds old, then go out together as ONE alert.fired.batch (≤ 500 events / 1 MB per request); retries are not held. Not with preset claude_routine; null turns it off (body digest_seconds)",
           "required": false
         },
         {
