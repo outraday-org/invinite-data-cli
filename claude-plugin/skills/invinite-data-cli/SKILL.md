@@ -287,7 +287,7 @@ Alert rules: create, change, pause, batch and test them, and read one alert's ev
 # Change alerts in bulk (optional: --body, --body-file)
 invd alerts batch --body '{"items":[{"op":"upsert","client_reference_id":"watchlist-msft-div","type":"dividend","condition":{"symbols":["MSFT"],"kinds":["declared"]}},{"op":"pause","client_reference_id":"watchlist-aapl-8k"}]}' --json
 
-# Create an alert (optional: --idempotency-key, --type, --ciks, --symbols, --cik, --symbol, --form-types, --form-categories, --include-amendments, --stage, --keywords, --match, --scope, --sources, --kinds, --earnings-only, --events, --speaker-roles, --min-mentions, --dividend-types, --statuses, --reason-codes, --report-kinds, --event, --days-before, --offsets-days, --minutes-before, --time-of-day-minutes, --timezone, --notify-on-date-change, --mode, --cooldown-seconds, --cooldown-bars, --max-fires, --expires-at, --delete-on-expiry, --activate-at, --pause-until, --rearm, --rearm-distance-pct, --destination-ids, --client-reference-id, --external-user-id, --body, --body-file)
+# Create an alert (optional: --idempotency-key, --type, --ciks, --symbols, --cik, --symbol, --form-types, --form-categories, --include-amendments, --stage, --keywords, --match, --scope, --sources, --kinds, --earnings-only, --events, --speaker-roles, --min-mentions, --dividend-types, --statuses, --reason-codes, --report-kinds, --event, --days-before, --offsets-days, --minutes-before, --time-of-day-minutes, --timezone, --notify-on-date-change, --asset-class, --operator, --level, --direction, --pct, --baseline, --window-minutes, --condition-mode, --interval, --multiple, --threshold, --lookback-bars, --baseline-mode, --price-direction, --frequency, --at, --weekday, --days, --trigger-mode, --cooldown-seconds, --cooldown-bars, --max-fires, --expires-at, --delete-on-expiry, --activate-at, --pause-until, --rearm, --rearm-distance-pct, --destination-ids, --client-reference-id, --external-user-id, --body, --body-file)
 invd alerts create --body '{"type":"filing","condition":{"symbols":["AAPL"],"form_types":["8-K"],"stage":"detected"},"trigger":{"mode":"every_time"},"destination_ids":["dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G"],"client_reference_id":"watchlist-aapl-8k","external_user_id":"user_8812","metadata":{"list":"tech"}}' --json
 
 # Delete an alert
@@ -311,7 +311,7 @@ invd alerts resume alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X --json
 # Send a test event
 invd alerts test alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X --json
 
-# Update an alert (optional: --version, --ciks, --symbols, --cik, --symbol, --form-types, --form-categories, --include-amendments, --stage, --keywords, --match, --scope, --sources, --kinds, --earnings-only, --events, --speaker-roles, --min-mentions, --dividend-types, --statuses, --reason-codes, --report-kinds, --event, --days-before, --offsets-days, --minutes-before, --time-of-day-minutes, --timezone, --notify-on-date-change, --mode, --cooldown-seconds, --cooldown-bars, --max-fires, --expires-at, --delete-on-expiry, --activate-at, --pause-until, --rearm, --rearm-distance-pct, --destination-ids, --client-reference-id, --external-user-id, --body, --body-file)
+# Update an alert (optional: --version, --ciks, --symbols, --cik, --symbol, --form-types, --form-categories, --include-amendments, --stage, --keywords, --match, --scope, --sources, --kinds, --earnings-only, --events, --speaker-roles, --min-mentions, --dividend-types, --statuses, --reason-codes, --report-kinds, --event, --days-before, --offsets-days, --minutes-before, --time-of-day-minutes, --timezone, --notify-on-date-change, --asset-class, --operator, --level, --direction, --pct, --baseline, --window-minutes, --condition-mode, --interval, --multiple, --threshold, --lookback-bars, --baseline-mode, --price-direction, --frequency, --at, --weekday, --days, --trigger-mode, --cooldown-seconds, --cooldown-bars, --max-fires, --expires-at, --delete-on-expiry, --activate-at, --pause-until, --rearm, --rearm-distance-pct, --destination-ids, --client-reference-id, --external-user-id, --body, --body-file)
 invd alerts update alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X --body '{"version":1,"condition":{"symbols":["AAPL","MSFT"],"form_types":["8-K"]}}' --json
 ```
 
@@ -408,7 +408,7 @@ invd config path
 Webhook endpoints alert events are delivered to: secrets, test deliveries and the delivery log
 
 ```bash
-# Create a destination (optional: --idempotency-key, --url, --kind, --description, --body-template, --preset, --body, --body-file)
+# Create a destination (optional: --idempotency-key, --url, --kind, --description, --body-template, --preset, --max-events-per-minute, --digest-seconds, --body, --body-file)
 invd destinations create --body '{"url":"https://hooks.example.com/invinite-alerts","description":"Production alert receiver"}' --json
 
 # Delete a destination
@@ -429,7 +429,7 @@ invd destinations rotate-secret dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G --json
 # Send a test delivery
 invd destinations test dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G --json
 
-# Update a destination (optional: --url, --kind, --description, --body-template, --preset, --status, --body, --body-file)
+# Update a destination (optional: --url, --kind, --description, --body-template, --preset, --max-events-per-minute, --digest-seconds, --status, --body, --body-file)
 invd destinations update dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G --body '{"status":"active"}' --json
 ```
 

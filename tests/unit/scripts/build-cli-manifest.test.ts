@@ -152,6 +152,19 @@ describe('buildManifest', () => {
     expect(create?.view).toBe('keyValue');
   });
 
+  it('a nested name two parent objects share is prefixed with its parent on every side', () => {
+    const shared = fixture();
+    const body = shared.paths['/v1/things'].post.requestBody.content['application/json'].schema as {
+      properties: Record<string, unknown>;
+    };
+    body.properties.scope = { type: 'object', properties: { ciks: { type: 'array', items: { type: 'string' } } } };
+    const fields = op(build(shared), 'createThing')?.body?.fields ?? [];
+    expect(fields.filter(field => field.path.length > 1).map(field => [field.path.join('.'), field.flag])).toEqual([
+      ['filters.ciks', 'filters-ciks'],
+      ['scope.ciks', 'scope-ciks'],
+    ]);
+  });
+
   it('x-cli.command: one command (action "") over several operations told apart by select', () => {
     const manifest = build();
     expect(manifest.operations.filter(operation => operation.group === 'sums').map(operation => [operation.action, operation.select, operation.credits]))

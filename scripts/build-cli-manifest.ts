@@ -239,7 +239,11 @@ function manifestParam(
   return param;
 }
 
-/** Flags for a JSON body's scalar and list properties, one object level deep (`filters.ciks` → `--ciks`). */
+/**
+ * Flags for a JSON body's scalar and list properties, one object level deep (`filters.ciks` → `--ciks`). A nested name
+ * that two parent objects share (`condition.mode` and `trigger.mode` since Data API 6.1) is prefixed with its parent on
+ * every side (`--condition-mode`, `--trigger-mode`): order-independent, so a new field never renames another's flag.
+ */
 function bodyFields(
   spec: Spec,
   schema: JsonSchema,
@@ -249,12 +253,20 @@ function bodyFields(
 ): ManifestBodyField[] {
   const required = new Set(Array.isArray(schema.required) ? schema.required.map(String) : []);
   const fields: ManifestBodyField[] = [];
+  const nestedParents = new Map<string, number>();
+  for (const property of Object.values(propertiesOf(spec, schema))) {
+    if (property.type !== 'object') continue;
+    for (const inner of Object.keys(propertiesOf(spec, property))) {
+      nestedParents.set(inner, (nestedParents.get(inner) ?? 0) + 1);
+    }
+  }
   const add = (path: string[], property: JsonSchema, isRequired: boolean) => {
     if (!isParamType(property.type)) return;
     const items = isRecord(property.items) ? property.items.type : undefined;
     if (property.type === 'array' && !isItemType(items)) return;
     const name = path[path.length - 1] ?? '';
-    const flag = flagName(name);
+    const shared = path.length > 1 && (nestedParents.get(name) ?? 0) > 1;
+    const flag = flagName(shared ? path.join('_') : name);
     if (taken.has(flag) || RESERVED_FLAGS.includes(flag) || COMMAND_FLAGS.includes(flag)) {
       throw new Error(`${where} body property "${path.join('.')}": --${flag} collides with another flag`);
     }

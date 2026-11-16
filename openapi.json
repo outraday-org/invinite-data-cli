@@ -11068,7 +11068,7 @@
       "AlertCondition": {
         "type": "object",
         "title": "AlertCondition",
-        "description": "What the alert watches; the fields depend on `type` (each field names the types that take it; any other field is refused). Companies: `ciks` / `symbols` (at most 100 in all) or, for single-company types, `cik` / `symbol`. A symbol is resolved to its CIK at create. Coverage: `filing_keyword`, `fundamental_metric` and `earnings_results` work only for companies whose filings and financials Invinite processes (any other company answers 404 `not_covered`); `earnings_call_keyword` takes any company with captured calls.",
+        "description": "What the alert watches; the fields depend on `type` (each field names the types that take it; any other field is refused). Companies: `ciks` / `symbols` (at most 100 in all) or, for single-company types, `cik` / `symbol`. A symbol is resolved to its CIK at create. Price types (`price`, `price_move`, `volume_spike`, `price_reminder`) watch ONE instrument: `symbol` + `asset_class`. Coverage: `filing_keyword`, `fundamental_metric` and `earnings_results` work only for companies whose filings and financials Invinite processes (any other company answers 404 `not_covered`); `earnings_call_keyword` takes any company with captured calls.",
         "properties": {
           "ciks": {
             "type": "array",
@@ -11094,8 +11094,8 @@
           },
           "symbol": {
             "type": "string",
-            "maxLength": 12,
-            "description": "The company by ticker. Same types as `cik`"
+            "maxLength": 64,
+            "description": "The company by ticker. Same types as `cik`; price types: the instrument (a US stock / ETF ticker, or a crypto slug / ticker)"
           },
           "form_types": {
             "type": "array",
@@ -11459,16 +11459,157 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 1439,
-            "description": "Local minute of the day the reminder fires (default 540 = 09:00). event_countdown"
+            "description": "Local minute of the day the reminder fires (event_countdown: default 540 = 09:00). event_countdown, price_reminder"
           },
           "timezone": {
             "type": "string",
             "maxLength": 64,
-            "description": "IANA time zone. event_countdown"
+            "description": "IANA time zone (price_reminder: default America/New_York). event_countdown, price_reminder"
           },
           "notify_on_date_change": {
             "type": "boolean",
             "description": "Tell when the event date moves (default true). event_countdown"
+          },
+          "asset_class": {
+            "type": "string",
+            "enum": [
+              "us_stock",
+              "crypto"
+            ],
+            "description": "The instrument's market: `us_stock` (US stocks and ETFs) or `crypto` (coins by CoinGecko slug or ticker). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder"
+          },
+          "operator": {
+            "type": "string",
+            "enum": [
+              "crosses_above",
+              "crosses_below",
+              "crosses",
+              "above",
+              "below"
+            ],
+            "description": "`crosses_*` fire when the price crosses `level`; `above` / `below` also fire at once when the price is already on that side. price"
+          },
+          "level": {
+            "type": "number",
+            "minimum": 0,
+            "description": "The price level (> 0). price"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "up",
+              "down",
+              "both"
+            ],
+            "description": "Which move fires. price_move"
+          },
+          "pct": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 1000,
+            "description": "The move in percent of the baseline. price_move"
+          },
+          "baseline": {
+            "type": "string",
+            "enum": [
+              "prior_close",
+              "intraday_open",
+              "session_high",
+              "session_low",
+              "gap_open"
+            ],
+            "description": "What the move is measured from (ignored with window_minutes); gap_open = the session open against the prior close, once per session. price_move"
+          },
+          "window_minutes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1440,
+            "description": "Measure the move against the price this many minutes ago instead of the baseline. price_move"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "relative",
+              "absolute",
+              "session"
+            ],
+            "description": "`relative` = a closed bar's volume ≥ multiple × its baseline; `absolute` = ≥ threshold; `session` = today's cumulative volume ≥ multiple × the 20-session average daily volume (US stocks). volume_spike"
+          },
+          "interval": {
+            "type": "string",
+            "enum": [
+              "1h",
+              "1d",
+              "1w",
+              "1mo"
+            ],
+            "description": "The bar evaluated at its close (relative / absolute). volume_spike"
+          },
+          "multiple": {
+            "type": "number",
+            "minimum": 1.1,
+            "maximum": 100,
+            "description": "Volume multiple of the baseline (relative / session). volume_spike"
+          },
+          "threshold": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Bar volume threshold, > 0 (absolute). volume_spike"
+          },
+          "lookback_bars": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 200,
+            "description": "Bars in the baseline, 5–200 (rvol_slot: sessions, 2–20). volume_spike"
+          },
+          "baseline_mode": {
+            "type": "string",
+            "enum": [
+              "flat_mean",
+              "rvol_slot",
+              "median"
+            ],
+            "description": "The volume baseline: the mean or the median of the previous bars, or `rvol_slot` = the mean of the same time-of-day bar of earlier sessions (default flat_mean). volume_spike"
+          },
+          "price_direction": {
+            "type": "string",
+            "enum": [
+              "up",
+              "down",
+              "any"
+            ],
+            "description": "Only bars that closed up / down (default any). volume_spike"
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "once",
+              "hourly",
+              "daily",
+              "weekly"
+            ],
+            "description": "When the reminder fires: once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. price_reminder"
+          },
+          "at": {
+            "type": "string",
+            "description": "The instant of a `once` reminder (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z). price_reminder",
+            "format": "date-time"
+          },
+          "weekday": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 6,
+            "description": "Day of a weekly reminder, 0 = Sunday. price_reminder"
+          },
+          "days": {
+            "type": "array",
+            "maxItems": 7,
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 6
+            },
+            "description": "Several weekdays (0 = Sunday) of a daily / weekly reminder. price_reminder"
           }
         }
       },
@@ -11644,7 +11785,7 @@
       "AlertConditionInput": {
         "type": "object",
         "title": "AlertConditionInput",
-        "description": "What the alert watches; the fields depend on `type` (each field names the types that take it; any other field is refused). Companies: `ciks` / `symbols` (at most 100 in all) or, for single-company types, `cik` / `symbol`. A symbol is resolved to its CIK at create. Coverage: `filing_keyword`, `fundamental_metric` and `earnings_results` work only for companies whose filings and financials Invinite processes (any other company answers 404 `not_covered`); `earnings_call_keyword` takes any company with captured calls. (request form)",
+        "description": "What the alert watches; the fields depend on `type` (each field names the types that take it; any other field is refused). Companies: `ciks` / `symbols` (at most 100 in all) or, for single-company types, `cik` / `symbol`. A symbol is resolved to its CIK at create. Price types (`price`, `price_move`, `volume_spike`, `price_reminder`) watch ONE instrument: `symbol` + `asset_class`. Coverage: `filing_keyword`, `fundamental_metric` and `earnings_results` work only for companies whose filings and financials Invinite processes (any other company answers 404 `not_covered`); `earnings_call_keyword` takes any company with captured calls. (request form)",
         "properties": {
           "ciks": {
             "type": "array",
@@ -11670,8 +11811,8 @@
           },
           "symbol": {
             "type": "string",
-            "maxLength": 12,
-            "description": "The company by ticker. Same types as `cik`"
+            "maxLength": 64,
+            "description": "The company by ticker. Same types as `cik`; price types: the instrument (a US stock / ETF ticker, or a crypto slug / ticker)"
           },
           "form_types": {
             "type": "array",
@@ -12035,16 +12176,156 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 1439,
-            "description": "Local minute of the day the reminder fires (default 540 = 09:00). event_countdown"
+            "description": "Local minute of the day the reminder fires (event_countdown: default 540 = 09:00). event_countdown, price_reminder"
           },
           "timezone": {
             "type": "string",
             "maxLength": 64,
-            "description": "IANA time zone. event_countdown"
+            "description": "IANA time zone (price_reminder: default America/New_York). event_countdown, price_reminder"
           },
           "notify_on_date_change": {
             "type": "boolean",
             "description": "Tell when the event date moves (default true). event_countdown"
+          },
+          "asset_class": {
+            "type": "string",
+            "enum": [
+              "us_stock",
+              "crypto"
+            ],
+            "description": "The instrument's market: `us_stock` (US stocks and ETFs) or `crypto` (coins by CoinGecko slug or ticker). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder"
+          },
+          "operator": {
+            "type": "string",
+            "enum": [
+              "crosses_above",
+              "crosses_below",
+              "crosses",
+              "above",
+              "below"
+            ],
+            "description": "`crosses_*` fire when the price crosses `level`; `above` / `below` also fire at once when the price is already on that side. price"
+          },
+          "level": {
+            "type": "number",
+            "minimum": 0,
+            "description": "The price level (> 0). price"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "up",
+              "down",
+              "both"
+            ],
+            "description": "Which move fires. price_move"
+          },
+          "pct": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 1000,
+            "description": "The move in percent of the baseline. price_move"
+          },
+          "baseline": {
+            "type": "string",
+            "enum": [
+              "prior_close",
+              "intraday_open",
+              "session_high",
+              "session_low",
+              "gap_open"
+            ],
+            "description": "What the move is measured from (ignored with window_minutes); gap_open = the session open against the prior close, once per session. price_move"
+          },
+          "window_minutes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1440,
+            "description": "Measure the move against the price this many minutes ago instead of the baseline. price_move"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "relative",
+              "absolute",
+              "session"
+            ],
+            "description": "`relative` = a closed bar's volume ≥ multiple × its baseline; `absolute` = ≥ threshold; `session` = today's cumulative volume ≥ multiple × the 20-session average daily volume (US stocks). volume_spike"
+          },
+          "interval": {
+            "type": "string",
+            "enum": [
+              "1h",
+              "1d",
+              "1w",
+              "1mo"
+            ],
+            "description": "The bar evaluated at its close (relative / absolute). volume_spike"
+          },
+          "multiple": {
+            "type": "number",
+            "minimum": 1.1,
+            "maximum": 100,
+            "description": "Volume multiple of the baseline (relative / session). volume_spike"
+          },
+          "threshold": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Bar volume threshold, > 0 (absolute). volume_spike"
+          },
+          "lookback_bars": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 200,
+            "description": "Bars in the baseline, 5–200 (rvol_slot: sessions, 2–20). volume_spike"
+          },
+          "baseline_mode": {
+            "type": "string",
+            "enum": [
+              "flat_mean",
+              "rvol_slot",
+              "median"
+            ],
+            "description": "The volume baseline: the mean or the median of the previous bars, or `rvol_slot` = the mean of the same time-of-day bar of earlier sessions (default flat_mean). volume_spike"
+          },
+          "price_direction": {
+            "type": "string",
+            "enum": [
+              "up",
+              "down",
+              "any"
+            ],
+            "description": "Only bars that closed up / down (default any). volume_spike"
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "once",
+              "hourly",
+              "daily",
+              "weekly"
+            ],
+            "description": "When the reminder fires: once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. price_reminder"
+          },
+          "at": {
+            "type": "string",
+            "description": "The instant of a `once` reminder (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z). price_reminder"
+          },
+          "weekday": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 6,
+            "description": "Day of a weekly reminder, 0 = Sunday. price_reminder"
+          },
+          "days": {
+            "type": "array",
+            "maxItems": 7,
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 6
+            },
+            "description": "Several weekdays (0 = Sunday) of a daily / weekly reminder. price_reminder"
           }
         }
       },
@@ -12431,6 +12712,8 @@
           "secret_hint",
           "header_names",
           "body_template",
+          "max_events_per_minute",
+          "digest_seconds",
           "previous_secret_expires_at",
           "created_at",
           "updated_at"
@@ -12495,6 +12778,19 @@
             "nullable": true,
             "description": "Custom body template"
           },
+          "max_events_per_minute": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100000,
+            "description": "Events per minute this destination receives at most (a token bucket across all delivery machines); events over it stay queued and go out as the bucket refills, never dropped"
+          },
+          "digest_seconds": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3600,
+            "nullable": true,
+            "description": "Digest window: new events are held until the oldest is this many seconds old, then go out together as ONE alert.fired.batch (≤ 500 events / 1 MB per request); retries are not held. Not with preset claude_routine; null = off"
+          },
           "previous_secret_expires_at": {
             "type": "string",
             "format": "date-time",
@@ -12527,6 +12823,8 @@
           "secret_hint",
           "header_names",
           "body_template",
+          "max_events_per_minute",
+          "digest_seconds",
           "previous_secret_expires_at",
           "created_at",
           "updated_at",
@@ -12591,6 +12889,19 @@
             "type": "string",
             "nullable": true,
             "description": "Custom body template"
+          },
+          "max_events_per_minute": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100000,
+            "description": "Events per minute this destination receives at most (a token bucket across all delivery machines); events over it stay queued and go out as the bucket refills, never dropped"
+          },
+          "digest_seconds": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3600,
+            "nullable": true,
+            "description": "Digest window: new events are held until the oldest is this many seconds old, then go out together as ONE alert.fired.batch (≤ 500 events / 1 MB per request); retries are not held. Not with preset claude_routine; null = off"
           },
           "previous_secret_expires_at": {
             "type": "string",
@@ -39810,6 +40121,19 @@
                       "claude_routine"
                     ],
                     "description": "Default standard"
+                  },
+                  "max_events_per_minute": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100000,
+                    "description": "Events per minute this destination receives at most (a token bucket across all delivery machines); events over it stay queued and go out as the bucket refills, never dropped; default 600"
+                  },
+                  "digest_seconds": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 3600,
+                    "nullable": true,
+                    "description": "Digest window: new events are held until the oldest is this many seconds old, then go out together as ONE alert.fired.batch (≤ 500 events / 1 MB per request); retries are not held. Not with preset claude_routine; default null (off)"
                   }
                 }
               },
@@ -40103,6 +40427,19 @@
                       "standard",
                       "claude_routine"
                     ]
+                  },
+                  "max_events_per_minute": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100000,
+                    "description": "Events per minute this destination receives at most (a token bucket across all delivery machines); events over it stay queued and go out as the bucket refills, never dropped"
+                  },
+                  "digest_seconds": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 3600,
+                    "nullable": true,
+                    "description": "Digest window: new events are held until the oldest is this many seconds old, then go out together as ONE alert.fired.batch (≤ 500 events / 1 MB per request); retries are not held. Not with preset claude_routine; null turns it off"
                   },
                   "status": {
                     "type": "string",
@@ -41262,7 +41599,7 @@
                               "details": {
                                 "type": "object",
                                 "additionalProperties": true,
-                                "description": "Type-specific facts of the fire"
+                                "description": "Type-specific facts of the fire. Price types: `operator`, `level`, `trigger_price`, `previous_price`, `tick_time` (+ `baseline` / `baseline_price` / `percent_moved` for price_move, `bar_volume` / `baseline_volume` / `ratio` for volume_spike, `price` / `stale` / `scheduled_at` for price_reminder) — the crossed level and the trigger price, never a price series"
                               }
                             }
                           },

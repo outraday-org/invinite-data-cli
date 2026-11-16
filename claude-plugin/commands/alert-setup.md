@@ -10,7 +10,10 @@ Set up the alert described in `$ARGUMENTS` with Invinite Data (MCP `manage_desti
 
 1. Pick the alert `type` from the request: `filing` (new SEC filings, `form_types`), `filing_keyword`, `news` /
    `news_keyword`, `earnings_call` / `earnings_call_keyword`, `earnings_results`, `dividend`, `halt`,
-   `fundamental_metric` or `event_countdown`. Resolve each company to a ticker or CIK first
+   `fundamental_metric`, `event_countdown`, or a price type (since 7.1): `price` (a level crossed, `operator` +
+   `level`), `price_move` (`pct` against a `baseline`), `volume_spike` or `price_reminder` — stocks / ETFs by ticker,
+   crypto with `asset_class: "crypto"`. In flags, a field both `condition` and `trigger` carry is prefixed
+   (`--condition-mode`, `--trigger-mode`). Resolve each company to a ticker or CIK first
    (`invd companies list -q "<name>" --json`). Check what the account allows: `invd alerts list --json` shows the
    quota in `meta.quota`; `news`, `halt` and some `earnings_call` events need a higher plan (a refusal names it).
 2. Where the events go:
