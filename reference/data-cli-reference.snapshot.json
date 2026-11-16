@@ -11,8 +11,8 @@
     },
     "verifiedOn": "2026-11-16",
     "sourceHashes": {
-      "api-contract.json": "331b0dca92c2bc06116abb3a85abc37ba62f3a2c66edb0ecd9a2063f56132aed",
-      "openapi.json": "30baeaf211d3484e0252b30f8b51914232213a42af9c048cd4056ec74fe6dea8",
+      "api-contract.json": "a8df72e2ba996e2ab0da6b339e35273e630ed6dd14125291bf754ee77f88d9a7",
+      "openapi.json": "169e6b54438a077cbc7d1f73e9517f42d1a7876cc6de00e01810bfff40a44371",
       "package.json": "e3414dea71b10dadfa050be775803babb892c4b830c4b2139ed8e47798eda283",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
@@ -33,7 +33,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "0cc2cc12bddfce4c107466bc5e703f8c27bd7edcdef9d31e85a4cc185732dc71",
+      "src/generated/cli-manifest.json": "3722a1d68ceca9ddbf52e256430d60038f6ab9d6bdf54aa6e939442fae38bf2f",
       "src/hand-written-commands.ts": "2d608d50bc24f0475a1a8b002eb2abca15578409993439689403417ea96547fd",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
@@ -49,9 +49,9 @@
       "src/spec-manifest.ts": "d3b5c1b3c3a473f7991c02bd8b204d7ee6ac67b67e1d0ec1855c7345328cc104",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "30baeaf211d3484e0252b30f8b51914232213a42af9c048cd4056ec74fe6dea8",
-    "revision": "f867d4f275cf65f4ef2dc8383b712c12c494e42b",
-    "fingerprint": "afdabfbc0b729ed4b3f949153061705ac60a2826e6a0b080570094d33ebd7df2"
+    "specSha256": "169e6b54438a077cbc7d1f73e9517f42d1a7876cc6de00e01810bfff40a44371",
+    "revision": "f776fbc07650ff75cbeaec515e98702be9f7b951",
+    "fingerprint": "2769b9dba381ba0852e3de4a32838b878947b9224409c23327009e1c07f907d9"
   },
   "globalOptions": [
     {
