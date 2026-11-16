@@ -3,11 +3,11 @@
   "download": {
     "owner": "outraday-org",
     "repository": "invinite-data-cli",
-    "revision": "5627d8c9616f42fa075407bd0bca17899e27f845"
+    "revision": "b0100d4ec78e72d0cbf402017ad0181da82fdd73"
   },
   "manifest": {
     "name": "invinite-financial-data",
-    "version": "0.10.0"
+    "version": "0.11.0"
   },
   "connector": {
     "key": "invinite-financial-data",
@@ -26,7 +26,7 @@
     "skills/invinite-data-cli/SKILL.md"
   ],
   "sourceHashes": {
-    "claude-plugin/.claude-plugin/plugin.json": "e436787f14a54d92556bcf99465c233e12a2e5d7ee3d07e7e472014157deac90",
+    "claude-plugin/.claude-plugin/plugin.json": "42afef7914c89c1ecb9876463e92fab71423f5542dbe84e3a72de8d9c845d56f",
     "claude-plugin/.mcp.json": "a473ef1b56c55c29434aa2864d3bc0b250b4954890af437308ff9d66bc85d0d5",
     "claude-plugin/agents/invinite-data.md": "e3d4ce752c7b59f203bca99c9aaf862180563920858b3aba29dd400dd8facaf9",
     "claude-plugin/commands/alert-setup.md": "e533aedb592b4b00663195396e9b17407dbb0330d035da7a9f8ab8cc24c64fab",
@@ -41,9 +41,9 @@
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
     "version": "7.1.0",
-    "specSha256": "d0581d70d473580506b1610b4e41c25c63d50c815f461a5fb3c32158bf403a09",
+    "specSha256": "999332e693651f422ac7b3026f3959bd238d42195b36a92127e345d24a68b2aa",
     "sourceHashes": {
-      "claude-plugin/.claude-plugin/plugin.json": "e436787f14a54d92556bcf99465c233e12a2e5d7ee3d07e7e472014157deac90",
+      "claude-plugin/.claude-plugin/plugin.json": "42afef7914c89c1ecb9876463e92fab71423f5542dbe84e3a72de8d9c845d56f",
       "claude-plugin/.mcp.json": "a473ef1b56c55c29434aa2864d3bc0b250b4954890af437308ff9d66bc85d0d5",
       "claude-plugin/agents/invinite-data.md": "e3d4ce752c7b59f203bca99c9aaf862180563920858b3aba29dd400dd8facaf9",
       "claude-plugin/commands/alert-setup.md": "e533aedb592b4b00663195396e9b17407dbb0330d035da7a9f8ab8cc24c64fab",
@@ -58,7 +58,7 @@
       "scripts/snapshot-data-plugin-packaging.ts": "98945657178e4d4468963f9ef9b7d85025fde6c25444dbc3adb1c2334aac899e",
       "src/commands/plugin.ts": "d571726eeac6b194c825f31dcd5a25e6b46764d8d941732c7b88327cccae372d"
     },
-    "revision": "6d15e8988f2af60144fec59eb441ca1ae9ffb81e",
-    "fingerprint": "822a64a2474ccedef3f250ca93a84a8b5df280d6922a3d3e11ee1408819424d6"
+    "revision": "b0100d4ec78e72d0cbf402017ad0181da82fdd73",
+    "fingerprint": "5a479878e2b3ec365fe6e34ce441117d10229b846266c128c618713c03a32053"
   }
 }
