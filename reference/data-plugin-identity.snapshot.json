@@ -3,11 +3,11 @@
   "download": {
     "owner": "outraday-org",
     "repository": "invinite-data-cli",
-    "revision": "b0100d4ec78e72d0cbf402017ad0181da82fdd73"
+    "revision": "6ceaf8426a192f36b67cf206b53391d70b0f9ebb"
   },
   "manifest": {
     "name": "invinite-financial-data",
-    "version": "0.11.0"
+    "version": "0.12.0"
   },
   "connector": {
     "key": "invinite-financial-data",
@@ -26,39 +26,39 @@
     "skills/invinite-data-cli/SKILL.md"
   ],
   "sourceHashes": {
-    "claude-plugin/.claude-plugin/plugin.json": "42afef7914c89c1ecb9876463e92fab71423f5542dbe84e3a72de8d9c845d56f",
+    "claude-plugin/.claude-plugin/plugin.json": "35674debb40e9a90e596f59fa6535a144ed21f8ec282a3a80a979b326c67d70f",
     "claude-plugin/.mcp.json": "a473ef1b56c55c29434aa2864d3bc0b250b4954890af437308ff9d66bc85d0d5",
     "claude-plugin/agents/invinite-data.md": "e3d4ce752c7b59f203bca99c9aaf862180563920858b3aba29dd400dd8facaf9",
-    "claude-plugin/commands/alert-setup.md": "e533aedb592b4b00663195396e9b17407dbb0330d035da7a9f8ab8cc24c64fab",
+    "claude-plugin/commands/alert-setup.md": "9594c177866893da40ff9f35fc17f17816ab428c0bb4fd7ee5dda0430cd67de2",
     "claude-plugin/commands/analyze-earnings-call.md": "4daf0eb64b0daef9119c0343c0e9a330d88c21241f337d549582f10bee2953ee",
     "claude-plugin/commands/analyze-filing.md": "b0bf71fd7ba02185037d4972811e6a2ab55123fc7d3dce0cc34b3544f50c1214",
     "claude-plugin/commands/compare-companies.md": "db62622ef4db997d7c557345eee3a732f1c7050e8b299beaa78aaff990f3b345",
     "claude-plugin/commands/financial-research.md": "5edb2fd316ceda1620f0c7c5e5f64aa9205634a11a5349c0581ac7609433be2e",
     "claude-plugin/commands/ownership-review.md": "323c3800a4d0099dffb97120d75d5c654243f93fbc663994ea5871c0141afde7",
-    "claude-plugin/skills/invinite-data-cli/SKILL.md": "f9d01c3091c3ce6afb1d1e183afa792b6dc6ea84c51cbb66949faf97e304d0a7",
+    "claude-plugin/skills/invinite-data-cli/SKILL.md": "6299473ff0de6e112e32d23830a37966a8900165c4b1eec1027289c959eb6ab7",
     "src/commands/plugin.ts": "d571726eeac6b194c825f31dcd5a25e6b46764d8d941732c7b88327cccae372d"
   },
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "7.2.0",
-    "specSha256": "999332e693651f422ac7b3026f3959bd238d42195b36a92127e345d24a68b2aa",
+    "version": "7.3.0",
+    "specSha256": "e3d860955d04bf5b094aa61d439c9bf1d732d368ab247f242ac845bb580748d6",
     "sourceHashes": {
-      "claude-plugin/.claude-plugin/plugin.json": "42afef7914c89c1ecb9876463e92fab71423f5542dbe84e3a72de8d9c845d56f",
+      "claude-plugin/.claude-plugin/plugin.json": "35674debb40e9a90e596f59fa6535a144ed21f8ec282a3a80a979b326c67d70f",
       "claude-plugin/.mcp.json": "a473ef1b56c55c29434aa2864d3bc0b250b4954890af437308ff9d66bc85d0d5",
       "claude-plugin/agents/invinite-data.md": "e3d4ce752c7b59f203bca99c9aaf862180563920858b3aba29dd400dd8facaf9",
-      "claude-plugin/commands/alert-setup.md": "e533aedb592b4b00663195396e9b17407dbb0330d035da7a9f8ab8cc24c64fab",
+      "claude-plugin/commands/alert-setup.md": "9594c177866893da40ff9f35fc17f17816ab428c0bb4fd7ee5dda0430cd67de2",
       "claude-plugin/commands/analyze-earnings-call.md": "4daf0eb64b0daef9119c0343c0e9a330d88c21241f337d549582f10bee2953ee",
       "claude-plugin/commands/analyze-filing.md": "b0bf71fd7ba02185037d4972811e6a2ab55123fc7d3dce0cc34b3544f50c1214",
       "claude-plugin/commands/compare-companies.md": "db62622ef4db997d7c557345eee3a732f1c7050e8b299beaa78aaff990f3b345",
       "claude-plugin/commands/financial-research.md": "5edb2fd316ceda1620f0c7c5e5f64aa9205634a11a5349c0581ac7609433be2e",
       "claude-plugin/commands/ownership-review.md": "323c3800a4d0099dffb97120d75d5c654243f93fbc663994ea5871c0141afde7",
-      "claude-plugin/skills/invinite-data-cli/SKILL.md": "f9d01c3091c3ce6afb1d1e183afa792b6dc6ea84c51cbb66949faf97e304d0a7",
-      "package.json": "ae7aa62bf0c2414de1f7741bc77fba955dc804a585e660b142863aee6c4c477b",
+      "claude-plugin/skills/invinite-data-cli/SKILL.md": "6299473ff0de6e112e32d23830a37966a8900165c4b1eec1027289c959eb6ab7",
+      "package.json": "e5a9a35419ef700964c1a2fd4bc9c43c3a918467ad6b248272cfff2e296578d8",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-plugin-packaging.ts": "98945657178e4d4468963f9ef9b7d85025fde6c25444dbc3adb1c2334aac899e",
       "src/commands/plugin.ts": "d571726eeac6b194c825f31dcd5a25e6b46764d8d941732c7b88327cccae372d"
     },
-    "revision": "8a5ce433f1807e0929fb2bea1fc6f77d68917123",
-    "fingerprint": "d0ad51c0b248c601826e743878950e842635452fe25f0c22d611ba35b322e672"
+    "revision": "6ceaf8426a192f36b67cf206b53391d70b0f9ebb",
+    "fingerprint": "f4da05d89f6c004445a57bb4a1fce009ee5a110b7a4f3a6f43be4608ae1db559"
   }
 }

@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "7.2.0",
+    "version": "7.3.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -11,13 +11,13 @@
     },
     "verifiedOn": "2026-11-16",
     "sourceHashes": {
-      "api-contract.json": "b0f36c0ccbe83d578aad4465c900bc4ea779527cc51e8da6ab026f4e46022a4b",
-      "openapi.json": "999332e693651f422ac7b3026f3959bd238d42195b36a92127e345d24a68b2aa",
-      "package.json": "ae7aa62bf0c2414de1f7741bc77fba955dc804a585e660b142863aee6c4c477b",
+      "api-contract.json": "244e98b3483de1fd65dc778cdd25e01224afab90aa3f1cf17bf39e05e80a939a",
+      "openapi.json": "e3d860955d04bf5b094aa61d439c9bf1d732d368ab247f242ac845bb580748d6",
+      "package.json": "e5a9a35419ef700964c1a2fd4bc9c43c3a918467ad6b248272cfff2e296578d8",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "ed216f689f39e3dbf72c7d6a1c74ee6cb9c22fbaf9982a9b4ddee2873f2d5536",
-      "src/cli.ts": "cc6b4b499c071aae385839e7719c18f36c24b2a5bfec81a78e08f9581dae61a6",
+      "src/cli.ts": "1e15c5a3a1eaac55d229941b57c40a7b587c9dda6440b8badf9d5dfa3b350149",
       "src/client/api-client.ts": "17d0817be6964b04fd03ccbc5ff91492551d13260664190510d5211a4c6e883e",
       "src/client/download.ts": "7e7ff500f176d859a0d94788b02b364218580eee9834a8394262d22cb2b0dda4",
       "src/client/pagination.ts": "2b759864d496f021ed8b01147a6fce1576315f0b0e789fb3022b2b8857534efe",
@@ -28,13 +28,14 @@
       "src/commands/completion.ts": "d7aeaa835ac1fe16b3c9a0165a1a5e8a85cb31262f498499d829bcb7a5f88d73",
       "src/commands/config.ts": "0830211879fdfc44052c917b93ec0233451bba7ca4870275aa4dac30fe3f7130",
       "src/commands/plugin.ts": "d571726eeac6b194c825f31dcd5a25e6b46764d8d941732c7b88327cccae372d",
+      "src/commands/scripts.ts": "e57faa3d6e66238f90648fe1a55167caa76aa04f44f39ae453dbc86d90bff8aa",
       "src/config/auth.ts": "23ade6f5f4a2feb427b8554651a55a30ba1fc026d5488fada70b9a90e838086a",
       "src/config/config-manager.ts": "e5f89c8be2c63e0ceae36b1e95c80d4518e4d818d77453bf1f03a0d113c4766f",
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "c30f5453882994a901692e966c4ba3dd04dd5a71058805856b8d247d6f15f9f0",
-      "src/hand-written-commands.ts": "2d608d50bc24f0475a1a8b002eb2abca15578409993439689403417ea96547fd",
+      "src/generated/cli-manifest.json": "14c58ef4a3e0190fb0af005a56742b4cb9a85934c80a932eb6154f4402e6f731",
+      "src/hand-written-commands.ts": "ab53fea9a1523f8db77663fb3d241be73403213b67f20d9898596e87eddd7bd0",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
       "src/output/render.ts": "320d0a99ebf23c3d81cef46b4e6ed1360579ac980285b0c626b50b844fbd950b",
@@ -49,9 +50,9 @@
       "src/spec-manifest.ts": "d3b5c1b3c3a473f7991c02bd8b204d7ee6ac67b67e1d0ec1855c7345328cc104",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "999332e693651f422ac7b3026f3959bd238d42195b36a92127e345d24a68b2aa",
-    "revision": "8a5ce433f1807e0929fb2bea1fc6f77d68917123",
-    "fingerprint": "6bcb243549fbac2ef935307cc368b5c13a3a3742c57bd45605179c5827ff879c"
+    "specSha256": "e3d860955d04bf5b094aa61d439c9bf1d732d368ab247f242ac845bb580748d6",
+    "revision": "6ceaf8426a192f36b67cf206b53391d70b0f9ebb",
+    "fingerprint": "acc71da02765f872fb60f9d6c2c02f9fa3be36d4c2b5959be0070ff01db03085"
   },
   "globalOptions": [
     {
@@ -68,6 +69,10 @@
     {
       "id": "alert-events",
       "description": "The fire log of your alerts: the pull feed (`tail` follows it live) and one event"
+    },
+    {
+      "id": "alert-templates",
+      "description": "The indicator templates an `indicator` alert names (RSI, MACD, EMA cross …), with their inputs"
     },
     {
       "id": "alerts",
@@ -180,6 +185,14 @@
     {
       "id": "plugin",
       "description": "Install or uninstall AI coding tool plugins"
+    },
+    {
+      "id": "script-versions",
+      "description": "The versions of one hosted chartlang script: compile status, diagnostics and alert ids"
+    },
+    {
+      "id": "scripts",
+      "description": "Hosted chartlang scripts for `script` alerts: upload (`upload` reads a .chart file), list, get, delete"
     },
     {
       "id": "search",
@@ -468,6 +481,89 @@
       ]
     },
     {
+      "command": "alert-templates list",
+      "group": "alert-templates",
+      "origin": "spec",
+      "description": "List indicator alert templates",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/alert-templates"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
       "command": "alerts batch",
       "group": "alerts",
       "origin": "spec",
@@ -586,7 +682,7 @@
         },
         {
           "flags": "--symbol <value>",
-          "description": "The company (or, for the types that take ETFs, the US ETF) by ticker. Same types as `cik`; price types: the instrument (a US stock / ETF ticker, or a crypto slug / ticker) (body condition.symbol)",
+          "description": "The company (or, for the types that take ETFs, the US ETF) by ticker. Same types as `cik`; price types, script and indicator: the instrument (a US stock / ETF ticker, or a crypto slug / ticker) (body condition.symbol)",
           "required": false
         },
         {
@@ -726,7 +822,7 @@
         },
         {
           "flags": "--asset-class <value>",
-          "description": "The instrument's market: `us_stock` (US stocks and ETFs) or `crypto` (coins by CoinGecko slug or ticker). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder (body condition.asset_class)",
+          "description": "The instrument's market: `us_stock` (US stocks and ETFs) or `crypto` (coins by CoinGecko slug or ticker). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder, script, indicator (body condition.asset_class)",
           "required": false
         },
         {
@@ -766,7 +862,7 @@
         },
         {
           "flags": "--interval <value>",
-          "description": "The bar evaluated at its close (relative / absolute). volume_spike (body condition.interval)",
+          "description": "The bar evaluated at its close. volume_spike (1h, 1d, 1w, 1mo); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d; the plan's shortest: FREE / LITE 1h, STANDARD 5m, PRO 1m) (body condition.interval)",
           "required": false
         },
         {
@@ -796,7 +892,7 @@
         },
         {
           "flags": "--frequency <value>",
-          "description": "When the reminder fires: once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. price_reminder (body condition.frequency)",
+          "description": "price_reminder: when the reminder fires — once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. script: when the script's alerts deliver — `once_per_bar_close` (default) at most once per alert id and closed bar, `once_per_bar` the same, `every_time` every evaluation, `once` the first evaluation only. indicator: the same (`once` = this alert's first fire only). price_reminder, script, indicator (body condition.frequency)",
           "required": false
         },
         {
@@ -815,6 +911,16 @@
           "required": false
         },
         {
+          "flags": "--script-version-id <value>",
+          "description": "The script version evaluated (`scv_…`, status ok, of a script of this account). script (body condition.script_version_id)",
+          "required": false
+        },
+        {
+          "flags": "--alert-ids <list>",
+          "description": "Only these of the script's alerts (its version's `alert_ids`); empty = all. script (body condition.alert_ids)",
+          "required": false
+        },
+        {
           "flags": "--trigger-mode <value>",
           "description": "`once` = the alert becomes `triggered` after its first fire (default every_time) (body trigger.mode)",
           "required": false
@@ -826,7 +932,7 @@
         },
         {
           "flags": "--cooldown-bars <value>",
-          "description": "Minimum bars between fires (script / indicator types) (body trigger.cooldown_bars)",
+          "description": "Minimum bars between fires (script / indicator types), counted like chartlang: the bar of a fire must start at least cooldown_bars × the interval after the bar of the last fire, so a night or a weekend counts as time (body trigger.cooldown_bars)",
           "required": false
         },
         {
@@ -1591,7 +1697,7 @@
         },
         {
           "flags": "--symbol <value>",
-          "description": "The company (or, for the types that take ETFs, the US ETF) by ticker. Same types as `cik`; price types: the instrument (a US stock / ETF ticker, or a crypto slug / ticker) (body condition.symbol)",
+          "description": "The company (or, for the types that take ETFs, the US ETF) by ticker. Same types as `cik`; price types, script and indicator: the instrument (a US stock / ETF ticker, or a crypto slug / ticker) (body condition.symbol)",
           "required": false
         },
         {
@@ -1731,7 +1837,7 @@
         },
         {
           "flags": "--asset-class <value>",
-          "description": "The instrument's market: `us_stock` (US stocks and ETFs) or `crypto` (coins by CoinGecko slug or ticker). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder (body condition.asset_class)",
+          "description": "The instrument's market: `us_stock` (US stocks and ETFs) or `crypto` (coins by CoinGecko slug or ticker). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder, script, indicator (body condition.asset_class)",
           "required": false
         },
         {
@@ -1771,7 +1877,7 @@
         },
         {
           "flags": "--interval <value>",
-          "description": "The bar evaluated at its close (relative / absolute). volume_spike (body condition.interval)",
+          "description": "The bar evaluated at its close. volume_spike (1h, 1d, 1w, 1mo); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d; the plan's shortest: FREE / LITE 1h, STANDARD 5m, PRO 1m) (body condition.interval)",
           "required": false
         },
         {
@@ -1801,7 +1907,7 @@
         },
         {
           "flags": "--frequency <value>",
-          "description": "When the reminder fires: once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. price_reminder (body condition.frequency)",
+          "description": "price_reminder: when the reminder fires — once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. script: when the script's alerts deliver — `once_per_bar_close` (default) at most once per alert id and closed bar, `once_per_bar` the same, `every_time` every evaluation, `once` the first evaluation only. indicator: the same (`once` = this alert's first fire only). price_reminder, script, indicator (body condition.frequency)",
           "required": false
         },
         {
@@ -1820,6 +1926,16 @@
           "required": false
         },
         {
+          "flags": "--script-version-id <value>",
+          "description": "The script version evaluated (`scv_…`, status ok, of a script of this account). script (body condition.script_version_id)",
+          "required": false
+        },
+        {
+          "flags": "--alert-ids <list>",
+          "description": "Only these of the script's alerts (its version's `alert_ids`); empty = all. script (body condition.alert_ids)",
+          "required": false
+        },
+        {
           "flags": "--trigger-mode <value>",
           "description": "`once` = the alert becomes `triggered` after its first fire (default every_time) (body trigger.mode)",
           "required": false
@@ -1831,7 +1947,7 @@
         },
         {
           "flags": "--cooldown-bars <value>",
-          "description": "Minimum bars between fires (script / indicator types) (body trigger.cooldown_bars)",
+          "description": "Minimum bars between fires (script / indicator types), counted like chartlang: the bar of a fire must start at least cooldown_bars × the interval after the bar of the last fire, so a night or a weekend counts as time (body trigger.cooldown_bars)",
           "required": false
         },
         {
@@ -9894,6 +10010,554 @@
         {
           "flags": "--no-input",
           "description": "Never prompt (missing runtimes or scope fail with exit 2 instead)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "script-versions create",
+      "group": "script-versions",
+      "origin": "spec",
+      "description": "Upload a new script version",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "POST",
+          "path": "/v1/scripts/{id}/versions"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Script id",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "--source <value>",
+          "description": "chartlang (TypeScript) source, ≤ 200 KB; the only import allowed is `@invinite-org/chartlang-core` (body source)",
+          "required": false
+        },
+        {
+          "flags": "--body <json>",
+          "description": "The whole JSON request body (flags above override its fields)",
+          "required": false
+        },
+        {
+          "flags": "--body-file <path>",
+          "description": "Read the JSON request body from a file (- = stdin)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "script-versions list",
+      "group": "script-versions",
+      "origin": "spec",
+      "description": "List script versions",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/scripts/{id}/versions"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Script id",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "scripts create",
+      "group": "scripts",
+      "origin": "spec",
+      "description": "Upload a script",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "POST",
+          "path": "/v1/scripts"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-n, --name <value>",
+          "description": "(body name)",
+          "required": false
+        },
+        {
+          "flags": "--description <value>",
+          "description": "(body description)",
+          "required": false
+        },
+        {
+          "flags": "--source <value>",
+          "description": "chartlang (TypeScript) source, ≤ 200 KB; the only import allowed is `@invinite-org/chartlang-core` (body source)",
+          "required": false
+        },
+        {
+          "flags": "--body <json>",
+          "description": "The whole JSON request body (flags above override its fields)",
+          "required": false
+        },
+        {
+          "flags": "--body-file <path>",
+          "description": "Read the JSON request body from a file (- = stdin)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "scripts delete",
+      "group": "scripts",
+      "origin": "spec",
+      "description": "Delete a script",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "DELETE",
+          "path": "/v1/scripts/{id}"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Script id",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "scripts get",
+      "group": "scripts",
+      "origin": "spec",
+      "description": "Get a script",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/scripts/{id}"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Script id",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "scripts list",
+      "group": "scripts",
+      "origin": "spec",
+      "description": "List scripts",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/scripts"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "scripts upload",
+      "group": "scripts",
+      "origin": "hand",
+      "description": "Upload a chartlang file: a new script (version 1), or with --script the next version of one; prints the compile status and diagnostics",
+      "source": "src/commands/scripts.ts",
+      "operations": [
+        {
+          "method": "POST",
+          "path": "/v1/scripts"
+        },
+        {
+          "method": "POST",
+          "path": "/v1/scripts/{id}/versions"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "file",
+          "description": "The chartlang (TypeScript) source file, e.g. ema-cross.chart (≤ 200 KB)",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "-n, --name <name>",
+          "description": "Name of the new script (default: the file name without its extension)",
+          "required": false
+        },
+        {
+          "flags": "--description <text>",
+          "description": "Description of the new script",
+          "required": false
+        },
+        {
+          "flags": "--script <scr-id>",
+          "description": "Add the next version to this script (scr_…) instead of creating a new one",
+          "required": false
+        },
+        {
+          "flags": "--json",
+          "description": "Print the API response as JSON (a Script, or a ScriptVersion with --script)",
           "required": false
         }
       ]
