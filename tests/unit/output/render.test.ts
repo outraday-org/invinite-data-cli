@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import { afterEach, describe, expect, it } from 'vitest';
-import { applyColorEnv, csvColumns, renderBody, selectFields, shapeBody, tableText } from '../../../src/output/render.js';
+import { readFileSync } from 'node:fs';
+import { applyColorEnv, csvColumns, renderBody, selectFields, shapeBody, type ShapeInfo, tableText } from '../../../src/output/render.js';
 import { resolveOutput } from '../../../src/output/options.js';
 
 const list = { list: true, view: 'table' as const, columns: ['ticker', 'name'] };
@@ -32,6 +33,31 @@ describe('render', () => {
     expect(chalk.level).toBe(2);
     applyColorEnv({ NO_COLOR: '1' });
     expect(chalk.level).toBe(0);
+  });
+});
+
+describe('companies get: a US ETF profile (Data API 6.2, O2)', () => {
+  const level = chalk.level;
+  afterEach(() => { chalk.level = level; });
+
+  // The generated view of `invd companies get` (the manifest's own columns), on the answer the API gives an ETF since
+  // 6.2: `sector` / `industry` / `sic` / `state` / `city` are null.
+  const manifest = JSON.parse(readFileSync(new URL('../../../src/generated/cli-manifest.json', import.meta.url), 'utf8'));
+  const operations: { operationId: string; list: boolean; view: ShapeInfo['view']; columns?: string[] }[] =
+    Array.isArray(manifest.operations) ? manifest.operations : Object.values(manifest.operations ?? manifest);
+  const getCompany = operations.find(operation => operation.operationId === 'getCompany');
+  const shape: ShapeInfo = { list: false, view: getCompany?.view ?? 'json', columns: getCompany?.columns };
+  const spy = { ticker: 'SPY', name: 'SPDR S&P 500 ETF Trust', exchange: 'ARCX', sector: null, industry: null, sic: null, state: null, city: null };
+
+  it('prints — for the null fields in the key/value view, null in JSON and empty in CSV', () => {
+    chalk.level = 0;
+    expect(getCompany?.view).toBe('keyValue');
+    const text = renderBody(spy, shape, { format: 'table' });
+    expect(text).toMatch(/ticker\s+SPY/);
+    expect(text).toMatch(/sector\s+—/);
+    expect(text).not.toContain('null');
+    expect(JSON.parse(renderBody(spy, shape, { format: 'json' })).sector).toBeNull();
+    expect(renderBody(spy, shape, { format: 'csv', select: ['ticker', 'sector', 'sic'] })).toBe('ticker,sector,sic\nSPY,,');
   });
 });
 
