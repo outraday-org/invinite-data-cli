@@ -1,10 +1,14 @@
 {
   "specVersion": "2026-11-13",
-  "specSha256": "999332e693651f422ac7b3026f3959bd238d42195b36a92127e345d24a68b2aa",
+  "specSha256": "e3d860955d04bf5b094aa61d439c9bf1d732d368ab247f242ac845bb580748d6",
   "groups": [
     {
       "name": "alert-events",
       "description": "The fire log of your alerts: the pull feed (`tail` follows it live) and one event"
+    },
+    {
+      "name": "alert-templates",
+      "description": "The indicator templates an `indicator` alert names (RSI, MACD, EMA cross …), with their inputs"
     },
     {
       "name": "alerts",
@@ -97,6 +101,14 @@
     {
       "name": "people",
       "description": "Executives and analysts, and who took part in which event"
+    },
+    {
+      "name": "script-versions",
+      "description": "The versions of one hosted chartlang script: compile status, diagnostics and alert ids"
+    },
+    {
+      "name": "scripts",
+      "description": "Hosted chartlang scripts for `script` alerts: upload (`upload` reads a .chart file), list, get, delete"
     },
     {
       "name": "search",
@@ -240,6 +252,56 @@
         "external_user_id",
         "occurred_at",
         "payload"
+      ]
+    },
+    {
+      "operationId": "listAlertTemplates",
+      "group": "alert-templates",
+      "action": "list",
+      "method": "get",
+      "path": "/v1/alert-templates",
+      "auth": true,
+      "summary": "List indicator alert templates",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, max 200)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        }
+      ],
+      "list": true,
+      "view": "table",
+      "columns": [
+        "key",
+        "version",
+        "title"
+      ],
+      "fields": [
+        "key",
+        "version",
+        "source_key",
+        "title",
+        "description",
+        "fidelity",
+        "inputs",
+        "source"
       ]
     },
     {
@@ -388,7 +450,7 @@
             ],
             "type": "string",
             "required": false,
-            "description": "The company (or, for the types that take ETFs, the US ETF) by ticker. Same types as `cik`; price types: the instrument (a US stock / ETF ticker, or a crypto slug / ticker)",
+            "description": "The company (or, for the types that take ETFs, the US ETF) by ticker. Same types as `cik`; price types, script and indicator: the instrument (a US stock / ETF ticker, or a crypto slug / ticker)",
             "flag": "symbol"
           },
           {
@@ -650,7 +712,7 @@
             ],
             "type": "string",
             "required": false,
-            "description": "The instrument's market: `us_stock` (US stocks and ETFs) or `crypto` (coins by CoinGecko slug or ticker). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder",
+            "description": "The instrument's market: `us_stock` (US stocks and ETFs) or `crypto` (coins by CoinGecko slug or ticker). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder, script, indicator",
             "flag": "asset-class"
           },
           {
@@ -730,7 +792,7 @@
             ],
             "type": "string",
             "required": false,
-            "description": "The bar evaluated at its close (relative / absolute). volume_spike",
+            "description": "The bar evaluated at its close. volume_spike (1h, 1d, 1w, 1mo); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d; the plan's shortest: FREE / LITE 1h, STANDARD 5m, PRO 1m)",
             "flag": "interval"
           },
           {
@@ -790,7 +852,7 @@
             ],
             "type": "string",
             "required": false,
-            "description": "When the reminder fires: once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. price_reminder",
+            "description": "price_reminder: when the reminder fires — once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. script: when the script's alerts deliver — `once_per_bar_close` (default) at most once per alert id and closed bar, `once_per_bar` the same, `every_time` every evaluation, `once` the first evaluation only. indicator: the same (`once` = this alert's first fire only). price_reminder, script, indicator",
             "flag": "frequency"
           },
           {
@@ -826,6 +888,27 @@
           },
           {
             "path": [
+              "condition",
+              "script_version_id"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "The script version evaluated (`scv_…`, status ok, of a script of this account). script",
+            "flag": "script-version-id"
+          },
+          {
+            "path": [
+              "condition",
+              "alert_ids"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Only these of the script's alerts (its version's `alert_ids`); empty = all. script",
+            "flag": "alert-ids"
+          },
+          {
+            "path": [
               "trigger",
               "mode"
             ],
@@ -851,7 +934,7 @@
             ],
             "type": "integer",
             "required": false,
-            "description": "Minimum bars between fires (script / indicator types)",
+            "description": "Minimum bars between fires (script / indicator types), counted like chartlang: the bar of a fire must start at least cooldown_bars × the interval after the bar of the last fire, so a night or a weekend counts as time",
             "flag": "cooldown-bars"
           },
           {
@@ -967,6 +1050,7 @@
         "id",
         "type",
         "status",
+        "disabled_reason",
         "condition",
         "trigger",
         "destination_ids",
@@ -1127,6 +1211,7 @@
         "id",
         "type",
         "status",
+        "disabled_reason",
         "condition",
         "trigger",
         "destination_ids",
@@ -1250,6 +1335,7 @@
         "id",
         "type",
         "status",
+        "disabled_reason",
         "condition",
         "trigger",
         "destination_ids",
@@ -1303,6 +1389,7 @@
         "id",
         "type",
         "status",
+        "disabled_reason",
         "condition",
         "trigger",
         "destination_ids",
@@ -1356,6 +1443,7 @@
         "id",
         "type",
         "status",
+        "disabled_reason",
         "condition",
         "trigger",
         "destination_ids",
@@ -1492,7 +1580,7 @@
             ],
             "type": "string",
             "required": false,
-            "description": "The company (or, for the types that take ETFs, the US ETF) by ticker. Same types as `cik`; price types: the instrument (a US stock / ETF ticker, or a crypto slug / ticker)",
+            "description": "The company (or, for the types that take ETFs, the US ETF) by ticker. Same types as `cik`; price types, script and indicator: the instrument (a US stock / ETF ticker, or a crypto slug / ticker)",
             "flag": "symbol"
           },
           {
@@ -1754,7 +1842,7 @@
             ],
             "type": "string",
             "required": false,
-            "description": "The instrument's market: `us_stock` (US stocks and ETFs) or `crypto` (coins by CoinGecko slug or ticker). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder",
+            "description": "The instrument's market: `us_stock` (US stocks and ETFs) or `crypto` (coins by CoinGecko slug or ticker). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder, script, indicator",
             "flag": "asset-class"
           },
           {
@@ -1834,7 +1922,7 @@
             ],
             "type": "string",
             "required": false,
-            "description": "The bar evaluated at its close (relative / absolute). volume_spike",
+            "description": "The bar evaluated at its close. volume_spike (1h, 1d, 1w, 1mo); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d; the plan's shortest: FREE / LITE 1h, STANDARD 5m, PRO 1m)",
             "flag": "interval"
           },
           {
@@ -1894,7 +1982,7 @@
             ],
             "type": "string",
             "required": false,
-            "description": "When the reminder fires: once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. price_reminder",
+            "description": "price_reminder: when the reminder fires — once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. script: when the script's alerts deliver — `once_per_bar_close` (default) at most once per alert id and closed bar, `once_per_bar` the same, `every_time` every evaluation, `once` the first evaluation only. indicator: the same (`once` = this alert's first fire only). price_reminder, script, indicator",
             "flag": "frequency"
           },
           {
@@ -1930,6 +2018,27 @@
           },
           {
             "path": [
+              "condition",
+              "script_version_id"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "The script version evaluated (`scv_…`, status ok, of a script of this account). script",
+            "flag": "script-version-id"
+          },
+          {
+            "path": [
+              "condition",
+              "alert_ids"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Only these of the script's alerts (its version's `alert_ids`); empty = all. script",
+            "flag": "alert-ids"
+          },
+          {
+            "path": [
               "trigger",
               "mode"
             ],
@@ -1955,7 +2064,7 @@
             ],
             "type": "integer",
             "required": false,
-            "description": "Minimum bars between fires (script / indicator types)",
+            "description": "Minimum bars between fires (script / indicator types), counted like chartlang: the bar of a fire must start at least cooldown_bars × the interval after the bar of the last fire, so a night or a weekend counts as time",
             "flag": "cooldown-bars"
           },
           {
@@ -2071,6 +2180,7 @@
         "id",
         "type",
         "status",
+        "disabled_reason",
         "condition",
         "trigger",
         "destination_ids",
@@ -10086,6 +10196,321 @@
         "evidence",
         "image_url",
         "image_kind"
+      ]
+    },
+    {
+      "operationId": "createScriptVersion",
+      "group": "script-versions",
+      "action": "create",
+      "method": "post",
+      "path": "/v1/scripts/{id}/versions",
+      "auth": true,
+      "summary": "Upload a new script version",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "scr_01JD2Q4X7Y8Z9A0B1C2D3E4F5G",
+          "description": "Script id",
+          "flag": "id"
+        }
+      ],
+      "positional": {
+        "name": "id",
+        "required": true
+      },
+      "body": {
+        "required": true,
+        "contentType": "application/json",
+        "example": {
+          "source": "import { defineIndicator, input } from \"@invinite-org/chartlang-core\";\n\nexport default defineIndicator({\n    name: \"EMA cross\",\n    apiVersion: 1,\n    overlay: true,\n    inputs: { fast: input.int(9, { min: 1, max: 200 }), slow: input.int(21, { min: 2, max: 500 }) },\n    compute({ bar, ta, alert, inputs }) {\n        const fast = ta.ema(bar.close, inputs.fast);\n        const slow = ta.ema(bar.close, inputs.slow);\n        if (ta.crossover(fast, slow).current) alert(\"EMA cross up at \" + bar.close);\n    }\n});\n"
+        },
+        "fields": [
+          {
+            "path": [
+              "source"
+            ],
+            "type": "string",
+            "required": true,
+            "description": "chartlang (TypeScript) source, ≤ 200 KB; the only import allowed is `@invinite-org/chartlang-core`",
+            "flag": "source"
+          }
+        ]
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "id",
+        "version",
+        "status"
+      ],
+      "fields": [
+        "id",
+        "script_id",
+        "version",
+        "status",
+        "compiler_version",
+        "source_sha256",
+        "source",
+        "diagnostics",
+        "manifest",
+        "alert_ids",
+        "created_at"
+      ]
+    },
+    {
+      "operationId": "listScriptVersions",
+      "group": "script-versions",
+      "action": "list",
+      "method": "get",
+      "path": "/v1/scripts/{id}/versions",
+      "auth": true,
+      "summary": "List script versions",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, max 200)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "scr_01JD2Q4X7Y8Z9A0B1C2D3E4F5G",
+          "description": "Script id",
+          "flag": "id"
+        }
+      ],
+      "positional": {
+        "name": "id",
+        "required": true
+      },
+      "list": true,
+      "view": "table",
+      "columns": [
+        "id",
+        "version",
+        "status"
+      ],
+      "fields": [
+        "id",
+        "script_id",
+        "version",
+        "status",
+        "compiler_version",
+        "source_sha256",
+        "source",
+        "diagnostics",
+        "manifest",
+        "alert_ids",
+        "created_at"
+      ]
+    },
+    {
+      "operationId": "createScript",
+      "group": "scripts",
+      "action": "create",
+      "method": "post",
+      "path": "/v1/scripts",
+      "auth": true,
+      "summary": "Upload a script",
+      "credits": 1,
+      "tier": "free",
+      "params": [],
+      "body": {
+        "required": true,
+        "contentType": "application/json",
+        "example": {
+          "name": "EMA cross",
+          "description": "Fast EMA crossing above the slow one",
+          "source": "import { defineIndicator, input } from \"@invinite-org/chartlang-core\";\n\nexport default defineIndicator({\n    name: \"EMA cross\",\n    apiVersion: 1,\n    overlay: true,\n    inputs: { fast: input.int(9, { min: 1, max: 200 }), slow: input.int(21, { min: 2, max: 500 }) },\n    compute({ bar, ta, alert, inputs }) {\n        const fast = ta.ema(bar.close, inputs.fast);\n        const slow = ta.ema(bar.close, inputs.slow);\n        if (ta.crossover(fast, slow).current) alert(\"EMA cross up at \" + bar.close);\n    }\n});\n"
+        },
+        "fields": [
+          {
+            "path": [
+              "name"
+            ],
+            "type": "string",
+            "required": true,
+            "alias": "n",
+            "flag": "name"
+          },
+          {
+            "path": [
+              "description"
+            ],
+            "type": "string",
+            "required": false,
+            "flag": "description"
+          },
+          {
+            "path": [
+              "source"
+            ],
+            "type": "string",
+            "required": true,
+            "description": "chartlang (TypeScript) source, ≤ 200 KB; the only import allowed is `@invinite-org/chartlang-core`",
+            "flag": "source"
+          }
+        ]
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "id",
+        "name",
+        "version_count"
+      ],
+      "fields": [
+        "id",
+        "name",
+        "description",
+        "version_count",
+        "latest_version",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    {
+      "operationId": "deleteScript",
+      "group": "scripts",
+      "action": "delete",
+      "method": "delete",
+      "path": "/v1/scripts/{id}",
+      "auth": true,
+      "summary": "Delete a script",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "scr_01JD2Q4X7Y8Z9A0B1C2D3E4F5G",
+          "description": "Script id",
+          "flag": "id"
+        }
+      ],
+      "positional": {
+        "name": "id",
+        "required": true
+      },
+      "list": false,
+      "view": "json",
+      "fields": []
+    },
+    {
+      "operationId": "getScript",
+      "group": "scripts",
+      "action": "get",
+      "method": "get",
+      "path": "/v1/scripts/{id}",
+      "auth": true,
+      "summary": "Get a script",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "scr_01JD2Q4X7Y8Z9A0B1C2D3E4F5G",
+          "description": "Script id",
+          "flag": "id"
+        }
+      ],
+      "positional": {
+        "name": "id",
+        "required": true
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "id",
+        "name",
+        "version_count"
+      ],
+      "fields": [
+        "id",
+        "name",
+        "description",
+        "version_count",
+        "latest_version",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    {
+      "operationId": "listScripts",
+      "group": "scripts",
+      "action": "list",
+      "method": "get",
+      "path": "/v1/scripts",
+      "auth": true,
+      "summary": "List scripts",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, max 200)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        }
+      ],
+      "list": true,
+      "view": "table",
+      "columns": [
+        "id",
+        "name",
+        "version_count"
+      ],
+      "fields": [
+        "id",
+        "name",
+        "description",
+        "version_count",
+        "latest_version",
+        "created_at",
+        "updated_at"
       ]
     },
     {

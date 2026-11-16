@@ -12,4 +12,5 @@ export const HAND_WRITTEN_COMMANDS = [
   { command: 'agent-setup', reason: 'writes the MCP connector config and installs the skill in one step' },
   { command: 'completion', reason: 'prints the bash / zsh / fish completion script generated from the command tree and spec paths' },
   { command: 'alert-events tail', reason: 'polls the alert-events pull feed (after=<last event id>) until interrupted and prints each new event as NDJSON' },
+  { command: 'scripts upload', reason: 'reads a local chartlang file into createScript / createScriptVersion and turns a compile error (a 201 with status error) into its diagnostics and exit 1' },
 ] as const;

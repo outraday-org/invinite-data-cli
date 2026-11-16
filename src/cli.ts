@@ -8,6 +8,7 @@ import { registerAuthCommands } from './commands/auth.js';
 import { registerCompletionCommand } from './commands/completion.js';
 import { registerConfigCommands } from './commands/config.js';
 import { registerPluginCommands } from './commands/plugin.js';
+import { registerScriptsUploadCommand } from './commands/scripts.js';
 import { DASHBOARD_URL } from './config/config-manager.js';
 import { applyColorEnv } from './output/render.js';
 import { registerSpecCommands } from './spec-commands.js';
@@ -98,6 +99,7 @@ export function createProgram(): Command {
   registerCompletionCommand(program, () => [...new Set(loadManifest().operations.map(operation => operation.path))].sort());
   registerSpecCommands(program, loadManifest());
   registerAlertEventsTailCommand(program);
+  registerScriptsUploadCommand(program);
 
   return program;
 }

@@ -12,7 +12,9 @@ Set up the alert described in `$ARGUMENTS` with Invinite Data (MCP `manage_desti
    `news_keyword`, `earnings_call` / `earnings_call_keyword`, `earnings_results`, `dividend`, `halt`,
    `fundamental_metric`, `event_countdown`, or a price type (since 7.1): `price` (a level crossed, `operator` +
    `level`), `price_move` (`pct` against a `baseline`), `volume_spike` or `price_reminder` — stocks / ETFs by ticker,
-   crypto with `asset_class: "crypto"`. In flags, a field both `condition` and `trigger` carry is prefixed
+   crypto with `asset_class: "crypto"`. Since 7.3: `script` (an uploaded chartlang script, `invd scripts upload <file>`
+   → `script_version_id`) or `indicator` (a built-in `template` from `invd alert-templates list`, or a structured
+   `condition`), each on `symbol` + `interval`, evaluated at bar close. In flags, a field both `condition` and `trigger` carry is prefixed
    (`--condition-mode`, `--trigger-mode`). Resolve each company to a ticker or CIK first
    (`invd companies list -q "<name>" --json`). Check what the account allows: `invd alerts list --json` shows the
    quota in `meta.quota`; `news`, `halt` and some `earnings_call` events need a higher plan (a refusal names it).

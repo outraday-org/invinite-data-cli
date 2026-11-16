@@ -97,20 +97,20 @@
     "secdoorsOpenapiSha256": "a1a55a764e15ebf79d3c0fa4051731546b33106833b55c9527d047aae095727d",
     "repository": "https://github.com/outraday-org/invinite-data-api",
     "version": "1.0.0",
-    "specSha256": "999332e693651f422ac7b3026f3959bd238d42195b36a92127e345d24a68b2aa",
+    "specSha256": "e3d860955d04bf5b094aa61d439c9bf1d732d368ab247f242ac845bb580748d6",
     "sourceHashes": {
-      "openapi.json": "999332e693651f422ac7b3026f3959bd238d42195b36a92127e345d24a68b2aa",
-      "package.json": "925e808886369c41dcb1a21170bc1972613cc169d2fbf66ebdd38be5d82179be",
+      "openapi.json": "e3d860955d04bf5b094aa61d439c9bf1d732d368ab247f242ac845bb580748d6",
+      "package.json": "99b3c27d5276c1f58767b1836cf1878af9ac626f2552c01500245df1a5ee9647",
       "scripts/export-reference.ts": "d925c60f0f895b7b55ae7506e30b1f70a82316e3650c5f7bba0c02f64fb2f09a",
       "scripts/gen-secdoors-types.ts": "860afc486f8041ddfbb515bf5a5a0de8ac9c7237af1a0238d0c08aece7dece1e",
       "scripts/generate-openapi.ts": "fd07fe65502eb0b2a29c8851ee1d26b802e0898d8b3be4f28b3bae39be061fb3",
-      "scripts/operation-ids.snapshot.json": "6290aeb6f687ed0323acd9e54c76d8ca162f940df47d94f609505e013bd95f3a",
+      "scripts/operation-ids.snapshot.json": "f27b549cb7a92a8d4b786026fa0453963e572c5c267adbd52b7a3d551fff9184",
       "scripts/reference-artifacts.ts": "0ef8e67cb5454a3f50f43de77b0be1aebb7897164ddf3f5288b58dc7d0f47255",
       "scripts/reference-env.ts": "105b341c463b24e99d349d50a96634f83b1b8dca8a669c84730dc93f24e122e0",
       "src/lib/secStore/secdoors-openapi.json": "b9d58ba4e7ed700493a4d7793abb34fbfa68606a796f1c305d6f5ddefa5c9371",
       "src/lib/v2/problem.ts": "96e10d94f2d2ae3d16014a6267668b59ff2b4212ea109183fbb50cd09974df36"
     },
-    "revision": "064fd5c4d5fccc948f24faa794f40a7ac99dbf34",
-    "fingerprint": "53eb58d6c9a97b42b95e53cd16994ed36cf330b129837713a0cb85c9091e435d"
+    "revision": "b270785f45ac87f2e10f28291827238dcd8dfffe",
+    "fingerprint": "3fb071a371cf844cd4413218c884d85e719280c69033abdecbcd095b2d5f978f"
   }
 }

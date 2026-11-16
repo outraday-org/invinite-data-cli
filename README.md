@@ -92,8 +92,9 @@ Commands are noun-verb over the API's groups:
 | `catalog` | static catalogs: metrics, sections, forms, event types, document kinds, mapping rules |
 | `me` | your account and usage (free) |
 | `alerts`, `destinations`, `alert-events` | alert rules (filings, news, halts, dividends, earnings calls and results, metrics, countdowns …), the webhook endpoints their events are delivered to, and the event log (pull feed; `invd alert-events tail` follows it) |
+| `scripts`, `script-versions`, `alert-templates` | hosted chartlang scripts for `script` alerts (`invd scripts upload` reads a file) and their versions; the built-in templates of `indicator` alerts |
 
-Plus the hand-written `api`, `auth`, `config`, `plugin`, `agent-setup`, `completion` and `alert-events tail`.
+Plus the hand-written `api`, `auth`, `config`, `plugin`, `agent-setup`, `completion`, `alert-events tail` and `scripts upload`.
 
 **The first positional is the natural key.** On company lists it is a ticker or CIK, and several are allowed:
 
@@ -283,6 +284,32 @@ An alert fires an event into the pull feed (`invd alert-events list --after <eve
 destination's signing secret is printed once on create (`invd destinations rotate-secret` issues a new one).
 `invd alert-events tail` polls the feed every 2 s (one metered request each, `--interval` changes it) and prints each
 new event as one JSON line; Ctrl-C prints the `--after` that resumes.
+
+### Hosted chartlang alerts
+
+Since 7.3 (Data API 6.3) an alert can run chartlang at each bar close of one instrument: a `script` alert runs a
+script you upload, an `indicator` alert a built-in template or a structured condition.
+
+```bash
+invd scripts upload ema-cross.chart                               # new script, version 1; prints status + diagnostics
+invd scripts upload ema-cross.chart --script <script-id>          # the next version of that script
+invd scripts list
+invd script-versions list <script-id>
+invd alerts create --body '{"type":"script","condition":{"symbol":"AAPL","interval":"5m","script_version_id":"<version-id>"},"trigger":{"mode":"every_time"}}'
+invd alert-templates list
+invd alerts create --body '{"type":"indicator","condition":{"symbol":"SPY","interval":"5m","template":{"key":"rsi-cross","inputs":{"level":30,"direction":"below"}}},"trigger":{"mode":"every_time"}}'
+```
+
+`invd scripts upload <file>` sends the file (≤ 200 KB; the only import allowed is `@invinite-org/chartlang-core`) to
+`POST /v1/scripts` (`--name`, default the file name; `--description`) or, with `--script <scr-id>`, to
+`POST /v1/scripts/{id}/versions`. The API compiles it; the command prints the script id, the version id (`scv_…`, the
+`script_version_id` of a `script` alert) and its alert ids (what `condition.alert_ids` may name, empty = all), then
+one `file:line:column severity message` line per diagnostic. A compile error is still stored as a version but exits 1;
+`--json` prints the API's answer. A script holds at most 20 versions and an existing alert keeps its version. A
+`script` alert takes the script's `inputs` and a `frequency` (`once_per_bar_close` default); an `indicator` alert
+takes a `template` (`key` + `inputs` from `invd alert-templates list`) or a structured `condition` (`lhs`,
+`comparator`, `rhs`) with optional `filters`. Both watch `symbol` (+ `asset_class` for crypto) at `interval` (the
+plan's shortest: FREE / LITE 1h, STANDARD 5m, PRO 1m).
 
 ## Output
 

@@ -40,6 +40,7 @@ serves the earlier roster; use whatever tools it lists, or the CLI.
 | Account and usage | `get_account` | `invd me show\|usage` |
 | Alerts, their event log | `manage_alerts` | `invd alerts …`, `invd alert-events list\|get\|tail` |
 | Alert destinations (webhook endpoints) | `manage_destinations` | `invd destinations …` |
+| Hosted chartlang scripts, indicator templates | `call_api` (`/v1/scripts`, `/v1/alert-templates`) | `invd scripts list\|get\|upload\|delete`, `invd script-versions list`, `invd alert-templates list` |
 | Any other operation | `search_endpoints` + `call_api` | `invd api GET /v1/…` |
 
 MCP resources `invinite://catalog/metrics`, `invinite://catalog/sections`, `invinite://catalog/event-types`,
@@ -242,6 +243,28 @@ A destination's signing secret is printed once on create (`rotate-secret` issues
 read the events with `invd alert-events list --after <event-id>` or follow them with `invd alert-events tail`. A
 delete asks first unless `--yes`. `/alert-setup` walks through both steps.
 
+### Hosted chartlang alerts
+
+A `script` alert runs an uploaded chartlang script at each bar close of one instrument; an `indicator` alert runs a
+built-in template (RSI, MACD signal, price / SMA, EMA cross) or a structured condition (`lhs` `comparator` `rhs`,
+optional `filters`).
+
+```bash
+invd scripts upload ema-cross.chart --json                        # new script; --script <script-id> adds a version
+invd script-versions list <script-id> --json
+invd alerts create --body '{"type":"script","condition":{"symbol":"AAPL","interval":"5m","script_version_id":"<version-id>"},"trigger":{"mode":"every_time"}}' --json
+invd alert-templates list --json
+invd alerts create --body '{"type":"indicator","condition":{"symbol":"SPY","interval":"5m","template":{"key":"rsi-cross","inputs":{"level":30,"direction":"below"}}},"trigger":{"mode":"every_time"}}' --json
+```
+
+`invd scripts upload <file>` compiles server-side: it prints the version (`scv_…`, the alert's `script_version_id`),
+its `alert_ids` (what `condition.alert_ids` may name) and each diagnostic as `file:line:column severity message`; a
+compile error exits 1 (the version is stored with `status: error` and no alert can use it). Show the user the
+diagnostics, fix the source, upload again with `--script <scr-id>`. Sources are ≤ 200 KB and may import only
+`@invinite-org/chartlang-core`; a script keeps at most 20 versions, an alert keeps the version it was created with.
+`interval` is bounded by the plan (FREE / LITE 1h, STANDARD 5m, PRO 1m). While hosted scripts are switched off the
+routes answer 503 `unavailable`.
+
 ## Commands Reference
 
 One example per command. `invd <group> <action> --help` lists every flag; values like `evt_01JC8M2X` are the spec's
@@ -279,6 +302,15 @@ invd alert-events tail --after evt_01JD2Q6A1B2C3D4E5F6G7H8J9K --type alert.fired
 ```
 <!-- /invd:hand:alert-events tail -->
 
+### alert-templates
+
+The indicator templates an `indicator` alert names (RSI, MACD, EMA cross …), with their inputs
+
+```bash
+# List indicator alert templates (optional: --limit, --cursor, --all)
+invd alert-templates list --json
+```
+
 ### alerts
 
 Alert rules: create, change, pause, batch and test them, and read one alert's events
@@ -287,7 +319,7 @@ Alert rules: create, change, pause, batch and test them, and read one alert's ev
 # Change alerts in bulk (optional: --body, --body-file)
 invd alerts batch --body '{"items":[{"op":"upsert","client_reference_id":"watchlist-msft-div","type":"dividend","condition":{"symbols":["MSFT"],"kinds":["declared"]}},{"op":"pause","client_reference_id":"watchlist-aapl-8k"}]}' --json
 
-# Create an alert (optional: --idempotency-key, --type, --ciks, --symbols, --cik, --symbol, --form-types, --form-categories, --include-amendments, --stage, --keywords, --match, --scope, --sources, --kinds, --earnings-only, --events, --speaker-roles, --min-mentions, --dividend-types, --statuses, --reason-codes, --report-kinds, --event, --days-before, --offsets-days, --minutes-before, --time-of-day-minutes, --timezone, --notify-on-date-change, --asset-class, --operator, --level, --direction, --pct, --baseline, --window-minutes, --condition-mode, --interval, --multiple, --threshold, --lookback-bars, --baseline-mode, --price-direction, --frequency, --at, --weekday, --days, --trigger-mode, --cooldown-seconds, --cooldown-bars, --max-fires, --expires-at, --delete-on-expiry, --activate-at, --pause-until, --rearm, --rearm-distance-pct, --destination-ids, --client-reference-id, --external-user-id, --body, --body-file)
+# Create an alert (optional: --idempotency-key, --type, --ciks, --symbols, --cik, --symbol, --form-types, --form-categories, --include-amendments, --stage, --keywords, --match, --scope, --sources, --kinds, --earnings-only, --events, --speaker-roles, --min-mentions, --dividend-types, --statuses, --reason-codes, --report-kinds, --event, --days-before, --offsets-days, --minutes-before, --time-of-day-minutes, --timezone, --notify-on-date-change, --asset-class, --operator, --level, --direction, --pct, --baseline, --window-minutes, --condition-mode, --interval, --multiple, --threshold, --lookback-bars, --baseline-mode, --price-direction, --frequency, --at, --weekday, --days, --script-version-id, --alert-ids, --trigger-mode, --cooldown-seconds, --cooldown-bars, --max-fires, --expires-at, --delete-on-expiry, --activate-at, --pause-until, --rearm, --rearm-distance-pct, --destination-ids, --client-reference-id, --external-user-id, --body, --body-file)
 invd alerts create --body '{"type":"filing","condition":{"symbols":["AAPL"],"form_types":["8-K"],"stage":"detected"},"trigger":{"mode":"every_time"},"destination_ids":["dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G"],"client_reference_id":"watchlist-aapl-8k","external_user_id":"user_8812","metadata":{"list":"tech"}}' --json
 
 # Delete an alert
@@ -311,7 +343,7 @@ invd alerts resume alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X --json
 # Send a test event
 invd alerts test alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X --json
 
-# Update an alert (optional: --version, --ciks, --symbols, --cik, --symbol, --form-types, --form-categories, --include-amendments, --stage, --keywords, --match, --scope, --sources, --kinds, --earnings-only, --events, --speaker-roles, --min-mentions, --dividend-types, --statuses, --reason-codes, --report-kinds, --event, --days-before, --offsets-days, --minutes-before, --time-of-day-minutes, --timezone, --notify-on-date-change, --asset-class, --operator, --level, --direction, --pct, --baseline, --window-minutes, --condition-mode, --interval, --multiple, --threshold, --lookback-bars, --baseline-mode, --price-direction, --frequency, --at, --weekday, --days, --trigger-mode, --cooldown-seconds, --cooldown-bars, --max-fires, --expires-at, --delete-on-expiry, --activate-at, --pause-until, --rearm, --rearm-distance-pct, --destination-ids, --client-reference-id, --external-user-id, --body, --body-file)
+# Update an alert (optional: --version, --ciks, --symbols, --cik, --symbol, --form-types, --form-categories, --include-amendments, --stage, --keywords, --match, --scope, --sources, --kinds, --earnings-only, --events, --speaker-roles, --min-mentions, --dividend-types, --statuses, --reason-codes, --report-kinds, --event, --days-before, --offsets-days, --minutes-before, --time-of-day-minutes, --timezone, --notify-on-date-change, --asset-class, --operator, --level, --direction, --pct, --baseline, --window-minutes, --condition-mode, --interval, --multiple, --threshold, --lookback-bars, --baseline-mode, --price-direction, --frequency, --at, --weekday, --days, --script-version-id, --alert-ids, --trigger-mode, --cooldown-seconds, --cooldown-bars, --max-fires, --expires-at, --delete-on-expiry, --activate-at, --pause-until, --rearm, --rearm-distance-pct, --destination-ids, --client-reference-id, --external-user-id, --body, --body-file)
 invd alerts update alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X --body '{"version":1,"condition":{"symbols":["AAPL","MSFT"],"form_types":["8-K"]}}' --json
 ```
 
@@ -727,6 +759,43 @@ invd plugin install --all --local
 invd plugin uninstall --all --global
 ```
 <!-- /invd:hand:plugin -->
+
+### script-versions
+
+The versions of one hosted chartlang script: compile status, diagnostics and alert ids
+
+```bash
+# Upload a new script version (optional: --source, --body, --body-file)
+invd script-versions create scr_01JD2Q4X7Y8Z9A0B1C2D3E4F5G --body '{"source":"import { defineIndicator, input } from \"@invinite-org/chartlang-core\";\n\nexport default defineIndicator({\n    name: \"EMA cross\",\n    apiVersion: 1,\n    overlay: true,\n    inputs: { fast: input.int(9, { min: 1, max: 200 }), slow: input.int(21, { min: 2, max: 500 }) },\n    compute({ bar, ta, alert, inputs }) {\n        const fast = ta.ema(bar.close, inputs.fast);\n        const slow = ta.ema(bar.close, inputs.slow);\n        if (ta.crossover(fast, slow).current) alert(\"EMA cross up at \" + bar.close);\n    }\n});\n"}' --json
+
+# List script versions (optional: --limit, --cursor, --all)
+invd script-versions list scr_01JD2Q4X7Y8Z9A0B1C2D3E4F5G --json
+```
+
+### scripts
+
+Hosted chartlang scripts for `script` alerts: upload (`upload` reads a .chart file), list, get, delete
+
+```bash
+# Upload a script (optional: --name, --description, --source, --body, --body-file)
+invd scripts create --body '{"name":"EMA cross","description":"Fast EMA crossing above the slow one","source":"import { defineIndicator, input } from \"@invinite-org/chartlang-core\";\n\nexport default defineIndicator({\n    name: \"EMA cross\",\n    apiVersion: 1,\n    overlay: true,\n    inputs: { fast: input.int(9, { min: 1, max: 200 }), slow: input.int(21, { min: 2, max: 500 }) },\n    compute({ bar, ta, alert, inputs }) {\n        const fast = ta.ema(bar.close, inputs.fast);\n        const slow = ta.ema(bar.close, inputs.slow);\n        if (ta.crossover(fast, slow).current) alert(\"EMA cross up at \" + bar.close);\n    }\n});\n"}' --json
+
+# Delete a script
+invd scripts delete scr_01JD2Q4X7Y8Z9A0B1C2D3E4F5G --json
+
+# Get a script
+invd scripts get scr_01JD2Q4X7Y8Z9A0B1C2D3E4F5G --json
+
+# List scripts (optional: --limit, --cursor, --all)
+invd scripts list --json
+```
+
+<!-- invd:hand:scripts upload -->
+```bash
+invd scripts upload ema-cross.chart                               # new script (name = file name); diagnostics, exit 1 on a compile error
+invd scripts upload ema-cross.chart --script scr_01JD2Q4X7Y8Z9A0B1C2D3E4F5G   # the next version of that script
+```
+<!-- /invd:hand:scripts upload -->
 
 ### search
 

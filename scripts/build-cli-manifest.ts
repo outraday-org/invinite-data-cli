@@ -47,6 +47,7 @@ export const DEFAULT_MANIFEST_PATH = resolve(REPO_ROOT, 'src/generated/cli-manif
  */
 export const GROUP_DESCRIPTIONS: Readonly<Record<string, string>> = {
   'alert-events': 'The fire log of your alerts: the pull feed (`tail` follows it live) and one event',
+  'alert-templates': 'The indicator templates an `indicator` alert names (RSI, MACD, EMA cross …), with their inputs',
   alerts: 'Alert rules: create, change, pause, batch and test them, and read one alert\'s events',
   companies: 'Listed companies: list, profile, fiscal periods, dividends and splits',
   destinations: 'Webhook endpoints alert events are delivered to: secrets, test deliveries and the delivery log',
@@ -61,6 +62,8 @@ export const GROUP_DESCRIPTIONS: Readonly<Record<string, string>> = {
   metrics: 'Ratios, growth, CAGR, and the explanation of one standardized fact',
   offerings: 'Form D private offerings (Regulation D exemptions), amendments folded per offering',
   people: 'Executives and analysts, and who took part in which event',
+  'script-versions': 'The versions of one hosted chartlang script: compile status, diagnostics and alert ids',
+  scripts: 'Hosted chartlang scripts for `script` alerts: upload (`upload` reads a .chart file), list, get, delete',
   search: 'Full-text search over SEC filings, transcripts, investor documents and news',
   segments: 'Segment values (revenue by product, geography …); list-detailed adds lineage (PRO)',
 };
