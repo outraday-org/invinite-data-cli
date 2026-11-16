@@ -40,7 +40,7 @@
   },
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "7.1.0",
+    "version": "7.2.0",
     "specSha256": "999332e693651f422ac7b3026f3959bd238d42195b36a92127e345d24a68b2aa",
     "sourceHashes": {
       "claude-plugin/.claude-plugin/plugin.json": "42afef7914c89c1ecb9876463e92fab71423f5542dbe84e3a72de8d9c845d56f",
@@ -53,12 +53,12 @@
       "claude-plugin/commands/financial-research.md": "5edb2fd316ceda1620f0c7c5e5f64aa9205634a11a5349c0581ac7609433be2e",
       "claude-plugin/commands/ownership-review.md": "323c3800a4d0099dffb97120d75d5c654243f93fbc663994ea5871c0141afde7",
       "claude-plugin/skills/invinite-data-cli/SKILL.md": "f9d01c3091c3ce6afb1d1e183afa792b6dc6ea84c51cbb66949faf97e304d0a7",
-      "package.json": "4560401818823645d0a88b62e35a1b0c8f45951f031cdcc8380f7a99ffb82344",
+      "package.json": "ae7aa62bf0c2414de1f7741bc77fba955dc804a585e660b142863aee6c4c477b",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-plugin-packaging.ts": "98945657178e4d4468963f9ef9b7d85025fde6c25444dbc3adb1c2334aac899e",
       "src/commands/plugin.ts": "d571726eeac6b194c825f31dcd5a25e6b46764d8d941732c7b88327cccae372d"
     },
-    "revision": "b0100d4ec78e72d0cbf402017ad0181da82fdd73",
-    "fingerprint": "5a479878e2b3ec365fe6e34ce441117d10229b846266c128c618713c03a32053"
+    "revision": "8a5ce433f1807e0929fb2bea1fc6f77d68917123",
+    "fingerprint": "d0ad51c0b248c601826e743878950e842635452fe25f0c22d611ba35b322e672"
   }
 }
