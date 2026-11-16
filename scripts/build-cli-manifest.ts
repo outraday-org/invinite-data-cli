@@ -46,7 +46,10 @@ export const DEFAULT_MANIFEST_PATH = resolve(REPO_ROOT, 'src/generated/cli-manif
  * tag's description.
  */
 export const GROUP_DESCRIPTIONS: Readonly<Record<string, string>> = {
+  'alert-events': 'The fire log of your alerts: the pull feed (`tail` follows it live) and one event',
+  alerts: 'Alert rules: create, change, pause, batch and test them, and read one alert\'s events',
   companies: 'Listed companies: list, profile, fiscal periods, dividends and splits',
+  destinations: 'Webhook endpoints alert events are delivered to: secrets, test deliveries and the delivery log',
   events: 'Earnings calls and other corporate events: transcripts, Q&A, media and call analytics',
   filers: 'Every SEC filer (13F managers, pre-IPO issuers, former registrants), listed or not',
   'etf-holdings': 'ETF composition: one ETF\'s freshest holdings (issuer file, else N-PORT) or the ETFs holding a company',

@@ -55,7 +55,8 @@ documents fact-places), `list_filings` (filings list), `read_filing` (filings ge
 `search_filings` (search filings), `get_holdings` (holdings), `get_insider_trades` (insider-trades), `list_events`
 (events list), `get_event` (events get, transcript, transcript-text, qa, stats, comparison, press-release, slides …),
 `search_transcripts` (search transcripts, search investor-documents), `get_news` (news, search news), `get_account`
-(me), `manage_webhooks` (webhooks), and `search_endpoints` + `call_api` (invd api).
+(me), `manage_alerts` (alerts, alert-events), `manage_destinations` (destinations), and `search_endpoints` + `call_api`
+(invd api). `invd alert-events tail` follows the alert event log live (no MCP tool).
 
 ## Query planning
 

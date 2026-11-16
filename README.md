@@ -15,7 +15,8 @@ invd search filings "supply chain risk" --company AAPL
 
 Version 6.0 keeps the 5.0 commands and follows the conventions shared with the Web CLI `inv`: one exit-code table
 (not found 3, partial 7, interrupted 130 / 143), a three-line error with the API's remedy, and the config file in
-`~/.config/invinite/invd.toml`. Coming from 5.x, read [Upgrading from 5.x](#upgrading-from-5x); from 4.x,
+`~/.config/invinite/invd.toml`. Version 7.0 replaces webhooks with alerts
+([Upgrading from 6.x](#upgrading-from-6x)). Coming from 5.x, read [Upgrading from 5.x](#upgrading-from-5x); from 4.x,
 [Upgrading from 4.x](#upgrading-from-4x); from 3.x, [Upgrading from 3.x](#upgrading-from-3x).
 
 ## Installation
@@ -90,9 +91,9 @@ Commands are noun-verb over the API's groups:
 | `ipos`, `offerings`, `market` | offerings from registration to listing; Form D private offerings; US market holidays |
 | `catalog` | static catalogs: metrics, sections, forms, event types, document kinds, mapping rules |
 | `me` | your account and usage (free) |
-| `webhooks` | outbound event deliveries |
+| `alerts`, `destinations`, `alert-events` | alert rules (filings, news, halts, dividends, earnings calls and results, metrics, countdowns …), the webhook endpoints their events are delivered to, and the event log (pull feed; `invd alert-events tail` follows it) |
 
-Plus the hand-written `api`, `auth`, `config`, `plugin`, `agent-setup` and `completion`.
+Plus the hand-written `api`, `auth`, `config`, `plugin`, `agent-setup`, `completion` and `alert-events tail`.
 
 **The first positional is the natural key.** On company lists it is a ticker or CIK, and several are allowed:
 
@@ -265,16 +266,23 @@ invd market holidays --date-gte 2026-01-01
 Every news item carries `attribution` (publisher, `source_url`, `published_at`, and the form and accession of a
 filing): name the publisher and link the source whenever you show a headline or summary.
 
-### Account and webhooks
+### Account and alerts
 
 ```bash
 invd me show
 invd me usage --days 7
-invd webhooks list
-invd webhooks create --body '{"url":"https://hooks.example.com/invinite","events":["event.transcript_ready"],"filters":{"ciks":["0000320193"]}}'
-invd webhooks deliveries <id>
-invd webhooks delete <id>
+invd destinations create --url https://hooks.example.com/invinite-alerts
+invd alerts create --body '{"type":"filing","condition":{"symbols":["AAPL"],"form_types":["8-K"]},"trigger":{"mode":"every_time"},"destination_ids":["<dst-id>"]}'
+invd alerts list
+invd alerts test <alert-id>
+invd destinations deliveries <dst-id>
+invd alert-events tail
 ```
+
+An alert fires an event into the pull feed (`invd alert-events list --after <event-id>`) and to its destinations. A
+destination's signing secret is printed once on create (`invd destinations rotate-secret` issues a new one).
+`invd alert-events tail` polls the feed every 2 s (one metered request each, `--interval` changes it) and prints each
+new event as one JSON line; Ctrl-C prints the `--after` that resumes.
 
 ## Output
 
@@ -349,8 +357,8 @@ The escape hatch for anything the command tree lacks:
 invd api /v1/companies/AAPL
 invd api GET /v1/filings?company=AAPL --paginate --jq '.data[].accession'
 invd api GET /v1/holdings -F company=AAPL -F limit=100
-invd api POST /v1/webhooks --input webhook.json
-invd api DELETE /v1/webhooks/<id> --yes
+invd api POST /v1/alerts --input alert.json
+invd api DELETE /v1/alerts/<id> --yes
 invd api GET /v1/me -H 'Accept: application/json' --dry-run
 ```
 
@@ -470,6 +478,13 @@ The exit codes are the same in `invd` and the Web CLI `inv`:
 | 6 | credits exhausted or plan required: 402, `plan_required`, `insufficient_credits` |
 | 7 | partial: an `--all` cut short by a failure (resume with the printed `--cursor`) or a short download |
 | 130 / 143 | interrupted (Ctrl-C / SIGTERM); an `--all` walk prints its resume cursor first |
+
+## Upgrading from 6.x
+
+7.0 follows the Data API's alerts release: the `webhooks` group is gone with `/v1/webhooks`. Its replacement is
+`invd alerts` (alert rules), `invd destinations` (the webhook endpoints alert events are delivered to, each with its own
+signing secret) and `invd alert-events` (the event log; `invd alert-events tail` follows it live). Every other command,
+flag and output is unchanged.
 
 ## Upgrading from 5.x
 

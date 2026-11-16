@@ -2,6 +2,7 @@ import { createRequire } from 'node:module';
 import { Command } from 'commander';
 import { formatCreditUsage, takeCreditUsage } from './client/api-client.js';
 import { registerAgentSetupCommand } from './commands/agent-setup.js';
+import { registerAlertEventsTailCommand } from './commands/alert-events.js';
 import { registerApiCommand } from './commands/api.js';
 import { registerAuthCommands } from './commands/auth.js';
 import { registerCompletionCommand } from './commands/completion.js';
@@ -96,6 +97,7 @@ export function createProgram(): Command {
   registerApiCommand(program);
   registerCompletionCommand(program, () => [...new Set(loadManifest().operations.map(operation => operation.path))].sort());
   registerSpecCommands(program, loadManifest());
+  registerAlertEventsTailCommand(program);
 
   return program;
 }

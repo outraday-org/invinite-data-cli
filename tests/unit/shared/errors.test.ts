@@ -57,7 +57,7 @@ describe('exit codes', () => {
       not_found: EXIT.notFound, not_covered: EXIT.notFound,
       unauthorized: EXIT.auth, forbidden: EXIT.auth,
       plan_required: EXIT.credits, insufficient_credits: EXIT.credits,
-      excluded: EXIT.failure, rate_limited: EXIT.failure, idempotency_in_flight: EXIT.failure,
+      excluded: EXIT.failure, rate_limited: EXIT.failure, idempotency_in_flight: EXIT.failure, conflict: EXIT.failure,
       internal: EXIT.failure, unavailable: EXIT.failure,
     };
     const codes = contract.problem_codes.map(entry => entry.code);

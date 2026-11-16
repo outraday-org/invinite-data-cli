@@ -31,8 +31,8 @@ describe('invd api', () => {
   it('method optional (GET), the path query kept, -F typed on GET into the query and into the body otherwise', async () => {
     expect(await apiRequestFrom('/v1/filings?company=AAPL', undefined, { field: ['limit=5'] }))
       .toEqual({ path: '/v1/filings', method: 'GET', query: { company: ['AAPL'], limit: ['5'] } });
-    expect(await apiRequestFrom('post', '/v1/webhooks', { field: ['active=true', 'n=3'], rawField: ['url=https://x'], header: ['Idempotency-Key: k1'] }))
-      .toEqual({ path: '/v1/webhooks', method: 'POST', query: {}, headers: { 'Idempotency-Key': 'k1' }, body: { active: true, n: 3, url: 'https://x' } });
+    expect(await apiRequestFrom('post', '/v1/destinations', { field: ['active=true', 'n=3'], rawField: ['url=https://x'], header: ['Idempotency-Key: k1'] }))
+      .toEqual({ path: '/v1/destinations', method: 'POST', query: {}, headers: { 'Idempotency-Key': 'k1' }, body: { active: true, n: 3, url: 'https://x' } });
     await expect(apiRequestFrom('FETCH', '/v1/x', {})).rejects.toThrow('not an HTTP method');
     await expect(apiRequestFrom('GET', undefined as unknown as string, {})).rejects.toThrow();
   });
@@ -60,7 +60,7 @@ describe('invd api', () => {
   it('--dry-run sends nothing; DELETE needs --yes without a terminal', async () => {
     await createProgram().parseAsync(['node', 'invd', 'api', '/v1/companies/AAPL', '--dry-run']);
     expect(out.join('\n')).toContain('GET https://api.example.com/v1/companies/AAPL');
-    await expect(createProgram().parseAsync(['node', 'invd', 'api', 'DELETE', '/v1/webhooks/wh_1'])).rejects.toThrow('exit 2');
+    await expect(createProgram().parseAsync(['node', 'invd', 'api', 'DELETE', '/v1/destinations/dst_1'])).rejects.toThrow('exit 2');
     expect(fetch).not.toHaveBeenCalled();
   });
 });

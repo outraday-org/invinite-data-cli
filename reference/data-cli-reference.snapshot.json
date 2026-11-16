@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "6.7.0",
+    "version": "7.0.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -9,19 +9,20 @@
     "engines": {
       "node": ">=20"
     },
-    "verifiedOn": "2026-11-15",
+    "verifiedOn": "2026-11-16",
     "sourceHashes": {
-      "api-contract.json": "308f422520b4c3796d32fad60fece7c365dbdefb3f3e99401d4570051255a943",
-      "openapi.json": "bf5888c378fd7308a4159d3ebbbe54ad43ecfdb25a59f160bc1c1684cc87403c",
-      "package.json": "30f0b76165265bdbd0250bfa61fa1d9e09f7a2d5fc6194bfa49226fe40b186d1",
+      "api-contract.json": "331b0dca92c2bc06116abb3a85abc37ba62f3a2c66edb0ecd9a2063f56132aed",
+      "openapi.json": "30baeaf211d3484e0252b30f8b51914232213a42af9c048cd4056ec74fe6dea8",
+      "package.json": "e3414dea71b10dadfa050be775803babb892c4b830c4b2139ed8e47798eda283",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "ed216f689f39e3dbf72c7d6a1c74ee6cb9c22fbaf9982a9b4ddee2873f2d5536",
-      "src/cli.ts": "73cc0cdfe9e3817327f4385f707b5239fe49af30dab13cbd5b000b85bdf639e1",
+      "src/cli.ts": "cc6b4b499c071aae385839e7719c18f36c24b2a5bfec81a78e08f9581dae61a6",
       "src/client/api-client.ts": "17d0817be6964b04fd03ccbc5ff91492551d13260664190510d5211a4c6e883e",
       "src/client/download.ts": "7e7ff500f176d859a0d94788b02b364218580eee9834a8394262d22cb2b0dda4",
       "src/client/pagination.ts": "2b759864d496f021ed8b01147a6fce1576315f0b0e789fb3022b2b8857534efe",
       "src/commands/agent-setup.ts": "a0a1be911a6942aa22647347d27ba3667a5810b197d787500292763b65abec90",
+      "src/commands/alert-events.ts": "4cf28e95f53f18bd5e75dec9968529f68ee6ec1838da57f225aa995be951a29c",
       "src/commands/api.ts": "2f56e36b3df6223e2e3f97c8d9c46f36eced601364eb7ad6be762d21e171a203",
       "src/commands/auth.ts": "1f3369f5d1de59064e6b2b3f9e11b925695a8055fe91284ab9ea0dc5871fb223",
       "src/commands/completion.ts": "d7aeaa835ac1fe16b3c9a0165a1a5e8a85cb31262f498499d829bcb7a5f88d73",
@@ -32,8 +33,8 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "77e10eeeef50d53b01ec082799f422bee9053d607e3c11fc9a66d39b039ab1f0",
-      "src/hand-written-commands.ts": "83b0b0412d6e59d1e2c345dba6efd80ee4bcfeb37e6072a713e1272e624c2eca",
+      "src/generated/cli-manifest.json": "0cc2cc12bddfce4c107466bc5e703f8c27bd7edcdef9d31e85a4cc185732dc71",
+      "src/hand-written-commands.ts": "2d608d50bc24f0475a1a8b002eb2abca15578409993439689403417ea96547fd",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
       "src/output/render.ts": "320d0a99ebf23c3d81cef46b4e6ed1360579ac980285b0c626b50b844fbd950b",
@@ -48,9 +49,9 @@
       "src/spec-manifest.ts": "d3b5c1b3c3a473f7991c02bd8b204d7ee6ac67b67e1d0ec1855c7345328cc104",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "bf5888c378fd7308a4159d3ebbbe54ad43ecfdb25a59f160bc1c1684cc87403c",
-    "revision": "8100a0dbe18391ba01a6e0dc3b3648c24e6d0e78",
-    "fingerprint": "77f42c251a55c7bfc0d3d98b7e8da84294cbf73f777098fbab1ca3fedd68eeba"
+    "specSha256": "30baeaf211d3484e0252b30f8b51914232213a42af9c048cd4056ec74fe6dea8",
+    "revision": "f867d4f275cf65f4ef2dc8383b712c12c494e42b",
+    "fingerprint": "afdabfbc0b729ed4b3f949153061705ac60a2826e6a0b080570094d33ebd7df2"
   },
   "globalOptions": [
     {
@@ -63,6 +64,14 @@
     {
       "id": "agent-setup",
       "description": "Connect an AI agent: the Invinite MCP connector plus the invd skill, in one step"
+    },
+    {
+      "id": "alert-events",
+      "description": "The fire log of your alerts: the pull feed (`tail` follows it live) and one event"
+    },
+    {
+      "id": "alerts",
+      "description": "Alert rules: create, change, pause, batch and test them, and read one alert's events"
     },
     {
       "id": "api",
@@ -87,6 +96,10 @@
     {
       "id": "config",
       "description": "Local settings: ~/.config/invinite/invd.toml (XDG) and ./.invd.toml; flags > env > local > global"
+    },
+    {
+      "id": "destinations",
+      "description": "Webhook endpoints alert events are delivered to: secrets, test deliveries and the delivery log"
     },
     {
       "id": "documents",
@@ -175,10 +188,6 @@
     {
       "id": "segments",
       "description": "Segment values (revenue by product, geography …); list-detailed adds lineage (PRO)"
-    },
-    {
-      "id": "webhooks",
-      "description": "Outbound event deliveries"
     }
   ],
   "commands": [
@@ -224,6 +233,1542 @@
         {
           "flags": "--no-input",
           "description": "Never prompt (a missing agent or scope fails with exit 2 instead)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "alert-events get",
+      "group": "alert-events",
+      "origin": "spec",
+      "description": "Get an alert event",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/alert-events/{id}"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Alert event id",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "alert-events list",
+      "group": "alert-events",
+      "origin": "spec",
+      "description": "List alert events",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/alert-events"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--alert-id <value>",
+          "description": "Only the events of this alert (e.g. alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X)",
+          "required": false
+        },
+        {
+          "flags": "--type <value>",
+          "description": "Only events of this type (e.g. alert.fired)",
+          "required": false,
+          "choices": [
+            "alert.fired",
+            "alert.status_changed",
+            "destination.disabled",
+            "destination.test",
+            "account.fire_cap_reached"
+          ]
+        },
+        {
+          "flags": "--external-user-id <value>",
+          "description": "Only the events of this end user's alerts (e.g. user_8812)",
+          "required": false
+        },
+        {
+          "flags": "--after <value>",
+          "description": "Continue after this event id (e.g. evt_01JD2Q6A1B2C3D4E5F6G7H8J9K)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "alert-events tail",
+      "group": "alert-events",
+      "origin": "hand",
+      "description": "Follow the alert event log live: polls the pull feed and prints each new event as one JSON line",
+      "source": "src/commands/alert-events.ts",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/alert-events"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--after <event-id>",
+          "description": "Continue after this event id (prints everything newer)",
+          "required": false
+        },
+        {
+          "flags": "--from-start",
+          "description": "Print the whole retained log first (default: only events newer than now)",
+          "required": false
+        },
+        {
+          "flags": "--alert-id <id>",
+          "description": "Only the events of this alert",
+          "required": false
+        },
+        {
+          "flags": "--type <type>",
+          "description": "Only events of this type (alert.fired, alert.status_changed, destination.disabled, destination.test, account.fire_cap_reached)",
+          "required": false
+        },
+        {
+          "flags": "--external-user-id <id>",
+          "description": "Only the events of this end user's alerts",
+          "required": false
+        },
+        {
+          "flags": "--interval <seconds>",
+          "description": "Seconds between polls (default 2, min 1); every poll is one metered request",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "alerts batch",
+      "group": "alerts",
+      "origin": "spec",
+      "description": "Change alerts in bulk",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "POST",
+          "path": "/v1/alerts:batch"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--body <json>",
+          "description": "The whole JSON request body (flags above override its fields)",
+          "required": false
+        },
+        {
+          "flags": "--body-file <path>",
+          "description": "Read the JSON request body from a file (- = stdin)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "alerts create",
+      "group": "alerts",
+      "origin": "spec",
+      "description": "Create an alert",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "POST",
+          "path": "/v1/alerts"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--idempotency-key <value>",
+          "description": "Replays the first answer for 24 h; 409 while in flight (R13) (e.g. 6f1c0f3e-7b7a-4a8e-9d63-3c1b2f0e9a11)",
+          "required": false
+        },
+        {
+          "flags": "-t, --type <value>",
+          "description": "The alert type (body type)",
+          "required": false
+        },
+        {
+          "flags": "--ciks <list>",
+          "description": "Companies by CIK. filing, filing_keyword, news, news_keyword, earnings_call, earnings_call_keyword, dividend, halt (body condition.ciks)",
+          "required": false
+        },
+        {
+          "flags": "--symbols <list>",
+          "description": "Companies by ticker. Same types as `ciks` (body condition.symbols)",
+          "required": false
+        },
+        {
+          "flags": "--cik <value>",
+          "description": "The company by CIK. fundamental_metric, earnings_results, event_countdown (1–10 digits) (body condition.cik)",
+          "required": false
+        },
+        {
+          "flags": "--symbol <value>",
+          "description": "The company by ticker. Same types as `cik` (body condition.symbol)",
+          "required": false
+        },
+        {
+          "flags": "--form-types <list>",
+          "description": "Raw SEC form types (`8-K`, `S-1`). filing, filing_keyword (body condition.form_types)",
+          "required": false
+        },
+        {
+          "flags": "--form-categories <list>",
+          "description": "Form categories. filing (body condition.form_categories)",
+          "required": false
+        },
+        {
+          "flags": "--include-amendments",
+          "description": "Also amendments (`/A`). filing (body condition.include_amendments): true",
+          "required": false
+        },
+        {
+          "flags": "--no-include-amendments",
+          "description": "Also amendments (`/A`). filing (body condition.include_amendments): false",
+          "required": false
+        },
+        {
+          "flags": "--stage <value>",
+          "description": "`detected` = the moment the SEC publishes it (every filer); `processed` = after our processing. filing (body condition.stage)",
+          "required": false
+        },
+        {
+          "flags": "--keywords <list>",
+          "description": "Whole-word, case-insensitive keywords (2–50 characters). filing_keyword, news_keyword, earnings_call (keyword_hit), earnings_call_keyword (body condition.keywords)",
+          "required": false
+        },
+        {
+          "flags": "--match <value>",
+          "description": "Any or all keywords. Keyword types (default any) (body condition.match)",
+          "required": false
+        },
+        {
+          "flags": "--scope <value>",
+          "description": "Where keywords are searched: filing_keyword full / risk_factors / mdna / legal_proceedings; news_keyword headline / headline_and_description; earnings_call_keyword full / prepared / qna (body condition.scope)",
+          "required": false
+        },
+        {
+          "flags": "--sources <list>",
+          "description": "News sources. news, news_keyword (body condition.sources)",
+          "required": false
+        },
+        {
+          "flags": "--kinds <list>",
+          "description": "news: news kinds; dividend: declared / ex_date / payment (body condition.kinds)",
+          "required": false
+        },
+        {
+          "flags": "--earnings-only",
+          "description": "Only earnings news. news, news_keyword (body condition.earnings_only): true",
+          "required": false
+        },
+        {
+          "flags": "--no-earnings-only",
+          "description": "Only earnings news. news, news_keyword (body condition.earnings_only): false",
+          "required": false
+        },
+        {
+          "flags": "--events <list>",
+          "description": "Call lifecycle events. earnings_call (transcript_provisional, transcript_corrected, documents_updated need STANDARD; guidance_flash, keyword_hit PRO) (body condition.events)",
+          "required": false
+        },
+        {
+          "flags": "--speaker-roles <list>",
+          "description": "Only these speakers. earnings_call_keyword (body condition.speaker_roles)",
+          "required": false
+        },
+        {
+          "flags": "--min-mentions <value>",
+          "description": "Fire at this many mentions. earnings_call_keyword (body condition.min_mentions)",
+          "required": false
+        },
+        {
+          "flags": "--dividend-types <list>",
+          "description": "Only these dividend types. dividend (body condition.dividend_types)",
+          "required": false
+        },
+        {
+          "flags": "--statuses <list>",
+          "description": "Halt or resumption (empty = both). halt (body condition.statuses)",
+          "required": false
+        },
+        {
+          "flags": "--reason-codes <list>",
+          "description": "Only these halt reason codes. halt (body condition.reason_codes)",
+          "required": false
+        },
+        {
+          "flags": "--report-kinds <list>",
+          "description": "Results reports to fire on. earnings_results (body condition.report_kinds)",
+          "required": false
+        },
+        {
+          "flags": "--event <value>",
+          "description": "The event counted down to. event_countdown (body condition.event)",
+          "required": false
+        },
+        {
+          "flags": "--days-before <value>",
+          "description": "Days before (0 = on the day). event_countdown (body condition.days_before)",
+          "required": false
+        },
+        {
+          "flags": "--offsets-days <list>",
+          "description": "A ladder of days before. event_countdown (body condition.offsets_days)",
+          "required": false
+        },
+        {
+          "flags": "--minutes-before <value>",
+          "description": "Minutes before the call starts (event earnings_call only). event_countdown (body condition.minutes_before)",
+          "required": false
+        },
+        {
+          "flags": "--time-of-day-minutes <value>",
+          "description": "Local minute of the day the reminder fires (default 540 = 09:00). event_countdown (body condition.time_of_day_minutes)",
+          "required": false
+        },
+        {
+          "flags": "--timezone <value>",
+          "description": "IANA time zone. event_countdown (body condition.timezone)",
+          "required": false
+        },
+        {
+          "flags": "--notify-on-date-change",
+          "description": "Tell when the event date moves (default true). event_countdown (body condition.notify_on_date_change): true",
+          "required": false
+        },
+        {
+          "flags": "--no-notify-on-date-change",
+          "description": "Tell when the event date moves (default true). event_countdown (body condition.notify_on_date_change): false",
+          "required": false
+        },
+        {
+          "flags": "--mode <value>",
+          "description": "`once` = the alert becomes `triggered` after its first fire (default every_time) (body trigger.mode)",
+          "required": false
+        },
+        {
+          "flags": "--cooldown-seconds <value>",
+          "description": "Minimum seconds between fires (body trigger.cooldown_seconds)",
+          "required": false
+        },
+        {
+          "flags": "--cooldown-bars <value>",
+          "description": "Minimum bars between fires (script / indicator types) (body trigger.cooldown_bars)",
+          "required": false
+        },
+        {
+          "flags": "--max-fires <value>",
+          "description": "The alert becomes `triggered` after this many fires (body trigger.max_fires)",
+          "required": false
+        },
+        {
+          "flags": "--expires-at <value>",
+          "description": "The alert becomes `expired` then (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z) (body trigger.expires_at)",
+          "required": false
+        },
+        {
+          "flags": "--delete-on-expiry",
+          "description": "Delete instead of `expired` (needs expires_at) (body trigger.delete_on_expiry): true",
+          "required": false
+        },
+        {
+          "flags": "--no-delete-on-expiry",
+          "description": "Delete instead of `expired` (needs expires_at) (body trigger.delete_on_expiry): false",
+          "required": false
+        },
+        {
+          "flags": "--activate-at <value>",
+          "description": "The alert is `scheduled` until then (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z) (body trigger.activate_at)",
+          "required": false
+        },
+        {
+          "flags": "--pause-until <value>",
+          "description": "No fires until then (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z) (body trigger.pause_until)",
+          "required": false
+        },
+        {
+          "flags": "--rearm <value>",
+          "description": "Price types: when a crossed level arms again (body trigger.rearm)",
+          "required": false
+        },
+        {
+          "flags": "--rearm-distance-pct <value>",
+          "description": "Price types: hysteresis in percent (body trigger.rearm_distance_pct)",
+          "required": false
+        },
+        {
+          "flags": "--destination-ids <list>",
+          "description": "Destination ids (≤ 10) (body destination_ids)",
+          "required": false
+        },
+        {
+          "flags": "--client-reference-id <value>",
+          "description": "Your id; a second create with it returns the live alert (body client_reference_id)",
+          "required": false
+        },
+        {
+          "flags": "--external-user-id <value>",
+          "description": "Your end user's id (filters lists and events) (body external_user_id)",
+          "required": false
+        },
+        {
+          "flags": "--body <json>",
+          "description": "The whole JSON request body (flags above override its fields)",
+          "required": false
+        },
+        {
+          "flags": "--body-file <path>",
+          "description": "Read the JSON request body from a file (- = stdin)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "alerts delete",
+      "group": "alerts",
+      "origin": "spec",
+      "description": "Delete an alert",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "DELETE",
+          "path": "/v1/alerts/{id}"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Alert id",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "alerts events",
+      "group": "alerts",
+      "origin": "spec",
+      "description": "List an alert's events",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/alerts/{id}/events"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Alert id",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--type <value>",
+          "description": "Only events of this type (e.g. alert.fired)",
+          "required": false,
+          "choices": [
+            "alert.fired",
+            "alert.status_changed",
+            "destination.disabled",
+            "destination.test",
+            "account.fire_cap_reached"
+          ]
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "alerts get",
+      "group": "alerts",
+      "origin": "spec",
+      "description": "Get an alert",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/alerts/{id}"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Alert id",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "alerts list",
+      "group": "alerts",
+      "origin": "spec",
+      "description": "List alerts",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/alerts"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--status <value>",
+          "description": "Only alerts in this status (e.g. active)",
+          "required": false,
+          "choices": [
+            "active",
+            "paused",
+            "scheduled",
+            "triggered",
+            "expired",
+            "disabled"
+          ]
+        },
+        {
+          "flags": "--type <value>",
+          "description": "Only alerts of this type (e.g. filing)",
+          "required": false,
+          "choices": [
+            "filing",
+            "filing_keyword",
+            "news",
+            "news_keyword",
+            "earnings_call",
+            "earnings_call_keyword",
+            "dividend",
+            "halt",
+            "fundamental_metric",
+            "earnings_results",
+            "event_countdown",
+            "price",
+            "price_move",
+            "volume_spike",
+            "price_reminder",
+            "indicator",
+            "script"
+          ]
+        },
+        {
+          "flags": "--external-user-id <value>",
+          "description": "Only alerts of this end user (your own id, set at create) (e.g. user_8812)",
+          "required": false
+        },
+        {
+          "flags": "--client-reference-id <value>",
+          "description": "The alert with this client reference id (e.g. watchlist-aapl-8k)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "alerts pause",
+      "group": "alerts",
+      "origin": "spec",
+      "description": "Pause an alert",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "POST",
+          "path": "/v1/alerts/{id}:pause"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Alert id",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "alerts resume",
+      "group": "alerts",
+      "origin": "spec",
+      "description": "Resume an alert",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "POST",
+          "path": "/v1/alerts/{id}:resume"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Alert id",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "alerts test",
+      "group": "alerts",
+      "origin": "spec",
+      "description": "Send a test event",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "POST",
+          "path": "/v1/alerts/{id}:test"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Alert id",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "alerts update",
+      "group": "alerts",
+      "origin": "spec",
+      "description": "Update an alert",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "PATCH",
+          "path": "/v1/alerts/{id}"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Alert id",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "--version <value>",
+          "description": "Apply only to this version (409 conflict otherwise) (body version)",
+          "required": false
+        },
+        {
+          "flags": "--ciks <list>",
+          "description": "Companies by CIK. filing, filing_keyword, news, news_keyword, earnings_call, earnings_call_keyword, dividend, halt (body condition.ciks)",
+          "required": false
+        },
+        {
+          "flags": "--symbols <list>",
+          "description": "Companies by ticker. Same types as `ciks` (body condition.symbols)",
+          "required": false
+        },
+        {
+          "flags": "--cik <value>",
+          "description": "The company by CIK. fundamental_metric, earnings_results, event_countdown (1–10 digits) (body condition.cik)",
+          "required": false
+        },
+        {
+          "flags": "--symbol <value>",
+          "description": "The company by ticker. Same types as `cik` (body condition.symbol)",
+          "required": false
+        },
+        {
+          "flags": "--form-types <list>",
+          "description": "Raw SEC form types (`8-K`, `S-1`). filing, filing_keyword (body condition.form_types)",
+          "required": false
+        },
+        {
+          "flags": "--form-categories <list>",
+          "description": "Form categories. filing (body condition.form_categories)",
+          "required": false
+        },
+        {
+          "flags": "--include-amendments",
+          "description": "Also amendments (`/A`). filing (body condition.include_amendments): true",
+          "required": false
+        },
+        {
+          "flags": "--no-include-amendments",
+          "description": "Also amendments (`/A`). filing (body condition.include_amendments): false",
+          "required": false
+        },
+        {
+          "flags": "--stage <value>",
+          "description": "`detected` = the moment the SEC publishes it (every filer); `processed` = after our processing. filing (body condition.stage)",
+          "required": false
+        },
+        {
+          "flags": "--keywords <list>",
+          "description": "Whole-word, case-insensitive keywords (2–50 characters). filing_keyword, news_keyword, earnings_call (keyword_hit), earnings_call_keyword (body condition.keywords)",
+          "required": false
+        },
+        {
+          "flags": "--match <value>",
+          "description": "Any or all keywords. Keyword types (default any) (body condition.match)",
+          "required": false
+        },
+        {
+          "flags": "--scope <value>",
+          "description": "Where keywords are searched: filing_keyword full / risk_factors / mdna / legal_proceedings; news_keyword headline / headline_and_description; earnings_call_keyword full / prepared / qna (body condition.scope)",
+          "required": false
+        },
+        {
+          "flags": "--sources <list>",
+          "description": "News sources. news, news_keyword (body condition.sources)",
+          "required": false
+        },
+        {
+          "flags": "--kinds <list>",
+          "description": "news: news kinds; dividend: declared / ex_date / payment (body condition.kinds)",
+          "required": false
+        },
+        {
+          "flags": "--earnings-only",
+          "description": "Only earnings news. news, news_keyword (body condition.earnings_only): true",
+          "required": false
+        },
+        {
+          "flags": "--no-earnings-only",
+          "description": "Only earnings news. news, news_keyword (body condition.earnings_only): false",
+          "required": false
+        },
+        {
+          "flags": "--events <list>",
+          "description": "Call lifecycle events. earnings_call (transcript_provisional, transcript_corrected, documents_updated need STANDARD; guidance_flash, keyword_hit PRO) (body condition.events)",
+          "required": false
+        },
+        {
+          "flags": "--speaker-roles <list>",
+          "description": "Only these speakers. earnings_call_keyword (body condition.speaker_roles)",
+          "required": false
+        },
+        {
+          "flags": "--min-mentions <value>",
+          "description": "Fire at this many mentions. earnings_call_keyword (body condition.min_mentions)",
+          "required": false
+        },
+        {
+          "flags": "--dividend-types <list>",
+          "description": "Only these dividend types. dividend (body condition.dividend_types)",
+          "required": false
+        },
+        {
+          "flags": "--statuses <list>",
+          "description": "Halt or resumption (empty = both). halt (body condition.statuses)",
+          "required": false
+        },
+        {
+          "flags": "--reason-codes <list>",
+          "description": "Only these halt reason codes. halt (body condition.reason_codes)",
+          "required": false
+        },
+        {
+          "flags": "--report-kinds <list>",
+          "description": "Results reports to fire on. earnings_results (body condition.report_kinds)",
+          "required": false
+        },
+        {
+          "flags": "--event <value>",
+          "description": "The event counted down to. event_countdown (body condition.event)",
+          "required": false
+        },
+        {
+          "flags": "--days-before <value>",
+          "description": "Days before (0 = on the day). event_countdown (body condition.days_before)",
+          "required": false
+        },
+        {
+          "flags": "--offsets-days <list>",
+          "description": "A ladder of days before. event_countdown (body condition.offsets_days)",
+          "required": false
+        },
+        {
+          "flags": "--minutes-before <value>",
+          "description": "Minutes before the call starts (event earnings_call only). event_countdown (body condition.minutes_before)",
+          "required": false
+        },
+        {
+          "flags": "--time-of-day-minutes <value>",
+          "description": "Local minute of the day the reminder fires (default 540 = 09:00). event_countdown (body condition.time_of_day_minutes)",
+          "required": false
+        },
+        {
+          "flags": "--timezone <value>",
+          "description": "IANA time zone. event_countdown (body condition.timezone)",
+          "required": false
+        },
+        {
+          "flags": "--notify-on-date-change",
+          "description": "Tell when the event date moves (default true). event_countdown (body condition.notify_on_date_change): true",
+          "required": false
+        },
+        {
+          "flags": "--no-notify-on-date-change",
+          "description": "Tell when the event date moves (default true). event_countdown (body condition.notify_on_date_change): false",
+          "required": false
+        },
+        {
+          "flags": "--mode <value>",
+          "description": "`once` = the alert becomes `triggered` after its first fire (default every_time) (body trigger.mode)",
+          "required": false
+        },
+        {
+          "flags": "--cooldown-seconds <value>",
+          "description": "Minimum seconds between fires (body trigger.cooldown_seconds)",
+          "required": false
+        },
+        {
+          "flags": "--cooldown-bars <value>",
+          "description": "Minimum bars between fires (script / indicator types) (body trigger.cooldown_bars)",
+          "required": false
+        },
+        {
+          "flags": "--max-fires <value>",
+          "description": "The alert becomes `triggered` after this many fires (body trigger.max_fires)",
+          "required": false
+        },
+        {
+          "flags": "--expires-at <value>",
+          "description": "The alert becomes `expired` then (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z) (body trigger.expires_at)",
+          "required": false
+        },
+        {
+          "flags": "--delete-on-expiry",
+          "description": "Delete instead of `expired` (needs expires_at) (body trigger.delete_on_expiry): true",
+          "required": false
+        },
+        {
+          "flags": "--no-delete-on-expiry",
+          "description": "Delete instead of `expired` (needs expires_at) (body trigger.delete_on_expiry): false",
+          "required": false
+        },
+        {
+          "flags": "--activate-at <value>",
+          "description": "The alert is `scheduled` until then (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z) (body trigger.activate_at)",
+          "required": false
+        },
+        {
+          "flags": "--pause-until <value>",
+          "description": "No fires until then (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z) (body trigger.pause_until)",
+          "required": false
+        },
+        {
+          "flags": "--rearm <value>",
+          "description": "Price types: when a crossed level arms again (body trigger.rearm)",
+          "required": false
+        },
+        {
+          "flags": "--rearm-distance-pct <value>",
+          "description": "Price types: hysteresis in percent (body trigger.rearm_distance_pct)",
+          "required": false
+        },
+        {
+          "flags": "--destination-ids <list>",
+          "description": "Destination ids (≤ 10) (body destination_ids)",
+          "required": false
+        },
+        {
+          "flags": "--client-reference-id <value>",
+          "description": "Your id; a second create with it returns the live alert (body client_reference_id)",
+          "required": false
+        },
+        {
+          "flags": "--external-user-id <value>",
+          "description": "Your end user's id (filters lists and events) (body external_user_id)",
+          "required": false
+        },
+        {
+          "flags": "--body <json>",
+          "description": "The whole JSON request body (flags above override its fields)",
+          "required": false
+        },
+        {
+          "flags": "--body-file <path>",
+          "description": "Read the JSON request body from a file (- = stdin)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
           "required": false
         }
       ]
@@ -1490,6 +3035,696 @@
         {
           "flags": "--local",
           "description": "Edit ./.invd.toml instead of the global file",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "destinations create",
+      "group": "destinations",
+      "origin": "spec",
+      "description": "Create a destination",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "POST",
+          "path": "/v1/destinations"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--idempotency-key <value>",
+          "description": "Replays the first answer for 24 h; 409 while in flight (R13) (e.g. 6f1c0f3e-7b7a-4a8e-9d63-3c1b2f0e9a11)",
+          "required": false
+        },
+        {
+          "flags": "-u, --url <value>",
+          "description": "https endpoint (port 443, public addresses only) (body url)",
+          "required": false
+        },
+        {
+          "flags": "--kind <value>",
+          "description": "Default webhook (body kind)",
+          "required": false
+        },
+        {
+          "flags": "--description <value>",
+          "description": "(body description)",
+          "required": false
+        },
+        {
+          "flags": "--body-template <value>",
+          "description": "Custom body template (≤ 16 KB) (body body_template)",
+          "required": false
+        },
+        {
+          "flags": "--preset <value>",
+          "description": "Default standard (body preset)",
+          "required": false
+        },
+        {
+          "flags": "--body <json>",
+          "description": "The whole JSON request body (flags above override its fields)",
+          "required": false
+        },
+        {
+          "flags": "--body-file <path>",
+          "description": "Read the JSON request body from a file (- = stdin)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "destinations delete",
+      "group": "destinations",
+      "origin": "spec",
+      "description": "Delete a destination",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "DELETE",
+          "path": "/v1/destinations/{id}"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Destination id",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "destinations deliveries",
+      "group": "destinations",
+      "origin": "spec",
+      "description": "List a destination's deliveries",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/destinations/{id}/deliveries"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Destination id",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "destinations get",
+      "group": "destinations",
+      "origin": "spec",
+      "description": "Get a destination",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/destinations/{id}"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Destination id",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "destinations list",
+      "group": "destinations",
+      "origin": "spec",
+      "description": "List destinations",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/destinations"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "destinations rotate-secret",
+      "group": "destinations",
+      "origin": "spec",
+      "description": "Rotate a destination's secret",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "POST",
+          "path": "/v1/destinations/{id}:rotate-secret"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Destination id",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "destinations test",
+      "group": "destinations",
+      "origin": "spec",
+      "description": "Send a test delivery",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "POST",
+          "path": "/v1/destinations/{id}:test"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Destination id",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "destinations update",
+      "group": "destinations",
+      "origin": "spec",
+      "description": "Update a destination",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "PATCH",
+          "path": "/v1/destinations/{id}"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Destination id",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "-u, --url <value>",
+          "description": "(body url)",
+          "required": false
+        },
+        {
+          "flags": "--kind <value>",
+          "description": "Switches between one event per request (webhook) and alert.fired.batch (batch_webhook) (body kind)",
+          "required": false
+        },
+        {
+          "flags": "--description <value>",
+          "description": "(body description)",
+          "required": false
+        },
+        {
+          "flags": "--body-template <value>",
+          "description": "null removes it (body body_template)",
+          "required": false
+        },
+        {
+          "flags": "--preset <value>",
+          "description": "(body preset)",
+          "required": false
+        },
+        {
+          "flags": "--status <value>",
+          "description": "active re-enables; disabled pauses it (body status)",
+          "required": false
+        },
+        {
+          "flags": "--body <json>",
+          "description": "The whole JSON request body (flags above override its fields)",
+          "required": false
+        },
+        {
+          "flags": "--body-file <path>",
+          "description": "Read the JSON request body from a file (- = stdin)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
           "required": false
         }
       ]
@@ -8235,686 +10470,6 @@
         {
           "flags": "--all",
           "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
-          "required": false
-        },
-        {
-          "flags": "--dry-run",
-          "description": "Print the request plan and its credit estimate; send nothing",
-          "required": false
-        },
-        {
-          "flags": "--yes",
-          "description": "Do not ask before a costly --all walk or a delete",
-          "required": false
-        },
-        {
-          "flags": "--no-input",
-          "description": "Never prompt (a confirmation that is needed fails instead)",
-          "required": false
-        },
-        {
-          "flags": "--show-cost",
-          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
-          "required": false
-        }
-      ]
-    },
-    {
-      "command": "webhooks create",
-      "group": "webhooks",
-      "origin": "spec",
-      "description": "Create a webhook",
-      "source": "src/generated/cli-manifest.json",
-      "operations": [
-        {
-          "method": "POST",
-          "path": "/v1/webhooks"
-        }
-      ],
-      "arguments": [],
-      "options": [
-        {
-          "flags": "--idempotency-key <value>",
-          "description": "Replays the first answer for 24 h; 409 while in flight (R13) (e.g. 6f1c0f3e-7b7a-4a8e-9d63-3c1b2f0e9a11)",
-          "required": false
-        },
-        {
-          "flags": "-u, --url <value>",
-          "description": "https endpoint (port 443, public addresses only) (body url)",
-          "required": false
-        },
-        {
-          "flags": "-e, --events <list>",
-          "description": "Event names to receive (the plan decides which; `event.test` needs no subscription — every subscription receives it) (body events)",
-          "required": false
-        },
-        {
-          "flags": "--ciks <list>",
-          "description": "Only these companies (at most 10 / 25 / 100 on LITE / STANDARD / PRO); a news item matches when it mentions any of them (body filters.ciks)",
-          "required": false
-        },
-        {
-          "flags": "--keywords <list>",
-          "description": "Keyword alerts (PRO, with event.keyword_hit in events): whole-word, case-insensitive matches; with news.published they also narrow news items to those whose headline or lede names one (body filters.keywords)",
-          "required": false
-        },
-        {
-          "flags": "--body <json>",
-          "description": "The whole JSON request body (flags above override its fields)",
-          "required": false
-        },
-        {
-          "flags": "--body-file <path>",
-          "description": "Read the JSON request body from a file (- = stdin)",
-          "required": false
-        },
-        {
-          "flags": "--json [fields]",
-          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
-          "required": false
-        },
-        {
-          "flags": "--output <format>",
-          "description": "Output format",
-          "required": false,
-          "choices": [
-            "table",
-            "plain",
-            "json",
-            "jsonl",
-            "csv"
-          ]
-        },
-        {
-          "flags": "--jq <expr>",
-          "description": "Filter the JSON with a jq expression (strings print raw)",
-          "required": false
-        },
-        {
-          "flags": "--plain",
-          "description": "Tab-separated rows without colour or decoration (the default when piped)",
-          "required": false
-        },
-        {
-          "flags": "--fields <list>",
-          "description": "Only these fields of each row (pruned locally)",
-          "required": false
-        },
-        {
-          "flags": "--dry-run",
-          "description": "Print the request plan and its credit estimate; send nothing",
-          "required": false
-        },
-        {
-          "flags": "--yes",
-          "description": "Do not ask before a costly --all walk or a delete",
-          "required": false
-        },
-        {
-          "flags": "--no-input",
-          "description": "Never prompt (a confirmation that is needed fails instead)",
-          "required": false
-        },
-        {
-          "flags": "--show-cost",
-          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
-          "required": false
-        }
-      ]
-    },
-    {
-      "command": "webhooks delete",
-      "group": "webhooks",
-      "origin": "spec",
-      "description": "Delete a webhook",
-      "source": "src/generated/cli-manifest.json",
-      "operations": [
-        {
-          "method": "DELETE",
-          "path": "/v1/webhooks/{id}"
-        }
-      ],
-      "arguments": [
-        {
-          "name": "id",
-          "description": "Webhook id",
-          "required": true
-        }
-      ],
-      "options": [
-        {
-          "flags": "--json [fields]",
-          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
-          "required": false
-        },
-        {
-          "flags": "--output <format>",
-          "description": "Output format",
-          "required": false,
-          "choices": [
-            "table",
-            "plain",
-            "json",
-            "jsonl",
-            "csv"
-          ]
-        },
-        {
-          "flags": "--jq <expr>",
-          "description": "Filter the JSON with a jq expression (strings print raw)",
-          "required": false
-        },
-        {
-          "flags": "--plain",
-          "description": "Tab-separated rows without colour or decoration (the default when piped)",
-          "required": false
-        },
-        {
-          "flags": "--fields <list>",
-          "description": "Only these fields of each row (pruned locally)",
-          "required": false
-        },
-        {
-          "flags": "--dry-run",
-          "description": "Print the request plan and its credit estimate; send nothing",
-          "required": false
-        },
-        {
-          "flags": "--yes",
-          "description": "Do not ask before a costly --all walk or a delete",
-          "required": false
-        },
-        {
-          "flags": "--no-input",
-          "description": "Never prompt (a confirmation that is needed fails instead)",
-          "required": false
-        },
-        {
-          "flags": "--show-cost",
-          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
-          "required": false
-        }
-      ]
-    },
-    {
-      "command": "webhooks deliveries",
-      "group": "webhooks",
-      "origin": "spec",
-      "description": "List a webhook's deliveries",
-      "source": "src/generated/cli-manifest.json",
-      "operations": [
-        {
-          "method": "GET",
-          "path": "/v1/webhooks/{id}/deliveries"
-        }
-      ],
-      "arguments": [
-        {
-          "name": "id",
-          "description": "Webhook id",
-          "required": true
-        }
-      ],
-      "options": [
-        {
-          "flags": "-l, --limit <value>",
-          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
-          "required": false
-        },
-        {
-          "flags": "--cursor <value>",
-          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
-          "required": false
-        },
-        {
-          "flags": "--json [fields]",
-          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
-          "required": false
-        },
-        {
-          "flags": "--output <format>",
-          "description": "Output format",
-          "required": false,
-          "choices": [
-            "table",
-            "plain",
-            "json",
-            "jsonl",
-            "csv"
-          ]
-        },
-        {
-          "flags": "--jq <expr>",
-          "description": "Filter the JSON with a jq expression (strings print raw)",
-          "required": false
-        },
-        {
-          "flags": "--plain",
-          "description": "Tab-separated rows without colour or decoration (the default when piped)",
-          "required": false
-        },
-        {
-          "flags": "--fields <list>",
-          "description": "Only these fields of each row (pruned locally)",
-          "required": false
-        },
-        {
-          "flags": "--all",
-          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
-          "required": false
-        },
-        {
-          "flags": "--dry-run",
-          "description": "Print the request plan and its credit estimate; send nothing",
-          "required": false
-        },
-        {
-          "flags": "--yes",
-          "description": "Do not ask before a costly --all walk or a delete",
-          "required": false
-        },
-        {
-          "flags": "--no-input",
-          "description": "Never prompt (a confirmation that is needed fails instead)",
-          "required": false
-        },
-        {
-          "flags": "--show-cost",
-          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
-          "required": false
-        }
-      ]
-    },
-    {
-      "command": "webhooks get",
-      "group": "webhooks",
-      "origin": "spec",
-      "description": "Get a webhook",
-      "source": "src/generated/cli-manifest.json",
-      "operations": [
-        {
-          "method": "GET",
-          "path": "/v1/webhooks/{id}"
-        }
-      ],
-      "arguments": [
-        {
-          "name": "id",
-          "description": "Webhook id",
-          "required": true
-        }
-      ],
-      "options": [
-        {
-          "flags": "--json [fields]",
-          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
-          "required": false
-        },
-        {
-          "flags": "--output <format>",
-          "description": "Output format",
-          "required": false,
-          "choices": [
-            "table",
-            "plain",
-            "json",
-            "jsonl",
-            "csv"
-          ]
-        },
-        {
-          "flags": "--jq <expr>",
-          "description": "Filter the JSON with a jq expression (strings print raw)",
-          "required": false
-        },
-        {
-          "flags": "--plain",
-          "description": "Tab-separated rows without colour or decoration (the default when piped)",
-          "required": false
-        },
-        {
-          "flags": "--fields <list>",
-          "description": "Only these fields of each row (pruned locally)",
-          "required": false
-        },
-        {
-          "flags": "--dry-run",
-          "description": "Print the request plan and its credit estimate; send nothing",
-          "required": false
-        },
-        {
-          "flags": "--yes",
-          "description": "Do not ask before a costly --all walk or a delete",
-          "required": false
-        },
-        {
-          "flags": "--no-input",
-          "description": "Never prompt (a confirmation that is needed fails instead)",
-          "required": false
-        },
-        {
-          "flags": "--show-cost",
-          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
-          "required": false
-        }
-      ]
-    },
-    {
-      "command": "webhooks list",
-      "group": "webhooks",
-      "origin": "spec",
-      "description": "List webhooks",
-      "source": "src/generated/cli-manifest.json",
-      "operations": [
-        {
-          "method": "GET",
-          "path": "/v1/webhooks"
-        }
-      ],
-      "arguments": [],
-      "options": [
-        {
-          "flags": "--limit <value>",
-          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
-          "required": false
-        },
-        {
-          "flags": "--cursor <value>",
-          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
-          "required": false
-        },
-        {
-          "flags": "--json [fields]",
-          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
-          "required": false
-        },
-        {
-          "flags": "--output <format>",
-          "description": "Output format",
-          "required": false,
-          "choices": [
-            "table",
-            "plain",
-            "json",
-            "jsonl",
-            "csv"
-          ]
-        },
-        {
-          "flags": "--jq <expr>",
-          "description": "Filter the JSON with a jq expression (strings print raw)",
-          "required": false
-        },
-        {
-          "flags": "--plain",
-          "description": "Tab-separated rows without colour or decoration (the default when piped)",
-          "required": false
-        },
-        {
-          "flags": "--fields <list>",
-          "description": "Only these fields of each row (pruned locally)",
-          "required": false
-        },
-        {
-          "flags": "--all",
-          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
-          "required": false
-        },
-        {
-          "flags": "--dry-run",
-          "description": "Print the request plan and its credit estimate; send nothing",
-          "required": false
-        },
-        {
-          "flags": "--yes",
-          "description": "Do not ask before a costly --all walk or a delete",
-          "required": false
-        },
-        {
-          "flags": "--no-input",
-          "description": "Never prompt (a confirmation that is needed fails instead)",
-          "required": false
-        },
-        {
-          "flags": "--show-cost",
-          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
-          "required": false
-        }
-      ]
-    },
-    {
-      "command": "webhooks rotate-secret",
-      "group": "webhooks",
-      "origin": "spec",
-      "description": "Rotate a webhook's secret",
-      "source": "src/generated/cli-manifest.json",
-      "operations": [
-        {
-          "method": "POST",
-          "path": "/v1/webhooks/{id}:rotate-secret"
-        }
-      ],
-      "arguments": [
-        {
-          "name": "id",
-          "description": "Webhook id",
-          "required": true
-        }
-      ],
-      "options": [
-        {
-          "flags": "--json [fields]",
-          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
-          "required": false
-        },
-        {
-          "flags": "--output <format>",
-          "description": "Output format",
-          "required": false,
-          "choices": [
-            "table",
-            "plain",
-            "json",
-            "jsonl",
-            "csv"
-          ]
-        },
-        {
-          "flags": "--jq <expr>",
-          "description": "Filter the JSON with a jq expression (strings print raw)",
-          "required": false
-        },
-        {
-          "flags": "--plain",
-          "description": "Tab-separated rows without colour or decoration (the default when piped)",
-          "required": false
-        },
-        {
-          "flags": "--fields <list>",
-          "description": "Only these fields of each row (pruned locally)",
-          "required": false
-        },
-        {
-          "flags": "--dry-run",
-          "description": "Print the request plan and its credit estimate; send nothing",
-          "required": false
-        },
-        {
-          "flags": "--yes",
-          "description": "Do not ask before a costly --all walk or a delete",
-          "required": false
-        },
-        {
-          "flags": "--no-input",
-          "description": "Never prompt (a confirmation that is needed fails instead)",
-          "required": false
-        },
-        {
-          "flags": "--show-cost",
-          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
-          "required": false
-        }
-      ]
-    },
-    {
-      "command": "webhooks test",
-      "group": "webhooks",
-      "origin": "spec",
-      "description": "Send a test delivery",
-      "source": "src/generated/cli-manifest.json",
-      "operations": [
-        {
-          "method": "POST",
-          "path": "/v1/webhooks/{id}:test"
-        }
-      ],
-      "arguments": [
-        {
-          "name": "id",
-          "description": "Webhook id",
-          "required": true
-        }
-      ],
-      "options": [
-        {
-          "flags": "--json [fields]",
-          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
-          "required": false
-        },
-        {
-          "flags": "--output <format>",
-          "description": "Output format",
-          "required": false,
-          "choices": [
-            "table",
-            "plain",
-            "json",
-            "jsonl",
-            "csv"
-          ]
-        },
-        {
-          "flags": "--jq <expr>",
-          "description": "Filter the JSON with a jq expression (strings print raw)",
-          "required": false
-        },
-        {
-          "flags": "--plain",
-          "description": "Tab-separated rows without colour or decoration (the default when piped)",
-          "required": false
-        },
-        {
-          "flags": "--fields <list>",
-          "description": "Only these fields of each row (pruned locally)",
-          "required": false
-        },
-        {
-          "flags": "--dry-run",
-          "description": "Print the request plan and its credit estimate; send nothing",
-          "required": false
-        },
-        {
-          "flags": "--yes",
-          "description": "Do not ask before a costly --all walk or a delete",
-          "required": false
-        },
-        {
-          "flags": "--no-input",
-          "description": "Never prompt (a confirmation that is needed fails instead)",
-          "required": false
-        },
-        {
-          "flags": "--show-cost",
-          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
-          "required": false
-        }
-      ]
-    },
-    {
-      "command": "webhooks update",
-      "group": "webhooks",
-      "origin": "spec",
-      "description": "Update a webhook",
-      "source": "src/generated/cli-manifest.json",
-      "operations": [
-        {
-          "method": "PATCH",
-          "path": "/v1/webhooks/{id}"
-        }
-      ],
-      "arguments": [
-        {
-          "name": "id",
-          "description": "Webhook id",
-          "required": true
-        }
-      ],
-      "options": [
-        {
-          "flags": "--keywords <list>",
-          "description": "Replaces the keyword list (empty = no keyword alerts; PRO only) (body keywords)",
-          "required": false
-        },
-        {
-          "flags": "--ciks <list>",
-          "description": "Replaces the company filter (empty = every company; at most 10 / 25 / 100 on LITE / STANDARD / PRO) (body ciks)",
-          "required": false
-        },
-        {
-          "flags": "-e, --events <list>",
-          "description": "Replaces the event list (body events)",
-          "required": false
-        },
-        {
-          "flags": "--active",
-          "description": "true re-enables a disabled subscription (its failure counter resets); false pauses it (disabled_reason: paused) (body active): true",
-          "required": false
-        },
-        {
-          "flags": "--no-active",
-          "description": "true re-enables a disabled subscription (its failure counter resets); false pauses it (disabled_reason: paused) (body active): false",
-          "required": false
-        },
-        {
-          "flags": "--body <json>",
-          "description": "The whole JSON request body (flags above override its fields)",
-          "required": false
-        },
-        {
-          "flags": "--body-file <path>",
-          "description": "Read the JSON request body from a file (- = stdin)",
-          "required": false
-        },
-        {
-          "flags": "--json [fields]",
-          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
-          "required": false
-        },
-        {
-          "flags": "--output <format>",
-          "description": "Output format",
-          "required": false,
-          "choices": [
-            "table",
-            "plain",
-            "json",
-            "jsonl",
-            "csv"
-          ]
-        },
-        {
-          "flags": "--jq <expr>",
-          "description": "Filter the JSON with a jq expression (strings print raw)",
-          "required": false
-        },
-        {
-          "flags": "--plain",
-          "description": "Tab-separated rows without colour or decoration (the default when piped)",
-          "required": false
-        },
-        {
-          "flags": "--fields <list>",
-          "description": "Only these fields of each row (pruned locally)",
           "required": false
         },
         {

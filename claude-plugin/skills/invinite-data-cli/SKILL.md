@@ -38,7 +38,8 @@ serves the earlier roster; use whatever tools it lists, or the CLI.
 | Search transcripts and investor documents | `search_transcripts` | `invd search transcripts`, `invd search investor-documents` |
 | News items, text, announcements, news search | `get_news` | `invd news list\|get\|text\|announcements`, `invd search news` |
 | Account and usage | `get_account` | `invd me show\|usage` |
-| Webhooks | `manage_webhooks` | `invd webhooks …` |
+| Alerts, their event log | `manage_alerts` | `invd alerts …`, `invd alert-events list\|get\|tail` |
+| Alert destinations (webhook endpoints) | `manage_destinations` | `invd destinations …` |
 | Any other operation | `search_endpoints` + `call_api` | `invd api GET /v1/…` |
 
 MCP resources `invinite://catalog/metrics`, `invinite://catalog/sections`, `invinite://catalog/event-types`,
@@ -225,15 +226,21 @@ headline or summary, name the publisher, link `source_url` and give the date. Su
 Invinite's wording of the publication: present them as a summary of what the publisher stated, not as verified fact.
 Report an announcement's status as stated (planned is a plan, not availability).
 
-### Webhooks
+### Alerts
+
+An alert is a rule (`type` + `condition` + `trigger`) that fires an event when it matches; events go to its
+destinations (webhook endpoints) and always into the pull feed.
 
 ```bash
-invd webhooks create --body '{"url":"https://hooks.example.com/invinite","events":["event.transcript_ready"],"filters":{"ciks":["0000320193"]}}' --json
-invd webhooks list --json
-invd webhooks deliveries <id> --json
+invd destinations create --url https://hooks.example.com/invinite-alerts --json
+invd alerts create --body '{"type":"filing","condition":{"symbols":["AAPL"],"form_types":["8-K"]},"trigger":{"mode":"every_time"},"destination_ids":["<dst-id>"]}' --json
+invd alerts test <alert-id> --json
+invd alert-events tail
 ```
 
-The signing secret is printed once on create (`rotate-secret` issues a new one). A delete asks first unless `--yes`.
+A destination's signing secret is printed once on create (`rotate-secret` issues a new one). Without a destination,
+read the events with `invd alert-events list --after <event-id>` or follow them with `invd alert-events tail`. A
+delete asks first unless `--yes`. `/alert-setup` walks through both steps.
 
 ## Commands Reference
 
@@ -253,6 +260,61 @@ invd agent-setup --all --global --dry-run   # print what would be written
 ```
 <!-- /invd:hand:agent-setup -->
 
+### alert-events
+
+The fire log of your alerts: the pull feed (`tail` follows it live) and one event
+
+```bash
+# Get an alert event
+invd alert-events get evt_01JD2Q6A1B2C3D4E5F6G7H8J9K --json
+
+# List alert events (optional: --limit, --cursor, --alert-id, --type, --external-user-id, --after, --all)
+invd alert-events list --json
+```
+
+<!-- invd:hand:alert-events tail -->
+```bash
+invd alert-events tail                                    # new events only, one JSON line each (polls every 2 s)
+invd alert-events tail --after evt_01JD2Q6A1B2C3D4E5F6G7H8J9K --type alert.fired
+```
+<!-- /invd:hand:alert-events tail -->
+
+### alerts
+
+Alert rules: create, change, pause, batch and test them, and read one alert's events
+
+```bash
+# Change alerts in bulk (optional: --body, --body-file)
+invd alerts batch --body '{"items":[{"op":"upsert","client_reference_id":"watchlist-msft-div","type":"dividend","condition":{"symbols":["MSFT"],"kinds":["declared"]}},{"op":"pause","client_reference_id":"watchlist-aapl-8k"}]}' --json
+
+# Create an alert (optional: --idempotency-key, --type, --ciks, --symbols, --cik, --symbol, --form-types, --form-categories, --include-amendments, --stage, --keywords, --match, --scope, --sources, --kinds, --earnings-only, --events, --speaker-roles, --min-mentions, --dividend-types, --statuses, --reason-codes, --report-kinds, --event, --days-before, --offsets-days, --minutes-before, --time-of-day-minutes, --timezone, --notify-on-date-change, --mode, --cooldown-seconds, --cooldown-bars, --max-fires, --expires-at, --delete-on-expiry, --activate-at, --pause-until, --rearm, --rearm-distance-pct, --destination-ids, --client-reference-id, --external-user-id, --body, --body-file)
+invd alerts create --body '{"type":"filing","condition":{"symbols":["AAPL"],"form_types":["8-K"],"stage":"detected"},"trigger":{"mode":"every_time"},"destination_ids":["dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G"],"client_reference_id":"watchlist-aapl-8k","external_user_id":"user_8812","metadata":{"list":"tech"}}' --json
+
+# Delete an alert
+invd alerts delete alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X --json
+
+# List an alert's events (optional: --limit, --cursor, --type, --all)
+invd alerts events alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X --json
+
+# Get an alert
+invd alerts get alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X --json
+
+# List alerts (optional: --limit, --cursor, --status, --type, --external-user-id, --client-reference-id, --all)
+invd alerts list --json
+
+# Pause an alert
+invd alerts pause alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X --json
+
+# Resume an alert
+invd alerts resume alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X --json
+
+# Send a test event
+invd alerts test alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X --json
+
+# Update an alert (optional: --version, --ciks, --symbols, --cik, --symbol, --form-types, --form-categories, --include-amendments, --stage, --keywords, --match, --scope, --sources, --kinds, --earnings-only, --events, --speaker-roles, --min-mentions, --dividend-types, --statuses, --reason-codes, --report-kinds, --event, --days-before, --offsets-days, --minutes-before, --time-of-day-minutes, --timezone, --notify-on-date-change, --mode, --cooldown-seconds, --cooldown-bars, --max-fires, --expires-at, --delete-on-expiry, --activate-at, --pause-until, --rearm, --rearm-distance-pct, --destination-ids, --client-reference-id, --external-user-id, --body, --body-file)
+invd alerts update alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X --body '{"version":1,"condition":{"symbols":["AAPL","MSFT"],"form_types":["8-K"]}}' --json
+```
+
 ### api
 
 <!-- invd:hand:api -->
@@ -260,7 +322,7 @@ invd agent-setup --all --global --dry-run   # print what would be written
 invd api /v1/companies/AAPL
 invd api GET /v1/filings?company=AAPL --paginate --jq '.data[].accession'
 invd api GET /v1/holdings -F company=AAPL -F limit=100 --dry-run
-invd api POST /v1/webhooks --input webhook.json
+invd api POST /v1/alerts --input alert.json
 ```
 <!-- /invd:hand:api -->
 
@@ -340,6 +402,36 @@ invd config unset pager
 invd config path
 ```
 <!-- /invd:hand:config -->
+
+### destinations
+
+Webhook endpoints alert events are delivered to: secrets, test deliveries and the delivery log
+
+```bash
+# Create a destination (optional: --idempotency-key, --url, --kind, --description, --body-template, --preset, --body, --body-file)
+invd destinations create --body '{"url":"https://hooks.example.com/invinite-alerts","description":"Production alert receiver"}' --json
+
+# Delete a destination
+invd destinations delete dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G --json
+
+# List a destination's deliveries (optional: --limit, --cursor, --all)
+invd destinations deliveries dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G --json
+
+# Get a destination
+invd destinations get dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G --json
+
+# List destinations (optional: --limit, --cursor, --all)
+invd destinations list --json
+
+# Rotate a destination's secret
+invd destinations rotate-secret dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G --json
+
+# Send a test delivery
+invd destinations test dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G --json
+
+# Update a destination (optional: --url, --kind, --description, --body-template, --preset, --status, --body, --body-file)
+invd destinations update dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G --body '{"status":"active"}' --json
+```
 
 ### documents
 
@@ -664,36 +756,6 @@ invd segments list AAPL -p annual --json
 
 # List segment values with lineage (optional: --metric, --axis, --fiscal-year-gte, --fiscal-year-gt, --fiscal-year-lte, --fiscal-year-lt, --sort, --fields, --limit, --cursor, --all)
 invd segments list-detailed AAPL -p annual --json
-```
-
-### webhooks
-
-Outbound event deliveries
-
-```bash
-# Create a webhook (optional: --idempotency-key, --url, --events, --ciks, --keywords, --body, --body-file)
-invd webhooks create --body '{"url":"https://hooks.example.com/invinite","events":["event.transcript_ready","news.published"],"filters":{"ciks":["0000320193"]}}' --json
-
-# Delete a webhook
-invd webhooks delete k57a8x2b4c6d8e0f2g4h6j8k0m2n4p6r --json
-
-# List a webhook's deliveries (optional: --limit, --cursor, --all)
-invd webhooks deliveries k57a8x2b4c6d8e0f2g4h6j8k0m2n4p6r --json
-
-# Get a webhook
-invd webhooks get k57a8x2b4c6d8e0f2g4h6j8k0m2n4p6r --json
-
-# List webhooks (optional: --limit, --cursor, --all)
-invd webhooks list --json
-
-# Rotate a webhook's secret
-invd webhooks rotate-secret k57a8x2b4c6d8e0f2g4h6j8k0m2n4p6r --json
-
-# Send a test delivery
-invd webhooks test k57a8x2b4c6d8e0f2g4h6j8k0m2n4p6r --json
-
-# Update a webhook (optional: --keywords, --ciks, --events, --active, --body, --body-file)
-invd webhooks update k57a8x2b4c6d8e0f2g4h6j8k0m2n4p6r --body '{"events":["event.transcript_ready"],"active":true}' --json
 ```
 
 <!-- invd:commands:end -->

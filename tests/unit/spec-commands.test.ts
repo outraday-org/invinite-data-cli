@@ -128,17 +128,17 @@ describe('requests', () => {
   });
 
   it('body flags (one object deep) over --body, the header parameter, POST', async () => {
-    vi.mocked(fetch).mockResolvedValueOnce(json({ id: 'wh_1' }));
-    await run('webhooks', 'create', '--body', '{"events":["x"]}', '--url', 'https://hooks.example.com', '--ciks', '0000320193,0000789019', '--idempotency-key', 'k-1', '--json');
+    vi.mocked(fetch).mockResolvedValueOnce(json({ id: 'alt_1' }));
+    await run('alerts', 'create', '--body', '{"trigger":{"mode":"once"}}', '--type', 'filing', '--ciks', '0000320193,0000789019', '--idempotency-key', 'k-1', '--json');
     const [call] = calls();
     expect(call?.init?.method).toBe('POST');
-    expect(JSON.parse(String(call?.init?.body))).toEqual({ events: ['x'], url: 'https://hooks.example.com', filters: { ciks: ['0000320193', '0000789019'] } });
+    expect(JSON.parse(String(call?.init?.body))).toEqual({ trigger: { mode: 'once' }, type: 'filing', condition: { ciks: ['0000320193', '0000789019'] } });
     expect((call?.init?.headers as Record<string, string>)['Idempotency-Key']).toBe('k-1');
   });
 
   it('a required body without one is a usage error naming its flags', async () => {
-    expect(await exitOf('webhooks', 'create')).toBe(2);
-    expect(err.join('\n')).toContain('--url, --events');
+    expect(await exitOf('alerts', 'create')).toBe(2);
+    expect(err.join('\n')).toContain('needs a request body: --type, --ciks');
     expect(fetch).not.toHaveBeenCalled();
   });
 
@@ -178,18 +178,18 @@ describe('--dry-run, confirmation, delete', () => {
   });
 
   it('a delete under --no-input exits 2 naming --yes; --dry-run of a delete sends nothing', async () => {
-    expect(await exitOf('webhooks', 'delete', 'wh_1', '--no-input')).toBe(2);
+    expect(await exitOf('destinations', 'delete', 'dst_1', '--no-input')).toBe(2);
     expect(err.join('\n')).toContain('--yes');
-    await run('webhooks', 'delete', 'wh_1', '--dry-run');
-    expect(out.join('\n')).toContain('DELETE https://api.example.com/v1/webhooks/wh_1');
+    await run('destinations', 'delete', 'dst_1', '--dry-run');
+    expect(out.join('\n')).toContain('DELETE https://api.example.com/v1/destinations/dst_1');
     expect(fetch).not.toHaveBeenCalled();
   });
 
   it('a delete needs --yes without a terminal', async () => {
-    expect(await exitOf('webhooks', 'delete', 'wh_1')).toBe(2);
+    expect(await exitOf('destinations', 'delete', 'dst_1')).toBe(2);
     expect(fetch).not.toHaveBeenCalled();
     vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 204 }));
-    await run('webhooks', 'delete', 'wh_1', '--yes');
+    await run('destinations', 'delete', 'dst_1', '--yes');
     expect(calls()[0]?.init?.method).toBe('DELETE');
     expect(err.join('\n')).toContain('Done.');
   });

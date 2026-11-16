@@ -37,7 +37,7 @@ describe('api-client', () => {
 
   it('sends no key for a public operation and JSON for a body', async () => {
     vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 204 }));
-    const response = await apiCall({ path: '/v1/webhooks', method: 'POST', body: { url: 'https://x' }, auth: false, silent: true });
+    const response = await apiCall({ path: '/v1/destinations', method: 'POST', body: { url: 'https://x' }, auth: false, silent: true });
     expect(response.body).toBeUndefined();
     const [, init] = vi.mocked(fetch).mock.calls[0] ?? [];
     const headers = init?.headers as Record<string, string>;

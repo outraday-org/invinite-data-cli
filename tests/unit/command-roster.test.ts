@@ -54,10 +54,10 @@ describe('the hand-written roster', () => {
   it('the tree is the v2 groups plus the hand-written roster, no command twice', () => {
     const top = createProgram().commands.map(command => command.name()).sort();
     expect(top).toEqual([
-      'agent-setup', 'api', 'auth', 'catalog', 'companies', 'completion', 'config', 'documents', 'etf-holdings',
-      'etf-weights', 'events', 'filers', 'filings', 'financials', 'fund-holdings', 'guidance', 'holdings',
-      'insider-trades', 'investor-documents', 'ipos', 'market', 'me', 'metrics', 'news', 'offerings', 'people', 'plugin',
-      'search', 'segments', 'webhooks',
+      'agent-setup', 'alert-events', 'alerts', 'api', 'auth', 'catalog', 'companies', 'completion', 'config',
+      'destinations', 'documents', 'etf-holdings', 'etf-weights', 'events', 'filers', 'filings', 'financials',
+      'fund-holdings', 'guidance', 'holdings', 'insider-trades', 'investor-documents', 'ipos', 'market', 'me', 'metrics',
+      'news', 'offerings', 'people', 'plugin', 'search', 'segments',
     ]);
     const tree = leaves(createProgram());
     expect(new Set(tree).size).toBe(tree.length);

@@ -1,7 +1,15 @@
 {
   "specVersion": "2026-11-13",
-  "specSha256": "bf5888c378fd7308a4159d3ebbbe54ad43ecfdb25a59f160bc1c1684cc87403c",
+  "specSha256": "169e6b54438a077cbc7d1f73e9517f42d1a7876cc6de00e01810bfff40a44371",
   "groups": [
+    {
+      "name": "alert-events",
+      "description": "The fire log of your alerts: the pull feed (`tail` follows it live) and one event"
+    },
+    {
+      "name": "alerts",
+      "description": "Alert rules: create, change, pause, batch and test them, and read one alert's events"
+    },
     {
       "name": "catalog",
       "description": "Static catalogs: metrics, sections, forms, event types, document kinds, mapping rules"
@@ -9,6 +17,10 @@
     {
       "name": "companies",
       "description": "Listed companies: list, profile, fiscal periods, dividends and splits"
+    },
+    {
+      "name": "destinations",
+      "description": "Webhook endpoints alert events are delivered to: secrets, test deliveries and the delivery log"
     },
     {
       "name": "documents",
@@ -93,13 +105,1625 @@
     {
       "name": "segments",
       "description": "Segment values (revenue by product, geography …); list-detailed adds lineage (PRO)"
-    },
-    {
-      "name": "webhooks",
-      "description": "Outbound event deliveries"
     }
   ],
   "operations": [
+    {
+      "operationId": "getAlertEvent",
+      "group": "alert-events",
+      "action": "get",
+      "method": "get",
+      "path": "/v1/alert-events/{id}",
+      "auth": true,
+      "summary": "Get an alert event",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "evt_01JD2Q6A1B2C3D4E5F6G7H8J9K",
+          "description": "Alert event id",
+          "flag": "id"
+        }
+      ],
+      "positional": {
+        "name": "id",
+        "required": true
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "id",
+        "type",
+        "alert_id",
+        "occurred_at"
+      ],
+      "fields": [
+        "id",
+        "type",
+        "alert_id",
+        "external_user_id",
+        "occurred_at",
+        "payload"
+      ]
+    },
+    {
+      "operationId": "listAlertEvents",
+      "group": "alert-events",
+      "action": "list",
+      "method": "get",
+      "path": "/v1/alert-events",
+      "auth": true,
+      "summary": "List alert events",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, max 200)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        },
+        {
+          "name": "alert_id",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X",
+          "description": "Only the events of this alert",
+          "flag": "alert-id"
+        },
+        {
+          "name": "type",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "alert.fired",
+            "alert.status_changed",
+            "destination.disabled",
+            "destination.test",
+            "account.fire_cap_reached"
+          ],
+          "example": "alert.fired",
+          "description": "Only events of this type",
+          "flag": "type"
+        },
+        {
+          "name": "external_user_id",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "user_8812",
+          "description": "Only the events of this end user's alerts",
+          "flag": "external-user-id"
+        },
+        {
+          "name": "after",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "evt_01JD2Q6A1B2C3D4E5F6G7H8J9K",
+          "description": "Continue after this event id",
+          "flag": "after"
+        }
+      ],
+      "list": true,
+      "view": "table",
+      "columns": [
+        "id",
+        "type",
+        "alert_id",
+        "occurred_at"
+      ],
+      "fields": [
+        "id",
+        "type",
+        "alert_id",
+        "external_user_id",
+        "occurred_at",
+        "payload"
+      ]
+    },
+    {
+      "operationId": "batchAlerts",
+      "group": "alerts",
+      "action": "batch",
+      "method": "post",
+      "path": "/v1/alerts:batch",
+      "auth": true,
+      "summary": "Change alerts in bulk",
+      "credits": 1,
+      "tier": "free",
+      "params": [],
+      "body": {
+        "required": true,
+        "contentType": "application/json",
+        "example": {
+          "items": [
+            {
+              "op": "upsert",
+              "client_reference_id": "watchlist-msft-div",
+              "type": "dividend",
+              "condition": {
+                "symbols": [
+                  "MSFT"
+                ],
+                "kinds": [
+                  "declared"
+                ]
+              }
+            },
+            {
+              "op": "pause",
+              "client_reference_id": "watchlist-aapl-8k"
+            }
+          ]
+        },
+        "fields": []
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "index",
+        "op",
+        "ok",
+        "result"
+      ],
+      "fields": [
+        "results"
+      ]
+    },
+    {
+      "operationId": "createAlert",
+      "group": "alerts",
+      "action": "create",
+      "method": "post",
+      "path": "/v1/alerts",
+      "auth": true,
+      "summary": "Create an alert",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": false,
+          "type": "string",
+          "example": "6f1c0f3e-7b7a-4a8e-9d63-3c1b2f0e9a11",
+          "description": "Replays the first answer for 24 h; 409 while in flight (R13)",
+          "flag": "idempotency-key"
+        }
+      ],
+      "body": {
+        "required": true,
+        "contentType": "application/json",
+        "example": {
+          "type": "filing",
+          "condition": {
+            "symbols": [
+              "AAPL"
+            ],
+            "form_types": [
+              "8-K"
+            ],
+            "stage": "detected"
+          },
+          "trigger": {
+            "mode": "every_time"
+          },
+          "destination_ids": [
+            "dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G"
+          ],
+          "client_reference_id": "watchlist-aapl-8k",
+          "external_user_id": "user_8812",
+          "metadata": {
+            "list": "tech"
+          }
+        },
+        "fields": [
+          {
+            "path": [
+              "type"
+            ],
+            "type": "string",
+            "required": true,
+            "description": "The alert type",
+            "alias": "t",
+            "flag": "type"
+          },
+          {
+            "path": [
+              "condition",
+              "ciks"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Companies by CIK. filing, filing_keyword, news, news_keyword, earnings_call, earnings_call_keyword, dividend, halt",
+            "flag": "ciks"
+          },
+          {
+            "path": [
+              "condition",
+              "symbols"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Companies by ticker. Same types as `ciks`",
+            "flag": "symbols"
+          },
+          {
+            "path": [
+              "condition",
+              "cik"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "The company by CIK. fundamental_metric, earnings_results, event_countdown (1–10 digits)",
+            "flag": "cik"
+          },
+          {
+            "path": [
+              "condition",
+              "symbol"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "The company by ticker. Same types as `cik`",
+            "flag": "symbol"
+          },
+          {
+            "path": [
+              "condition",
+              "form_types"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Raw SEC form types (`8-K`, `S-1`). filing, filing_keyword",
+            "flag": "form-types"
+          },
+          {
+            "path": [
+              "condition",
+              "form_categories"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Form categories. filing",
+            "flag": "form-categories"
+          },
+          {
+            "path": [
+              "condition",
+              "include_amendments"
+            ],
+            "type": "boolean",
+            "required": false,
+            "description": "Also amendments (`/A`). filing",
+            "flag": "include-amendments"
+          },
+          {
+            "path": [
+              "condition",
+              "stage"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "`detected` = the moment the SEC publishes it (every filer); `processed` = after our processing. filing",
+            "flag": "stage"
+          },
+          {
+            "path": [
+              "condition",
+              "keywords"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Whole-word, case-insensitive keywords (2–50 characters). filing_keyword, news_keyword, earnings_call (keyword_hit), earnings_call_keyword",
+            "flag": "keywords"
+          },
+          {
+            "path": [
+              "condition",
+              "match"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "Any or all keywords. Keyword types (default any)",
+            "flag": "match"
+          },
+          {
+            "path": [
+              "condition",
+              "scope"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "Where keywords are searched: filing_keyword full / risk_factors / mdna / legal_proceedings; news_keyword headline / headline_and_description; earnings_call_keyword full / prepared / qna",
+            "flag": "scope"
+          },
+          {
+            "path": [
+              "condition",
+              "sources"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "News sources. news, news_keyword",
+            "flag": "sources"
+          },
+          {
+            "path": [
+              "condition",
+              "kinds"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "news: news kinds; dividend: declared / ex_date / payment",
+            "flag": "kinds"
+          },
+          {
+            "path": [
+              "condition",
+              "earnings_only"
+            ],
+            "type": "boolean",
+            "required": false,
+            "description": "Only earnings news. news, news_keyword",
+            "flag": "earnings-only"
+          },
+          {
+            "path": [
+              "condition",
+              "events"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Call lifecycle events. earnings_call (transcript_provisional, transcript_corrected, documents_updated need STANDARD; guidance_flash, keyword_hit PRO)",
+            "flag": "events"
+          },
+          {
+            "path": [
+              "condition",
+              "speaker_roles"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Only these speakers. earnings_call_keyword",
+            "flag": "speaker-roles"
+          },
+          {
+            "path": [
+              "condition",
+              "min_mentions"
+            ],
+            "type": "integer",
+            "required": false,
+            "description": "Fire at this many mentions. earnings_call_keyword",
+            "flag": "min-mentions"
+          },
+          {
+            "path": [
+              "condition",
+              "dividend_types"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Only these dividend types. dividend",
+            "flag": "dividend-types"
+          },
+          {
+            "path": [
+              "condition",
+              "statuses"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Halt or resumption (empty = both). halt",
+            "flag": "statuses"
+          },
+          {
+            "path": [
+              "condition",
+              "reason_codes"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Only these halt reason codes. halt",
+            "flag": "reason-codes"
+          },
+          {
+            "path": [
+              "condition",
+              "report_kinds"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Results reports to fire on. earnings_results",
+            "flag": "report-kinds"
+          },
+          {
+            "path": [
+              "condition",
+              "event"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "The event counted down to. event_countdown",
+            "flag": "event"
+          },
+          {
+            "path": [
+              "condition",
+              "days_before"
+            ],
+            "type": "integer",
+            "required": false,
+            "description": "Days before (0 = on the day). event_countdown",
+            "flag": "days-before"
+          },
+          {
+            "path": [
+              "condition",
+              "offsets_days"
+            ],
+            "type": "array",
+            "items": "integer",
+            "required": false,
+            "description": "A ladder of days before. event_countdown",
+            "flag": "offsets-days"
+          },
+          {
+            "path": [
+              "condition",
+              "minutes_before"
+            ],
+            "type": "integer",
+            "required": false,
+            "description": "Minutes before the call starts (event earnings_call only). event_countdown",
+            "flag": "minutes-before"
+          },
+          {
+            "path": [
+              "condition",
+              "time_of_day_minutes"
+            ],
+            "type": "integer",
+            "required": false,
+            "description": "Local minute of the day the reminder fires (default 540 = 09:00). event_countdown",
+            "flag": "time-of-day-minutes"
+          },
+          {
+            "path": [
+              "condition",
+              "timezone"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "IANA time zone. event_countdown",
+            "flag": "timezone"
+          },
+          {
+            "path": [
+              "condition",
+              "notify_on_date_change"
+            ],
+            "type": "boolean",
+            "required": false,
+            "description": "Tell when the event date moves (default true). event_countdown",
+            "flag": "notify-on-date-change"
+          },
+          {
+            "path": [
+              "trigger",
+              "mode"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "`once` = the alert becomes `triggered` after its first fire (default every_time)",
+            "flag": "mode"
+          },
+          {
+            "path": [
+              "trigger",
+              "cooldown_seconds"
+            ],
+            "type": "integer",
+            "required": false,
+            "description": "Minimum seconds between fires",
+            "flag": "cooldown-seconds"
+          },
+          {
+            "path": [
+              "trigger",
+              "cooldown_bars"
+            ],
+            "type": "integer",
+            "required": false,
+            "description": "Minimum bars between fires (script / indicator types)",
+            "flag": "cooldown-bars"
+          },
+          {
+            "path": [
+              "trigger",
+              "max_fires"
+            ],
+            "type": "integer",
+            "required": false,
+            "description": "The alert becomes `triggered` after this many fires",
+            "flag": "max-fires"
+          },
+          {
+            "path": [
+              "trigger",
+              "expires_at"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "The alert becomes `expired` then (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z)",
+            "flag": "expires-at"
+          },
+          {
+            "path": [
+              "trigger",
+              "delete_on_expiry"
+            ],
+            "type": "boolean",
+            "required": false,
+            "description": "Delete instead of `expired` (needs expires_at)",
+            "flag": "delete-on-expiry"
+          },
+          {
+            "path": [
+              "trigger",
+              "activate_at"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "The alert is `scheduled` until then (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z)",
+            "flag": "activate-at"
+          },
+          {
+            "path": [
+              "trigger",
+              "pause_until"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "No fires until then (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z)",
+            "flag": "pause-until"
+          },
+          {
+            "path": [
+              "trigger",
+              "rearm"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "Price types: when a crossed level arms again",
+            "flag": "rearm"
+          },
+          {
+            "path": [
+              "trigger",
+              "rearm_distance_pct"
+            ],
+            "type": "number",
+            "required": false,
+            "description": "Price types: hysteresis in percent",
+            "flag": "rearm-distance-pct"
+          },
+          {
+            "path": [
+              "destination_ids"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Destination ids (≤ 10)",
+            "flag": "destination-ids"
+          },
+          {
+            "path": [
+              "client_reference_id"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "Your id; a second create with it returns the live alert",
+            "flag": "client-reference-id"
+          },
+          {
+            "path": [
+              "external_user_id"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "Your end user's id (filters lists and events)",
+            "flag": "external-user-id"
+          }
+        ]
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "id",
+        "type",
+        "status",
+        "client_reference_id",
+        "fire_count"
+      ],
+      "fields": [
+        "id",
+        "type",
+        "status",
+        "condition",
+        "trigger",
+        "destination_ids",
+        "client_reference_id",
+        "external_user_id",
+        "metadata",
+        "symbol",
+        "cik",
+        "fire_count",
+        "last_fired_at",
+        "version",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    {
+      "operationId": "deleteAlert",
+      "group": "alerts",
+      "action": "delete",
+      "method": "delete",
+      "path": "/v1/alerts/{id}",
+      "auth": true,
+      "summary": "Delete an alert",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X",
+          "description": "Alert id",
+          "flag": "id"
+        }
+      ],
+      "positional": {
+        "name": "id",
+        "required": true
+      },
+      "list": false,
+      "view": "json",
+      "fields": []
+    },
+    {
+      "operationId": "listAlertEventsForAlert",
+      "group": "alerts",
+      "action": "events",
+      "method": "get",
+      "path": "/v1/alerts/{id}/events",
+      "auth": true,
+      "summary": "List an alert's events",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, max 200)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        },
+        {
+          "name": "type",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "alert.fired",
+            "alert.status_changed",
+            "destination.disabled",
+            "destination.test",
+            "account.fire_cap_reached"
+          ],
+          "example": "alert.fired",
+          "description": "Only events of this type",
+          "flag": "type"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X",
+          "description": "Alert id",
+          "flag": "id"
+        }
+      ],
+      "positional": {
+        "name": "id",
+        "required": true
+      },
+      "list": true,
+      "view": "table",
+      "columns": [
+        "id",
+        "type",
+        "alert_id",
+        "occurred_at"
+      ],
+      "fields": [
+        "id",
+        "type",
+        "alert_id",
+        "external_user_id",
+        "occurred_at",
+        "payload"
+      ]
+    },
+    {
+      "operationId": "getAlert",
+      "group": "alerts",
+      "action": "get",
+      "method": "get",
+      "path": "/v1/alerts/{id}",
+      "auth": true,
+      "summary": "Get an alert",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X",
+          "description": "Alert id",
+          "flag": "id"
+        }
+      ],
+      "positional": {
+        "name": "id",
+        "required": true
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "id",
+        "type",
+        "status",
+        "client_reference_id",
+        "fire_count"
+      ],
+      "fields": [
+        "id",
+        "type",
+        "status",
+        "condition",
+        "trigger",
+        "destination_ids",
+        "client_reference_id",
+        "external_user_id",
+        "metadata",
+        "symbol",
+        "cik",
+        "fire_count",
+        "last_fired_at",
+        "version",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    {
+      "operationId": "listAlerts",
+      "group": "alerts",
+      "action": "list",
+      "method": "get",
+      "path": "/v1/alerts",
+      "auth": true,
+      "summary": "List alerts",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, max 200)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "active",
+            "paused",
+            "scheduled",
+            "triggered",
+            "expired",
+            "disabled"
+          ],
+          "example": "active",
+          "description": "Only alerts in this status",
+          "flag": "status"
+        },
+        {
+          "name": "type",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "filing",
+            "filing_keyword",
+            "news",
+            "news_keyword",
+            "earnings_call",
+            "earnings_call_keyword",
+            "dividend",
+            "halt",
+            "fundamental_metric",
+            "earnings_results",
+            "event_countdown",
+            "price",
+            "price_move",
+            "volume_spike",
+            "price_reminder",
+            "indicator",
+            "script"
+          ],
+          "example": "filing",
+          "description": "Only alerts of this type",
+          "flag": "type"
+        },
+        {
+          "name": "external_user_id",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "user_8812",
+          "description": "Only alerts of this end user (your own id, set at create)",
+          "flag": "external-user-id"
+        },
+        {
+          "name": "client_reference_id",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "watchlist-aapl-8k",
+          "description": "The alert with this client reference id",
+          "flag": "client-reference-id"
+        }
+      ],
+      "list": true,
+      "view": "table",
+      "columns": [
+        "id",
+        "type",
+        "status",
+        "client_reference_id",
+        "fire_count"
+      ],
+      "fields": [
+        "id",
+        "type",
+        "status",
+        "condition",
+        "trigger",
+        "destination_ids",
+        "client_reference_id",
+        "external_user_id",
+        "metadata",
+        "symbol",
+        "cik",
+        "fire_count",
+        "last_fired_at",
+        "version",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    {
+      "operationId": "pauseAlert",
+      "group": "alerts",
+      "action": "pause",
+      "method": "post",
+      "path": "/v1/alerts/{id}:pause",
+      "auth": true,
+      "summary": "Pause an alert",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X",
+          "description": "Alert id",
+          "flag": "id"
+        }
+      ],
+      "positional": {
+        "name": "id",
+        "required": true
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "id",
+        "type",
+        "status",
+        "client_reference_id",
+        "fire_count"
+      ],
+      "fields": [
+        "id",
+        "type",
+        "status",
+        "condition",
+        "trigger",
+        "destination_ids",
+        "client_reference_id",
+        "external_user_id",
+        "metadata",
+        "symbol",
+        "cik",
+        "fire_count",
+        "last_fired_at",
+        "version",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    {
+      "operationId": "resumeAlert",
+      "group": "alerts",
+      "action": "resume",
+      "method": "post",
+      "path": "/v1/alerts/{id}:resume",
+      "auth": true,
+      "summary": "Resume an alert",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X",
+          "description": "Alert id",
+          "flag": "id"
+        }
+      ],
+      "positional": {
+        "name": "id",
+        "required": true
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "id",
+        "type",
+        "status",
+        "client_reference_id",
+        "fire_count"
+      ],
+      "fields": [
+        "id",
+        "type",
+        "status",
+        "condition",
+        "trigger",
+        "destination_ids",
+        "client_reference_id",
+        "external_user_id",
+        "metadata",
+        "symbol",
+        "cik",
+        "fire_count",
+        "last_fired_at",
+        "version",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    {
+      "operationId": "testAlert",
+      "group": "alerts",
+      "action": "test",
+      "method": "post",
+      "path": "/v1/alerts/{id}:test",
+      "auth": true,
+      "summary": "Send a test event",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X",
+          "description": "Alert id",
+          "flag": "id"
+        }
+      ],
+      "positional": {
+        "name": "id",
+        "required": true
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "event_id"
+      ],
+      "fields": []
+    },
+    {
+      "operationId": "updateAlert",
+      "group": "alerts",
+      "action": "update",
+      "method": "patch",
+      "path": "/v1/alerts/{id}",
+      "auth": true,
+      "summary": "Update an alert",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X",
+          "description": "Alert id",
+          "flag": "id"
+        }
+      ],
+      "positional": {
+        "name": "id",
+        "required": true
+      },
+      "body": {
+        "required": true,
+        "contentType": "application/json",
+        "example": {
+          "version": 1,
+          "condition": {
+            "symbols": [
+              "AAPL",
+              "MSFT"
+            ],
+            "form_types": [
+              "8-K"
+            ]
+          }
+        },
+        "fields": [
+          {
+            "path": [
+              "version"
+            ],
+            "type": "integer",
+            "required": false,
+            "description": "Apply only to this version (409 conflict otherwise)",
+            "flag": "version"
+          },
+          {
+            "path": [
+              "condition",
+              "ciks"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Companies by CIK. filing, filing_keyword, news, news_keyword, earnings_call, earnings_call_keyword, dividend, halt",
+            "flag": "ciks"
+          },
+          {
+            "path": [
+              "condition",
+              "symbols"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Companies by ticker. Same types as `ciks`",
+            "flag": "symbols"
+          },
+          {
+            "path": [
+              "condition",
+              "cik"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "The company by CIK. fundamental_metric, earnings_results, event_countdown (1–10 digits)",
+            "flag": "cik"
+          },
+          {
+            "path": [
+              "condition",
+              "symbol"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "The company by ticker. Same types as `cik`",
+            "flag": "symbol"
+          },
+          {
+            "path": [
+              "condition",
+              "form_types"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Raw SEC form types (`8-K`, `S-1`). filing, filing_keyword",
+            "flag": "form-types"
+          },
+          {
+            "path": [
+              "condition",
+              "form_categories"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Form categories. filing",
+            "flag": "form-categories"
+          },
+          {
+            "path": [
+              "condition",
+              "include_amendments"
+            ],
+            "type": "boolean",
+            "required": false,
+            "description": "Also amendments (`/A`). filing",
+            "flag": "include-amendments"
+          },
+          {
+            "path": [
+              "condition",
+              "stage"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "`detected` = the moment the SEC publishes it (every filer); `processed` = after our processing. filing",
+            "flag": "stage"
+          },
+          {
+            "path": [
+              "condition",
+              "keywords"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Whole-word, case-insensitive keywords (2–50 characters). filing_keyword, news_keyword, earnings_call (keyword_hit), earnings_call_keyword",
+            "flag": "keywords"
+          },
+          {
+            "path": [
+              "condition",
+              "match"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "Any or all keywords. Keyword types (default any)",
+            "flag": "match"
+          },
+          {
+            "path": [
+              "condition",
+              "scope"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "Where keywords are searched: filing_keyword full / risk_factors / mdna / legal_proceedings; news_keyword headline / headline_and_description; earnings_call_keyword full / prepared / qna",
+            "flag": "scope"
+          },
+          {
+            "path": [
+              "condition",
+              "sources"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "News sources. news, news_keyword",
+            "flag": "sources"
+          },
+          {
+            "path": [
+              "condition",
+              "kinds"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "news: news kinds; dividend: declared / ex_date / payment",
+            "flag": "kinds"
+          },
+          {
+            "path": [
+              "condition",
+              "earnings_only"
+            ],
+            "type": "boolean",
+            "required": false,
+            "description": "Only earnings news. news, news_keyword",
+            "flag": "earnings-only"
+          },
+          {
+            "path": [
+              "condition",
+              "events"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Call lifecycle events. earnings_call (transcript_provisional, transcript_corrected, documents_updated need STANDARD; guidance_flash, keyword_hit PRO)",
+            "flag": "events"
+          },
+          {
+            "path": [
+              "condition",
+              "speaker_roles"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Only these speakers. earnings_call_keyword",
+            "flag": "speaker-roles"
+          },
+          {
+            "path": [
+              "condition",
+              "min_mentions"
+            ],
+            "type": "integer",
+            "required": false,
+            "description": "Fire at this many mentions. earnings_call_keyword",
+            "flag": "min-mentions"
+          },
+          {
+            "path": [
+              "condition",
+              "dividend_types"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Only these dividend types. dividend",
+            "flag": "dividend-types"
+          },
+          {
+            "path": [
+              "condition",
+              "statuses"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Halt or resumption (empty = both). halt",
+            "flag": "statuses"
+          },
+          {
+            "path": [
+              "condition",
+              "reason_codes"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Only these halt reason codes. halt",
+            "flag": "reason-codes"
+          },
+          {
+            "path": [
+              "condition",
+              "report_kinds"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Results reports to fire on. earnings_results",
+            "flag": "report-kinds"
+          },
+          {
+            "path": [
+              "condition",
+              "event"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "The event counted down to. event_countdown",
+            "flag": "event"
+          },
+          {
+            "path": [
+              "condition",
+              "days_before"
+            ],
+            "type": "integer",
+            "required": false,
+            "description": "Days before (0 = on the day). event_countdown",
+            "flag": "days-before"
+          },
+          {
+            "path": [
+              "condition",
+              "offsets_days"
+            ],
+            "type": "array",
+            "items": "integer",
+            "required": false,
+            "description": "A ladder of days before. event_countdown",
+            "flag": "offsets-days"
+          },
+          {
+            "path": [
+              "condition",
+              "minutes_before"
+            ],
+            "type": "integer",
+            "required": false,
+            "description": "Minutes before the call starts (event earnings_call only). event_countdown",
+            "flag": "minutes-before"
+          },
+          {
+            "path": [
+              "condition",
+              "time_of_day_minutes"
+            ],
+            "type": "integer",
+            "required": false,
+            "description": "Local minute of the day the reminder fires (default 540 = 09:00). event_countdown",
+            "flag": "time-of-day-minutes"
+          },
+          {
+            "path": [
+              "condition",
+              "timezone"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "IANA time zone. event_countdown",
+            "flag": "timezone"
+          },
+          {
+            "path": [
+              "condition",
+              "notify_on_date_change"
+            ],
+            "type": "boolean",
+            "required": false,
+            "description": "Tell when the event date moves (default true). event_countdown",
+            "flag": "notify-on-date-change"
+          },
+          {
+            "path": [
+              "trigger",
+              "mode"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "`once` = the alert becomes `triggered` after its first fire (default every_time)",
+            "flag": "mode"
+          },
+          {
+            "path": [
+              "trigger",
+              "cooldown_seconds"
+            ],
+            "type": "integer",
+            "required": false,
+            "description": "Minimum seconds between fires",
+            "flag": "cooldown-seconds"
+          },
+          {
+            "path": [
+              "trigger",
+              "cooldown_bars"
+            ],
+            "type": "integer",
+            "required": false,
+            "description": "Minimum bars between fires (script / indicator types)",
+            "flag": "cooldown-bars"
+          },
+          {
+            "path": [
+              "trigger",
+              "max_fires"
+            ],
+            "type": "integer",
+            "required": false,
+            "description": "The alert becomes `triggered` after this many fires",
+            "flag": "max-fires"
+          },
+          {
+            "path": [
+              "trigger",
+              "expires_at"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "The alert becomes `expired` then (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z)",
+            "flag": "expires-at"
+          },
+          {
+            "path": [
+              "trigger",
+              "delete_on_expiry"
+            ],
+            "type": "boolean",
+            "required": false,
+            "description": "Delete instead of `expired` (needs expires_at)",
+            "flag": "delete-on-expiry"
+          },
+          {
+            "path": [
+              "trigger",
+              "activate_at"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "The alert is `scheduled` until then (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z)",
+            "flag": "activate-at"
+          },
+          {
+            "path": [
+              "trigger",
+              "pause_until"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "No fires until then (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z)",
+            "flag": "pause-until"
+          },
+          {
+            "path": [
+              "trigger",
+              "rearm"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "Price types: when a crossed level arms again",
+            "flag": "rearm"
+          },
+          {
+            "path": [
+              "trigger",
+              "rearm_distance_pct"
+            ],
+            "type": "number",
+            "required": false,
+            "description": "Price types: hysteresis in percent",
+            "flag": "rearm-distance-pct"
+          },
+          {
+            "path": [
+              "destination_ids"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Destination ids (≤ 10)",
+            "flag": "destination-ids"
+          },
+          {
+            "path": [
+              "client_reference_id"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "Your id; a second create with it returns the live alert",
+            "flag": "client-reference-id"
+          },
+          {
+            "path": [
+              "external_user_id"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "Your end user's id (filters lists and events)",
+            "flag": "external-user-id"
+          }
+        ]
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "id",
+        "type",
+        "status",
+        "client_reference_id",
+        "fire_count"
+      ],
+      "fields": [
+        "id",
+        "type",
+        "status",
+        "condition",
+        "trigger",
+        "destination_ids",
+        "client_reference_id",
+        "external_user_id",
+        "metadata",
+        "symbol",
+        "cik",
+        "fire_count",
+        "last_fired_at",
+        "version",
+        "created_at",
+        "updated_at"
+      ]
+    },
     {
       "operationId": "listDocumentKindCatalog",
       "group": "catalog",
@@ -955,6 +2579,490 @@
         "execution_date",
         "split_from",
         "split_to"
+      ]
+    },
+    {
+      "operationId": "createDestination",
+      "group": "destinations",
+      "action": "create",
+      "method": "post",
+      "path": "/v1/destinations",
+      "auth": true,
+      "summary": "Create a destination",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": false,
+          "type": "string",
+          "example": "6f1c0f3e-7b7a-4a8e-9d63-3c1b2f0e9a11",
+          "description": "Replays the first answer for 24 h; 409 while in flight (R13)",
+          "flag": "idempotency-key"
+        }
+      ],
+      "body": {
+        "required": true,
+        "contentType": "application/json",
+        "example": {
+          "url": "https://hooks.example.com/invinite-alerts",
+          "description": "Production alert receiver"
+        },
+        "fields": [
+          {
+            "path": [
+              "url"
+            ],
+            "type": "string",
+            "required": true,
+            "description": "https endpoint (port 443, public addresses only)",
+            "alias": "u",
+            "flag": "url"
+          },
+          {
+            "path": [
+              "kind"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "Default webhook",
+            "flag": "kind"
+          },
+          {
+            "path": [
+              "description"
+            ],
+            "type": "string",
+            "required": false,
+            "flag": "description"
+          },
+          {
+            "path": [
+              "body_template"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "Custom body template (≤ 16 KB)",
+            "flag": "body-template"
+          },
+          {
+            "path": [
+              "preset"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "Default standard",
+            "flag": "preset"
+          }
+        ]
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "id",
+        "url",
+        "secret"
+      ],
+      "fields": [
+        "id",
+        "kind",
+        "url",
+        "description",
+        "preset",
+        "status",
+        "disabled_reason",
+        "consecutive_failures",
+        "secret_hint",
+        "header_names",
+        "body_template",
+        "previous_secret_expires_at",
+        "created_at",
+        "updated_at",
+        "secret"
+      ]
+    },
+    {
+      "operationId": "deleteDestination",
+      "group": "destinations",
+      "action": "delete",
+      "method": "delete",
+      "path": "/v1/destinations/{id}",
+      "auth": true,
+      "summary": "Delete a destination",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G",
+          "description": "Destination id",
+          "flag": "id"
+        }
+      ],
+      "positional": {
+        "name": "id",
+        "required": true
+      },
+      "list": false,
+      "view": "json",
+      "fields": []
+    },
+    {
+      "operationId": "listDestinationDeliveries",
+      "group": "destinations",
+      "action": "deliveries",
+      "method": "get",
+      "path": "/v1/destinations/{id}/deliveries",
+      "auth": true,
+      "summary": "List a destination's deliveries",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, max 200)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G",
+          "description": "Destination id",
+          "flag": "id"
+        }
+      ],
+      "positional": {
+        "name": "id",
+        "required": true
+      },
+      "list": true,
+      "view": "table",
+      "columns": [
+        "id",
+        "event_id",
+        "status",
+        "attempts"
+      ],
+      "fields": [
+        "id",
+        "event_id",
+        "batch_id",
+        "status",
+        "attempts",
+        "last_status",
+        "last_error",
+        "duration_ms",
+        "next_attempt_at",
+        "created_at",
+        "delivered_at"
+      ]
+    },
+    {
+      "operationId": "getDestination",
+      "group": "destinations",
+      "action": "get",
+      "method": "get",
+      "path": "/v1/destinations/{id}",
+      "auth": true,
+      "summary": "Get a destination",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G",
+          "description": "Destination id",
+          "flag": "id"
+        }
+      ],
+      "positional": {
+        "name": "id",
+        "required": true
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "id",
+        "url",
+        "kind",
+        "status"
+      ],
+      "fields": [
+        "id",
+        "kind",
+        "url",
+        "description",
+        "preset",
+        "status",
+        "disabled_reason",
+        "consecutive_failures",
+        "secret_hint",
+        "header_names",
+        "body_template",
+        "previous_secret_expires_at",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    {
+      "operationId": "listDestinations",
+      "group": "destinations",
+      "action": "list",
+      "method": "get",
+      "path": "/v1/destinations",
+      "auth": true,
+      "summary": "List destinations",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, max 200)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        }
+      ],
+      "list": true,
+      "view": "table",
+      "columns": [
+        "id",
+        "url",
+        "kind",
+        "status"
+      ],
+      "fields": [
+        "id",
+        "kind",
+        "url",
+        "description",
+        "preset",
+        "status",
+        "disabled_reason",
+        "consecutive_failures",
+        "secret_hint",
+        "header_names",
+        "body_template",
+        "previous_secret_expires_at",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    {
+      "operationId": "rotateDestinationSecret",
+      "group": "destinations",
+      "action": "rotate-secret",
+      "method": "post",
+      "path": "/v1/destinations/{id}:rotate-secret",
+      "auth": true,
+      "summary": "Rotate a destination's secret",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G",
+          "description": "Destination id",
+          "flag": "id"
+        }
+      ],
+      "positional": {
+        "name": "id",
+        "required": true
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "secret",
+        "previous_secret_expires_at"
+      ],
+      "fields": [
+        "secret",
+        "previous_secret_expires_at"
+      ]
+    },
+    {
+      "operationId": "testDestination",
+      "group": "destinations",
+      "action": "test",
+      "method": "post",
+      "path": "/v1/destinations/{id}:test",
+      "auth": true,
+      "summary": "Send a test delivery",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G",
+          "description": "Destination id",
+          "flag": "id"
+        }
+      ],
+      "positional": {
+        "name": "id",
+        "required": true
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "event_id",
+        "delivery_id"
+      ],
+      "fields": []
+    },
+    {
+      "operationId": "updateDestination",
+      "group": "destinations",
+      "action": "update",
+      "method": "patch",
+      "path": "/v1/destinations/{id}",
+      "auth": true,
+      "summary": "Update a destination",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G",
+          "description": "Destination id",
+          "flag": "id"
+        }
+      ],
+      "positional": {
+        "name": "id",
+        "required": true
+      },
+      "body": {
+        "required": true,
+        "contentType": "application/json",
+        "example": {
+          "status": "active"
+        },
+        "fields": [
+          {
+            "path": [
+              "url"
+            ],
+            "type": "string",
+            "required": false,
+            "alias": "u",
+            "flag": "url"
+          },
+          {
+            "path": [
+              "kind"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "Switches between one event per request (webhook) and alert.fired.batch (batch_webhook)",
+            "flag": "kind"
+          },
+          {
+            "path": [
+              "description"
+            ],
+            "type": "string",
+            "required": false,
+            "flag": "description"
+          },
+          {
+            "path": [
+              "body_template"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "null removes it",
+            "flag": "body-template"
+          },
+          {
+            "path": [
+              "preset"
+            ],
+            "type": "string",
+            "required": false,
+            "flag": "preset"
+          },
+          {
+            "path": [
+              "status"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "active re-enables; disabled pauses it",
+            "flag": "status"
+          }
+        ]
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "id",
+        "url",
+        "kind",
+        "status"
+      ],
+      "fields": [
+        "id",
+        "kind",
+        "url",
+        "description",
+        "preset",
+        "status",
+        "disabled_reason",
+        "consecutive_failures",
+        "secret_hint",
+        "header_names",
+        "body_template",
+        "previous_secret_expires_at",
+        "created_at",
+        "updated_at"
       ]
     },
     {
@@ -8478,463 +10586,6 @@
         "html_tag_id",
         "html_label",
         "unit"
-      ]
-    },
-    {
-      "operationId": "createWebhook",
-      "group": "webhooks",
-      "action": "create",
-      "method": "post",
-      "path": "/v1/webhooks",
-      "auth": true,
-      "summary": "Create a webhook",
-      "credits": 1,
-      "tier": "lite",
-      "params": [
-        {
-          "name": "Idempotency-Key",
-          "in": "header",
-          "required": false,
-          "type": "string",
-          "example": "6f1c0f3e-7b7a-4a8e-9d63-3c1b2f0e9a11",
-          "description": "Replays the first answer for 24 h; 409 while in flight (R13)",
-          "flag": "idempotency-key"
-        }
-      ],
-      "body": {
-        "required": true,
-        "contentType": "application/json",
-        "example": {
-          "url": "https://hooks.example.com/invinite",
-          "events": [
-            "event.transcript_ready",
-            "news.published"
-          ],
-          "filters": {
-            "ciks": [
-              "0000320193"
-            ]
-          }
-        },
-        "fields": [
-          {
-            "path": [
-              "url"
-            ],
-            "type": "string",
-            "required": true,
-            "description": "https endpoint (port 443, public addresses only)",
-            "alias": "u",
-            "flag": "url"
-          },
-          {
-            "path": [
-              "events"
-            ],
-            "type": "array",
-            "items": "string",
-            "required": true,
-            "description": "Event names to receive (the plan decides which; `event.test` needs no subscription — every subscription receives it)",
-            "alias": "e",
-            "flag": "events"
-          },
-          {
-            "path": [
-              "filters",
-              "ciks"
-            ],
-            "type": "array",
-            "items": "string",
-            "required": false,
-            "description": "Only these companies (at most 10 / 25 / 100 on LITE / STANDARD / PRO); a news item matches when it mentions any of them",
-            "flag": "ciks"
-          },
-          {
-            "path": [
-              "filters",
-              "keywords"
-            ],
-            "type": "array",
-            "items": "string",
-            "required": false,
-            "description": "Keyword alerts (PRO, with event.keyword_hit in events): whole-word, case-insensitive matches; with news.published they also narrow news items to those whose headline or lede names one",
-            "flag": "keywords"
-          }
-        ]
-      },
-      "list": false,
-      "view": "keyValue",
-      "columns": [
-        "id",
-        "url",
-        "secret"
-      ],
-      "fields": [
-        "id",
-        "url",
-        "events",
-        "filters",
-        "active",
-        "disabled_reason",
-        "consecutive_failures",
-        "secret_hint",
-        "created_at",
-        "updated_at",
-        "secret"
-      ]
-    },
-    {
-      "operationId": "deleteWebhook",
-      "group": "webhooks",
-      "action": "delete",
-      "method": "delete",
-      "path": "/v1/webhooks/{id}",
-      "auth": true,
-      "summary": "Delete a webhook",
-      "credits": 1,
-      "tier": "lite",
-      "params": [
-        {
-          "name": "id",
-          "in": "path",
-          "required": true,
-          "type": "string",
-          "example": "k57a8x2b4c6d8e0f2g4h6j8k0m2n4p6r",
-          "description": "Webhook id",
-          "flag": "id"
-        }
-      ],
-      "positional": {
-        "name": "id",
-        "required": true
-      },
-      "list": false,
-      "view": "json",
-      "fields": []
-    },
-    {
-      "operationId": "listWebhookDeliveries",
-      "group": "webhooks",
-      "action": "deliveries",
-      "method": "get",
-      "path": "/v1/webhooks/{id}/deliveries",
-      "auth": true,
-      "summary": "List a webhook's deliveries",
-      "credits": 1,
-      "tier": "lite",
-      "params": [
-        {
-          "name": "limit",
-          "in": "query",
-          "required": false,
-          "type": "integer",
-          "default": 25,
-          "example": 25,
-          "description": "Rows per page (default 25, max 200)",
-          "alias": "l",
-          "flag": "limit"
-        },
-        {
-          "name": "cursor",
-          "in": "query",
-          "required": false,
-          "type": "string",
-          "example": "eyJ2IjoyfQ",
-          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
-          "flag": "cursor"
-        },
-        {
-          "name": "id",
-          "in": "path",
-          "required": true,
-          "type": "string",
-          "example": "k57a8x2b4c6d8e0f2g4h6j8k0m2n4p6r",
-          "description": "Webhook id",
-          "flag": "id"
-        }
-      ],
-      "positional": {
-        "name": "id",
-        "required": true
-      },
-      "list": true,
-      "view": "table",
-      "columns": [
-        "at",
-        "event",
-        "status",
-        "attempt"
-      ],
-      "fields": [
-        "delivery_id",
-        "event",
-        "attempt",
-        "status",
-        "response_status",
-        "duration_ms",
-        "at",
-        "next_attempt_at"
-      ]
-    },
-    {
-      "operationId": "getWebhook",
-      "group": "webhooks",
-      "action": "get",
-      "method": "get",
-      "path": "/v1/webhooks/{id}",
-      "auth": true,
-      "summary": "Get a webhook",
-      "credits": 1,
-      "tier": "lite",
-      "params": [
-        {
-          "name": "id",
-          "in": "path",
-          "required": true,
-          "type": "string",
-          "example": "k57a8x2b4c6d8e0f2g4h6j8k0m2n4p6r",
-          "description": "Webhook id",
-          "flag": "id"
-        }
-      ],
-      "positional": {
-        "name": "id",
-        "required": true
-      },
-      "list": false,
-      "view": "keyValue",
-      "columns": [
-        "id",
-        "url",
-        "events",
-        "active"
-      ],
-      "fields": [
-        "id",
-        "url",
-        "events",
-        "filters",
-        "active",
-        "disabled_reason",
-        "consecutive_failures",
-        "secret_hint",
-        "created_at",
-        "updated_at"
-      ]
-    },
-    {
-      "operationId": "listWebhooks",
-      "group": "webhooks",
-      "action": "list",
-      "method": "get",
-      "path": "/v1/webhooks",
-      "auth": true,
-      "summary": "List webhooks",
-      "credits": 1,
-      "tier": "lite",
-      "params": [
-        {
-          "name": "limit",
-          "in": "query",
-          "required": false,
-          "type": "integer",
-          "default": 25,
-          "example": 25,
-          "description": "Rows per page (default 25, max 200)",
-          "flag": "limit"
-        },
-        {
-          "name": "cursor",
-          "in": "query",
-          "required": false,
-          "type": "string",
-          "example": "eyJ2IjoyfQ",
-          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
-          "flag": "cursor"
-        }
-      ],
-      "list": true,
-      "view": "table",
-      "columns": [
-        "id",
-        "url",
-        "events",
-        "active"
-      ],
-      "fields": [
-        "id",
-        "url",
-        "events",
-        "filters",
-        "active",
-        "disabled_reason",
-        "consecutive_failures",
-        "secret_hint",
-        "created_at",
-        "updated_at"
-      ]
-    },
-    {
-      "operationId": "rotateWebhookSecret",
-      "group": "webhooks",
-      "action": "rotate-secret",
-      "method": "post",
-      "path": "/v1/webhooks/{id}:rotate-secret",
-      "auth": true,
-      "summary": "Rotate a webhook's secret",
-      "credits": 1,
-      "tier": "lite",
-      "params": [
-        {
-          "name": "id",
-          "in": "path",
-          "required": true,
-          "type": "string",
-          "example": "k57a8x2b4c6d8e0f2g4h6j8k0m2n4p6r",
-          "description": "Webhook id",
-          "flag": "id"
-        }
-      ],
-      "positional": {
-        "name": "id",
-        "required": true
-      },
-      "list": false,
-      "view": "keyValue",
-      "columns": [
-        "secret",
-        "previous_secret_expires_at"
-      ],
-      "fields": [
-        "secret",
-        "previous_secret_expires_at"
-      ]
-    },
-    {
-      "operationId": "testWebhook",
-      "group": "webhooks",
-      "action": "test",
-      "method": "post",
-      "path": "/v1/webhooks/{id}:test",
-      "auth": true,
-      "summary": "Send a test delivery",
-      "credits": 1,
-      "tier": "lite",
-      "params": [
-        {
-          "name": "id",
-          "in": "path",
-          "required": true,
-          "type": "string",
-          "example": "k57a8x2b4c6d8e0f2g4h6j8k0m2n4p6r",
-          "description": "Webhook id",
-          "flag": "id"
-        }
-      ],
-      "positional": {
-        "name": "id",
-        "required": true
-      },
-      "list": false,
-      "view": "json",
-      "fields": []
-    },
-    {
-      "operationId": "updateWebhook",
-      "group": "webhooks",
-      "action": "update",
-      "method": "patch",
-      "path": "/v1/webhooks/{id}",
-      "auth": true,
-      "summary": "Update a webhook",
-      "credits": 1,
-      "tier": "lite",
-      "params": [
-        {
-          "name": "id",
-          "in": "path",
-          "required": true,
-          "type": "string",
-          "example": "k57a8x2b4c6d8e0f2g4h6j8k0m2n4p6r",
-          "description": "Webhook id",
-          "flag": "id"
-        }
-      ],
-      "positional": {
-        "name": "id",
-        "required": true
-      },
-      "body": {
-        "required": true,
-        "contentType": "application/json",
-        "example": {
-          "events": [
-            "event.transcript_ready"
-          ],
-          "active": true
-        },
-        "fields": [
-          {
-            "path": [
-              "keywords"
-            ],
-            "type": "array",
-            "items": "string",
-            "required": false,
-            "description": "Replaces the keyword list (empty = no keyword alerts; PRO only)",
-            "flag": "keywords"
-          },
-          {
-            "path": [
-              "ciks"
-            ],
-            "type": "array",
-            "items": "string",
-            "required": false,
-            "description": "Replaces the company filter (empty = every company; at most 10 / 25 / 100 on LITE / STANDARD / PRO)",
-            "flag": "ciks"
-          },
-          {
-            "path": [
-              "events"
-            ],
-            "type": "array",
-            "items": "string",
-            "required": false,
-            "description": "Replaces the event list",
-            "alias": "e",
-            "flag": "events"
-          },
-          {
-            "path": [
-              "active"
-            ],
-            "type": "boolean",
-            "required": false,
-            "description": "true re-enables a disabled subscription (its failure counter resets); false pauses it (disabled_reason: paused)",
-            "flag": "active"
-          }
-        ]
-      },
-      "list": false,
-      "view": "keyValue",
-      "columns": [
-        "id",
-        "url",
-        "events",
-        "active"
-      ],
-      "fields": [
-        "id",
-        "url",
-        "events",
-        "filters",
-        "active",
-        "disabled_reason",
-        "consecutive_failures",
-        "secret_hint",
-        "created_at",
-        "updated_at"
       ]
     }
   ]
