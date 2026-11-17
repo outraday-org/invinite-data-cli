@@ -506,6 +506,21 @@ The exit codes are the same in `invd` and the Web CLI `inv`:
 | 7 | partial: an `--all` cut short by a failure (resume with the printed `--cursor`) or a short download |
 | 130 / 143 | interrupted (Ctrl-C / SIGTERM); an `--all` walk prints its resume cursor first |
 
+## Changes in 7.4.0
+
+7.4.0 follows Data API 6.4 (script chains, weekly / monthly bars, commodities, pre-close evaluation). No command or
+exit code changes; the new condition fields are nested objects, sent with `--body` / `--body-file`:
+
+- `script` alerts take `series_inputs` + `nodes`: a script's `input.externalSeries` inputs read a bar field (`ohlc`),
+  a built-in indicator series (`builtin_indicator`) or another script's plot (`script_output` of a producer in
+  `nodes`); producers run on the alert's symbol, interval and bars, in plan order, every bar.
+- `script` / `indicator` take `evaluation: {"kind": "pre_close", "offset_minutes": 1–720, "exchange"?}`: the forming
+  bar is evaluated that many minutes before the US session close (16:00 New York, a half day's early close, never on
+  a weekend or holiday) and only that evaluation delivers; `exchange` is required for crypto and commodities.
+- `--interval` accepts `1w` / `1mo` for `script` and `indicator`, and `1m`…`30m` for `volume_spike` (every closed bar);
+  `--asset-class commodity` (`XAUUSD` / `XAGUSD`) for the price types, `script` and `indicator`; `--cooldown-seconds`
+  up to 366 days, `--cooldown-bars` up to 1,000,000.
+
 ## Changes in 7.3.1
 
 7.3.1 follows Data API 6.3.1 (US ETFs on the issuer commands). No command, flag or exit code changes:

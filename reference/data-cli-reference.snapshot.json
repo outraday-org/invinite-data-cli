@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "7.3.1",
+    "version": "7.4.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -11,9 +11,9 @@
     },
     "verifiedOn": "2026-11-17",
     "sourceHashes": {
-      "api-contract.json": "f2b4531badd76c669da46df4d32f55bf9801e2dbe76796143ccc22628ecb578f",
-      "openapi.json": "bb40d2112a59807f8d937b09b8e559a9d364aff5d2160c6dd6ab74706e6486d7",
-      "package.json": "e377b44ef0765aba77a4bdfe0ff1dc105e8a3a8baaf538be67124f4a969c5071",
+      "api-contract.json": "619b12e20e8f94ffe30e9e9facf898c7067fe334707f13ff492a84e037932ca8",
+      "openapi.json": "a9611b4f99fc2e81abff7e5cd7ffad5d060a77c166bd32a1028052d967f0b909",
+      "package.json": "91ad5181334e7768dd977d975928c332a518e0e0b228fed6bcf3cb92ccce659a",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "ed216f689f39e3dbf72c7d6a1c74ee6cb9c22fbaf9982a9b4ddee2873f2d5536",
@@ -34,7 +34,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "2db9ee9487389457e5594a6cb9a8e6bc1021344dfd7a060e9341cd7024ae358a",
+      "src/generated/cli-manifest.json": "6c1e6705f7eef99c25d40c03f658d017f47c58c7a867068a8e3f1fa86711995f",
       "src/hand-written-commands.ts": "ab53fea9a1523f8db77663fb3d241be73403213b67f20d9898596e87eddd7bd0",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
@@ -50,9 +50,9 @@
       "src/spec-manifest.ts": "d3b5c1b3c3a473f7991c02bd8b204d7ee6ac67b67e1d0ec1855c7345328cc104",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "bb40d2112a59807f8d937b09b8e559a9d364aff5d2160c6dd6ab74706e6486d7",
-    "revision": "35bd80b608f47c71c9a3eb35f815049f4ca60eae",
-    "fingerprint": "4e56e47120df76d925b65c5c501eefd1863381c61dfa641c1c64def0de22181b"
+    "specSha256": "a9611b4f99fc2e81abff7e5cd7ffad5d060a77c166bd32a1028052d967f0b909",
+    "revision": "427dc6fa713a8584a48925c0526ab98ec00848e2",
+    "fingerprint": "c6a13ca69e866735bfe2b087463801e1c02a3188061990a0ba260bb8da772903"
   },
   "globalOptions": [
     {
@@ -682,7 +682,7 @@
         },
         {
           "flags": "--symbol <value>",
-          "description": "The company (or, for the types that take ETFs, the US ETF) by ticker. Same types as `cik`; price types, script and indicator: the instrument (a US stock / ETF ticker, or a crypto slug / ticker) (body condition.symbol)",
+          "description": "The company (or, for the types that take ETFs, the US ETF) by ticker. Same types as `cik`; price types, script and indicator: the instrument (a US stock / ETF ticker, a crypto slug / ticker, or a commodity `XAUUSD` / `XAGUSD`) (body condition.symbol)",
           "required": false
         },
         {
@@ -822,7 +822,7 @@
         },
         {
           "flags": "--asset-class <value>",
-          "description": "The instrument's market: `us_stock` (US stocks and ETFs) or `crypto` (coins by CoinGecko slug or ticker). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder, script, indicator (body condition.asset_class)",
+          "description": "The instrument's market: `us_stock` (US stocks and ETFs), `crypto` (coins by CoinGecko slug or ticker) or `commodity` (`XAUUSD` / `XAGUSD`, only when named). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder, script, indicator (body condition.asset_class)",
           "required": false
         },
         {
@@ -862,7 +862,7 @@
         },
         {
           "flags": "--interval <value>",
-          "description": "The bar evaluated at its close. volume_spike (1h, 1d, 1w, 1mo); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d; the plan's shortest: FREE / LITE 1h, STANDARD 5m, PRO 1m) (body condition.interval)",
+          "description": "The bar evaluated at its close. volume_spike (1m, 5m, 15m, 30m, 1h, 1d, 1w, 1mo; every closed bar); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w, 1mo; the plan's shortest: FREE / LITE 1h, STANDARD 5m, PRO 1m) (body condition.interval)",
           "required": false
         },
         {
@@ -892,7 +892,7 @@
         },
         {
           "flags": "--frequency <value>",
-          "description": "price_reminder: when the reminder fires — once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. script: when the script's alerts deliver — `once_per_bar_close` (default) at most once per alert id and closed bar, `once_per_bar` the same, `every_time` every evaluation, `once` the first evaluation only. indicator: the same (`once` = this alert's first fire only). price_reminder, script, indicator (body condition.frequency)",
+          "description": "price_reminder: when the reminder fires — once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. script: when the script's alerts deliver — `once_per_bar_close` (default) at most once per alert id and closed bar, `once_per_bar` the same, `every_time` every evaluation, `once` the first evaluation only. indicator: the same (`once` = this alert's first fire only). With `evaluation` pre_close: one delivery per alert id and session (`every_time`: every signal of the pass; `once`: the first only). price_reminder, script, indicator (body condition.frequency)",
           "required": false
         },
         {
@@ -927,12 +927,12 @@
         },
         {
           "flags": "--cooldown-seconds <value>",
-          "description": "Minimum seconds between fires (body trigger.cooldown_seconds)",
+          "description": "Minimum seconds between fires (at most 366 days) (body trigger.cooldown_seconds)",
           "required": false
         },
         {
           "flags": "--cooldown-bars <value>",
-          "description": "Minimum bars between fires (script / indicator types), counted like chartlang: the bar of a fire must start at least cooldown_bars × the interval after the bar of the last fire, so a night or a weekend counts as time (body trigger.cooldown_bars)",
+          "description": "Minimum bars between fires (script / indicator types), counted like chartlang: the bar of a fire must start at least cooldown_bars × the interval after the bar of the last fire, so a night or a weekend counts as time (half a bar of slack: a calendar `1mo` / `1w` / `1d` bar shorter than the nominal interval, a February or a DST day, still counts as a whole bar) (body trigger.cooldown_bars)",
           "required": false
         },
         {
@@ -1697,7 +1697,7 @@
         },
         {
           "flags": "--symbol <value>",
-          "description": "The company (or, for the types that take ETFs, the US ETF) by ticker. Same types as `cik`; price types, script and indicator: the instrument (a US stock / ETF ticker, or a crypto slug / ticker) (body condition.symbol)",
+          "description": "The company (or, for the types that take ETFs, the US ETF) by ticker. Same types as `cik`; price types, script and indicator: the instrument (a US stock / ETF ticker, a crypto slug / ticker, or a commodity `XAUUSD` / `XAGUSD`) (body condition.symbol)",
           "required": false
         },
         {
@@ -1837,7 +1837,7 @@
         },
         {
           "flags": "--asset-class <value>",
-          "description": "The instrument's market: `us_stock` (US stocks and ETFs) or `crypto` (coins by CoinGecko slug or ticker). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder, script, indicator (body condition.asset_class)",
+          "description": "The instrument's market: `us_stock` (US stocks and ETFs), `crypto` (coins by CoinGecko slug or ticker) or `commodity` (`XAUUSD` / `XAGUSD`, only when named). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder, script, indicator (body condition.asset_class)",
           "required": false
         },
         {
@@ -1877,7 +1877,7 @@
         },
         {
           "flags": "--interval <value>",
-          "description": "The bar evaluated at its close. volume_spike (1h, 1d, 1w, 1mo); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d; the plan's shortest: FREE / LITE 1h, STANDARD 5m, PRO 1m) (body condition.interval)",
+          "description": "The bar evaluated at its close. volume_spike (1m, 5m, 15m, 30m, 1h, 1d, 1w, 1mo; every closed bar); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w, 1mo; the plan's shortest: FREE / LITE 1h, STANDARD 5m, PRO 1m) (body condition.interval)",
           "required": false
         },
         {
@@ -1907,7 +1907,7 @@
         },
         {
           "flags": "--frequency <value>",
-          "description": "price_reminder: when the reminder fires — once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. script: when the script's alerts deliver — `once_per_bar_close` (default) at most once per alert id and closed bar, `once_per_bar` the same, `every_time` every evaluation, `once` the first evaluation only. indicator: the same (`once` = this alert's first fire only). price_reminder, script, indicator (body condition.frequency)",
+          "description": "price_reminder: when the reminder fires — once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. script: when the script's alerts deliver — `once_per_bar_close` (default) at most once per alert id and closed bar, `once_per_bar` the same, `every_time` every evaluation, `once` the first evaluation only. indicator: the same (`once` = this alert's first fire only). With `evaluation` pre_close: one delivery per alert id and session (`every_time`: every signal of the pass; `once`: the first only). price_reminder, script, indicator (body condition.frequency)",
           "required": false
         },
         {
@@ -1942,12 +1942,12 @@
         },
         {
           "flags": "--cooldown-seconds <value>",
-          "description": "Minimum seconds between fires (body trigger.cooldown_seconds)",
+          "description": "Minimum seconds between fires (at most 366 days) (body trigger.cooldown_seconds)",
           "required": false
         },
         {
           "flags": "--cooldown-bars <value>",
-          "description": "Minimum bars between fires (script / indicator types), counted like chartlang: the bar of a fire must start at least cooldown_bars × the interval after the bar of the last fire, so a night or a weekend counts as time (body trigger.cooldown_bars)",
+          "description": "Minimum bars between fires (script / indicator types), counted like chartlang: the bar of a fire must start at least cooldown_bars × the interval after the bar of the last fire, so a night or a weekend counts as time (half a bar of slack: a calendar `1mo` / `1w` / `1d` bar shorter than the nominal interval, a February or a DST day, still counts as a whole bar) (body trigger.cooldown_bars)",
           "required": false
         },
         {
@@ -7717,7 +7717,7 @@
         },
         {
           "flags": "--is-derivative",
-          "description": "true = only derivative-security lines; false = only non-derivative lines (e.g. false) (sends true)",
+          "description": "Omitted = derivative-security lines (options, RSUs, warrants) AND non-derivative lines, the default since release 5.7; true = only derivative-security lines; false = only non-derivative lines (the result of the releases before 5.7: use it for a buy / sell aggregate) (e.g. false) (sends true)",
           "required": false
         },
         {
@@ -9496,7 +9496,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Issuer: a CIK (all digits, any padding; any Form D issuer, listed or not) or the ticker of a listed company — ONE value; matches the primary issuer and co-issuers. Without it: every offering. A US ETF ticker of either identity (SPY, TQQQ) answers one 404 `not_covered` naming it: no Form D data exists for a fund (an ETF registrant's CIK still reads the door) (one or more; sent as a comma list)",
+          "description": "Issuer: a CIK (all digits, any padding; any Form D issuer, listed or not) or the ticker of a listed company — ONE value; matches the primary issuer and co-issuers. Without it: every offering. A US ETF answers one 404 `not_covered` naming it, whatever identifier names it — a ticker of either identity (SPY, TQQQ) or the CIK of an ETF that is its own registrant (SPY's): no Form D data exists for a fund. A CIK of no listed company (a private issuer) still reads the Form D data (one or more; sent as a comma list)",
           "required": false
         }
       ],

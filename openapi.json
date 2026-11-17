@@ -11104,7 +11104,7 @@
           "symbol": {
             "type": "string",
             "maxLength": 64,
-            "description": "The company (or, for the types that take ETFs, the US ETF) by ticker. Same types as `cik`; price types, script and indicator: the instrument (a US stock / ETF ticker, or a crypto slug / ticker)"
+            "description": "The company (or, for the types that take ETFs, the US ETF) by ticker. Same types as `cik`; price types, script and indicator: the instrument (a US stock / ETF ticker, a crypto slug / ticker, or a commodity `XAUUSD` / `XAGUSD`)"
           },
           "form_types": {
             "type": "array",
@@ -11483,9 +11483,10 @@
             "type": "string",
             "enum": [
               "us_stock",
-              "crypto"
+              "crypto",
+              "commodity"
             ],
-            "description": "The instrument's market: `us_stock` (US stocks and ETFs) or `crypto` (coins by CoinGecko slug or ticker). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder, script, indicator"
+            "description": "The instrument's market: `us_stock` (US stocks and ETFs), `crypto` (coins by CoinGecko slug or ticker) or `commodity` (`XAUUSD` / `XAGUSD`, only when named). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder, script, indicator"
           },
           "operator": {
             "type": "string",
@@ -11557,7 +11558,7 @@
               "1w",
               "1mo"
             ],
-            "description": "The bar evaluated at its close. volume_spike (1h, 1d, 1w, 1mo); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d; the plan's shortest: FREE / LITE 1h, STANDARD 5m, PRO 1m)"
+            "description": "The bar evaluated at its close. volume_spike (1m, 5m, 15m, 30m, 1h, 1d, 1w, 1mo; every closed bar); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w, 1mo; the plan's shortest: FREE / LITE 1h, STANDARD 5m, PRO 1m)"
           },
           "multiple": {
             "type": "number",
@@ -11605,7 +11606,7 @@
               "once_per_bar_close",
               "every_time"
             ],
-            "description": "price_reminder: when the reminder fires — once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. script: when the script's alerts deliver — `once_per_bar_close` (default) at most once per alert id and closed bar, `once_per_bar` the same, `every_time` every evaluation, `once` the first evaluation only. indicator: the same (`once` = this alert's first fire only). price_reminder, script, indicator"
+            "description": "price_reminder: when the reminder fires — once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. script: when the script's alerts deliver — `once_per_bar_close` (default) at most once per alert id and closed bar, `once_per_bar` the same, `every_time` every evaluation, `once` the first evaluation only. indicator: the same (`once` = this alert's first fire only). With `evaluation` pre_close: one delivery per alert id and session (`every_time`: every signal of the pass; `once`: the first only). price_reminder, script, indicator"
           },
           "at": {
             "type": "string",
@@ -11638,6 +11639,21 @@
             "additionalProperties": true,
             "description": "Values for the script's declared inputs (checked against its manifest; absent = the defaults). script"
           },
+          "series_inputs": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ScriptSeriesInput"
+            },
+            "description": "A script chain: what feeds each of the script's `input.externalSeries` inputs, by its input key (every such input must be bound; ≤ 4 `builtin_indicator`, ≤ 16 in the plan). script"
+          },
+          "nodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScriptNode"
+            },
+            "maxItems": 4,
+            "description": "The producer scripts `script_output` series inputs read, producers before the nodes that read them (≤ 8 dependencies, ≤ 16,384 bytes with series_inputs). script"
+          },
           "alert_ids": {
             "type": "array",
             "items": {
@@ -11646,6 +11662,9 @@
             },
             "maxItems": 50,
             "description": "Only these of the script's alerts (its version's `alert_ids`); empty = all. script"
+          },
+          "evaluation": {
+            "$ref": "#/components/schemas/ScriptEvaluation"
           },
           "template": {
             "$ref": "#/components/schemas/IndicatorTemplateRef"
@@ -11658,6 +11677,138 @@
           },
           "resolved": {
             "$ref": "#/components/schemas/IndicatorResolved"
+          }
+        }
+      },
+      "ScriptSeriesInput": {
+        "type": "object",
+        "title": "ScriptSeriesInput",
+        "description": "What feeds one `input.externalSeries` input of a script (a script chain), one value per bar on the alert's symbol, interval and bars; a value the producer does not give that bar reads NaN.",
+        "required": [
+          "kind"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "ohlc",
+              "builtin_indicator",
+              "script_output"
+            ],
+            "description": "What feeds the input every bar: `ohlc` a bar field, `builtin_indicator` a built-in indicator's series, `script_output` a plot of a node of `nodes`"
+          },
+          "field": {
+            "type": "string",
+            "enum": [
+              "open",
+              "high",
+              "low",
+              "close",
+              "hl2",
+              "hlc3",
+              "ohlc4",
+              "hlcc4"
+            ],
+            "description": "ohlc: the bar field (`hl2` = (high + low) / 2, `hlc3`, `ohlc4`, `hlcc4` = (high + low + 2 × close) / 4; no volume)"
+          },
+          "indicator_id": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "builtin_indicator: the built-in indicator (`rsi`, `sma`, `ema`, `macd`, `bb`, …; the indicator condition's ids)"
+          },
+          "series_key": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "builtin_indicator: which output series (`rsi`, `macd` / `signal` / `histogram`, `upper` / `basis` / `lower`, …)"
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "builtin_indicator: the indicator's parameters (`length`, `source`, …; absent = its defaults)"
+          },
+          "resolved_script_version_id": {
+            "type": "string",
+            "description": "builtin_indicator, set by the platform (read-only: a value sent in a request is ignored): the system script version the series was compiled to"
+          },
+          "node_key": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "script_output: the `node_key` of the producing node"
+          },
+          "slot_id": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "script_output: the plot slot of the node's script version (its `manifest.plots[].slotId`)"
+          }
+        }
+      },
+      "ScriptNode": {
+        "type": "object",
+        "title": "ScriptNode",
+        "description": "A producer script of a chain: evaluated on the alert's symbol, interval and bars before the scripts that read its plots.",
+        "required": [
+          "node_key",
+          "script_version_id"
+        ],
+        "properties": {
+          "node_key": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "The node's name in this plan (unique, not `root`), named by `script_output` series inputs"
+          },
+          "script_version_id": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "The producer's script version (`scv_…`, status ok, of a script of this account)"
+          },
+          "inputs": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Values for the producer's declared inputs (absent = the defaults)"
+          },
+          "series_inputs": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ScriptSeriesInput"
+            },
+            "description": "The producer's own `input.externalSeries` inputs (a built-in series, a bar field, or an earlier node's plot)"
+          }
+        }
+      },
+      "ScriptEvaluation": {
+        "type": "object",
+        "title": "ScriptEvaluation",
+        "description": "When a script / indicator alert evaluates: `bar_close` (default) at each close of its interval, or `pre_close` — `offset_minutes` before the US session close (16:00 New York, 13:00 on a half day, never on a weekend or market holiday) on the still-forming bar of its interval. A pre_close alert delivers ONLY its pre-close evaluations (its closed bars still advance the script; their events are not delivered), at most once per session; the fire's `reason.details` carry `phase: \"pre_close\"`, `offset_minutes` and `session_close`.",
+        "required": [
+          "kind"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "bar_close",
+              "pre_close"
+            ],
+            "description": "`bar_close` at each bar close, `pre_close` before the session close"
+          },
+          "offset_minutes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 720,
+            "description": "pre_close: minutes before the session close (1–720; any interval)"
+          },
+          "exchange": {
+            "type": "string",
+            "enum": [
+              "NYSE",
+              "NASDAQ",
+              "AMEX",
+              "NYSEARCA",
+              "NYSEMKT",
+              "BATS",
+              "CBOE"
+            ],
+            "description": "pre_close: the venue whose close anchors the evaluation (every US venue shares the 16:00 New York close and the US holiday calendar); optional for a US stock, required for crypto and commodities"
           }
         }
       },
@@ -11868,7 +12019,10 @@
               "15m",
               "30m",
               "1h",
-              "1d"
+              "4h",
+              "1d",
+              "1w",
+              "1mo"
             ],
             "description": "Read on another timeframe of the same symbol (absent = the alert's interval)"
           }
@@ -11968,14 +12122,14 @@
           "cooldown_seconds": {
             "type": "integer",
             "minimum": 0,
-            "maximum": 31536000,
-            "description": "Minimum seconds between fires"
+            "maximum": 31622400,
+            "description": "Minimum seconds between fires (at most 366 days)"
           },
           "cooldown_bars": {
             "type": "integer",
             "minimum": 1,
-            "maximum": 10000,
-            "description": "Minimum bars between fires (script / indicator types), counted like chartlang: the bar of a fire must start at least cooldown_bars × the interval after the bar of the last fire, so a night or a weekend counts as time"
+            "maximum": 1000000,
+            "description": "Minimum bars between fires (script / indicator types), counted like chartlang: the bar of a fire must start at least cooldown_bars × the interval after the bar of the last fire, so a night or a weekend counts as time (half a bar of slack: a calendar `1mo` / `1w` / `1d` bar shorter than the nominal interval, a February or a DST day, still counts as a whole bar)"
           },
           "max_fires": {
             "type": "integer",
@@ -12052,7 +12206,7 @@
               "interval": {
                 "type": "integer",
                 "minimum": 1,
-                "maximum": 1000,
+                "maximum": 1000000,
                 "description": "Windows repeat every N units (every)"
               },
               "unit": {
@@ -12151,7 +12305,7 @@
           "symbol": {
             "type": "string",
             "maxLength": 64,
-            "description": "The company (or, for the types that take ETFs, the US ETF) by ticker. Same types as `cik`; price types, script and indicator: the instrument (a US stock / ETF ticker, or a crypto slug / ticker)"
+            "description": "The company (or, for the types that take ETFs, the US ETF) by ticker. Same types as `cik`; price types, script and indicator: the instrument (a US stock / ETF ticker, a crypto slug / ticker, or a commodity `XAUUSD` / `XAGUSD`)"
           },
           "form_types": {
             "type": "array",
@@ -12530,9 +12684,10 @@
             "type": "string",
             "enum": [
               "us_stock",
-              "crypto"
+              "crypto",
+              "commodity"
             ],
-            "description": "The instrument's market: `us_stock` (US stocks and ETFs) or `crypto` (coins by CoinGecko slug or ticker). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder, script, indicator"
+            "description": "The instrument's market: `us_stock` (US stocks and ETFs), `crypto` (coins by CoinGecko slug or ticker) or `commodity` (`XAUUSD` / `XAGUSD`, only when named). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder, script, indicator"
           },
           "operator": {
             "type": "string",
@@ -12604,7 +12759,7 @@
               "1w",
               "1mo"
             ],
-            "description": "The bar evaluated at its close. volume_spike (1h, 1d, 1w, 1mo); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d; the plan's shortest: FREE / LITE 1h, STANDARD 5m, PRO 1m)"
+            "description": "The bar evaluated at its close. volume_spike (1m, 5m, 15m, 30m, 1h, 1d, 1w, 1mo; every closed bar); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w, 1mo; the plan's shortest: FREE / LITE 1h, STANDARD 5m, PRO 1m)"
           },
           "multiple": {
             "type": "number",
@@ -12652,7 +12807,7 @@
               "once_per_bar_close",
               "every_time"
             ],
-            "description": "price_reminder: when the reminder fires — once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. script: when the script's alerts deliver — `once_per_bar_close` (default) at most once per alert id and closed bar, `once_per_bar` the same, `every_time` every evaluation, `once` the first evaluation only. indicator: the same (`once` = this alert's first fire only). price_reminder, script, indicator"
+            "description": "price_reminder: when the reminder fires — once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. script: when the script's alerts deliver — `once_per_bar_close` (default) at most once per alert id and closed bar, `once_per_bar` the same, `every_time` every evaluation, `once` the first evaluation only. indicator: the same (`once` = this alert's first fire only). With `evaluation` pre_close: one delivery per alert id and session (`every_time`: every signal of the pass; `once`: the first only). price_reminder, script, indicator"
           },
           "at": {
             "type": "string",
@@ -12684,6 +12839,21 @@
             "additionalProperties": true,
             "description": "Values for the script's declared inputs (checked against its manifest; absent = the defaults). script"
           },
+          "series_inputs": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ScriptSeriesInputInput"
+            },
+            "description": "A script chain: what feeds each of the script's `input.externalSeries` inputs, by its input key (every such input must be bound; ≤ 4 `builtin_indicator`, ≤ 16 in the plan). script"
+          },
+          "nodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScriptNodeInput"
+            },
+            "maxItems": 4,
+            "description": "The producer scripts `script_output` series inputs read, producers before the nodes that read them (≤ 8 dependencies, ≤ 16,384 bytes with series_inputs). script"
+          },
           "alert_ids": {
             "type": "array",
             "items": {
@@ -12693,6 +12863,9 @@
             "maxItems": 50,
             "description": "Only these of the script's alerts (its version's `alert_ids`); empty = all. script"
           },
+          "evaluation": {
+            "$ref": "#/components/schemas/ScriptEvaluationInput"
+          },
           "template": {
             "$ref": "#/components/schemas/IndicatorTemplateRef"
           },
@@ -12701,6 +12874,134 @@
           },
           "filters": {
             "$ref": "#/components/schemas/IndicatorFiltersInput"
+          }
+        }
+      },
+      "ScriptSeriesInputInput": {
+        "type": "object",
+        "title": "ScriptSeriesInputInput",
+        "description": "What feeds one `input.externalSeries` input of a script (a script chain), one value per bar on the alert's symbol, interval and bars; a value the producer does not give that bar reads NaN. (request form)",
+        "required": [
+          "kind"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "ohlc",
+              "builtin_indicator",
+              "script_output"
+            ],
+            "description": "What feeds the input every bar: `ohlc` a bar field, `builtin_indicator` a built-in indicator's series, `script_output` a plot of a node of `nodes`"
+          },
+          "field": {
+            "type": "string",
+            "enum": [
+              "open",
+              "high",
+              "low",
+              "close",
+              "hl2",
+              "hlc3",
+              "ohlc4",
+              "hlcc4"
+            ],
+            "description": "ohlc: the bar field (`hl2` = (high + low) / 2, `hlc3`, `ohlc4`, `hlcc4` = (high + low + 2 × close) / 4; no volume)"
+          },
+          "indicator_id": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "builtin_indicator: the built-in indicator (`rsi`, `sma`, `ema`, `macd`, `bb`, …; the indicator condition's ids)"
+          },
+          "series_key": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "builtin_indicator: which output series (`rsi`, `macd` / `signal` / `histogram`, `upper` / `basis` / `lower`, …)"
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "builtin_indicator: the indicator's parameters (`length`, `source`, …; absent = its defaults)"
+          },
+          "node_key": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "script_output: the `node_key` of the producing node"
+          },
+          "slot_id": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "script_output: the plot slot of the node's script version (its `manifest.plots[].slotId`)"
+          }
+        }
+      },
+      "ScriptNodeInput": {
+        "type": "object",
+        "title": "ScriptNodeInput",
+        "description": "A producer script of a chain: evaluated on the alert's symbol, interval and bars before the scripts that read its plots. (request form)",
+        "required": [
+          "node_key",
+          "script_version_id"
+        ],
+        "properties": {
+          "node_key": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "The node's name in this plan (unique, not `root`), named by `script_output` series inputs"
+          },
+          "script_version_id": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "The producer's script version (`scv_…`, status ok, of a script of this account)"
+          },
+          "inputs": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Values for the producer's declared inputs (absent = the defaults)"
+          },
+          "series_inputs": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ScriptSeriesInputInput"
+            },
+            "description": "The producer's own `input.externalSeries` inputs (a built-in series, a bar field, or an earlier node's plot)"
+          }
+        }
+      },
+      "ScriptEvaluationInput": {
+        "type": "object",
+        "title": "ScriptEvaluationInput",
+        "description": "When a script / indicator alert evaluates: `bar_close` (default) at each close of its interval, or `pre_close` — `offset_minutes` before the US session close (16:00 New York, 13:00 on a half day, never on a weekend or market holiday) on the still-forming bar of its interval. A pre_close alert delivers ONLY its pre-close evaluations (its closed bars still advance the script; their events are not delivered), at most once per session; the fire's `reason.details` carry `phase: \"pre_close\"`, `offset_minutes` and `session_close`. (request form)",
+        "required": [
+          "kind"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "bar_close",
+              "pre_close"
+            ],
+            "description": "`bar_close` at each bar close, `pre_close` before the session close"
+          },
+          "offset_minutes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 720,
+            "description": "pre_close: minutes before the session close (1–720; any interval)"
+          },
+          "exchange": {
+            "type": "string",
+            "enum": [
+              "NYSE",
+              "NASDAQ",
+              "AMEX",
+              "NYSEARCA",
+              "NYSEMKT",
+              "BATS",
+              "CBOE"
+            ],
+            "description": "pre_close: the venue whose close anchors the evaluation (every US venue shares the 16:00 New York close and the US holiday calendar); optional for a US stock, required for crypto and commodities"
           }
         }
       },
@@ -12886,7 +13187,10 @@
               "15m",
               "30m",
               "1h",
-              "1d"
+              "4h",
+              "1d",
+              "1w",
+              "1mo"
             ],
             "description": "Read on another timeframe of the same symbol (absent = the alert's interval)"
           }
@@ -12929,14 +13233,14 @@
           "cooldown_seconds": {
             "type": "integer",
             "minimum": 0,
-            "maximum": 31536000,
-            "description": "Minimum seconds between fires"
+            "maximum": 31622400,
+            "description": "Minimum seconds between fires (at most 366 days)"
           },
           "cooldown_bars": {
             "type": "integer",
             "minimum": 1,
-            "maximum": 10000,
-            "description": "Minimum bars between fires (script / indicator types), counted like chartlang: the bar of a fire must start at least cooldown_bars × the interval after the bar of the last fire, so a night or a weekend counts as time"
+            "maximum": 1000000,
+            "description": "Minimum bars between fires (script / indicator types), counted like chartlang: the bar of a fire must start at least cooldown_bars × the interval after the bar of the last fire, so a night or a weekend counts as time (half a bar of slack: a calendar `1mo` / `1w` / `1d` bar shorter than the nominal interval, a February or a DST day, still counts as a whole bar)"
           },
           "max_fires": {
             "type": "integer",
@@ -13009,7 +13313,7 @@
               "interval": {
                 "type": "integer",
                 "minimum": 1,
-                "maximum": 1000,
+                "maximum": 1000000,
                 "description": "Windows repeat every N units (every)"
               },
               "unit": {
@@ -31403,6 +31707,7 @@
         "tags": [
           "Insider trades"
         ],
+        "description": "Insider transaction lines (Form 4; Forms 3 and 5 where the SEC insider data set supplies them), newest filing first. Since release 5.7 the default result includes derivative-security lines (options, RSUs, warrants; `is_derivative: true` on the row) beside the non-derivative ones. `is_derivative=false` restores the non-derivative-only result of the releases before 5.7, which is what a buy / sell aggregate wants.",
         "parameters": [
           {
             "schema": {
@@ -31502,7 +31807,7 @@
             "in": "query",
             "name": "is_derivative",
             "required": false,
-            "description": "true = only derivative-security lines; false = only non-derivative lines",
+            "description": "Omitted = derivative-security lines (options, RSUs, warrants) AND non-derivative lines, the default since release 5.7; true = only derivative-security lines; false = only non-derivative lines (the result of the releases before 5.7: use it for a buy / sell aggregate)",
             "example": false
           },
           {
@@ -31732,7 +32037,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "standard",
         "x-credits": 1,
         "x-license": "redistribute",
@@ -32557,7 +32861,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Issuer: a CIK (all digits, any padding; any Form D issuer, listed or not) or the ticker of a listed company — ONE value; matches the primary issuer and co-issuers. Without it: every offering. A US ETF ticker of either identity (SPY, TQQQ) answers one 404 `not_covered` naming it: no Form D data exists for a fund (an ETF registrant's CIK still reads the door)",
+            "description": "Issuer: a CIK (all digits, any padding; any Form D issuer, listed or not) or the ticker of a listed company — ONE value; matches the primary issuer and co-issuers. Without it: every offering. A US ETF answers one 404 `not_covered` naming it, whatever identifier names it — a ticker of either identity (SPY, TQQQ) or the CIK of an ETF that is its own registrant (SPY's): no Form D data exists for a fund. A CIK of no listed company (a private issuer) still reads the Form D data",
             "example": "0001991882"
           },
           {
@@ -32767,6 +33071,75 @@
                       }
                     }
                   }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "offering_id": "021-599503",
+                      "file_number": "021-599503",
+                      "first_accession": "0001104659-26-112421",
+                      "latest_accession": "0001104659-26-112421",
+                      "accessions": [
+                        "0001104659-26-112421"
+                      ],
+                      "primary_issuer_cik": "0002122354",
+                      "issuer_name": "Third Point Private Capital Income Fund",
+                      "co_issuer_ciks": [],
+                      "filed_first": "2026-09-30",
+                      "filed_latest": "2026-09-30",
+                      "sale_date": null,
+                      "first_sale_yet_to_occur": true,
+                      "amendment_count": 0,
+                      "original_held": true,
+                      "is_amendment": false,
+                      "exemptions": [
+                        "06b"
+                      ],
+                      "industry_group": "Pooled Investment Fund",
+                      "investment_fund_type": "Other Investment Fund",
+                      "is_40_act": false,
+                      "security_types": [
+                        "pooled_investment_fund"
+                      ],
+                      "is_business_combination": false,
+                      "more_than_one_year": true,
+                      "min_investment": 10000,
+                      "total_offering_amount": null,
+                      "total_sold": 0,
+                      "total_remaining": null,
+                      "indefinite_amount": true,
+                      "has_non_accredited": false,
+                      "non_accredited_count": null,
+                      "investor_count": 0,
+                      "revenue_range": null,
+                      "net_asset_value_range": "Decline to Disclose",
+                      "sales_commission": 0,
+                      "finders_fee": 0,
+                      "related_persons": [
+                        {
+                          "name": "Daniel Loeb",
+                          "relationships": [
+                            "Executive Officer"
+                          ],
+                          "clarification": "Managing Member of Third Point Advisors L.L.C. the Ultimate Managing Member of the Issuer's Investment Advisor"
+                        }
+                      ],
+                      "sic_code": null,
+                      "jurisdiction": "DELAWARE",
+                      "entity_type": "Other - Statutory Trust",
+                      "year_of_inc": "2025"
+                    }
+                  ],
+                  "has_more": true,
+                  "next_cursor": "eyJ2IjoyLCJhZnRlciI6WzAsImV5SjJJam94TENKeElqb2lOekF3TWpRM1pqWmhNRGxsWmpBM05ETmpZVEkxWldSaElpd2ljQ0k2SWpJd01qWXRNVEV0TVRkVU1UTTZORFk2TkRBdU9UWXhNemt3S3pBd09qQXdJaXdpYXlJNld5SXlNREkyTFRBNUxUTXdJaXdpTURJeExUVTVPVFEzT1NKZGZRIiwyNSwwLDBdLCJmIjoi…",
+                  "meta": {
+                    "coverage": {
+                      "state": "complete",
+                      "through": null,
+                      "retry_after_s": null
+                    },
+                    "pinned_at": "2026-11-17T13:46:40.961Z"
+                  }
                 }
               }
             }
@@ -32904,6 +33277,61 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Offering"
+                },
+                "example": {
+                  "offering_id": "021-528681",
+                  "file_number": "021-528681",
+                  "first_accession": "0001991882-24-000001",
+                  "latest_accession": "0001991882-26-000001",
+                  "accessions": [
+                    "0001991882-24-000001"
+                  ],
+                  "primary_issuer_cik": "0001991882",
+                  "issuer_name": "Southview Timberland Fund LLC",
+                  "co_issuer_ciks": [],
+                  "filed_first": "2024-11-05",
+                  "filed_latest": "2026-09-30",
+                  "sale_date": "2025-01-20",
+                  "first_sale_yet_to_occur": null,
+                  "amendment_count": 2,
+                  "original_held": true,
+                  "is_amendment": true,
+                  "exemptions": [
+                    "06c"
+                  ],
+                  "industry_group": "Other Real Estate",
+                  "investment_fund_type": null,
+                  "is_40_act": null,
+                  "security_types": [
+                    "equity"
+                  ],
+                  "is_business_combination": false,
+                  "more_than_one_year": false,
+                  "min_investment": 100000,
+                  "total_offering_amount": 50000000,
+                  "total_sold": 4665000,
+                  "total_remaining": 45335000,
+                  "indefinite_amount": false,
+                  "has_non_accredited": false,
+                  "non_accredited_count": null,
+                  "investor_count": 16,
+                  "revenue_range": "Decline to Disclose",
+                  "net_asset_value_range": null,
+                  "sales_commission": 0,
+                  "finders_fee": 0,
+                  "related_persons": [
+                    {
+                      "name": "John Brenard",
+                      "relationships": [
+                        "Executive Officer"
+                      ],
+                      "clarification": null
+                    }
+                  ],
+                  "sic_code": null,
+                  "jurisdiction": "DELAWARE",
+                  "entity_type": "Limited Liability Company",
+                  "year_of_inc": "2023"
                 }
               }
             }
@@ -43484,7 +43912,7 @@
                               "details": {
                                 "type": "object",
                                 "additionalProperties": true,
-                                "description": "Type-specific facts of the fire. Price types: `operator`, `level`, `trigger_price`, `previous_price`, `tick_time` (+ `baseline` / `baseline_price` / `percent_moved` for price_move, `bar_volume` / `baseline_volume` / `ratio` for volume_spike, `price` / `stale` / `scheduled_at` for price_reminder) — the crossed level and the trigger price, never a price series. script / indicator: `bar_time`, `interval`, `script_version_id`, `frequency` (+ `recovered` for a bar replayed after a restart) and the script's `kind` / `id` / `title` / `severity` / `meta`; a shared indicator threshold instead `comparator`, `threshold`, `value`, `previous_value`"
+                                "description": "Type-specific facts of the fire. Price types: `operator`, `level`, `trigger_price`, `previous_price`, `tick_time` (+ `baseline` / `baseline_price` / `percent_moved` for price_move, `bar_volume` / `baseline_volume` / `ratio` for volume_spike, `price` / `stale` / `scheduled_at` for price_reminder) — the crossed level and the trigger price, never a price series. script / indicator: `bar_time`, `interval`, `script_version_id`, `frequency` (+ `recovered` for a bar replayed after a restart; a pre-close fire `phase: \"pre_close\"`, `offset_minutes` and `session_close`, `bar_time` = the forming bar) and the script's `kind` / `id` / `title` / `severity` / `meta`; a shared indicator threshold instead `comparator`, `threshold`, `value`, `previous_value`"
                               }
                             }
                           },

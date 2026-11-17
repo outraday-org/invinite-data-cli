@@ -265,6 +265,21 @@ diagnostics, fix the source, upload again with `--script <scr-id>`. Sources are 
 `interval` is bounded by the plan (FREE / LITE 1h, STANDARD 5m, PRO 1m). While hosted scripts are switched off the
 routes answer 503 `unavailable`.
 
+Chains and pre-close (Data API 6.4): a script's `input.externalSeries` inputs are bound per alert in
+`condition.series_inputs`, keyed by the input's key in the script: `{"kind":"ohlc","field":"hl2"}`,
+`{"kind":"builtin_indicator","indicator_id":"rsi","series_key":"rsi","params":{"length":14}}` or
+`{"kind":"script_output","node_key":"n1","slot_id":"<plot slotId>"}`, the producer listed in `condition.nodes`
+(`[{"node_key":"n1","script_version_id":"<scv-id>"}]`, at most 4 nodes; the slot ids are the producer version's
+`manifest.plots[].slotId` from `invd script-versions list`). `condition.evaluation`
+`{"kind":"pre_close","offset_minutes":15}` evaluates the forming bar 15 minutes before the US close and delivers only
+then (`exchange`, e.g. `"NYSE"`, is required for crypto / commodities). Intervals `1w` / `1mo` and
+`asset_class: "commodity"` (`XAUUSD`, `XAGUSD`) work for both types.
+
+```bash
+invd alerts create --body '{"type":"script","condition":{"symbol":"AAPL","interval":"1h","script_version_id":"<consumer-scv>","series_inputs":{"signal":{"kind":"script_output","node_key":"n1","slot_id":"<slot-id>"}},"nodes":[{"node_key":"n1","script_version_id":"<producer-scv>"}]}}' --json
+invd alerts create --body '{"type":"indicator","condition":{"symbol":"SPY","interval":"1d","template":{"key":"rsi-cross"},"evaluation":{"kind":"pre_close","offset_minutes":15}}}' --json
+```
+
 ## Commands Reference
 
 One example per command. `invd <group> <action> --help` lists every flag; values like `evt_01JC8M2X` are the spec's
