@@ -1,6 +1,6 @@
 {
   "specVersion": "2026-11-13",
-  "specSha256": "bb40d2112a59807f8d937b09b8e559a9d364aff5d2160c6dd6ab74706e6486d7",
+  "specSha256": "a9611b4f99fc2e81abff7e5cd7ffad5d060a77c166bd32a1028052d967f0b909",
   "groups": [
     {
       "name": "alert-events",
@@ -450,7 +450,7 @@
             ],
             "type": "string",
             "required": false,
-            "description": "The company (or, for the types that take ETFs, the US ETF) by ticker. Same types as `cik`; price types, script and indicator: the instrument (a US stock / ETF ticker, or a crypto slug / ticker)",
+            "description": "The company (or, for the types that take ETFs, the US ETF) by ticker. Same types as `cik`; price types, script and indicator: the instrument (a US stock / ETF ticker, a crypto slug / ticker, or a commodity `XAUUSD` / `XAGUSD`)",
             "flag": "symbol"
           },
           {
@@ -712,7 +712,7 @@
             ],
             "type": "string",
             "required": false,
-            "description": "The instrument's market: `us_stock` (US stocks and ETFs) or `crypto` (coins by CoinGecko slug or ticker). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder, script, indicator",
+            "description": "The instrument's market: `us_stock` (US stocks and ETFs), `crypto` (coins by CoinGecko slug or ticker) or `commodity` (`XAUUSD` / `XAGUSD`, only when named). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder, script, indicator",
             "flag": "asset-class"
           },
           {
@@ -792,7 +792,7 @@
             ],
             "type": "string",
             "required": false,
-            "description": "The bar evaluated at its close. volume_spike (1h, 1d, 1w, 1mo); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d; the plan's shortest: FREE / LITE 1h, STANDARD 5m, PRO 1m)",
+            "description": "The bar evaluated at its close. volume_spike (1m, 5m, 15m, 30m, 1h, 1d, 1w, 1mo; every closed bar); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w, 1mo; the plan's shortest: FREE / LITE 1h, STANDARD 5m, PRO 1m)",
             "flag": "interval"
           },
           {
@@ -852,7 +852,7 @@
             ],
             "type": "string",
             "required": false,
-            "description": "price_reminder: when the reminder fires — once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. script: when the script's alerts deliver — `once_per_bar_close` (default) at most once per alert id and closed bar, `once_per_bar` the same, `every_time` every evaluation, `once` the first evaluation only. indicator: the same (`once` = this alert's first fire only). price_reminder, script, indicator",
+            "description": "price_reminder: when the reminder fires — once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. script: when the script's alerts deliver — `once_per_bar_close` (default) at most once per alert id and closed bar, `once_per_bar` the same, `every_time` every evaluation, `once` the first evaluation only. indicator: the same (`once` = this alert's first fire only). With `evaluation` pre_close: one delivery per alert id and session (`every_time`: every signal of the pass; `once`: the first only). price_reminder, script, indicator",
             "flag": "frequency"
           },
           {
@@ -924,7 +924,7 @@
             ],
             "type": "integer",
             "required": false,
-            "description": "Minimum seconds between fires",
+            "description": "Minimum seconds between fires (at most 366 days)",
             "flag": "cooldown-seconds"
           },
           {
@@ -934,7 +934,7 @@
             ],
             "type": "integer",
             "required": false,
-            "description": "Minimum bars between fires (script / indicator types), counted like chartlang: the bar of a fire must start at least cooldown_bars × the interval after the bar of the last fire, so a night or a weekend counts as time",
+            "description": "Minimum bars between fires (script / indicator types), counted like chartlang: the bar of a fire must start at least cooldown_bars × the interval after the bar of the last fire, so a night or a weekend counts as time (half a bar of slack: a calendar `1mo` / `1w` / `1d` bar shorter than the nominal interval, a February or a DST day, still counts as a whole bar)",
             "flag": "cooldown-bars"
           },
           {
@@ -1580,7 +1580,7 @@
             ],
             "type": "string",
             "required": false,
-            "description": "The company (or, for the types that take ETFs, the US ETF) by ticker. Same types as `cik`; price types, script and indicator: the instrument (a US stock / ETF ticker, or a crypto slug / ticker)",
+            "description": "The company (or, for the types that take ETFs, the US ETF) by ticker. Same types as `cik`; price types, script and indicator: the instrument (a US stock / ETF ticker, a crypto slug / ticker, or a commodity `XAUUSD` / `XAGUSD`)",
             "flag": "symbol"
           },
           {
@@ -1842,7 +1842,7 @@
             ],
             "type": "string",
             "required": false,
-            "description": "The instrument's market: `us_stock` (US stocks and ETFs) or `crypto` (coins by CoinGecko slug or ticker). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder, script, indicator",
+            "description": "The instrument's market: `us_stock` (US stocks and ETFs), `crypto` (coins by CoinGecko slug or ticker) or `commodity` (`XAUUSD` / `XAGUSD`, only when named). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder, script, indicator",
             "flag": "asset-class"
           },
           {
@@ -1922,7 +1922,7 @@
             ],
             "type": "string",
             "required": false,
-            "description": "The bar evaluated at its close. volume_spike (1h, 1d, 1w, 1mo); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d; the plan's shortest: FREE / LITE 1h, STANDARD 5m, PRO 1m)",
+            "description": "The bar evaluated at its close. volume_spike (1m, 5m, 15m, 30m, 1h, 1d, 1w, 1mo; every closed bar); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w, 1mo; the plan's shortest: FREE / LITE 1h, STANDARD 5m, PRO 1m)",
             "flag": "interval"
           },
           {
@@ -1982,7 +1982,7 @@
             ],
             "type": "string",
             "required": false,
-            "description": "price_reminder: when the reminder fires — once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. script: when the script's alerts deliver — `once_per_bar_close` (default) at most once per alert id and closed bar, `once_per_bar` the same, `every_time` every evaluation, `once` the first evaluation only. indicator: the same (`once` = this alert's first fire only). price_reminder, script, indicator",
+            "description": "price_reminder: when the reminder fires — once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. script: when the script's alerts deliver — `once_per_bar_close` (default) at most once per alert id and closed bar, `once_per_bar` the same, `every_time` every evaluation, `once` the first evaluation only. indicator: the same (`once` = this alert's first fire only). With `evaluation` pre_close: one delivery per alert id and session (`every_time`: every signal of the pass; `once`: the first only). price_reminder, script, indicator",
             "flag": "frequency"
           },
           {
@@ -2054,7 +2054,7 @@
             ],
             "type": "integer",
             "required": false,
-            "description": "Minimum seconds between fires",
+            "description": "Minimum seconds between fires (at most 366 days)",
             "flag": "cooldown-seconds"
           },
           {
@@ -2064,7 +2064,7 @@
             ],
             "type": "integer",
             "required": false,
-            "description": "Minimum bars between fires (script / indicator types), counted like chartlang: the bar of a fire must start at least cooldown_bars × the interval after the bar of the last fire, so a night or a weekend counts as time",
+            "description": "Minimum bars between fires (script / indicator types), counted like chartlang: the bar of a fire must start at least cooldown_bars × the interval after the bar of the last fire, so a night or a weekend counts as time (half a bar of slack: a calendar `1mo` / `1w` / `1d` bar shorter than the nominal interval, a February or a DST day, still counts as a whole bar)",
             "flag": "cooldown-bars"
           },
           {
@@ -7931,7 +7931,7 @@
           "required": false,
           "type": "boolean",
           "example": false,
-          "description": "true = only derivative-security lines; false = only non-derivative lines",
+          "description": "Omitted = derivative-security lines (options, RSUs, warrants) AND non-derivative lines, the default since release 5.7; true = only derivative-security lines; false = only non-derivative lines (the result of the releases before 5.7: use it for a buy / sell aggregate)",
           "flag": "is-derivative"
         },
         {
@@ -9734,7 +9734,7 @@
           "required": false,
           "type": "string",
           "example": "0001991882",
-          "description": "Issuer: a CIK (all digits, any padding; any Form D issuer, listed or not) or the ticker of a listed company — ONE value; matches the primary issuer and co-issuers. Without it: every offering. A US ETF ticker of either identity (SPY, TQQQ) answers one 404 `not_covered` naming it: no Form D data exists for a fund (an ETF registrant's CIK still reads the door)",
+          "description": "Issuer: a CIK (all digits, any padding; any Form D issuer, listed or not) or the ticker of a listed company — ONE value; matches the primary issuer and co-issuers. Without it: every offering. A US ETF answers one 404 `not_covered` naming it, whatever identifier names it — a ticker of either identity (SPY, TQQQ) or the CIK of an ETF that is its own registrant (SPY's): no Form D data exists for a fund. A CIK of no listed company (a private issuer) still reads the Form D data",
           "flag": "company"
         },
         {
