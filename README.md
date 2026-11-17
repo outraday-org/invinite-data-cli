@@ -506,6 +506,19 @@ The exit codes are the same in `invd` and the Web CLI `inv`:
 | 7 | partial: an `--all` cut short by a failure (resume with the printed `--cursor`) or a short download |
 | 130 / 143 | interrupted (Ctrl-C / SIGTERM); an `--all` walk prints its resume cursor first |
 
+## Changes in 7.3.1
+
+7.3.1 follows Data API 6.3.1 (US ETFs on the issuer commands). No command, flag or exit code changes:
+
+- `invd companies get TQQQ` answers the ETF's profile (a series of a multi-series trust: its trust's CIK, category
+  `ETF`); every address field (`street`, `city`, `state`, `zip_code`) shows `—` for a US ETF.
+- `invd search filings --company TQQQ` keeps only the trust's filings that name TQQQ's series; such an ETF is searched
+  alone.
+- 13F holdings and holding changes, news, news search, announcements and Form D offerings answer a US ETF of either
+  identity (SPY, TQQQ) with the same `not_covered` error that names it. The holder lists (`invd etf-holdings
+  --company SPY`, `invd fund-holdings SPY`) keep an ETF that is its own registrant and name a trust series such as
+  TQQQ as not served.
+
 ## Changes in 7.2
 
 7.2 follows Data API release 6.2 (US ETFs):

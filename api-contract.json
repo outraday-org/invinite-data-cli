@@ -97,9 +97,9 @@
     "secdoorsOpenapiSha256": "a1a55a764e15ebf79d3c0fa4051731546b33106833b55c9527d047aae095727d",
     "repository": "https://github.com/outraday-org/invinite-data-api",
     "version": "1.0.0",
-    "specSha256": "e3d860955d04bf5b094aa61d439c9bf1d732d368ab247f242ac845bb580748d6",
+    "specSha256": "58cd9cd7abd3dc813921eec08e4ae654710dda824740b252734f7583c985d4db",
     "sourceHashes": {
-      "openapi.json": "e3d860955d04bf5b094aa61d439c9bf1d732d368ab247f242ac845bb580748d6",
+      "openapi.json": "58cd9cd7abd3dc813921eec08e4ae654710dda824740b252734f7583c985d4db",
       "package.json": "99b3c27d5276c1f58767b1836cf1878af9ac626f2552c01500245df1a5ee9647",
       "scripts/export-reference.ts": "d925c60f0f895b7b55ae7506e30b1f70a82316e3650c5f7bba0c02f64fb2f09a",
       "scripts/gen-secdoors-types.ts": "860afc486f8041ddfbb515bf5a5a0de8ac9c7237af1a0238d0c08aece7dece1e",
@@ -110,7 +110,7 @@
       "src/lib/secStore/secdoors-openapi.json": "b9d58ba4e7ed700493a4d7793abb34fbfa68606a796f1c305d6f5ddefa5c9371",
       "src/lib/v2/problem.ts": "96e10d94f2d2ae3d16014a6267668b59ff2b4212ea109183fbb50cd09974df36"
     },
-    "revision": "b270785f45ac87f2e10f28291827238dcd8dfffe",
-    "fingerprint": "3fb071a371cf844cd4413218c884d85e719280c69033abdecbcd095b2d5f978f"
+    "revision": "16f87b41dba5ae6fcfe397daec048eaa26b7e615",
+    "fingerprint": "663faa9ed1dbada142b012e75f63f544c582f2561e66c305aa5758ce79cfd7f6"
   }
 }
