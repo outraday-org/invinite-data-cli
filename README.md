@@ -514,10 +514,9 @@ The exit codes are the same in `invd` and the Web CLI `inv`:
   `ETF`); every address field (`street`, `city`, `state`, `zip_code`) shows `—` for a US ETF.
 - `invd search filings --company TQQQ` keeps only the trust's filings that name TQQQ's series; such an ETF is searched
   alone.
-- 13F holdings and holding changes, news, news search, announcements and Form D offerings answer a US ETF of either
-  identity (SPY, TQQQ) with the same `not_covered` error that names it. The holder lists (`invd etf-holdings
-  --company SPY`, `invd fund-holdings SPY`) keep an ETF that is its own registrant and name a trust series such as
-  TQQQ as not served.
+- News, news search, announcements and Form D offerings answer a US ETF of either identity (SPY, TQQQ) with the same
+  `not_covered` error that names it. The holder lists (`invd holdings SPY`, `invd etf-holdings --company SPY`,
+  `invd fund-holdings SPY`) keep an ETF that is its own registrant and name a trust series such as TQQQ as not served.
 
 ## Changes in 7.2
 
