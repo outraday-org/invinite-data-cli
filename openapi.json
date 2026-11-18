@@ -30951,6 +30951,50 @@
                       }
                     }
                   }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "fund_key": "S000002848",
+                      "series_id": "S000002848",
+                      "series_name": "VANGUARD TOTAL STOCK MARKET INDEX FUND",
+                      "registrant_cik": "0000036405",
+                      "registrant_name": "VANGUARD INDEX FUNDS",
+                      "class_tickers": [
+                        "VITSX"
+                      ],
+                      "report_date": "2026-06-30",
+                      "accession_number": "0000036405-26-000480",
+                      "issuer_cik": "0000320193",
+                      "issuer_name": "Apple Inc.",
+                      "cusip": null,
+                      "isin": null,
+                      "ticker": "AAPL",
+                      "value_usd": 134920536523.84,
+                      "pct_nav": 5.871626660176,
+                      "balance": 466272244,
+                      "unit": "NS",
+                      "asset_cat": "EC",
+                      "issuer_resolution": "cusip_cache"
+                    }
+                  ],
+                  "has_more": true,
+                  "next_cursor": "eyJ2IjoyLCJhZnRlciI6WzAsImV5SjJJam94TENKeElqb2laV1E1WVRBek1Ua3laRGN6TW1FM01qRmhOekU0WVRFNUlpd2ljQ0k2SWpJd01qWXRNVEV0TVRoVU1EWTZORGM2TkRjdU1EUTNNRGcwS3pBd09qQXdJaXdpYXlJNld5SXpNVGN4TlRneU5qVTBMakUyTURBd01EQXdNREF3TUNJc0lsTXdNREF3TURZNU9EUWlY…",
+                  "meta": {
+                    "coverage": {
+                      "state": "complete",
+                      "through": null,
+                      "retry_after_s": null
+                    },
+                    "pinned_at": "2026-11-18T06:47:47.047Z",
+                    "counting": "One row per fund from its latest public N-PORT report on or before period_end (company=: the fund's positions in the issuer summed); rows are never summed across funds",
+                    "source": {
+                      "dataset_release": "2026q3",
+                      "version_id": null,
+                      "accession": "0000320193-26-000026",
+                      "fetched_at": null
+                    }
+                  }
                 }
               }
             }
