@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "7.5.0",
+    "version": "8.0.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -11,19 +11,19 @@
     },
     "verifiedOn": "2026-11-19",
     "sourceHashes": {
-      "api-contract.json": "e0aba0419112db900458f0238be02d692b86ba61cc9fac7f3a96c688e0ab8035",
-      "openapi.json": "437c3db0651965b370953e90fb8fecaed703ba96d81e8eb6a3b7d5bc82d3c8eb",
-      "package.json": "824e157b1f53ef4267cc32df2347d905c0c61478758e148a039c6f0708962e3a",
+      "api-contract.json": "54282e184200573a651daaf16f03ada636260b5117e2296dad1da8abe65ef4af",
+      "openapi.json": "ba292c435be5eac8e943368d5df6eb163a62410c0b6a30570c4eba5d32deaad7",
+      "package.json": "0af52cea263248535271397b0e3672744a12371c23c5cd0026dd53fb3b081a46",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "ed216f689f39e3dbf72c7d6a1c74ee6cb9c22fbaf9982a9b4ddee2873f2d5536",
-      "src/cli.ts": "1e15c5a3a1eaac55d229941b57c40a7b587c9dda6440b8badf9d5dfa3b350149",
+      "src/cli.ts": "c2bf7d89535b84de12afe399455d6f85e9f722529598e545acdae54ca63b0dda",
       "src/client/api-client.ts": "17d0817be6964b04fd03ccbc5ff91492551d13260664190510d5211a4c6e883e",
       "src/client/download.ts": "7e7ff500f176d859a0d94788b02b364218580eee9834a8394262d22cb2b0dda4",
       "src/client/pagination.ts": "2b759864d496f021ed8b01147a6fce1576315f0b0e789fb3022b2b8857534efe",
       "src/commands/agent-setup.ts": "a0a1be911a6942aa22647347d27ba3667a5810b197d787500292763b65abec90",
       "src/commands/alert-events.ts": "4cf28e95f53f18bd5e75dec9968529f68ee6ec1838da57f225aa995be951a29c",
-      "src/commands/api.ts": "2f56e36b3df6223e2e3f97c8d9c46f36eced601364eb7ad6be762d21e171a203",
+      "src/commands/api.ts": "90133127a64a46f1e6fa2a93e2546eafedd7e48cc96aceba9add49bb83b63616",
       "src/commands/auth.ts": "1f3369f5d1de59064e6b2b3f9e11b925695a8055fe91284ab9ea0dc5871fb223",
       "src/commands/completion.ts": "d7aeaa835ac1fe16b3c9a0165a1a5e8a85cb31262f498499d829bcb7a5f88d73",
       "src/commands/config.ts": "0830211879fdfc44052c917b93ec0233451bba7ca4870275aa4dac30fe3f7130",
@@ -34,7 +34,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "4f7534a5f88a6337ef34ba7b1929d1c4d6bfa909e8f36826a59b8da865084abc",
+      "src/generated/cli-manifest.json": "35dd679430be1f14f34b599bfe66694568e983e585ca070bc008ffdbc0579b68",
       "src/hand-written-commands.ts": "ab53fea9a1523f8db77663fb3d241be73403213b67f20d9898596e87eddd7bd0",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
@@ -45,14 +45,14 @@
       "src/shared/prompt.ts": "7736cb146f84382ff17badbabcdf69add6673c4a3695c38759486601f3c87d99",
       "src/shared/signals.ts": "5c5122b38e35700a9304bf77f06b900a80e3bc42da6241f93313181117b2fa6b",
       "src/shared/spinner.ts": "62e25b34f62faaaa298fbe4664cb0b1eb52fd62b4c82f498718bd14e608d0d87",
-      "src/spec-commands.ts": "da970a9a254783c7ad6dd866e51d968f846aee7d4bcf5fa2f3122022f6bf8d7b",
+      "src/spec-commands.ts": "0a88823b74ae136404858164ac1b7db5a78aa0ee79abe589c90a06018085c452",
       "src/spec-flags.ts": "2a19ffd30dbbcd8e85164c7ddde6d7e63650eed5c77dc369161876f42729bfbb",
       "src/spec-manifest.ts": "d3b5c1b3c3a473f7991c02bd8b204d7ee6ac67b67e1d0ec1855c7345328cc104",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "437c3db0651965b370953e90fb8fecaed703ba96d81e8eb6a3b7d5bc82d3c8eb",
-    "revision": "2abef1abf53752d4cfd7c8886ab23e39354d8092",
-    "fingerprint": "8f8ba266c01b64a176fc94991c24ddb9d647bf6bee5f5cca4e59c4aa084c6549"
+    "specSha256": "ba292c435be5eac8e943368d5df6eb163a62410c0b6a30570c4eba5d32deaad7",
+    "revision": "9446a73ec39395e4dc8bdd1bca30a784a7466ac6",
+    "fingerprint": "3c9a214bf141eb3d3bb69f6911c9108b69c2f9db56d4160d422cfa3c1c0b0009"
   },
   "globalOptions": [
     {
@@ -96,7 +96,7 @@
     },
     {
       "id": "companies",
-      "description": "Listed companies: list, profile, fiscal periods, dividends and splits"
+      "description": "Operating companies: list, profile and fiscal periods (a fund is `invd funds`)"
     },
     {
       "id": "completion",
@@ -111,16 +111,12 @@
       "description": "Webhook endpoints alert events are delivered to: secrets, test deliveries and the delivery log"
     },
     {
+      "id": "dividends",
+      "description": "Cash dividends of any instrument (a stock, an ETF, a closed-end fund, an ETN)"
+    },
+    {
       "id": "documents",
       "description": "Immutable document versions, sections, figures and fact places"
-    },
-    {
-      "id": "etf-holdings",
-      "description": "ETF composition: one ETF's freshest holdings (issuer file, else N-PORT) or the ETFs holding a company"
-    },
-    {
-      "id": "etf-weights",
-      "description": "ETF sector, country and asset-class weights of the freshest composition"
     },
     {
       "id": "events",
@@ -128,7 +124,7 @@
     },
     {
       "id": "filers",
-      "description": "Every SEC filer (13F managers, pre-IPO issuers, former registrants), listed or not"
+      "description": "Every SEC filer (13F managers, pre-IPO issuers, former registrants), listed or not, and a 13F manager's portfolio and its changes"
     },
     {
       "id": "filings",
@@ -139,20 +135,24 @@
       "description": "Statements: standardized and as-reported, plain, detailed and presentation, point in time"
     },
     {
-      "id": "fund-holdings",
-      "description": "N-PORT fund holdings: the funds holding a company, or one fund's quarter-end portfolio"
+      "id": "funds",
+      "description": "ETFs and closed-end funds: profiles, holdings and weights"
     },
     {
       "id": "guidance",
       "description": "Guidance items and KPI mentions"
     },
     {
-      "id": "holdings",
-      "description": "13F holdings and quarter-over-quarter changes"
+      "id": "holders",
+      "description": "Who holds a stock or a fund: 13F managers, funds' N-PORT reports or ETF issuer files (--source), and 13F changes"
     },
     {
       "id": "insider-trades",
       "description": "Form 4 transactions"
+    },
+    {
+      "id": "instruments",
+      "description": "Everything exchange-traded: stocks, funds and ETNs, one type each"
     },
     {
       "id": "investor-documents",
@@ -205,6 +205,10 @@
     {
       "id": "segments",
       "description": "Segment values (revenue by product, geography …); list-detailed adds lineage (PRO)"
+    },
+    {
+      "id": "splits",
+      "description": "Stock splits of any instrument (a stock, an ETF, a closed-end fund, an ETN)"
     }
   ],
   "commands": [
@@ -2676,7 +2680,7 @@
         },
         {
           "name": "path",
-          "description": "The path when a method is given, e.g. /v1/filings?company=AAPL",
+          "description": "The path when a method is given, e.g. /v1/filings?symbol=AAPL",
           "required": false
         }
       ],
@@ -3317,126 +3321,6 @@
       ]
     },
     {
-      "command": "companies dividends",
-      "group": "companies",
-      "origin": "spec",
-      "description": "List dividends",
-      "source": "src/generated/cli-manifest.json",
-      "operations": [
-        {
-          "method": "GET",
-          "path": "/v1/dividends"
-        }
-      ],
-      "arguments": [
-        {
-          "name": "company",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (one or more; sent as a comma list)",
-          "required": true
-        }
-      ],
-      "options": [
-        {
-          "flags": "--ex-date-gte <value>",
-          "description": "`ex_date` on or after this value (e.g. 2025-01-01)",
-          "required": false
-        },
-        {
-          "flags": "--ex-date-gt <value>",
-          "description": "`ex_date` after this value (e.g. 2025-01-01)",
-          "required": false
-        },
-        {
-          "flags": "--ex-date-lte <value>",
-          "description": "`ex_date` on or before this value (e.g. 2025-01-01)",
-          "required": false
-        },
-        {
-          "flags": "--ex-date-lt <value>",
-          "description": "`ex_date` before this value (e.g. 2025-01-01)",
-          "required": false
-        },
-        {
-          "flags": "--sort <value>",
-          "description": "Sort field (`-` = descending); the id tiebreaker is always appended. Default `-ex_date` (default: \"-ex_date\"; e.g. -ex_date)",
-          "required": false,
-          "choices": [
-            "ex_date",
-            "-ex_date",
-            "pay_date",
-            "-pay_date"
-          ]
-        },
-        {
-          "flags": "-l, --limit <value>",
-          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
-          "required": false
-        },
-        {
-          "flags": "--cursor <value>",
-          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
-          "required": false
-        },
-        {
-          "flags": "--json [fields]",
-          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
-          "required": false
-        },
-        {
-          "flags": "--output <format>",
-          "description": "Output format",
-          "required": false,
-          "choices": [
-            "table",
-            "plain",
-            "json",
-            "jsonl",
-            "csv"
-          ]
-        },
-        {
-          "flags": "--jq <expr>",
-          "description": "Filter the JSON with a jq expression (strings print raw)",
-          "required": false
-        },
-        {
-          "flags": "--plain",
-          "description": "Tab-separated rows without colour or decoration (the default when piped)",
-          "required": false
-        },
-        {
-          "flags": "--fields <list>",
-          "description": "Only these root fields (sent as fields=, pruned by the API)",
-          "required": false
-        },
-        {
-          "flags": "--all",
-          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
-          "required": false
-        },
-        {
-          "flags": "--dry-run",
-          "description": "Print the request plan and its credit estimate; send nothing",
-          "required": false
-        },
-        {
-          "flags": "--yes",
-          "description": "Do not ask before a costly --all walk or a delete",
-          "required": false
-        },
-        {
-          "flags": "--no-input",
-          "description": "Never prompt (a confirmation that is needed fails instead)",
-          "required": false
-        },
-        {
-          "flags": "--show-cost",
-          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
-          "required": false
-        }
-      ]
-    },
-    {
       "command": "companies fiscal-periods",
       "group": "companies",
       "origin": "spec",
@@ -3451,7 +3335,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
           "required": true
         }
       ],
@@ -3549,7 +3433,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker or CIK. A US ETF that is a series of a multi-series trust (TQQQ) answers its ETF profile by ticker: `cik` / `filer_cik` its trust's CIK, `category` `ETF`, every SIC-derived, address and company-only field null",
+          "description": "Ticker of any listed class, or CIK, of an operating company. A fund answers 404 `not_covered` naming its GET /v1/funds/{fund}, an ETN its GET /v1/instruments/{symbol}",
           "required": true
         }
       ],
@@ -3651,104 +3535,6 @@
             "-ticker",
             "name",
             "-name"
-          ]
-        },
-        {
-          "flags": "-l, --limit <value>",
-          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
-          "required": false
-        },
-        {
-          "flags": "--cursor <value>",
-          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
-          "required": false
-        },
-        {
-          "flags": "--json [fields]",
-          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
-          "required": false
-        },
-        {
-          "flags": "--output <format>",
-          "description": "Output format",
-          "required": false,
-          "choices": [
-            "table",
-            "plain",
-            "json",
-            "jsonl",
-            "csv"
-          ]
-        },
-        {
-          "flags": "--jq <expr>",
-          "description": "Filter the JSON with a jq expression (strings print raw)",
-          "required": false
-        },
-        {
-          "flags": "--plain",
-          "description": "Tab-separated rows without colour or decoration (the default when piped)",
-          "required": false
-        },
-        {
-          "flags": "--fields <list>",
-          "description": "Only these root fields (sent as fields=, pruned by the API)",
-          "required": false
-        },
-        {
-          "flags": "--all",
-          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
-          "required": false
-        },
-        {
-          "flags": "--dry-run",
-          "description": "Print the request plan and its credit estimate; send nothing",
-          "required": false
-        },
-        {
-          "flags": "--yes",
-          "description": "Do not ask before a costly --all walk or a delete",
-          "required": false
-        },
-        {
-          "flags": "--no-input",
-          "description": "Never prompt (a confirmation that is needed fails instead)",
-          "required": false
-        },
-        {
-          "flags": "--show-cost",
-          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
-          "required": false
-        }
-      ]
-    },
-    {
-      "command": "companies splits",
-      "group": "companies",
-      "origin": "spec",
-      "description": "List stock splits",
-      "source": "src/generated/cli-manifest.json",
-      "operations": [
-        {
-          "method": "GET",
-          "path": "/v1/splits"
-        }
-      ],
-      "arguments": [
-        {
-          "name": "company",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (one or more; sent as a comma list)",
-          "required": true
-        }
-      ],
-      "options": [
-        {
-          "flags": "--sort <value>",
-          "description": "Sort field (`-` = descending); the id tiebreaker is always appended. Default `-execution_date` (default: \"-execution_date\"; e.g. -execution_date)",
-          "required": false,
-          "choices": [
-            "execution_date",
-            "-execution_date"
           ]
         },
         {
@@ -4638,6 +4424,126 @@
       ]
     },
     {
+      "command": "dividends list",
+      "group": "dividends",
+      "origin": "spec",
+      "description": "List dividends",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/dividends"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "symbol",
+          "description": "Ticker of any instrument (a stock, a fund, an ETN), a fund key (`S000024908`, `cik:884394`) or a company CIK (its primary listing); a comma list of 1–50. A bare ticker is a US listing (`TICKER.<MIC>` is refused with a 400). Required. (one or more; sent as a comma list)",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "--ex-date-gte <value>",
+          "description": "`ex_date` on or after this value (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--ex-date-gt <value>",
+          "description": "`ex_date` after this value (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--ex-date-lte <value>",
+          "description": "`ex_date` on or before this value (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--ex-date-lt <value>",
+          "description": "`ex_date` before this value (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--sort <value>",
+          "description": "Sort field (`-` = descending); the id tiebreaker is always appended. Default `-ex_date` (default: \"-ex_date\"; e.g. -ex_date)",
+          "required": false,
+          "choices": [
+            "ex_date",
+            "-ex_date",
+            "pay_date",
+            "-pay_date"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
       "command": "documents fact-places",
       "group": "documents",
       "origin": "spec",
@@ -5017,213 +4923,6 @@
       ]
     },
     {
-      "command": "etf-holdings list",
-      "group": "etf-holdings",
-      "origin": "spec",
-      "description": "List ETF holdings (daily issuer files or N-PORT)",
-      "source": "src/generated/cli-manifest.json",
-      "operations": [
-        {
-          "method": "GET",
-          "path": "/v1/etf-holdings"
-        }
-      ],
-      "arguments": [
-        {
-          "name": "etf",
-          "description": "ETF ticker: the fund's freshest composition (one ETF)",
-          "required": false
-        }
-      ],
-      "options": [
-        {
-          "flags": "-c, --company <value>",
-          "description": "Ticker (`NVDA`) or CIK of ONE company: the ETFs holding it (from the ETFs' issuer files). Exactly one of `etf` or `company` is required. A US ETF that is its own registrant (SPY) is found by its CIK; a series of a multi-series trust (TQQQ) answers one 404 `not_covered` naming it (holders are found by issuer CIK, which would mix its trust's other series). (e.g. NVDA)",
-          "required": false
-        },
-        {
-          "flags": "-a, --as-of <value>",
-          "description": "With etf=: the composition stored on or before this date (issuer files about 30 days back, older dates from the N-PORT report); default the freshest (e.g. 2026-11-12)",
-          "required": false
-        },
-        {
-          "flags": "--sort <value>",
-          "description": "Sort field: `-weight_pct` with etf= (default), `-market_value_usd` with company= (default); the only orders the store serves (e.g. -weight_pct)",
-          "required": false,
-          "choices": [
-            "-weight_pct",
-            "-market_value_usd"
-          ]
-        },
-        {
-          "flags": "-l, --limit <value>",
-          "description": "Rows per page (default 25, max 1 000 on 13F rows) (default: 25; e.g. 100)",
-          "required": false
-        },
-        {
-          "flags": "--cursor <value>",
-          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
-          "required": false
-        },
-        {
-          "flags": "--json [fields]",
-          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
-          "required": false
-        },
-        {
-          "flags": "--output <format>",
-          "description": "Output format",
-          "required": false,
-          "choices": [
-            "table",
-            "plain",
-            "json",
-            "jsonl",
-            "csv"
-          ]
-        },
-        {
-          "flags": "--jq <expr>",
-          "description": "Filter the JSON with a jq expression (strings print raw)",
-          "required": false
-        },
-        {
-          "flags": "--plain",
-          "description": "Tab-separated rows without colour or decoration (the default when piped)",
-          "required": false
-        },
-        {
-          "flags": "--fields <list>",
-          "description": "Only these root fields (sent as fields=, pruned by the API)",
-          "required": false
-        },
-        {
-          "flags": "--all",
-          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
-          "required": false
-        },
-        {
-          "flags": "--dry-run",
-          "description": "Print the request plan and its credit estimate; send nothing",
-          "required": false
-        },
-        {
-          "flags": "--yes",
-          "description": "Do not ask before a costly --all walk or a delete",
-          "required": false
-        },
-        {
-          "flags": "--no-input",
-          "description": "Never prompt (a confirmation that is needed fails instead)",
-          "required": false
-        },
-        {
-          "flags": "--show-cost",
-          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
-          "required": false
-        }
-      ]
-    },
-    {
-      "command": "etf-weights list",
-      "group": "etf-weights",
-      "origin": "spec",
-      "description": "List ETF sector, country and asset-class weights",
-      "source": "src/generated/cli-manifest.json",
-      "operations": [
-        {
-          "method": "GET",
-          "path": "/v1/etf-weights"
-        }
-      ],
-      "arguments": [
-        {
-          "name": "etf",
-          "description": "ETF ticker",
-          "required": true
-        }
-      ],
-      "options": [
-        {
-          "flags": "-d, --dimension <value>",
-          "description": "sector, country or asset_class; a comma list for several (default all three) (e.g. sector)",
-          "required": false
-        },
-        {
-          "flags": "-a, --as-of <value>",
-          "description": "With etf=: the composition stored on or before this date (issuer files about 30 days back, older dates from the N-PORT report); default the freshest (e.g. 2026-11-12)",
-          "required": false
-        },
-        {
-          "flags": "--limit <value>",
-          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
-          "required": false
-        },
-        {
-          "flags": "--cursor <value>",
-          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
-          "required": false
-        },
-        {
-          "flags": "--json [fields]",
-          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
-          "required": false
-        },
-        {
-          "flags": "--output <format>",
-          "description": "Output format",
-          "required": false,
-          "choices": [
-            "table",
-            "plain",
-            "json",
-            "jsonl",
-            "csv"
-          ]
-        },
-        {
-          "flags": "--jq <expr>",
-          "description": "Filter the JSON with a jq expression (strings print raw)",
-          "required": false
-        },
-        {
-          "flags": "--plain",
-          "description": "Tab-separated rows without colour or decoration (the default when piped)",
-          "required": false
-        },
-        {
-          "flags": "--fields <list>",
-          "description": "Only these root fields (sent as fields=, pruned by the API)",
-          "required": false
-        },
-        {
-          "flags": "--all",
-          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
-          "required": false
-        },
-        {
-          "flags": "--dry-run",
-          "description": "Print the request plan and its credit estimate; send nothing",
-          "required": false
-        },
-        {
-          "flags": "--yes",
-          "description": "Do not ask before a costly --all walk or a delete",
-          "required": false
-        },
-        {
-          "flags": "--no-input",
-          "description": "Never prompt (a confirmation that is needed fails instead)",
-          "required": false
-        },
-        {
-          "flags": "--show-cost",
-          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
-          "required": false
-        }
-      ]
-    },
-    {
       "command": "events audio",
       "group": "events",
       "origin": "spec",
@@ -5495,7 +5194,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
           "required": false
         }
       ],
@@ -6696,6 +6395,221 @@
       ]
     },
     {
+      "command": "filers holding-changes",
+      "group": "filers",
+      "origin": "spec",
+      "description": "List a 13F manager's position changes",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/filers/{cik}/holding-changes"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "cik",
+          "description": "The 13F manager's CIK (any padding)",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "-p, --period-end <value>",
+          "description": "Quarter end (default the newest whose 13F deadline, 45 days, has passed) (e.g. 2026-06-30)",
+          "required": false
+        },
+        {
+          "flags": "--prior-period-end <value>",
+          "description": "Quarter compared against (default the previous one) (e.g. 2026-03-31)",
+          "required": false
+        },
+        {
+          "flags": "-t, --type <value>",
+          "description": "Change types — any of `new`, `added`, `reduced`, `sold_out`, `unchanged`, comma-separated. Without `type` every change but `unchanged` is listed (e.g. new)",
+          "required": false
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 1 000) (default: 25; e.g. 100)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "filers holdings",
+      "group": "filers",
+      "origin": "spec",
+      "description": "List a 13F manager's holdings",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/filers/{cik}/holdings"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "cik",
+          "description": "The 13F manager's CIK (any padding)",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "-p, --period-end <value>",
+          "description": "Quarter end (default the newest whose 13F deadline, 45 days, has passed) (e.g. 2026-06-30)",
+          "required": false
+        },
+        {
+          "flags": "--instruments <value>",
+          "description": "13F: shares = common shares only (default); all = incl. options and principal amounts (default: \"shares\"; e.g. shares)",
+          "required": false,
+          "choices": [
+            "shares",
+            "all"
+          ]
+        },
+        {
+          "flags": "--sort <value>",
+          "description": "Sort field: `-value_usd` (the only order the store serves); the id tiebreaker is always appended (default: \"-value_usd\"; e.g. -value_usd)",
+          "required": false,
+          "choices": [
+            "-value_usd"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 1 000) (default: 25; e.g. 100)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
       "command": "filers list",
       "group": "filers",
       "origin": "spec",
@@ -7078,6 +6992,95 @@
       ]
     },
     {
+      "command": "filings holdings",
+      "group": "filings",
+      "origin": "spec",
+      "description": "List a holdings filing's lines",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/filings/{accession}/holdings"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "accession",
+          "description": "Accession number of a 13F-HR or NPORT-P filing",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 1 000) (default: 25; e.g. 100)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
       "command": "filings list",
       "group": "filings",
       "origin": "spec",
@@ -7091,8 +7094,8 @@
       ],
       "arguments": [
         {
-          "name": "company",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (one or more; sent as a comma list)",
+          "name": "symbol",
+          "description": "Ticker of any instrument (a stock, a fund, an ETN), a fund key (`S000024908`, `cik:884394`) or a company CIK (its primary listing); a comma list of 1–50. A bare ticker is a US listing (`TICKER.<MIC>` is refused with a 400). Required. (one or more; sent as a comma list)",
           "required": true
         }
       ],
@@ -7413,7 +7416,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
           "required": true
         }
       ],
@@ -7593,56 +7596,333 @@
       ]
     },
     {
-      "command": "fund-holdings list",
-      "group": "fund-holdings",
+      "command": "funds get",
+      "group": "funds",
       "origin": "spec",
-      "description": "List N-PORT fund holdings",
+      "description": "Get a fund",
       "source": "src/generated/cli-manifest.json",
       "operations": [
         {
           "method": "GET",
-          "path": "/v1/fund-holdings"
+          "path": "/v1/funds/{fund}"
         }
       ],
       "arguments": [
         {
-          "name": "company",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (one or more; sent as a comma list)",
-          "required": false
+          "name": "fund",
+          "description": "Ticker of any listed class, or the fund key (`S000024908`; `cik:884394` for a fund without a series)",
+          "required": true
         }
       ],
       "options": [
         {
-          "flags": "-F, --filer <value>",
-          "description": "Fund registrant CIK (one): its fund portfolio (e.g. 0000036405)",
+          "flags": "--expand <value>",
+          "description": "Optional objects to include: `coverage` (comma list) (e.g. coverage)",
           "required": false
         },
         {
-          "flags": "-s, --series <value>",
-          "description": "SEC series id of one fund (S + 9 digits; a unit investment trust without a series: cik:<registrant CIK>); with filer=, required when the registrant files for more than one fund (e.g. S000002277)",
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
           "required": false
         },
         {
-          "flags": "--accession <value>",
-          "description": "NPORT-P filing: its reported holdings as filed (e.g. 0001752724-26-123456)",
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
           "required": false
         },
         {
-          "flags": "-p, --period-end <value>",
-          "description": "Each fund's latest report on or before this date (e.g. 2026-06-30)",
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "funds holdings",
+      "group": "funds",
+      "origin": "spec",
+      "description": "List a fund's holdings",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/funds/{fund}/holdings"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "fund",
+          "description": "Ticker of any listed class, or the fund key (`S000024908`; `cik:884394` for a fund without a series). Listed funds only: an unlisted fund is a holder row, never a portfolio",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "-a, --as-of <value>",
+          "description": "The composition stored on or before this date (issuer files about 30 days back, older dates from the N-PORT report); default the freshest (e.g. 2026-11-12)",
           "required": false
         },
         {
           "flags": "--sort <value>",
-          "description": "Sort field: `-value_usd` (the only order the store serves); the id tiebreaker is always appended (default: \"-value_usd\"; e.g. -value_usd)",
+          "description": "Sort field: `-weight_pct` (the only order the store serves); the line tiebreaker is always appended (default: \"-weight_pct\"; e.g. -weight_pct)",
           "required": false,
           "choices": [
-            "-value_usd"
+            "-weight_pct"
           ]
         },
         {
           "flags": "-l, --limit <value>",
-          "description": "Rows per page (default 25, max 1 000 on 13F rows) (default: 25; e.g. 100)",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "funds list",
+      "group": "funds",
+      "origin": "spec",
+      "description": "List funds",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/funds"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-q, --q <value>",
+          "description": "Ticker prefix or a part of the name (case-insensitive) (e.g. TQQ)",
+          "required": false
+        },
+        {
+          "flags": "-t, --type <value>",
+          "description": "Instrument type, comma list (`etf`, `closed_end_fund`) (e.g. etf)",
+          "required": false
+        },
+        {
+          "flags": "--structure <value>",
+          "description": "Fund structure, comma list (`registered_fund`, `exchange_traded_trust`) (e.g. registered_fund)",
+          "required": false
+        },
+        {
+          "flags": "-e, --exchange <value>",
+          "description": "Exchange (MIC), comma list (e.g. XNAS)",
+          "required": false
+        },
+        {
+          "flags": "--sort <value>",
+          "description": "Sort field (`-` = descending); the id tiebreaker is always appended. Default `symbol` (default: \"symbol\"; e.g. symbol)",
+          "required": false,
+          "choices": [
+            "symbol",
+            "-symbol",
+            "name",
+            "-name"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "funds weights",
+      "group": "funds",
+      "origin": "spec",
+      "description": "List a fund's sector, country and asset-class weights",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/funds/{fund}/weights"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "fund",
+          "description": "Ticker of any listed class, or the fund key (`S000024908`; `cik:884394` for a fund without a series). Listed funds only: an unlisted fund is a holder row, never a portfolio",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "-d, --dimension <value>",
+          "description": "sector, country or asset_class; a comma list for several (default all three) (e.g. sector)",
+          "required": false
+        },
+        {
+          "flags": "-a, --as-of <value>",
+          "description": "The composition stored on or before this date (issuer files about 30 days back, older dates from the N-PORT report); default the freshest (e.g. 2026-11-12)",
+          "required": false
+        },
+        {
+          "flags": "--limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
           "required": false
         },
         {
@@ -7724,7 +8004,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
           "required": false
         }
       ],
@@ -7832,7 +8112,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
           "required": false
         }
       ],
@@ -7945,33 +8225,33 @@
       ]
     },
     {
-      "command": "holdings changes",
-      "group": "holdings",
+      "command": "holders changes",
+      "group": "holders",
       "origin": "spec",
-      "description": "List 13F position changes",
+      "description": "List 13F position changes in a stock or a fund",
       "source": "src/generated/cli-manifest.json",
       "operations": [
         {
           "method": "GET",
-          "path": "/v1/holding-changes"
+          "path": "/v1/holder-changes"
         }
       ],
       "arguments": [
         {
-          "name": "company",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (one or more; sent as a comma list)",
-          "required": false
+          "name": "symbol",
+          "description": "ONE instrument held: a stock's ticker or CIK, a fund's ticker or fund key (`S000024908`, `cik:884394`), or an ETN's ticker. A fund or an ETN is found by its own CUSIP, never by its trust or its issuing bank (a series of a multi-series trust such as TQQQ answers its own holders; VXX answers the holders of the note, not of Barclays). Required.",
+          "required": true
         }
       ],
       "options": [
         {
           "flags": "-F, --filer <value>",
-          "description": "Manager CIK, comma list (e.g. 0000102909)",
+          "description": "Manager CIK, comma list (1–50): only those managers' changes (e.g. 0000102909)",
           "required": false
         },
         {
           "flags": "-p, --period-end <value>",
-          "description": "Quarter end (e.g. 2026-06-30)",
+          "description": "Quarter end (default the newest whose 13F deadline, 45 days, has passed) (e.g. 2026-06-30)",
           "required": false
         },
         {
@@ -7986,7 +8266,7 @@
         },
         {
           "flags": "-l, --limit <value>",
-          "description": "Rows per page (default 25, max 1 000 on 13F rows) (default: 25; e.g. 100)",
+          "description": "Rows per page (default 25, max 1 000) (default: 25; e.g. 100)",
           "required": false
         },
         {
@@ -8054,43 +8334,43 @@
       ]
     },
     {
-      "command": "holdings list",
-      "group": "holdings",
+      "command": "holders list",
+      "group": "holders",
       "origin": "spec",
-      "description": "List 13F holdings",
+      "description": "List who holds a stock or a fund",
       "source": "src/generated/cli-manifest.json",
       "operations": [
         {
           "method": "GET",
-          "path": "/v1/holdings"
+          "path": "/v1/holders"
         }
       ],
       "arguments": [
         {
-          "name": "company",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (one or more; sent as a comma list)",
-          "required": false
+          "name": "symbol",
+          "description": "ONE instrument held: a stock's ticker or CIK, a fund's ticker or fund key (`S000024908`, `cik:884394`), or an ETN's ticker. A fund or an ETN is found by its own CUSIP, never by its trust or its issuing bank (a series of a multi-series trust such as TQQQ answers its own holders; VXX answers the holders of the note, not of Barclays). Required.",
+          "required": true
         }
       ],
       "options": [
         {
-          "flags": "-F, --filer <value>",
-          "description": "Manager CIK, comma list (e.g. 0000102909)",
-          "required": false
-        },
-        {
-          "flags": "--accession <value>",
-          "description": "13F filing (e.g. 0000950123-26-008512)",
-          "required": false
+          "flags": "-s, --source <value>",
+          "description": "One source: `13f`, `nport` or `issuer_file` (its full list, paged); without it the overview of all three (e.g. 13f)",
+          "required": false,
+          "choices": [
+            "13f",
+            "nport",
+            "issuer_file"
+          ]
         },
         {
           "flags": "-p, --period-end <value>",
-          "description": "Quarter end (e.g. 2026-06-30)",
+          "description": "13F: the quarter end (default the newest whose 13F deadline, 45 days, has passed); N-PORT: each fund's latest report on or before it (default today) (e.g. 2026-06-30)",
           "required": false
         },
         {
           "flags": "--instruments <value>",
-          "description": "shares = common shares only; all = incl. options and principal amounts (default: \"shares\"; e.g. shares)",
+          "description": "13F: shares = common shares only (default); all = incl. options and principal amounts (default: \"shares\"; e.g. shares)",
           "required": false,
           "choices": [
             "shares",
@@ -8099,15 +8379,15 @@
         },
         {
           "flags": "--sort <value>",
-          "description": "Sort field: `-dollar_value` (the only order the store serves); the id tiebreaker is always appended (default: \"-dollar_value\"; e.g. -dollar_value)",
+          "description": "Sort field: `-value_usd` (the only order the store serves); the id tiebreaker is always appended (default: \"-value_usd\"; e.g. -value_usd)",
           "required": false,
           "choices": [
-            "-dollar_value"
+            "-value_usd"
           ]
         },
         {
           "flags": "-l, --limit <value>",
-          "description": "Rows per page (default 25, max 1 000 on 13F rows) (default: 25; e.g. 100)",
+          "description": "Rows per page (default 25, max 1 000) (default: 25; e.g. 100)",
           "required": false
         },
         {
@@ -8263,7 +8543,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
           "required": true
         }
       ],
@@ -8324,6 +8604,204 @@
           "choices": [
             "filed_at",
             "-filed_at"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "instruments get",
+      "group": "instruments",
+      "origin": "spec",
+      "description": "Get an instrument",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/instruments/{symbol}"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "symbol",
+          "description": "Ticker (case-insensitive); a bare ticker is a US listing (`TICKER.<MIC>` answers 400)",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "instruments list",
+      "group": "instruments",
+      "origin": "spec",
+      "description": "List instruments",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/instruments"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-q, --q <value>",
+          "description": "Ticker prefix or a part of the name (case-insensitive) (e.g. TQQ)",
+          "required": false
+        },
+        {
+          "flags": "-t, --type <value>",
+          "description": "Instrument type, comma list (`stock`, `etf`, `closed_end_fund`, `etn`) (e.g. etf)",
+          "required": false
+        },
+        {
+          "flags": "--structure <value>",
+          "description": "Fund structure, comma list (`registered_fund`, `exchange_traded_trust`) (e.g. registered_fund)",
+          "required": false
+        },
+        {
+          "flags": "-e, --exchange <value>",
+          "description": "Exchange (MIC), comma list (e.g. XNAS)",
+          "required": false
+        },
+        {
+          "flags": "--is-active",
+          "description": "true = listed today, false = delisted; both when absent (e.g. true) (sends true)",
+          "required": false
+        },
+        {
+          "flags": "--no-is-active",
+          "description": "Sends is_active=false",
+          "required": false
+        },
+        {
+          "flags": "--sort <value>",
+          "description": "Sort field (`-` = descending); the id tiebreaker is always appended. Default `symbol` (default: \"symbol\"; e.g. symbol)",
+          "required": false,
+          "choices": [
+            "symbol",
+            "-symbol",
+            "name",
+            "-name"
           ]
         },
         {
@@ -8499,7 +8977,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
           "required": false
         }
       ],
@@ -8729,7 +9207,7 @@
         },
         {
           "flags": "--company <value>",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (e.g. AAPL)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (e.g. AAPL)",
           "required": false
         },
         {
@@ -9241,7 +9719,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
           "required": true
         }
       ],
@@ -9464,7 +9942,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
           "required": true
         }
       ],
@@ -9602,7 +10080,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
           "required": true
         }
       ],
@@ -9736,7 +10214,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
           "required": false
         }
       ],
@@ -9958,7 +10436,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
           "required": false
         }
       ],
@@ -10455,7 +10933,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
           "required": false
         }
       ],
@@ -11355,8 +11833,8 @@
           "required": false
         },
         {
-          "flags": "-c, --company <value>",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (e.g. AAPL)",
+          "flags": "-s, --symbol <value>",
+          "description": "Ticker of any instrument (a stock, a fund, an ETN), a fund key (`S000024908`, `cik:884394`) or a company CIK (its primary listing); a comma list of 1–50. A bare ticker is a US listing (`TICKER.<MIC>` is refused with a 400). A series of a multi-series trust (TQQQ) is searched alone. (e.g. AAPL)",
           "required": false
         },
         {
@@ -11480,7 +11958,7 @@
       "options": [
         {
           "flags": "-c, --company <value>",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (e.g. AAPL)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (e.g. AAPL)",
           "required": false
         },
         {
@@ -11588,7 +12066,7 @@
       "options": [
         {
           "flags": "-c, --company <value>",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (e.g. AAPL)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (e.g. AAPL)",
           "required": false
         },
         {
@@ -11722,7 +12200,7 @@
       "options": [
         {
           "flags": "-c, --company <value>",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). One of the scope filters of this list is required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (e.g. AAPL)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (e.g. AAPL)",
           "required": false
         },
         {
@@ -11848,7 +12326,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
           "required": true
         }
       ],
@@ -11987,7 +12465,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). Required. US ETFs: a fund registrant such as SPY and a series of a multi-series trust such as TQQQ both resolve on every list, and ETF data is served where it exists: `/v1/dividends`, `/v1/splits`, `/v1/filings` and `/v1/search/filings` (a trust series' filings are the accessions naming its series, and such a series is searched alone; an ETF that is its own registrant lists its registrant's; a row's `company.cik` is the trust's CIK, empty for an ETF without a registrant link), and the 13F, ETF and fund holder lists (holdings, holding changes, ETF / fund holdings) for an ETF that is its own registrant such as SPY (a trust series such as TQQQ answers one 404 `not_covered` naming it: holders are found by issuer CIK, which would mix its trust's other series). The families without ETF data (financials, metrics, segments, fiscal periods, insider trades, events, transcripts, guidance, people, investor documents, IPOs, news and announcements) answer one 404 `not_covered` naming the ETF, the same for SPY and TQQQ (\"TQQQ is an ETF: … exists only for companies\"); in a mixed list the companies answer. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
           "required": true
         }
       ],
@@ -12040,6 +12518,104 @@
           "choices": [
             "period_end",
             "-period_end"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "splits list",
+      "group": "splits",
+      "origin": "spec",
+      "description": "List stock splits",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/splits"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "symbol",
+          "description": "Ticker of any instrument (a stock, a fund, an ETN), a fund key (`S000024908`, `cik:884394`) or a company CIK (its primary listing); a comma list of 1–50. A bare ticker is a US listing (`TICKER.<MIC>` is refused with a 400). Required. (one or more; sent as a comma list)",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "--sort <value>",
+          "description": "Sort field (`-` = descending); the id tiebreaker is always appended. Default `-execution_date` (default: \"-execution_date\"; e.g. -execution_date)",
+          "required": false,
+          "choices": [
+            "execution_date",
+            "-execution_date"
           ]
         },
         {
