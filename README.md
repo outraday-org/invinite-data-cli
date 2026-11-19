@@ -93,6 +93,7 @@ Commands are noun-verb over the API's groups:
 | `me` | your account and usage (free) |
 | `alerts`, `destinations`, `alert-events` | alert rules (filings, news, halts, dividends, earnings calls and results, metrics, countdowns …), the webhook endpoints their events are delivered to, and the event log (pull feed; `invd alert-events tail` follows it) |
 | `scripts`, `script-versions`, `alert-templates` | hosted chartlang scripts for `script` alerts (`invd scripts upload` reads a file) and their versions; the built-in templates of `indicator` alerts |
+| `alert-users` | your own end users on the alerts platform (B2B2C): per-user limits and usage, pause / resume, erasure; the account defaults are `invd me alert-user-defaults-get\|alert-user-defaults-update` |
 
 Plus the hand-written `api`, `auth`, `config`, `plugin`, `agent-setup`, `completion`, `alert-events tail` and `scripts upload`.
 
@@ -284,6 +285,24 @@ An alert fires an event into the pull feed (`invd alert-events list --after <eve
 destination's signing secret is printed once on create (`invd destinations rotate-secret` issues a new one).
 `invd alert-events tail` polls the feed every 2 s (one metered request each, `--interval` changes it) and prints each
 new event as one JSON line; Ctrl-C prints the `--after` that resumes.
+
+End users (Data API 6.5): alerts you create for your own customers name them in `--external-user-id`; each id is an
+end user with its own limits (unset = the account default, else none).
+
+```bash
+invd me alert-user-defaults-update --max-active-alerts 10          # every end user without its own value
+invd alert-users update user_8812 --max-active-alerts 50 --max-fires-per-day 20
+invd alert-users batch --body-file tiers.json                       # ≤ 500 upserts: map your own plans to limits
+invd alerts create --validate-only --body '{"type":"filing","condition":{"symbols":["AAPL"],"form_types":["8-K"]},"external_user_id":"user_8812"}'
+invd alert-users list
+invd alert-users pause user_8812                                    # no fires, no creates; resume re-arms
+invd alert-users resume user_8812
+invd alert-users delete user_8812                                   # erasure: alerts, events, deliveries (asks unless --yes)
+```
+
+A create beyond a limit answers `403 alert_user_limit_reached`, a create for a paused user `403 alert_user_paused`.
+`--validate-only` runs every check of a create and writes nothing (`204`, exit 0). Beyond `max_fires_per_day` a fire
+stays in the feed with `delivery_skipped: "alert_user_fire_cap"` and one `alert_user.fire_cap_reached` event goes out.
 
 ### Hosted chartlang alerts
 
@@ -505,6 +524,17 @@ The exit codes are the same in `invd` and the Web CLI `inv`:
 | 6 | credits exhausted or plan required: 402, `plan_required`, `insufficient_credits` |
 | 7 | partial: an `--all` cut short by a failure (resume with the printed `--cursor`) or a short download |
 | 130 / 143 | interrupted (Ctrl-C / SIGTERM); an `--all` walk prints its resume cursor first |
+
+## Changes in 7.5.0
+
+7.5.0 follows Data API 6.5 (end users). New commands, no change to an existing one or to the exit codes:
+
+- `invd alert-users` with `list`, `get`, `update`, `batch`, `pause`, `resume`, `delete`: per-user limits (`--max-active-alerts`,
+  `--max-script-alerts`, `--max-fires-per-day`), usage and effective limits, pause / resume, erasure (`delete` asks
+  unless `--yes`).
+- `invd me alert-user-defaults-get` / `invd me alert-user-defaults-update`: the account defaults every end user without its own
+  value gets.
+- `invd alerts create --validate-only`: every check of a create, nothing written.
 
 ## Changes in 7.4.0
 

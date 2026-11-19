@@ -101,6 +101,6 @@ describe('loadManifest', () => {
 
   it('carries only /v1 operations', () => {
     expect(loadManifest().operations.every(operation => operation.path.startsWith('/v1/'))).toBe(true);
-    expect(loadManifest().operations).toHaveLength(106);
+    expect(loadManifest().operations).toHaveLength(115);
   });
 });

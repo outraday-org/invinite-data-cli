@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Invinite API",
-    "description": "Invinite financial data API. Each operation has a base credit cost: `x-credits` is the base cost; responses add 1 credit per started 1,000 rows beyond the first 1,000; `X-Credits-Charged` reports the final debit and `X-Credits-Remaining` what is left of the plan's included credits after it. A `304 Not Modified` costs nothing. `GET /v1/me/usage` returns your account's usage by day, product family and key (it costs no credits).\n\n**Coverage.** Financial data covers US SEC registrants and their US listings; a symbol that is not a US SEC registrant (or a crypto pair such as `X:BTCUSD`) is not a known company and answers 404. A known company with no data in a family (for example no statements yet) answers 404 with `code: not_covered`; an empty page of a covered company stays 200 with an empty list. `GET /v1/companies` lists every known company.\n\n## Webhooks\n\nAlerts (`POST /v1/alerts`) deliver their events to your destinations (`POST /v1/destinations`) as [Standard Webhooks](https://github.com/standard-webhooks/standard-webhooks/blob/main/spec/standard-webhooks.md): `alert.fired`, `alert.fired.batch`, `alert.status_changed`, `destination.disabled`, `destination.test`, `account.fire_cap_reached`; see `x-webhooks` for each `data` object. Every event is also on the pull feed `GET /v1/alert-events`.\n\nEvery delivery is a `POST` with `Content-Type: application/json`, the body `{type, timestamp, data}` (or the destination's `body_template`) and the headers `webhook-id` (the event id; a batch: its `bat_…` id), `webhook-timestamp` (unix seconds) and `webhook-signature`: space-separated `v1,<base64 HMAC-SHA256 of <webhook-id>.<webhook-timestamp>.<raw body>>`, keyed with the base64-DECODED bytes of the destination's `whsec_…` secret — any Standard Webhooks library verifies it. After `POST /v1/destinations/{id}:rotate-secret` the old secret keeps signing beside the new one for 24 h (two `v1` entries). Reject a timestamp older than 5 minutes. Any 2xx within 10 s acknowledges; redirects are not followed; a body above 256 KB is not sent. A failed attempt is retried after [0, 5 s, 5 min, 30 min, 2 h, 5 h, 10 h, 10 h, 10 h, 34 h] (attempt n waits the n-th step) plus up to 10 % jitter; the delivery is dead after attempt 10. A 410 disables the destination at once; so do 72 h of nothing but failures with at least 10 failed attempts in a row (a `destination.disabled` event on the feed and a mail; `PATCH` with `status: active` re-enables it). Delivery is at-least-once and unordered: dedupe on `webhook-id`, order by `timestamp`. A `batch_webhook` destination receives `alert.fired.batch` with the pending events in `data.events[]` (dedupe on each `data.event_id`).\n\nFires and deliveries cost no credits; two fair-use caps apply instead: at most 60 fires per alert per rolling hour (beyond: suppressed and counted in the next fire's `suppressed_since_last`) and per account and UTC day FREE 100 · LITE 5,000 · STANDARD 50,000 · PRO 500,000 fires (beyond: written to the feed with `delivery_skipped: fire_cap`, not delivered; one `account.fire_cap_reached` per day).\n\n## Licensing\n\n| Tier | display | redistribute | rag | train | audio | resell |\n| --- | --- | --- | --- | --- | --- | --- |\n| FREE | ✓ | – | – | – | – | – |\n| LITE | ✓ | – | – | – | – | – |\n| STANDARD | ✓ | – | ✓ | – | – | – |\n| PRO | ✓ | ✓ | ✓ | – | ✓ | – |\n\nInvinite data may be shown and, from PRO, redistributed inside the licensee's own product with attribution (\"Source: Invinite\" on screen or in the API response that carries it). It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.\n\nPolicy version: 2026-10-draft. Draft — pending counsel sign-off.\n\nAudio files carry a forensic watermark that identifies the recording. Audio is subject to per-company takedown and may not be re-hosted.\n\nSEC data: Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.\n\nNews: News text is Invinite's own summary of the issuer's or the SEC's publication (the publisher's text and media are never served); the licensee shows the attribution (publisher, source URL and date) next to it; the resale rule applies.\n\nPDF documents: Branded PDFs of transcripts and news items are permanent URLs to one shared file per version. They may be shown, downloaded and forwarded unmodified with the notice page intact; the resale rule applies unchanged. News PDFs carry Invinite's summary of the issuer's or the SEC's publication under the attribution stated on their notice page; a PDF disappears when the item is taken down or its source's reuse is denied.\n\nEvery `/v1/*` data operation carries `x-license`, the minimum use right its data ships with; `GET /status/licensing` serves the same matrix per route, rendered at [data.invinite.com/docs/licensing](https://data.invinite.com/docs/licensing). `/v1/me` and `/v1/me/usage` serve no licensed data and carry none.\n\n## Status\n\n[`/status`](/status) reports whether each product family works (a status and its uptime over 7, 30 and 90 days); [`/status/licensing`](/status/licensing) serves the licensing matrix per route. The status routes need no API key and are cached for 5 minutes. The public status page is [status.data.invinite.com](https://status.data.invinite.com): a snapshot of `/status` every 15 minutes plus an external reachability probe of the API.\n\nUptime is the share of requests answered without a server error, measured by the API per product family; a window with too little traffic to judge shows no figure. Status reflects the last 24 hours.\n\nProduct families: Company, Financials, SEC Filings, Insider Trades, Institutional Ownership, IPOs, Market, Metadata, Earnings Calls, News, WebSocket, Account, Alerts.",
+    "description": "Invinite financial data API. Each operation has a base credit cost: `x-credits` is the base cost; responses add 1 credit per started 1,000 rows beyond the first 1,000; `X-Credits-Charged` reports the final debit and `X-Credits-Remaining` what is left of the plan's included credits after it. A `304 Not Modified` costs nothing. `GET /v1/me/usage` returns your account's usage by day, product family and key (it costs no credits).\n\n**Coverage.** Financial data covers US SEC registrants and their US listings; a symbol that is not a US SEC registrant (or a crypto pair such as `X:BTCUSD`) is not a known company and answers 404. A known company with no data in a family (for example no statements yet) answers 404 with `code: not_covered`; an empty page of a covered company stays 200 with an empty list. `GET /v1/companies` lists every known company.\n\n## Webhooks\n\nAlerts (`POST /v1/alerts`) deliver their events to your destinations (`POST /v1/destinations`) as [Standard Webhooks](https://github.com/standard-webhooks/standard-webhooks/blob/main/spec/standard-webhooks.md): `alert.fired`, `alert.fired.batch`, `alert.status_changed`, `destination.disabled`, `destination.test`, `account.fire_cap_reached`, `alert_user.fire_cap_reached`; see `x-webhooks` for each `data` object. Every event is also on the pull feed `GET /v1/alert-events`.\n\nEvery delivery is a `POST` with `Content-Type: application/json`, the body `{type, timestamp, data}` (or the destination's `body_template`) and the headers `webhook-id` (the event id; a batch: its `bat_…` id), `webhook-timestamp` (unix seconds) and `webhook-signature`: space-separated `v1,<base64 HMAC-SHA256 of <webhook-id>.<webhook-timestamp>.<raw body>>`, keyed with the base64-DECODED bytes of the destination's `whsec_…` secret — any Standard Webhooks library verifies it. After `POST /v1/destinations/{id}:rotate-secret` the old secret keeps signing beside the new one for 24 h (two `v1` entries). Reject a timestamp older than 5 minutes. Any 2xx within 10 s acknowledges; redirects are not followed; a body above 256 KB is not sent. A failed attempt is retried after [0, 5 s, 5 min, 30 min, 2 h, 5 h, 10 h, 10 h, 10 h, 34 h] (attempt n waits the n-th step) plus up to 10 % jitter; the delivery is dead after attempt 10. A 410 disables the destination at once; so do 72 h of nothing but failures with at least 10 failed attempts in a row (a `destination.disabled` event on the feed and a mail; `PATCH` with `status: active` re-enables it). Delivery is at-least-once and unordered: dedupe on `webhook-id`, order by `timestamp`. A `batch_webhook` destination receives `alert.fired.batch` with the pending events in `data.events[]` (dedupe on each `data.event_id`).\n\nFires and deliveries cost no credits; two fair-use caps apply instead: at most 60 fires per alert per rolling hour (beyond: suppressed and counted in the next fire's `suppressed_since_last`) and per account and UTC day FREE 100 · LITE 5,000 · STANDARD 50,000 · PRO 500,000 fires (beyond: written to the feed with `delivery_skipped: fire_cap`, not delivered; one `account.fire_cap_reached` per day). An end user's `max_fires_per_day` (or the account default) caps that user first: beyond it `delivery_skipped: alert_user_fire_cap`, not counted against the account's cap, one `alert_user.fire_cap_reached` per user and day.\n\n## Licensing\n\n| Tier | display | redistribute | rag | train | audio | resell |\n| --- | --- | --- | --- | --- | --- | --- |\n| FREE | ✓ | – | – | – | – | – |\n| LITE | ✓ | – | – | – | – | – |\n| STANDARD | ✓ | – | ✓ | – | – | – |\n| PRO | ✓ | ✓ | ✓ | – | ✓ | – |\n| ENTERPRISE | ✓ | ✓ | ✓ | – | ✓ | – |\n\nInvinite data may be shown and, from PRO, redistributed inside the licensee's own product with attribution (\"Source: Invinite\" on screen or in the API response that carries it). It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.\n\nPolicy version: 2026-10-draft. Draft — pending counsel sign-off.\n\nAudio files carry a forensic watermark that identifies the recording. Audio is subject to per-company takedown and may not be re-hosted.\n\nSEC data: Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.\n\nNews: News text is Invinite's own summary of the issuer's or the SEC's publication (the publisher's text and media are never served); the licensee shows the attribution (publisher, source URL and date) next to it; the resale rule applies.\n\nPDF documents: Branded PDFs of transcripts and news items are permanent URLs to one shared file per version. They may be shown, downloaded and forwarded unmodified with the notice page intact; the resale rule applies unchanged. News PDFs carry Invinite's summary of the issuer's or the SEC's publication under the attribution stated on their notice page; a PDF disappears when the item is taken down or its source's reuse is denied.\n\nEvery `/v1/*` data operation carries `x-license`, the minimum use right its data ships with; `GET /status/licensing` serves the same matrix per route, rendered at [data.invinite.com/docs/licensing](https://data.invinite.com/docs/licensing). `/v1/me` and `/v1/me/usage` serve no licensed data and carry none.\n\n## Status\n\n[`/status`](/status) reports whether each product family works (a status and its uptime over 7, 30 and 90 days); [`/status/licensing`](/status/licensing) serves the licensing matrix per route. The status routes need no API key and are cached for 5 minutes. The public status page is [status.data.invinite.com](https://status.data.invinite.com): a snapshot of `/status` every 15 minutes plus an external reachability probe of the API.\n\nUptime is the share of requests answered without a server error, measured by the API per product family; a window with too little traffic to judge shows no figure. Status reflects the last 24 hours.\n\nProduct families: Company, Financials, SEC Filings, Insider Trades, Institutional Ownership, IPOs, Market, Metadata, Earnings Calls, News, WebSocket, Account, Alerts.",
     "version": "2026-11-13"
   },
   "components": {
@@ -13562,7 +13562,8 @@
               "alert.status_changed",
               "destination.disabled",
               "destination.test",
-              "account.fire_cap_reached"
+              "account.fire_cap_reached",
+              "alert_user.fire_cap_reached"
             ]
           },
           "alert_id": {
@@ -13582,6 +13583,264 @@
             "type": "object",
             "additionalProperties": true,
             "description": "The event body as delivered (`data` of the webhook)"
+          }
+        }
+      },
+      "AlertUser": {
+        "type": "object",
+        "title": "AlertUser",
+        "description": "One end user of the account (your own `external_user_id`): created by the first alert naming it or by a PATCH",
+        "required": [
+          "external_user_id",
+          "display_name",
+          "metadata",
+          "status",
+          "limits",
+          "effective_limits",
+          "usage",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "external_user_id": {
+            "type": "string",
+            "description": "Your end user's id"
+          },
+          "display_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "A name for your dashboards"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Your own key / value pairs (≤ 50 keys, ≤ 8 KB)"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "paused",
+              "deleting"
+            ],
+            "description": "`paused`: its alerts are paused and new ones refused; `deleting`: its erasure is running"
+          },
+          "limits": {
+            "$ref": "#/components/schemas/AlertUserLimits"
+          },
+          "effective_limits": {
+            "$ref": "#/components/schemas/AlertUserLimits"
+          },
+          "usage": {
+            "$ref": "#/components/schemas/AlertUserUsage"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AlertUserLimits": {
+        "type": "object",
+        "title": "AlertUserLimits",
+        "description": "An end user's limits (null = none)",
+        "required": [
+          "max_active_alerts",
+          "max_script_alerts",
+          "max_fires_per_day"
+        ],
+        "properties": {
+          "max_active_alerts": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Alerts that may count (active, paused, scheduled) for this end user; null = no limit"
+          },
+          "max_script_alerts": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Script and indicator alerts among them; null = no limit"
+          },
+          "max_fires_per_day": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Fires per UTC day of this end user's alerts before their deliveries pause; null = no cap"
+          }
+        }
+      },
+      "AlertUserUsage": {
+        "type": "object",
+        "title": "AlertUserUsage",
+        "description": "What the end user uses now",
+        "required": [
+          "active_alerts",
+          "script_alerts",
+          "fires_today",
+          "last_fired_at"
+        ],
+        "properties": {
+          "active_alerts": {
+            "type": "integer",
+            "description": "Its alerts that count (active, paused, scheduled)"
+          },
+          "script_alerts": {
+            "type": "integer",
+            "description": "Script and indicator alerts among them"
+          },
+          "fires_today": {
+            "type": "integer",
+            "description": "Fires of its alerts on the current UTC day"
+          },
+          "last_fired_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "The newest fire of its live alerts"
+          }
+        }
+      },
+      "AlertUserDeleteResult": {
+        "type": "object",
+        "title": "AlertUserDeleteResult",
+        "description": "The erasure of an end user: what this call removed. `deleting` = the rest is finished in the background (a repeated DELETE continues it)",
+        "required": [
+          "status",
+          "alerts_deleted",
+          "events_deleted",
+          "deliveries_deleted"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "deleted",
+              "deleting"
+            ],
+            "description": "`deleted`: nothing of the end user is left; `deleting`: its remaining events are removed in the background"
+          },
+          "alerts_deleted": {
+            "type": "integer",
+            "description": "Live alerts of the end user deleted (soft: they stay as deleted alerts without its id, client_reference_id and metadata)"
+          },
+          "events_deleted": {
+            "type": "integer",
+            "description": "Events of the end user permanently removed by this call"
+          },
+          "deliveries_deleted": {
+            "type": "integer",
+            "description": "Deliveries of those events permanently removed by this call"
+          }
+        }
+      },
+      "AlertUserBatchResponse": {
+        "type": "object",
+        "title": "AlertUserBatchResponse",
+        "required": [
+          "results"
+        ],
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AlertUserBatchResult"
+            }
+          }
+        }
+      },
+      "AlertUserBatchResult": {
+        "type": "object",
+        "title": "AlertUserBatchResult",
+        "required": [
+          "index",
+          "ok",
+          "result",
+          "alert_user",
+          "error"
+        ],
+        "properties": {
+          "index": {
+            "type": "integer",
+            "description": "Position of the item in the request"
+          },
+          "ok": {
+            "type": "boolean"
+          },
+          "result": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "created",
+              "updated"
+            ],
+            "description": "What happened; null when refused"
+          },
+          "alert_user": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AlertUser"
+              }
+            ],
+            "nullable": true,
+            "description": "The end user after the item; null when refused"
+          },
+          "error": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AlertBatchError"
+              }
+            ],
+            "nullable": true,
+            "description": "Why the item was refused; null when ok"
+          }
+        }
+      },
+      "AlertUserBatchItem": {
+        "type": "object",
+        "title": "AlertUserBatchItem",
+        "description": "One upsert: the end user's id and the fields of `AlertUserInput`",
+        "required": [
+          "external_user_id"
+        ],
+        "properties": {
+          "external_user_id": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Your end user's id"
+          },
+          "display_name": {
+            "type": "string",
+            "maxLength": 200,
+            "nullable": true,
+            "description": "A name for your dashboards (null clears it)"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Your own key / value pairs (≤ 50 keys, ≤ 8 KB); replaces the stored object"
+          },
+          "max_active_alerts": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 0,
+            "maximum": 100000000,
+            "description": "Alerts that may count (active, paused, scheduled) for this end user; null = the account default"
+          },
+          "max_script_alerts": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 0,
+            "maximum": 100000000,
+            "description": "Script and indicator alerts among them; null = the account default"
+          },
+          "max_fires_per_day": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 0,
+            "maximum": 100000000,
+            "description": "Fires per UTC day of this end user's alerts before their deliveries pause; null = the account default"
           }
         }
       },
@@ -14327,6 +14586,7 @@
                   "lite",
                   "standard",
                   "pro",
+                  "enterprise",
                   "prepaid"
                 ],
                 "description": "The account's Data API plan"
@@ -14491,6 +14751,40 @@
           }
         },
         "title": "Usage"
+      },
+      "AlertUserDefaults": {
+        "type": "object",
+        "title": "AlertUserDefaults",
+        "description": "The account's default end-user limits: they apply to every end user without its own value (null = no limit)",
+        "required": [
+          "max_active_alerts",
+          "max_script_alerts",
+          "max_fires_per_day",
+          "updated_at"
+        ],
+        "properties": {
+          "max_active_alerts": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Alerts that may count (active, paused, scheduled) for an end user without its own value; null = no limit"
+          },
+          "max_script_alerts": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Script and indicator alerts among them; null = no limit"
+          },
+          "max_fires_per_day": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Fires per UTC day of an end user's alerts before their deliveries pause; null = no cap"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Last change; null = never set"
+          }
+        }
       },
       "WebSocketFiling": {
         "type": "object",
@@ -15344,7 +15638,8 @@
                 "alert.status_changed",
                 "destination.disabled",
                 "destination.test",
-                "account.fire_cap_reached"
+                "account.fire_cap_reached",
+                "alert_user.fire_cap_reached"
               ]
             },
             "description": "Only these event types"
@@ -16258,7 +16553,8 @@
               "alert.status_changed",
               "destination.disabled",
               "destination.test",
-              "account.fire_cap_reached"
+              "account.fire_cap_reached",
+              "alert_user.fire_cap_reached"
             ]
           },
           "timestamp": {
@@ -16326,7 +16622,9 @@
               "unauthorized",
               "forbidden",
               "unavailable",
-              "conflict"
+              "conflict",
+              "alert_user_limit_reached",
+              "alert_user_paused"
             ],
             "example": "invalid_parameter"
           },
@@ -16678,6 +16976,7 @@
                               "news",
                               "alerts",
                               "alert_events",
+                              "alert_users",
                               "destinations",
                               "scripts"
                             ],
@@ -16901,7 +17200,8 @@
                         "free",
                         "lite",
                         "standard",
-                        "pro"
+                        "pro",
+                        "enterprise"
                       ],
                       "properties": {
                         "free": {
@@ -17027,6 +17327,37 @@
                               "type": "boolean"
                             }
                           }
+                        },
+                        "enterprise": {
+                          "type": "object",
+                          "required": [
+                            "display",
+                            "redistribute",
+                            "rag",
+                            "train",
+                            "audio",
+                            "resell"
+                          ],
+                          "properties": {
+                            "display": {
+                              "type": "boolean"
+                            },
+                            "redistribute": {
+                              "type": "boolean"
+                            },
+                            "rag": {
+                              "type": "boolean"
+                            },
+                            "train": {
+                              "type": "boolean"
+                            },
+                            "audio": {
+                              "type": "boolean"
+                            },
+                            "resell": {
+                              "type": "boolean"
+                            }
+                          }
                         }
                       }
                     },
@@ -17078,7 +17409,8 @@
                                     "free",
                                     "lite",
                                     "standard",
-                                    "pro"
+                                    "pro",
+                                    "enterprise"
                                   ]
                                 },
                                 "license": {
@@ -17173,6 +17505,14 @@
                       "resell": false
                     },
                     "pro": {
+                      "display": true,
+                      "redistribute": true,
+                      "rag": true,
+                      "train": false,
+                      "audio": true,
+                      "resell": false
+                    },
+                    "enterprise": {
                       "display": true,
                       "redistribute": true,
                       "rag": true,
@@ -21427,6 +21767,248 @@
             "date",
             "requests",
             "credits"
+          ]
+        },
+        "x-example-params": []
+      }
+    },
+    "/v1/me/alert-user-defaults": {
+      "get": {
+        "operationId": "getAlertUserDefaults",
+        "summary": "Get the end-user defaults",
+        "tags": [
+          "Account"
+        ],
+        "description": "The account's default end-user limits (every value null until set). Answers 503 `unavailable` while the alerts platform is switched off.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The resource",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/Cache-Control"
+              },
+              "X-Credits-Charged": {
+                "$ref": "#/components/headers/X-Credits-Charged"
+              },
+              "X-Credits-Remaining": {
+                "$ref": "#/components/headers/X-Credits-Remaining"
+              },
+              "X-RateLimit-Limit-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Second"
+              },
+              "X-RateLimit-Remaining-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Second"
+              },
+              "X-RateLimit-Limit-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Minute"
+              },
+              "X-RateLimit-Remaining-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Minute"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
+              },
+              "RateLimit": {
+                "$ref": "#/components/headers/RateLimit"
+              },
+              "RateLimit-Policy": {
+                "$ref": "#/components/headers/RateLimit-Policy"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertUserDefaults"
+                },
+                "example": {
+                  "max_active_alerts": 2,
+                  "max_script_alerts": null,
+                  "max_fires_per_day": null,
+                  "updated_at": "2026-11-19T16:59:52.616Z"
+                }
+              }
+            }
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          }
+        },
+        "x-tier": "free",
+        "x-credits": 0,
+        "x-cache-control": "private, no-store",
+        "x-cli": {
+          "group": "me",
+          "action": "alert-user-defaults-get",
+          "flags": {},
+          "columns": [
+            "max_active_alerts",
+            "max_script_alerts",
+            "max_fires_per_day"
+          ]
+        },
+        "x-example-params": []
+      },
+      "patch": {
+        "operationId": "updateAlertUserDefaults",
+        "summary": "Update the end-user defaults",
+        "tags": [
+          "Account"
+        ],
+        "description": "Sets the account's default end-user limits; null clears one. A default lowered below an end user's count keeps its alerts and refuses new ones. Answers 503 `unavailable` while the alerts platform is switched off.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "title": "UpdateAlertUserDefaultsRequest",
+                "minProperties": 1,
+                "description": "Any of the defaults; at least one. null clears a default (no limit)",
+                "properties": {
+                  "max_active_alerts": {
+                    "type": "integer",
+                    "nullable": true,
+                    "minimum": 0,
+                    "maximum": 100000000,
+                    "description": "Alerts that may count (active, paused, scheduled) for an end user without its own value; null = no limit"
+                  },
+                  "max_script_alerts": {
+                    "type": "integer",
+                    "nullable": true,
+                    "minimum": 0,
+                    "maximum": 100000000,
+                    "description": "Script and indicator alerts among them; null = no limit"
+                  },
+                  "max_fires_per_day": {
+                    "type": "integer",
+                    "nullable": true,
+                    "minimum": 0,
+                    "maximum": 100000000,
+                    "description": "Fires per UTC day of an end user's alerts before their deliveries pause; null = no cap"
+                  }
+                }
+              },
+              "example": {
+                "max_active_alerts": 10,
+                "max_script_alerts": 1
+              }
+            }
+          },
+          "description": "Any of the defaults; at least one. null clears a default (no limit)",
+          "required": true
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The resource",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              },
+              "X-Credits-Charged": {
+                "$ref": "#/components/headers/X-Credits-Charged"
+              },
+              "X-Credits-Remaining": {
+                "$ref": "#/components/headers/X-Credits-Remaining"
+              },
+              "X-RateLimit-Limit-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Second"
+              },
+              "X-RateLimit-Remaining-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Second"
+              },
+              "X-RateLimit-Limit-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Minute"
+              },
+              "X-RateLimit-Remaining-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Minute"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
+              },
+              "RateLimit": {
+                "$ref": "#/components/headers/RateLimit"
+              },
+              "RateLimit-Policy": {
+                "$ref": "#/components/headers/RateLimit-Policy"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertUserDefaults"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          }
+        },
+        "x-tier": "free",
+        "x-credits": 0,
+        "x-cache-control": "private, no-store",
+        "x-cli": {
+          "group": "me",
+          "action": "alert-user-defaults-update",
+          "flags": {},
+          "columns": [
+            "max_active_alerts",
+            "max_script_alerts",
+            "max_fires_per_day"
           ]
         },
         "x-example-params": []
@@ -39536,7 +40118,7 @@
         "tags": [
           "Alerts"
         ],
-        "description": "Creates an alert rule (201). With a `client_reference_id` the create is idempotent: a live alert with the same id is returned as it is (200). Counts against the plan's active-alert quota (403 `plan_required` when full). Answers 503 `unavailable` while the alerts platform is switched off.",
+        "description": "Creates an alert rule (201). With a `client_reference_id` the create is idempotent: a live alert with the same id is returned as it is (200). Counts against the plan's active-alert quota (403 `plan_required` when full). With `validate_only=true` nothing is written and a valid alert answers 204. Answers 503 `unavailable` while the alerts platform is switched off.",
         "requestBody": {
           "content": {
             "application/json": {
@@ -39631,6 +40213,17 @@
           "required": true
         },
         "parameters": [
+          {
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "in": "query",
+            "name": "validate_only",
+            "required": false,
+            "description": "true = run every check of the create (body, plan, coverage, destinations, quotas, end user) and answer 204 without creating anything; the same problems as a real create. Idempotency-Key is ignored",
+            "example": true
+          },
           {
             "schema": {
               "type": "string",
@@ -39729,6 +40322,48 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Alert"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "validate_only=true: the alert is valid; nothing was created",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              },
+              "X-Credits-Charged": {
+                "$ref": "#/components/headers/X-Credits-Charged"
+              },
+              "X-Credits-Remaining": {
+                "$ref": "#/components/headers/X-Credits-Remaining"
+              },
+              "X-RateLimit-Limit-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Second"
+              },
+              "X-RateLimit-Remaining-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Second"
+              },
+              "X-RateLimit-Limit-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Minute"
+              },
+              "X-RateLimit-Remaining-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Minute"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
+              },
+              "RateLimit": {
+                "$ref": "#/components/headers/RateLimit"
+              },
+              "RateLimit-Policy": {
+                "$ref": "#/components/headers/RateLimit-Policy"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "validate_only=true: the alert is valid; nothing was created"
                 }
               }
             }
@@ -40610,7 +41245,8 @@
                 "alert.status_changed",
                 "destination.disabled",
                 "destination.test",
-                "account.fire_cap_reached"
+                "account.fire_cap_reached",
+                "alert_user.fire_cap_reached"
               ]
             },
             "in": "query",
@@ -40943,7 +41579,8 @@
                 "alert.status_changed",
                 "destination.disabled",
                 "destination.test",
-                "account.fire_cap_reached"
+                "account.fire_cap_reached",
+                "alert_user.fire_cap_reached"
               ]
             },
             "in": "query",
@@ -42406,6 +43043,1033 @@
         "x-example-params": []
       }
     },
+    "/v1/alert-users": {
+      "get": {
+        "operationId": "listAlertUsers",
+        "summary": "List end users",
+        "tags": [
+          "Alert users"
+        ],
+        "description": "The account's end users, ordered by `external_user_id`, each with its limits, effective limits (after the account defaults) and usage. Answers 503 `unavailable` while the alerts platform is switched off.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 25
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "description": "Rows per page (default 25, max 200)",
+            "example": 25
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+            "example": "eyJ2IjoyfQ"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "paused",
+                "deleting"
+              ]
+            },
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "description": "Only end users in this status",
+            "example": "active"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "description": "Only end users whose id starts with this prefix",
+            "example": "user_"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of rows",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/Cache-Control"
+              },
+              "X-Credits-Charged": {
+                "$ref": "#/components/headers/X-Credits-Charged"
+              },
+              "X-Credits-Remaining": {
+                "$ref": "#/components/headers/X-Credits-Remaining"
+              },
+              "X-RateLimit-Limit-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Second"
+              },
+              "X-RateLimit-Remaining-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Second"
+              },
+              "X-RateLimit-Limit-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Minute"
+              },
+              "X-RateLimit-Remaining-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Minute"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
+              },
+              "RateLimit": {
+                "$ref": "#/components/headers/RateLimit"
+              },
+              "RateLimit-Policy": {
+                "$ref": "#/components/headers/RateLimit-Policy"
+              },
+              "Link": {
+                "$ref": "#/components/headers/Link"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "A page of AlertUser rows (the list envelope, R3)",
+                  "type": "object",
+                  "required": [
+                    "data",
+                    "has_more",
+                    "next_cursor",
+                    "meta"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "description": "The rows of this page",
+                      "items": {
+                        "$ref": "#/components/schemas/AlertUser"
+                      }
+                    },
+                    "has_more": {
+                      "type": "boolean",
+                      "description": "true when a next page exists"
+                    },
+                    "next_cursor": {
+                      "type": "string",
+                      "description": "Opaque cursor of the next page; null on the last page",
+                      "nullable": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "description": "Page metadata",
+                      "properties": {
+                        "coverage": {
+                          "$ref": "#/components/schemas/MetaCoverage"
+                        },
+                        "source": {
+                          "$ref": "#/components/schemas/MetaSource"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "external_user_id": "smoke-a",
+                      "display_name": null,
+                      "metadata": {},
+                      "status": "active",
+                      "limits": {
+                        "max_active_alerts": 3,
+                        "max_script_alerts": null,
+                        "max_fires_per_day": null
+                      },
+                      "effective_limits": {
+                        "max_active_alerts": 3,
+                        "max_script_alerts": null,
+                        "max_fires_per_day": null
+                      },
+                      "usage": {
+                        "active_alerts": 3,
+                        "script_alerts": 0,
+                        "fires_today": 0,
+                        "last_fired_at": null
+                      },
+                      "created_at": "2026-11-19T16:59:52.948Z",
+                      "updated_at": "2026-11-19T16:59:59.916Z"
+                    }
+                  ],
+                  "has_more": false,
+                  "next_cursor": null,
+                  "meta": {
+                    "coverage": {
+                      "state": "complete",
+                      "through": null,
+                      "retry_after_s": null
+                    },
+                    "source": {
+                      "dataset_release": "2026q3",
+                      "version_id": null,
+                      "accession": "0000320193-26-000026",
+                      "fetched_at": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          }
+        },
+        "x-tier": "free",
+        "x-credits": 1,
+        "x-license": "display",
+        "x-cache-control": "private, no-store",
+        "x-cli": {
+          "group": "alert-users",
+          "action": "list",
+          "flags": {
+            "limit": "l"
+          },
+          "columns": [
+            "external_user_id",
+            "status",
+            "display_name",
+            "created_at"
+          ]
+        },
+        "x-example-params": []
+      }
+    },
+    "/v1/alert-users/{external_user_id}": {
+      "get": {
+        "operationId": "getAlertUser",
+        "summary": "Get an end user",
+        "tags": [
+          "Alert users"
+        ],
+        "description": "One end user with its limits and usage; 404 when the account has no end user of this id. Answers 503 `unavailable` while the alerts platform is switched off.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "in": "path",
+            "name": "external_user_id",
+            "required": true,
+            "description": "Your end user's id (URL-encoded; any character, 1–200)",
+            "example": "user_8812"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The resource",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/Cache-Control"
+              },
+              "X-Credits-Charged": {
+                "$ref": "#/components/headers/X-Credits-Charged"
+              },
+              "X-Credits-Remaining": {
+                "$ref": "#/components/headers/X-Credits-Remaining"
+              },
+              "X-RateLimit-Limit-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Second"
+              },
+              "X-RateLimit-Remaining-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Second"
+              },
+              "X-RateLimit-Limit-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Minute"
+              },
+              "X-RateLimit-Remaining-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Minute"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
+              },
+              "RateLimit": {
+                "$ref": "#/components/headers/RateLimit"
+              },
+              "RateLimit-Policy": {
+                "$ref": "#/components/headers/RateLimit-Policy"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertUser"
+                },
+                "example": {
+                  "external_user_id": "smoke-a",
+                  "display_name": null,
+                  "metadata": {},
+                  "status": "active",
+                  "limits": {
+                    "max_active_alerts": 3,
+                    "max_script_alerts": null,
+                    "max_fires_per_day": null
+                  },
+                  "effective_limits": {
+                    "max_active_alerts": 3,
+                    "max_script_alerts": null,
+                    "max_fires_per_day": null
+                  },
+                  "usage": {
+                    "active_alerts": 3,
+                    "script_alerts": 0,
+                    "fires_today": 0,
+                    "last_fired_at": null
+                  },
+                  "created_at": "2026-11-19T16:59:52.948Z",
+                  "updated_at": "2026-11-19T16:59:59.916Z"
+                }
+              }
+            }
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          }
+        },
+        "x-tier": "free",
+        "x-credits": 1,
+        "x-license": "display",
+        "x-cache-control": "private, no-store",
+        "x-cli": {
+          "group": "alert-users",
+          "action": "get",
+          "positional": "external_user_id",
+          "flags": {},
+          "columns": [
+            "external_user_id",
+            "status",
+            "display_name",
+            "created_at"
+          ]
+        },
+        "x-example-params": []
+      },
+      "patch": {
+        "operationId": "updateAlertUser",
+        "summary": "Create or update an end user",
+        "tags": [
+          "Alert users"
+        ],
+        "description": "Sets the display name, metadata or limits of an end user, and creates it when absent (an upsert). A limit lowered below the current count keeps the existing alerts and refuses new ones (403 `alert_user_limit_reached`). Answers 503 `unavailable` while the alerts platform is switched off.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "title": "UpdateAlertUserRequest",
+                "minProperties": 1,
+                "description": "Any of the fields; at least one. A missing field stays as it is; `status` is changed by pause / resume only",
+                "properties": {
+                  "display_name": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "nullable": true,
+                    "description": "A name for your dashboards (null clears it)"
+                  },
+                  "metadata": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "description": "Your own key / value pairs (≤ 50 keys, ≤ 8 KB); replaces the stored object"
+                  },
+                  "max_active_alerts": {
+                    "type": "integer",
+                    "nullable": true,
+                    "minimum": 0,
+                    "maximum": 100000000,
+                    "description": "Alerts that may count (active, paused, scheduled) for this end user; null = the account default"
+                  },
+                  "max_script_alerts": {
+                    "type": "integer",
+                    "nullable": true,
+                    "minimum": 0,
+                    "maximum": 100000000,
+                    "description": "Script and indicator alerts among them; null = the account default"
+                  },
+                  "max_fires_per_day": {
+                    "type": "integer",
+                    "nullable": true,
+                    "minimum": 0,
+                    "maximum": 100000000,
+                    "description": "Fires per UTC day of this end user's alerts before their deliveries pause; null = the account default"
+                  }
+                }
+              },
+              "example": {
+                "display_name": "Jane (premium)",
+                "max_active_alerts": 50,
+                "max_script_alerts": 5
+              }
+            }
+          },
+          "description": "Any of the fields; at least one. A missing field stays as it is; `status` is changed by pause / resume only",
+          "required": true
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "in": "path",
+            "name": "external_user_id",
+            "required": true,
+            "description": "Your end user's id (URL-encoded; any character, 1–200)",
+            "example": "user_8812"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The resource",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              },
+              "X-Credits-Charged": {
+                "$ref": "#/components/headers/X-Credits-Charged"
+              },
+              "X-Credits-Remaining": {
+                "$ref": "#/components/headers/X-Credits-Remaining"
+              },
+              "X-RateLimit-Limit-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Second"
+              },
+              "X-RateLimit-Remaining-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Second"
+              },
+              "X-RateLimit-Limit-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Minute"
+              },
+              "X-RateLimit-Remaining-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Minute"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
+              },
+              "RateLimit": {
+                "$ref": "#/components/headers/RateLimit"
+              },
+              "RateLimit-Policy": {
+                "$ref": "#/components/headers/RateLimit-Policy"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertUser"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          }
+        },
+        "x-tier": "free",
+        "x-credits": 1,
+        "x-license": "display",
+        "x-cache-control": "private, no-store",
+        "x-cli": {
+          "group": "alert-users",
+          "action": "update",
+          "positional": "external_user_id",
+          "flags": {},
+          "columns": [
+            "external_user_id",
+            "status",
+            "display_name",
+            "created_at"
+          ]
+        },
+        "x-example-params": []
+      },
+      "delete": {
+        "operationId": "deleteAlertUser",
+        "summary": "Delete an end user",
+        "tags": [
+          "Alert users"
+        ],
+        "description": "Erases an end user: its live alerts are deleted (without its id, client_reference_id and metadata), its open deliveries are cancelled, and its events, deliveries, fire counters and the end user itself are permanently removed. Answers 200 with `status: deleted`, or `deleting` when the rest is finished in the background (creates for the id answer 409 until then). A pull-feed or WebSocket cursor on a removed event answers like any unknown `after`. 404 when the account knows nothing of the id. Answers 503 `unavailable` while the alerts platform is switched off.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "in": "path",
+            "name": "external_user_id",
+            "required": true,
+            "description": "Your end user's id (URL-encoded; any character, 1–200)",
+            "example": "user_8812"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The resource",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              },
+              "X-Credits-Charged": {
+                "$ref": "#/components/headers/X-Credits-Charged"
+              },
+              "X-Credits-Remaining": {
+                "$ref": "#/components/headers/X-Credits-Remaining"
+              },
+              "X-RateLimit-Limit-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Second"
+              },
+              "X-RateLimit-Remaining-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Second"
+              },
+              "X-RateLimit-Limit-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Minute"
+              },
+              "X-RateLimit-Remaining-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Minute"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
+              },
+              "RateLimit": {
+                "$ref": "#/components/headers/RateLimit"
+              },
+              "RateLimit-Policy": {
+                "$ref": "#/components/headers/RateLimit-Policy"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertUserDeleteResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          }
+        },
+        "x-tier": "free",
+        "x-credits": 1,
+        "x-license": "display",
+        "x-cache-control": "private, no-store",
+        "x-cli": {
+          "group": "alert-users",
+          "action": "delete",
+          "positional": "external_user_id",
+          "flags": {},
+          "columns": [
+            "status",
+            "alerts_deleted",
+            "events_deleted",
+            "deliveries_deleted"
+          ]
+        },
+        "x-example-params": []
+      }
+    },
+    "/v1/alert-users:batch": {
+      "post": {
+        "operationId": "batchAlertUsers",
+        "summary": "Create or update end users in bulk",
+        "tags": [
+          "Alert users"
+        ],
+        "description": "Up to 500 upserts, each an `external_user_id` with the fields of `updateAlertUser`. One result per item, in order; a refused item never undoes another. Answers 503 `unavailable` while the alerts platform is switched off.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "title": "BatchAlertUsersRequest",
+                "required": [
+                  "items"
+                ],
+                "properties": {
+                  "items": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 500,
+                    "items": {
+                      "$ref": "#/components/schemas/AlertUserBatchItem"
+                    }
+                  }
+                }
+              },
+              "example": {
+                "items": [
+                  {
+                    "external_user_id": "user_8812",
+                    "max_active_alerts": 50
+                  },
+                  {
+                    "external_user_id": "user_9001",
+                    "max_active_alerts": 10,
+                    "max_script_alerts": 0
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The resource",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              },
+              "X-Credits-Charged": {
+                "$ref": "#/components/headers/X-Credits-Charged"
+              },
+              "X-Credits-Remaining": {
+                "$ref": "#/components/headers/X-Credits-Remaining"
+              },
+              "X-RateLimit-Limit-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Second"
+              },
+              "X-RateLimit-Remaining-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Second"
+              },
+              "X-RateLimit-Limit-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Minute"
+              },
+              "X-RateLimit-Remaining-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Minute"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
+              },
+              "RateLimit": {
+                "$ref": "#/components/headers/RateLimit"
+              },
+              "RateLimit-Policy": {
+                "$ref": "#/components/headers/RateLimit-Policy"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertUserBatchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          }
+        },
+        "x-tier": "free",
+        "x-credits": 1,
+        "x-license": "display",
+        "x-cache-control": "private, no-store",
+        "x-cli": {
+          "group": "alert-users",
+          "action": "batch",
+          "flags": {},
+          "columns": [
+            "index",
+            "ok",
+            "result"
+          ]
+        },
+        "x-example-params": []
+      }
+    },
+    "/v1/alert-users/{external_user_id}:pause": {
+      "post": {
+        "operationId": "pauseAlertUser",
+        "summary": "Pause an end user",
+        "tags": [
+          "Alert users"
+        ],
+        "description": "Pauses every active or scheduled alert of the end user (and a paused one whose `pause_until` would end its pause) and refuses new alerts and per-alert resumes (403 `alert_user_paused`) until the end user is resumed; the pause never ends by itself. Creates the end user paused when absent. A paused end user answers unchanged; 409 `conflict` while it is being deleted. Answers 503 `unavailable` while the alerts platform is switched off.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "in": "path",
+            "name": "external_user_id",
+            "required": true,
+            "description": "Your end user's id (URL-encoded; any character, 1–200)",
+            "example": "user_8812"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The resource",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              },
+              "X-Credits-Charged": {
+                "$ref": "#/components/headers/X-Credits-Charged"
+              },
+              "X-Credits-Remaining": {
+                "$ref": "#/components/headers/X-Credits-Remaining"
+              },
+              "X-RateLimit-Limit-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Second"
+              },
+              "X-RateLimit-Remaining-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Second"
+              },
+              "X-RateLimit-Limit-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Minute"
+              },
+              "X-RateLimit-Remaining-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Minute"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
+              },
+              "RateLimit": {
+                "$ref": "#/components/headers/RateLimit"
+              },
+              "RateLimit-Policy": {
+                "$ref": "#/components/headers/RateLimit-Policy"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertUser"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          }
+        },
+        "x-tier": "free",
+        "x-credits": 1,
+        "x-license": "display",
+        "x-cache-control": "private, no-store",
+        "x-cli": {
+          "group": "alert-users",
+          "action": "pause",
+          "positional": "external_user_id",
+          "flags": {},
+          "columns": [
+            "external_user_id",
+            "status",
+            "display_name",
+            "created_at"
+          ]
+        },
+        "x-example-params": []
+      }
+    },
+    "/v1/alert-users/{external_user_id}:resume": {
+      "post": {
+        "operationId": "resumeAlertUser",
+        "summary": "Resume an end user",
+        "tags": [
+          "Alert users"
+        ],
+        "description": "The end user is active again and exactly the alerts its pause paused are armed again (scheduled while `trigger.activate_at` lies ahead; a `pause_until` still ahead keeps them quiet until then); an alert paused on its own stays paused. An active end user answers unchanged; 404 for an unknown id, 409 `conflict` while it is being deleted. Answers 503 `unavailable` while the alerts platform is switched off.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "in": "path",
+            "name": "external_user_id",
+            "required": true,
+            "description": "Your end user's id (URL-encoded; any character, 1–200)",
+            "example": "user_8812"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The resource",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              },
+              "X-Credits-Charged": {
+                "$ref": "#/components/headers/X-Credits-Charged"
+              },
+              "X-Credits-Remaining": {
+                "$ref": "#/components/headers/X-Credits-Remaining"
+              },
+              "X-RateLimit-Limit-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Second"
+              },
+              "X-RateLimit-Remaining-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Second"
+              },
+              "X-RateLimit-Limit-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Minute"
+              },
+              "X-RateLimit-Remaining-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Minute"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
+              },
+              "RateLimit": {
+                "$ref": "#/components/headers/RateLimit"
+              },
+              "RateLimit-Policy": {
+                "$ref": "#/components/headers/RateLimit-Policy"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertUser"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          }
+        },
+        "x-tier": "free",
+        "x-credits": 1,
+        "x-license": "display",
+        "x-cache-control": "private, no-store",
+        "x-cli": {
+          "group": "alert-users",
+          "action": "resume",
+          "positional": "external_user_id",
+          "flags": {},
+          "columns": [
+            "external_user_id",
+            "status",
+            "display_name",
+            "created_at"
+          ]
+        },
+        "x-example-params": []
+      }
+    },
     "/v1/scripts": {
       "get": {
         "operationId": "listScripts",
@@ -43780,6 +45444,10 @@
       "description": "Alert rules: create, change, pause and batch them"
     },
     {
+      "name": "Alert users",
+      "description": "Your own end users on the alerts platform (B2B2C): per-user limits, usage and the account defaults"
+    },
+    {
       "name": "Alert events",
       "description": "The fire log of your alerts: the pull feed and test events"
     },
@@ -43985,9 +45653,10 @@
                           },
                           "delivery_skipped": {
                             "type": "string",
-                            "description": "`fire_cap`: the account's daily fire cap was reached — the event is on the pull feed and the WebSocket, it was not delivered (you see it here only through GET /v1/alert-events)",
+                            "description": "Why the event was not delivered — it is on the pull feed and the WebSocket (you see it here only through GET /v1/alert-events): `fire_cap` = the account's daily fire cap was reached; `alert_user_fire_cap` = the daily cap of the alert's end user (`max_fires_per_day`) was reached (such a fire does not count against the account's cap)",
                             "enum": [
-                              "fire_cap"
+                              "fire_cap",
+                              "alert_user_fire_cap"
                             ]
                           },
                           "test": {
@@ -44098,7 +45767,8 @@
                                     "alert.status_changed",
                                     "destination.disabled",
                                     "destination.test",
-                                    "account.fire_cap_reached"
+                                    "account.fire_cap_reached",
+                                    "alert_user.fire_cap_reached"
                                   ]
                                 },
                                 "timestamp": {
@@ -44546,7 +46216,7 @@
     "account.fire_cap_reached": {
       "post": {
         "summary": "account.fire_cap_reached",
-        "description": "The account reached its daily fire cap (once per UTC day, to every active destination). Further fires of the day stay on the pull feed with `delivery_skipped: fire_cap`; deliveries resume at 00:00 UTC",
+        "description": "The account reached its daily fire cap (once per UTC day, to every active destination). Further fires of the day stay on the pull feed with `delivery_skipped: fire_cap`; deliveries resume at 00:00 UTC. An end user's own cap has its own event, `alert_user.fire_cap_reached`",
         "tags": [
           "Alert events"
         ],
@@ -44598,7 +46268,7 @@
                       },
                       "data": {
                         "type": "object",
-                        "description": "The account reached its daily fire cap (once per UTC day, to every active destination). Further fires of the day stay on the pull feed with `delivery_skipped: fire_cap`; deliveries resume at 00:00 UTC",
+                        "description": "The account reached its daily fire cap (once per UTC day, to every active destination). Further fires of the day stay on the pull feed with `delivery_skipped: fire_cap`; deliveries resume at 00:00 UTC. An end user's own cap has its own event, `alert_user.fire_cap_reached`",
                         "required": [
                           "event_id",
                           "day",
@@ -44629,6 +46299,102 @@
                               "pro",
                               "enterprise"
                             ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "Acknowledged; anything else is retried (410 disables)"
+          }
+        }
+      }
+    },
+    "alert_user.fire_cap_reached": {
+      "post": {
+        "summary": "alert_user.fire_cap_reached",
+        "description": "An end user reached its daily fire cap (`max_fires_per_day` of the user, else the account default; once per user and UTC day, to every active destination of the account). Its further fires of the day stay on the pull feed with `delivery_skipped: alert_user_fire_cap` and do not count against the account's cap; deliveries resume at 00:00 UTC",
+        "tags": [
+          "Alert events"
+        ],
+        "parameters": [
+          {
+            "name": "webhook-id",
+            "in": "header",
+            "required": true,
+            "description": "Event id (`evt_…`; a batch: `bat_…`), the same on every retry: dedupe on it",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "webhook-timestamp",
+            "in": "header",
+            "required": true,
+            "description": "Unix seconds of this attempt; reject one older than 5 minutes",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "webhook-signature",
+            "in": "header",
+            "required": true,
+            "description": "Space-separated `v1,<base64 HMAC-SHA256 of id.timestamp.body>`, one per valid secret (two during a rotation)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/AlertWebhookEnvelope"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "alert_user.fire_cap_reached"
+                        ]
+                      },
+                      "data": {
+                        "type": "object",
+                        "description": "An end user reached its daily fire cap (`max_fires_per_day` of the user, else the account default; once per user and UTC day, to every active destination of the account). Its further fires of the day stay on the pull feed with `delivery_skipped: alert_user_fire_cap` and do not count against the account's cap; deliveries resume at 00:00 UTC",
+                        "required": [
+                          "event_id",
+                          "external_user_id",
+                          "day",
+                          "cap"
+                        ],
+                        "properties": {
+                          "event_id": {
+                            "type": "string",
+                            "description": "Event id (`evt_…`) = the `webhook-id` of its single deliveries; dedupe on it"
+                          },
+                          "external_user_id": {
+                            "type": "string",
+                            "description": "The end user (your id)"
+                          },
+                          "day": {
+                            "type": "string",
+                            "description": "The UTC day",
+                            "format": "date"
+                          },
+                          "cap": {
+                            "type": "integer",
+                            "description": "The user's effective fires per UTC day"
                           }
                         }
                       }
