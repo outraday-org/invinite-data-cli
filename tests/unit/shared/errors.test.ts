@@ -59,6 +59,7 @@ describe('exit codes', () => {
       plan_required: EXIT.credits, insufficient_credits: EXIT.credits,
       excluded: EXIT.failure, rate_limited: EXIT.failure, idempotency_in_flight: EXIT.failure, conflict: EXIT.failure,
       internal: EXIT.failure, unavailable: EXIT.failure,
+      alert_user_limit_reached: EXIT.failure, alert_user_paused: EXIT.failure,
     };
     const codes = contract.problem_codes.map(entry => entry.code);
     expect([...codes].sort()).toEqual(Object.keys(expected).sort());
