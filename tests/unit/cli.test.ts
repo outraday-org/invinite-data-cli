@@ -79,13 +79,13 @@ describe('help', () => {
     let text = '';
     program.configureOutput({ writeOut: (chunk) => { text += chunk; } });
     program.exitOverride();
-    const holdings = program.commands.find(command => command.name() === 'holdings');
-    holdings?.commands.forEach(command => command.configureOutput({ writeOut: (chunk) => { text += chunk; } }));
-    expect(() => program.parse(['node', 'invd', 'holdings', 'list', '--help'])).toThrow();
-    const examples = text.split('\n').filter(line => line.startsWith('  $ invd holdings list'));
+    const holders = program.commands.find(command => command.name() === 'holders');
+    holders?.commands.forEach(command => command.configureOutput({ writeOut: (chunk) => { text += chunk; } }));
+    expect(() => program.parse(['node', 'invd', 'holders', 'list', '--help'])).toThrow();
+    const examples = text.split('\n').filter(line => line.startsWith('  $ invd holders list'));
     expect(text.startsWith('Examples:')).toBe(true);
     expect(examples).toHaveLength(2);
-    expect(examples[0]).toContain('AAPL');
+    expect(examples[0]).toContain('NVDA');
     expect(text).toContain('Fields (--json a,b):');
   });
 });
@@ -101,6 +101,6 @@ describe('loadManifest', () => {
 
   it('carries only /v1 operations', () => {
     expect(loadManifest().operations.every(operation => operation.path.startsWith('/v1/'))).toBe(true);
-    expect(loadManifest().operations).toHaveLength(115);
+    expect(loadManifest().operations).toHaveLength(121);
   });
 });

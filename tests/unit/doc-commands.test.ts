@@ -158,7 +158,9 @@ describe('invd command spellings in the docs', () => {
     expect(problems(program, 'invd screener AAPL')).toEqual(['unknown command screener under `invd`', 'no command']);
     expect(problems(program, 'invd companies get AAPL MSFT')).toEqual(['unexpected argument MSFT']);
     expect(problems(program, 'invd filings AAPL --form 10-K')).toEqual([]);
-    expect(problems(program, 'invd holdings --filer 0000102909')).toEqual([]);
+    expect(problems(program, 'invd filers holdings 0000102909')).toEqual([]);
+    expect(problems(program, 'invd holders NVDA --source nport')).toEqual([]);
+    expect(problems(program, 'invd holders NVDA AAPL')).toEqual(['unexpected argument AAPL']);
     expect(problems(program, 'invd events transcript NVDA 2026Q3')).toEqual([]);
     expect(problems(program, 'invd config set base_url https://example.com')).toEqual([]);
     expect(problems(program, 'invd metrics ratios\\|growth\\|cagr')).toEqual([]);

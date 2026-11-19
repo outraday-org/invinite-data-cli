@@ -121,7 +121,7 @@ function print(body: unknown, jq: string | undefined): void {
 
 /**
  * `invd api`: any operation of the spec, raw. `--paginate` follows `next_cursor` / `Link rel="next"` and prints
- * every page (each through `--jq`), so `invd api /v1/filings?company=AAPL --paginate --jq '.data[].accession'`
+ * every page (each through `--jq`), so `invd api /v1/filings?symbol=AAPL --paginate --jq '.data[].accession'`
  * streams accessions.
  */
 export function registerApiCommand(program: Command): void {
@@ -129,7 +129,7 @@ export function registerApiCommand(program: Command): void {
     .command('api')
     .description('Call any API path directly (the escape hatch for anything the command tree lacks)')
     .argument('<method-or-path>', 'GET (default), POST, PATCH, DELETE … or the path')
-    .argument('[path]', 'The path when a method is given, e.g. /v1/filings?company=AAPL')
+    .argument('[path]', 'The path when a method is given, e.g. /v1/filings?symbol=AAPL')
     .option('-F, --field <key=value>', 'A parameter (query on GET / DELETE, JSON body field otherwise); typed: numbers, true / false, null, @file', collect, [])
     .option('-f, --raw-field <key=value>', 'Like -F, always a string', collect, [])
     .option('-H, --header <name:value>', 'An extra request header', collect, [])
@@ -143,7 +143,7 @@ export function registerApiCommand(program: Command): void {
     .addHelpText('before', [
       'Examples:',
       '  $ invd api /v1/companies/AAPL',
-      "  $ invd api GET /v1/filings?company=AAPL --paginate --jq '.data[].accession'",
+      "  $ invd api GET /v1/filings?symbol=AAPL --paginate --jq '.data[].accession'",
       '',
     ].join('\n'))
     .addHelpText('after', '\nPaths: invd completion <shell> completes every /v1 path of the spec after `invd api`.\n')

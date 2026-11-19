@@ -1,22 +1,27 @@
 # @invinite-org/invinite-data-cli
 
 `invd` is the command-line interface for the [Invinite Data API](https://invinite.com/docs/data-api/overview) (v2):
-listed companies and every SEC filer, standardized and as-reported financial statements, ratios, growth and CAGR,
+every exchange-traded US instrument (stocks, ETFs, closed-end funds, ETNs) with its type and the data served for it,
+operating companies and every SEC filer, standardized and as-reported financial statements, ratios, growth and CAGR,
 segments, SEC filings and immutable document versions, earnings calls (transcripts, Q&A, guidance, slides, audio),
-13F and N-PORT fund holdings, daily ETF composition and weights, insider trades, IPOs and Form D offerings, news and full-text search — from your terminal, a script or an AI agent.
+fund holdings and weights, who holds a stock or a fund (13F, N-PORT, ETF issuer files), insider trades, IPOs and
+Form D offerings, news and full-text search — from your terminal, a script or an AI agent.
 
 ```bash
+invd instruments get TQQQ
 invd financials AAPL --period quarterly --limit 4
 invd filings AAPL --form 10-K
 invd events transcript AAPL 2026Q3
-invd holdings AAPL
-invd search filings "supply chain risk" --company AAPL
+invd funds holdings SPY
+invd holders NVDA --source 13f
+invd search filings "supply chain risk" --symbol AAPL
 ```
 
 Version 6.0 keeps the 5.0 commands and follows the conventions shared with the Web CLI `inv`: one exit-code table
 (not found 3, partial 7, interrupted 130 / 143), a three-line error with the API's remedy, and the config file in
 `~/.config/invinite/invd.toml`. Version 7.0 replaces webhooks with alerts
-([Upgrading from 6.x](#upgrading-from-6x)). Coming from 5.x, read [Upgrading from 5.x](#upgrading-from-5x); from 4.x,
+([Upgrading from 6.x](#upgrading-from-6x)). Version 8.0 follows Data API 7.0: instruments, funds and one holders
+command ([Changes in 8.0](#changes-in-80)). Coming from 5.x, read [Upgrading from 5.x](#upgrading-from-5x); from 4.x,
 [Upgrading from 4.x](#upgrading-from-4x); from 3.x, [Upgrading from 3.x](#upgrading-from-3x).
 
 ## Installation
@@ -71,8 +76,11 @@ Commands are noun-verb over the API's groups:
 
 | Group | What it reads |
 |---|---|
-| `companies` | listed companies: list, profile, fiscal periods, dividends, splits |
-| `filers` | every SEC filer (13F managers, pre-IPO issuers, former registrants), listed or not |
+| `instruments` | everything exchange-traded: stocks, ETFs, closed-end funds and ETNs; `get` prints the `type`, a fund's `structure` and the `datasets` served for it first |
+| `companies` | operating companies: list, profile, fiscal periods (a fund is `invd funds`) |
+| `funds` | ETFs and closed-end funds: list, profile, holdings (the freshest composition, the header names its source and as-of date), sector / country / asset-class weights |
+| `dividends`, `splits` | dividends and splits of any instrument (a stock, a fund, an ETN) |
+| `filers` | every SEC filer (13F managers, pre-IPO issuers, former registrants), listed or not; a 13F manager's portfolio (`filers holdings`) and its changes (`filers holding-changes`) |
 | `financials` | statements: standardized or as-reported, summary / detailed / presentation, point in time |
 | `metrics` | ratios, growth, CAGR, and the explanation of one standardized fact |
 | `segments` | segment values (revenue by product, geography …) |
@@ -81,9 +89,7 @@ Commands are noun-verb over the API's groups:
 | `events` | earnings calls and other corporate events: transcripts, Q&A, slides, audio, call analytics |
 | `guidance` | guidance items and KPI mentions |
 | `people` | executives and analysts, and who took part in which event |
-| `holdings` | 13F holdings and quarter-over-quarter changes |
-| `fund-holdings` | N-PORT fund holdings: the funds holding a company, or one fund's quarter-end portfolio |
-| `etf-holdings`, `etf-weights` | ETF composition from the issuer's daily / monthly file (else the N-PORT report) or the ETFs holding a company; sector, country and asset-class weights — the table header names the source and its as-of date |
+| `holders` | who holds ONE stock or fund: `--source 13f` (13F managers), `nport` (funds' N-PORT reports), `issuer_file` (ETF issuer files), or without `--source` an overview of all three; `holders changes` = 13F quarter-over-quarter changes |
 | `insider-trades` | Form 4 transactions (trade date, owner CIK, derivative and 10b5-1 flags where the SEC Form 3/4/5 dataset has them) |
 | `investor-documents` | company-published documents (annual reports, decks, letters) |
 | `news` | news from SEC filings and the companies' own newsrooms, with attribution |
@@ -97,7 +103,9 @@ Commands are noun-verb over the API's groups:
 
 Plus the hand-written `api`, `auth`, `config`, `plugin`, `agent-setup`, `completion`, `alert-events tail` and `scripts upload`.
 
-**The first positional is the natural key.** On company lists it is a ticker or CIK, and several are allowed:
+**The first positional is the natural key.** On company lists it is a ticker or CIK, and several are allowed; on the
+symbol commands (`filings`, `dividends`, `splits`, `search filings --symbol`) any instrument's ticker; `invd holders`
+takes ONE symbol. `invd instruments get <symbol>` says what a ticker is and what is served for it:
 
 ```bash
 invd financials AAPL MSFT GOOGL --fiscal-year 2025
@@ -137,11 +145,28 @@ description, the credit cost and plan, and the fields of each row.
 invd companies list -q apple
 invd companies get AAPL --expand coverage
 invd companies fiscal-periods AAPL
-invd companies dividends AAPL --ex-date-gte 2024-01-01
-invd companies splits AAPL
+invd dividends AAPL --ex-date-gte 2024-01-01
+invd splits AAPL
 invd filers list -q berkshire
 invd filers get 0000102909
 ```
+
+### Instruments and funds
+
+```bash
+invd instruments get TQQQ                           # type, structure and datasets first
+invd instruments list -q ultra -t etf -e XNAS       # ETFs on Nasdaq whose name or ticker matches
+invd funds list --type etf
+invd funds get SPY                                  # net assets, expense ratio, advisers, share classes
+invd funds holdings SPY                             # the freshest composition (header: source · as of)
+invd funds holdings SPY --as-of 2026-11-10          # the composition stored on or before a day
+invd funds weights SPY --dimension sector           # sector weights (country, asset_class; a comma list)
+invd dividends TQQQ
+invd filings SPY --form N-CSR
+```
+
+An ETF that is an exchange-traded trust (GLD, IBIT: `structure` `exchange_traded_trust`) files no holdings report:
+`invd funds holdings GLD` answers one `not_covered` error that names what is served for it.
 
 ### Financial statements
 
@@ -197,7 +222,7 @@ invd documents sections <version_id>
 invd documents get <version_id> --blocks b12-b40 --footnotes
 invd documents get <version_id> --pages 1-3
 invd documents figure <version_id> --block-id b57
-invd search filings "supply chain risk" --company AAPL --form 10-K --item 1A
+invd search filings "supply chain risk" --symbol AAPL --form 10-K --item 1A
 ```
 
 A filing's `documents` carry the `version_id` of each immutable document version; cite a passage by `version_id` and
@@ -233,16 +258,16 @@ Every `*_ms` field is milliseconds from the call's start; cite it as `[m:ss]`.
 ### Ownership and insiders
 
 ```bash
-invd holdings AAPL                                  # 13F holders of a company
-invd holdings --filer 0000102909                    # one manager's portfolio
-invd holdings AAPL --period-end 2026-06-30 --instruments all
-invd holdings changes AAPL --type new,sold_out
-invd fund-holdings NVDA                             # N-PORT funds holding a company (quarter-end, report_date per fund)
-invd fund-holdings --filer 0000036405 --series S000002277   # one fund's portfolio
-invd etf-holdings SPY                               # an ETF's freshest composition (header: source · as of)
-invd etf-holdings SPY --as-of 2026-11-10            # the composition stored on or before a day
-invd etf-holdings --company NVDA                    # the ETFs holding a company, by market value
-invd etf-weights SPY --dimension sector             # sector weights (country, asset_class; a comma list)
+invd holders NVDA                                   # overview: each source's top holders, total and as-of date
+invd holders NVDA --source 13f                      # 13F managers (quarter end), paged
+invd holders AAPL --source 13f --period-end 2026-06-30 --instruments all
+invd holders NVDA --source nport                    # funds holding it (each fund's latest N-PORT report)
+invd holders NVDA --source issuer_file              # ETFs whose own holdings file holds it
+invd holders SPY --source 13f                       # who holds a fund
+invd holders changes AAPL --type new,sold_out       # 13F changes quarter over quarter
+invd filers holdings 0000102909                     # one 13F manager's portfolio
+invd filers holding-changes 0000102909
+invd filings holdings 0001067983-26-000004          # one 13F-HR or NPORT-P filing's lines as filed
 invd insider-trades AAPL --filed-at-gte 2026-01-01
 invd insider-trades NVDA --transaction-date-gte 2026-10-01 --is-derivative false
 invd insider-trades get 0001127602-26-012345:1
@@ -363,7 +388,7 @@ the same filters, or the API answers `cursor_mismatch`). `--all` walks every pag
 
 ```bash
 invd filings AAPL --all > aapl-filings.jsonl
-invd holdings AAPL --all --output csv > aapl-holders.csv
+invd holders AAPL --source 13f --all --output csv > aapl-holders.csv
 invd filings AAPL --cursor eyJ2IjoyfQ
 ```
 
@@ -401,8 +426,8 @@ The escape hatch for anything the command tree lacks:
 
 ```bash
 invd api /v1/companies/AAPL
-invd api GET /v1/filings?company=AAPL --paginate --jq '.data[].accession'
-invd api GET /v1/holdings -F company=AAPL -F limit=100
+invd api GET /v1/filings?symbol=AAPL --paginate --jq '.data[].accession'
+invd api GET /v1/holders -F symbol=AAPL -F source=13f -F limit=100
 invd api POST /v1/alerts --input alert.json
 invd api DELETE /v1/alerts/<id> --yes
 invd api GET /v1/me -H 'Accept: application/json' --dry-run
@@ -525,6 +550,34 @@ The exit codes are the same in `invd` and the Web CLI `inv`:
 | 7 | partial: an `--all` cut short by a failure (resume with the printed `--cursor`) or a short download |
 | 130 / 143 | interrupted (Ctrl-C / SIGTERM); an `--all` walk prints its resume cursor first |
 
+## Changes in 8.0
+
+8.0 follows Data API 7.0 (instruments and funds). Breaking: four command groups are gone, without aliases (an unknown
+command error names the replacement), and the symbol commands take `--symbol` / a symbol positional instead of
+`--company`.
+
+| 7.x | 8.0 |
+|---|---|
+| `holdings <company>` | `invd holders <symbol> --source 13f` (one symbol; a stock or a fund) |
+| `holdings --filer <cik>` | `invd filers holdings <cik>` |
+| `holdings changes <company>` | `invd holders changes <symbol>`; one manager: `invd filers holding-changes <cik>` |
+| `fund-holdings <company>` | `invd holders <symbol> --source nport` |
+| `fund-holdings --filer <cik> --series <S…>` | `invd funds holdings <fund>` (ticker or fund key; listed funds only) |
+| `etf-holdings <etf>` | `invd funds holdings <fund>` |
+| `etf-holdings --company <ticker>` | `invd holders <symbol> --source issuer_file` |
+| `etf-weights <etf>` | `invd funds weights <fund>` |
+| `companies dividends <company>` | `invd dividends <symbol>` (any instrument) |
+| `companies splits <company>` | `invd splits <symbol>` |
+| `filings <company>`, `search filings --company` | `invd filings <symbol>`, `invd search filings --symbol` |
+| `companies list` / `get` of an ETF or a closed-end fund | `invd funds list` / `invd funds get` (`invd companies` lists operating companies only) |
+| — | new: `invd instruments list` / `get` (what a ticker is: `stock`, `etf`, `closed_end_fund`, `etn`, and the datasets served for it) |
+
+Output: holder rows are one shape for every source (`holder.name`, `holder.cik`, `source`, `shares`, `value_usd`,
+`weight_pct`, `as_of`); `invd holders` without `--source` prints each source's rows one after another and never sums
+them (`--json`: `meta.sections` has each source's state, as-of date and total). The stderr header of `invd funds
+holdings` / `weights` names the source (issuer file or N-PORT report), its as-of date and the reason of an empty
+answer. A command that takes one value (`holders`, a member id) refuses a second word instead of ignoring it.
+
 ## Changes in 7.5.0
 
 7.5.0 follows Data API 6.5 (end users). New commands, no change to an existing one or to the exit codes:
@@ -550,32 +603,6 @@ exit code changes; the new condition fields are nested objects, sent with `--bod
 - `--interval` accepts `1w` / `1mo` for `script` and `indicator`, and `1m`…`30m` for `volume_spike` (every closed bar);
   `--asset-class commodity` (`XAUUSD` / `XAGUSD`) for the price types, `script` and `indicator`; `--cooldown-seconds`
   up to 366 days, `--cooldown-bars` up to 1,000,000.
-
-## Changes in 7.3.1
-
-7.3.1 follows Data API 6.3.1 (US ETFs on the issuer commands). No command, flag or exit code changes:
-
-- `invd companies get TQQQ` answers the ETF's profile (a series of a multi-series trust: its trust's CIK, category
-  `ETF`); every address field (`street`, `city`, `state`, `zip_code`) shows `—` for a US ETF.
-- `invd search filings --company TQQQ` keeps only the trust's filings that name TQQQ's series; such an ETF is searched
-  alone.
-- News, news search, announcements and Form D offerings answer a US ETF of either identity (SPY, TQQQ) with the same
-  `not_covered` error that names it. The holder lists (`invd holdings SPY`, `invd etf-holdings --company SPY`,
-  `invd fund-holdings SPY`) keep an ETF that is its own registrant and name a trust series such as TQQQ as not served.
-
-## Changes in 7.2
-
-7.2 follows Data API release 6.2 (US ETFs):
-
-- `invd companies dividends`, `invd companies splits` and `invd filings` take a US ETF ticker (`invd companies
-  dividends TQQQ`, `invd filings TQQQ`). That works for a fund registrant such as SPY and for a series of a
-  multi-series trust such as TQQQ. A trust series lists only the filings
-  that name its series. The company-only commands (financials, metrics, insider trades, events, transcripts, guidance,
-  people, investor documents, IPOs) answer an ETF with one `not_covered` error that names it.
-- Alerts accept an ETF for the `dividend`, `event_countdown` (dividend dates), `filing` and `filing_keyword` types.
-- **Breaking (output):** `invd companies get` shows `sector`, `industry` and `sic` as `—` for a US ETF (`null` in
-  `--json`, empty in CSV), together with `state` / `city`; the API made the three fields nullable. Scripts that
-  expected a string there must accept null. Every command, flag and exit code is unchanged.
 
 ## Upgrading from 6.x
 
@@ -607,7 +634,7 @@ now. Upgrade = install 5.0.
 | `login` / `logout` | `invd auth login` / `invd auth logout` |
 | `config set-key` | `invd auth login --with-token` |
 | `config set-url <url>` | `invd config set base_url <url>` |
-| `company search\|details\|dividends\|…` | `invd companies list\|get\|dividends\|fiscal-periods\|splits` |
+| `company search\|details\|dividends\|…` | `invd companies list\|get\|fiscal-periods`, `invd dividends`, `invd splits` |
 | the 24 `financials <statement>[-detailed\|-presentation]`, `as-reported-*`, `snapshot` subcommands | `invd financials <company…> --basis … --view … --statement …` (several companies + one fiscal period = the old snapshot) |
 | `metadata metrics` / `metadata section-ids` | `invd catalog metrics` / `invd catalog sections` |
 | `earnings events\|transcript\|qa\|press-release\|…` | `invd events list\|transcript\|transcript-text\|qa\|press-release\|slides\|audio\|…` |
@@ -615,7 +642,7 @@ now. Upgrade = install 5.0.
 | `earnings` downloads (`--output <file>`) | `--save <file>` |
 | `news get --pdf-out <file>` | `invd news get <id> --save <file>` |
 | `sec filings\|filing\|document\|sections\|search` | `invd filings list\|get`, `invd documents get\|sections`, `invd search filings` |
-| `ownership …` | `invd holdings list\|changes` |
+| `ownership …` | `invd holders list\|changes` |
 | `usage` | `invd me usage` |
 | `ws listen` (WebSocket stream) | no CLI command in 4.0; use the API's `/v1/stream` |
 | `-i, --identifier AAPL` | the positional company: `invd filings AAPL` |
@@ -625,7 +652,7 @@ now. Upgrade = install 5.0.
 ### Older majors
 
 invd 3.x (the old v1 API) and 4.x (the `/v2` paths) call routes that were deleted on 2026-11-11; neither works
-against the live API any more. Install 6.x.
+against the live API any more. Install 8.x.
 
 ## Development
 

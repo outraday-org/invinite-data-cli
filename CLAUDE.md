@@ -3,8 +3,10 @@
 `invd` 6.x is the CLI of the Data API at `/v1/*` — the contract designed as "v2" (backend `tasks/data-api-v2`), moved
 from `/v2` to `/v1` on 2026-11-11 when the old v1 API was deleted. 5.0 = the 4.x commands at the new paths; 6.0 = the
 5.0 commands on the conventions shared with the Web CLI `inv` (backend `tasks/cli-api-alignment` C1–C4: exit codes,
-three-line error with the API `remedy`, flag meanings, `~/.config/invinite/invd.toml`). 4.x (`/v2`) and 3.x (old v1)
-call deleted routes and get no fixes.
+three-line error with the API `remedy`, flag meanings, `~/.config/invinite/invd.toml`). 8.0 = Data API 7.0 (backend
+`tasks/instruments-and-funds-api` task 5): `instruments`, `funds`, `holders`, `dividends`, `splits` groups; `holdings`,
+`fund-holdings`, `etf-holdings`, `etf-weights` removed (`src/cli.ts::REMOVED_COMMANDS` names the replacement in the
+unknown-command error, no alias). 4.x (`/v2`) and 3.x (old v1) call deleted routes and get no fixes.
 
 ## Commands come from the Data API's spec, not from this repo
 
@@ -30,8 +32,10 @@ Every plain command — one REST call, printed as a table, a key/value list or J
   owns is dropped only through `DROPPED_ALIASES` (both in `scripts/build-cli-manifest.ts`, proposals D7 / D8 of
   `backend/tasks/data-api-v2/10-cli-v4.md`).
 - Flags are the parameter names, `_` / `.` → `-` (`filed_at.gte` → `--filed-at-gte`), booleans get `--x` / `--no-x`.
-  `x-cli.positional` names the first positional: a company on company lists (several words → `company=A,B`), `q` on
-  searches (words joined by a space), the member id on member routes. Every `event_id` command also takes
+  `x-cli.positional` names the first positional: a company on company lists and a symbol on symbol lists (several
+  words → `company=A,B` / `symbol=A,B`; `SINGLE_SUBJECT` in the builder keeps `invd holders` at ONE symbol), `q` on
+  searches (words joined by a space), the member id on member routes. A non-variadic positional refuses a second word
+  (`allowExcessArguments(false)`), it is never dropped. Every `event_id` command also takes
   `<company> <YYYYQn>` and resolves the event through `GET /v1/events` (said on stderr). A group's `list` is its
   default subcommand (`invd filings AAPL` = `invd filings list AAPL`).
 - `x-cli.command` + `select` make ONE command over several operations: `invd financials` picks one of six by
@@ -58,6 +62,8 @@ that differs from the v2 groups + the roster. There is no WebSocket command in 4
   `meta.coverage` note (`pending` / `partial`), confirmations and hints to stderr. A hand-written command prints only
   the value it was asked for on stdout (`config get / list / path`, `auth token`, `auth status`). `NO_COLOR` / `FORCE_COLOR`; human output longer
   than the terminal goes through `INVD_PAGER` / `PAGER`.
+- `REASON_LABELS` (`src/spec-commands.ts`) words every `meta.reason` of the contract on the stderr source header (a test
+  reads the enums from `openapi.json`: a new value fails until it has a label).
 - Errors are RFC 9457 problems: `ApiError` keeps `title`, `detail`, `code` and the whole body. `printError` prints at
   most three lines (C2): `✗ <detail>  (<code>)` (one per `errors[]` item, max 5), the remedy (`apiErrorHint`'s `invd`
   command for `unauthorized` / 401, `plan_required`, `insufficient_credits`, `not_covered`, else the body's `remedy`),

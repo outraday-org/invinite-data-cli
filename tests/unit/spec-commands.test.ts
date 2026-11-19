@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createProgram, loadManifest } from '../../src/cli.js';
-import { coverageNote, parseFiscalPeriod, sourceNote, wireValue } from '../../src/spec-commands.js';
+import { coverageNote, parseFiscalPeriod, REASON_LABELS, sourceNote, wireValue } from '../../src/spec-commands.js';
 import { UsageError } from '../../src/shared/errors.js';
 import { setJsonMode } from '../../src/shared/spinner.js';
 import type { ManifestParam } from '../../src/spec-manifest.js';
@@ -104,7 +104,7 @@ describe('requests', () => {
   it("a group's list is its default: invd filings AAPL --form 10-K; --no-<flag> sends false; dotted filters", async () => {
     vi.mocked(fetch).mockImplementation(async () => page([]));
     await run('filings', 'AAPL', '--form', '10-K', '--filed-at-gte', '2025-01-01', '--json');
-    expect(calls()[0]?.url).toBe('https://api.example.com/v1/filings?company=AAPL&form=10-K&filed_at.gte=2025-01-01');
+    expect(calls()[0]?.url).toBe('https://api.example.com/v1/filings?symbol=AAPL&form=10-K&filed_at.gte=2025-01-01');
     await run('ipos', '--no-is-spac', '--json');
     expect(calls()[1]?.url).toContain('is_spac=false');
   });
@@ -150,11 +150,11 @@ describe('requests', () => {
 });
 
 describe('--dry-run, confirmation, delete', () => {
-  it('invd holdings AAPL --all --dry-run prints a credit estimate and makes no request', async () => {
-    await run('holdings', 'AAPL', '--all', '--dry-run', '--output', 'table');
+  it('invd holders AAPL --source 13f --all --dry-run prints a credit estimate and makes no request', async () => {
+    await run('holders', 'AAPL', '--source', '13f', '--all', '--dry-run', '--output', 'table');
     expect(fetch).not.toHaveBeenCalled();
     const text = out.join('\n');
-    expect(text).toContain('GET https://api.example.com/v1/holdings?company=AAPL');
+    expect(text).toContain('GET https://api.example.com/v1/holders?symbol=AAPL&source=13f');
     expect(text).toContain('credits: 1 × pages');
     expect(text).toContain('dry run: no request was sent');
   });
@@ -283,37 +283,102 @@ describe('output', () => {
     expect(coverageNote({ meta: { coverage: { state: 'pending', retry_after_s: 30 } } })).toContain('retry in 30s');
     expect(coverageNote({ meta: { coverage: { state: 'complete' } } })).toBeUndefined();
     vi.mocked(fetch).mockResolvedValueOnce(page([], null, { coverage: { state: 'partial', through: '2026-11-09' } }));
-    await run('holdings', 'AAPL', '--json');
+    await run('holders', 'AAPL', '--source', '13f', '--json');
     expect(err.join('\n')).toContain('coverage: partial through 2026-11-09');
   });
 
-  it('invd etf-holdings SPY: the table header names source + as-of; --company lists the ETFs holding a company', async () => {
+  it('invd funds holdings SPY: the table header names source + as-of; the held security is a column', async () => {
     expect(sourceNote({ meta: { source: 'nport', as_of: '2026-09-30', reason: null } })).toBe('source: SEC N-PORT report · as of 2026-09-30');
     expect(sourceNote({ meta: { source: 'issuer_daily', as_of: '2026-11-13', reason: 'single_asset_trust' } })).toContain('holds one asset');
     expect(sourceNote({ meta: { coverage: { state: 'complete' } } })).toBeUndefined();
     const meta = { coverage: { state: 'complete' }, source: 'issuer_daily', as_of: '2026-11-13', reason: null };
-    vi.mocked(fetch).mockResolvedValueOnce(page([{ etf_symbol: 'SPY', name: 'NVIDIA CORP', ticker: 'NVDA', weight_pct: 7.4, source: 'issuer_daily', as_of: '2026-11-13' }], null, meta));
-    await run('etf-holdings', 'SPY', '--as-of', '2026-11-13', '--output', 'table');
+    vi.mocked(fetch).mockResolvedValueOnce(page([{ fund: { symbol: 'SPY' }, security: { name: 'NVIDIA CORP', symbol: 'NVDA' }, weight_pct: 7.4, source: 'issuer_daily', as_of: '2026-11-13' }], null, meta));
+    await run('funds', 'holdings', 'SPY', '--as-of', '2026-11-13', '--output', 'table');
     const url = new URL(calls()[0]?.url ?? '');
-    expect(url.pathname).toBe('/v1/etf-holdings');
-    expect(url.searchParams.get('etf')).toBe('SPY');
+    expect(url.pathname).toBe('/v1/funds/SPY/holdings');
     expect(url.searchParams.get('as_of')).toBe('2026-11-13');
     expect(err.join('\n')).toContain('source: issuer file (daily) · as of 2026-11-13');
     expect(out.join('\n')).toContain('NVIDIA CORP');
-    vi.mocked(fetch).mockResolvedValueOnce(page([{ etf_symbol: 'QQQ', source: 'issuer_daily', as_of: '2026-11-13' }], null, { ...meta, source: null, as_of: null }));
-    await run('etf-holdings', '--company', 'NVDA', '--json');
-    expect(new URL(calls()[1]?.url ?? '').searchParams.get('company')).toBe('NVDA');
+    expect(out.join('\n')).toContain('NVDA');
   });
 
-  it('invd etf-weights SPY --dimension sector sends the dimension; --json keeps the header off stderr', async () => {
+  it('invd funds weights SPY --dimension sector sends the dimension; --json keeps the header off stderr', async () => {
     const meta = { coverage: { state: 'complete' }, source: 'issuer_monthly', as_of: '2026-10-31' };
     vi.mocked(fetch).mockResolvedValueOnce(page([{ dimension: 'sector', bucket: 'Information Technology', weight_pct: 31.2, positions: 68, basis: 'issuer_stated' }], null, meta));
-    await run('etf-weights', 'SPY', '--dimension', 'sector', '--json');
+    await run('funds', 'weights', 'SPY', '--dimension', 'sector', '--json');
     const url = new URL(calls()[0]?.url ?? '');
-    expect(url.pathname).toBe('/v1/etf-weights');
+    expect(url.pathname).toBe('/v1/funds/SPY/weights');
     expect(url.searchParams.get('dimension')).toBe('sector');
     expect(err.join('\n')).not.toContain('source:');
     expect(out.join('\n')).toContain('Information Technology');
+  });
+
+  it('invd instruments get TQQQ prints the type, structure and datasets first', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(json({
+      symbol: 'TQQQ', name: 'ProShares UltraPro QQQ', type: 'etf', structure: 'registered_fund', exchange: 'XNAS', is_active: true,
+      datasets: ['profile', 'filings', 'dividends', 'splits', 'holders', 'fund_holdings', 'fund_weights', 'alerts'],
+    }));
+    await run('instruments', 'get', 'TQQQ', '--output', 'table');
+    expect(calls()[0]?.url).toBe('https://api.example.com/v1/instruments/TQQQ');
+    const lines = out.join('\n').split('\n').map(line => line.trim());
+    expect(lines[0]).toMatch(/^type\s+etf$/);
+    expect(lines[1]).toMatch(/^structure\s+registered_fund$/);
+    expect(lines[2]).toMatch(/^datasets\s+profile, filings, dividends, splits, holders, fund_holdings, fund_weights, alerts$/);
+  });
+
+  it('invd holders / dividends / funds list send the 7.0 parameters (one held symbol; symbol lists elsewhere)', async () => {
+    vi.mocked(fetch).mockImplementation(async () => page([]));
+    await run('holders', 'NVDA', '--source', 'nport', '--json');
+    await run('holders', 'changes', 'TSLA', '--type', 'sold_out', '--json');
+    await run('dividends', 'TQQQ', 'SPY', '--json');
+    await run('splits', 'NVDA', '--json');
+    await run('funds', 'list', '--type', 'etf', '--json');
+    await run('filers', 'holdings', '0001067983', '--json');
+    await run('filings', 'holdings', '0001067983-26-000004', '--json');
+    expect(calls().map(call => call.url)).toEqual([
+      'https://api.example.com/v1/holders?symbol=NVDA&source=nport',
+      'https://api.example.com/v1/holder-changes?symbol=TSLA&type=sold_out',
+      'https://api.example.com/v1/dividends?symbol=TQQQ%2CSPY',
+      'https://api.example.com/v1/splits?symbol=NVDA',
+      'https://api.example.com/v1/funds?type=etf',
+      'https://api.example.com/v1/filers/0001067983/holdings',
+      'https://api.example.com/v1/filings/0001067983-26-000004/holdings',
+    ]);
+    // ONE held instrument: a second word is a stray argument (usage, exit 2), never a comma list.
+    await expect(run('holders', 'NVDA', 'AAPL')).rejects.toThrow("too many arguments for 'list'");
+  });
+
+  it('every meta.reason value of the contract has a label (the composition / weights enums of openapi.json)', () => {
+    const spec = JSON.parse(readFileSync(new URL('../../openapi.json', import.meta.url), 'utf8')) as unknown;
+    const reasons = new Set<string>();
+    const visit = (node: unknown): void => {
+      if (Array.isArray(node)) return node.forEach(visit);
+      if (typeof node !== 'object' || node === null) return;
+      const record = node as Record<string, unknown>;
+      const meta = (record.properties as Record<string, { properties?: Record<string, { enum?: string[] }> }> | undefined)?.meta;
+      for (const value of meta?.properties?.reason?.enum ?? []) reasons.add(value);
+      Object.values(record).forEach(visit);
+    };
+    visit((spec as { paths: unknown }).paths);
+    expect([...reasons].sort()).toEqual(['issuer_source_unavailable', 'no_composition', 'single_asset_trust', 'source_stale', 'weights_unavailable']);
+    for (const reason of reasons) expect(REASON_LABELS[reason], reason).toBeTruthy();
+    expect(sourceNote({ meta: { reason: 'fund_cusip_unknown' } })).toContain('own CUSIP is not known');
+  });
+
+  it.each([
+    ['holdings', 'invd holders <symbol> --source 13f'],
+    ['fund-holdings', 'invd funds holdings <fund>'],
+    ['etf-holdings', 'invd funds holdings <fund>'],
+    ['etf-weights', 'invd funds weights <fund>'],
+  ])('invd %s is gone (invd 8.0) and the error names its replacement', async (removed, replacement) => {
+    const program = createProgram();
+    let text = '';
+    program.configureOutput({ writeErr: (chunk) => { text += chunk; } });
+    expect(program.commands.map(command => command.name())).not.toContain(removed);
+    await expect(program.parseAsync(['node', 'invd', removed, 'SPY'])).rejects.toThrow(`unknown command '${removed}'`);
+    expect(text).toContain(`\`invd ${removed}\` was removed in invd 8.0`);
+    expect(text).toContain(replacement);
+    expect(text).not.toContain('Did you mean');
   });
 });
 

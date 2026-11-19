@@ -1,12 +1,12 @@
 ---
 name: invinite-financial-data
-description: Fetch financial data through the Invinite Data API (v2) MCP connector or the invd 4 CLI. Use whenever the user wants company information, financial statements (standardized or as-reported, point in time), ratios, growth, CAGR, segments, SEC filings and filing documents, earnings calls (calendar, transcripts, Q&A, guidance, KPIs, slides, press releases, call comparison), executives and analysts, 13F holdings, insider trades, IPOs, market holidays, company news and newsroom announcements, investor documents, or full-text search over filings, transcripts and news, including requests mentioning tickers, CIKs, accessions, balance sheets, income statements, cash flows, 10-K, 10-Q, 8-K, dividends, stock splits or institutional holders.
+description: Fetch financial data through the Invinite Data API MCP connector or the invd 8 CLI. Use whenever the user wants company information, what a ticker is (stock, ETF, closed-end fund, ETN), ETF and fund holdings and weights, financial statements (standardized or as-reported, point in time), ratios, growth, CAGR, segments, SEC filings and filing documents, earnings calls (calendar, transcripts, Q&A, guidance, KPIs, slides, press releases, call comparison), executives and analysts, who holds a stock or a fund (13F, N-PORT, ETF issuer files), insider trades, IPOs, market holidays, company news and newsroom announcements, investor documents, or full-text search over filings, transcripts and news, including requests mentioning tickers, CIKs, accessions, balance sheets, income statements, cash flows, 10-K, 10-Q, 8-K, dividends, stock splits or institutional holders.
 allowed-tools: Bash(invd *)
 ---
 
 # Invinite Data API
 
-Use the connected Invinite Data MCP tools when available; fall back to the `invd` CLI (version 4, the v2 API) when MCP
+Use the connected Invinite Data MCP tools when available; fall back to the `invd` CLI (version 8, Data API 7.0) when MCP
 is unavailable or the user asks for the CLI. Both reach the same Data API and bill the same Invinite Data account.
 
 ## Transport selection
@@ -23,15 +23,16 @@ serves the earlier roster; use whatever tools it lists, or the CLI.
 
 | Data need | MCP tool (v2 roster) | CLI |
 |---|---|---|
-| Find a company or filer | `search_companies` | `invd companies list -q apple`, `invd filers list -q berkshire` |
-| Company profile, fiscal periods, dividends, splits | `get_company` | `invd companies get\|fiscal-periods\|dividends\|splits` |
+| What a ticker is (stock, ETF, closed-end fund, ETN) and what is served for it; find an instrument or filer | `search_instruments` | `invd instruments get TQQQ`, `invd instruments list -q apple`, `invd filers list -q berkshire` |
+| Company profile, fiscal periods, dividends, splits | `get_company` | `invd companies get\|fiscal-periods`, `invd dividends`, `invd splits` |
+| Fund profile, holdings, weights (ETFs, closed-end funds) | `get_fund` | `invd funds get\|holdings\|weights`, `invd funds list --type etf` |
 | Statements (standardized / as-reported; summary / detailed / presentation) | `get_financials` | `invd financials AAPL --basis … --view …` |
 | Ratios, growth, CAGR, segments | `get_metrics` | `invd metrics ratios\|growth\|cagr`, `invd segments list\|list-detailed` |
 | Where a number comes from | `explain_fact` | `invd metrics explain`, `invd documents fact-places` |
-| SEC filings of a company | `list_filings` | `invd filings list` |
+| SEC filings of a stock or a fund | `list_filings` | `invd filings list` |
 | Read a filing or document version | `read_filing` | `invd filings get`, `invd documents get\|sections\|figure` |
 | Full-text search of filings (100 credits) | `search_filings` | `invd search filings` |
-| 13F holdings and changes | `get_holdings` | `invd holdings list\|changes` |
+| Who holds a stock or a fund (13F, N-PORT, issuer files), 13F changes, a manager's portfolio | `get_holders` | `invd holders list\|changes`, `invd filers holdings\|holding-changes`, `invd filings holdings` |
 | Form 4 insider trades | `get_insider_trades` | `invd insider-trades list\|get` |
 | Earnings-call calendar and history | `list_events` | `invd events list` |
 | One event: transcript, Q&A, stats, comparison, press release, slides … | `get_event` | `invd events get\|transcript\|transcript-text\|qa\|stats\|comparison\|press-release\|slides\|price-attribution` |
@@ -47,7 +48,8 @@ serves the earlier roster; use whatever tools it lists, or the CLI.
 MCP resources `invinite://catalog/metrics`, `invinite://catalog/sections`, `invinite://catalog/event-types`,
 `invinite://catalog/forms` and `invinite://catalog/document-kinds` are the catalogs (`invd catalog metrics`, `invd catalog sections`, `invd catalog event-types`, `invd catalog forms`,
 `invd catalog document-kinds`).
-The server's prompts are `analyse_earnings_call`, `compare_companies` and `summarise_10k_risk_factors`.
+The server's prompts are `analyse_earnings_call`, `compare_companies`, `summarise_10k_risk_factors`, `earnings_preview`,
+`ownership_and_insiders`, `what_changed_since_last_report` and `restatement_history`.
 
 Read the catalogs before interpreting metric or section keys: `invd catalog metrics` before statements, ratios, growth
 or CAGR (values are keyed by `metric_id`), `invd catalog sections --form 10-K` before asking for a filing section.
@@ -74,14 +76,17 @@ An auth failure exits 4: reconnect the MCP connector, or tell the user to run `i
 
 - Noun-verb: `invd <group> <action>`. `list` is each group's default action, so `invd filings AAPL --form 10-K` equals
   `invd filings list AAPL --form 10-K` and `invd events AAPL` lists Apple's calls.
-- The first positional is the natural key: a ticker or CIK on company commands (several allowed:
-  `invd financials AAPL MSFT`), the member id on member commands (`invd companies get AAPL`,
+- The first positional is the natural key: a symbol; `invd instruments get <symbol>` says what it is (`stock`, `etf`,
+  `closed_end_fund`, `etn`) and which data families are served for it. Company commands take a company's ticker or
+  CIK (several allowed: `invd financials AAPL MSFT`); a fund (SPY, TQQQ) is no company and answers one `not_covered`
+  error naming what IS served for it. `filings`, `dividends`, `splits` take any instrument; `invd holders` takes ONE
+  symbol. Member commands take the member id (`invd companies get AAPL`, `invd funds get SPY`,
   `invd filings get 0000320193-26-000026`, `invd events transcript <event_id>`).
 - Every command that takes an `event_id` also takes a company plus a fiscal period: `invd events transcript NVDA 2026Q3`
   resolves the event through `GET /v1/events` (one extra credit; the resolution is noted on stderr).
 - Flags are the API parameters with dashes (`fiscal_year` → `--fiscal-year`, `filed_at[gte]` → `--filed-at-gte`).
   `invd <group> <action> --help` lists them with the API's descriptions, the credit cost and plan, and the row fields.
-- `invd api` calls any path the tree lacks: `invd api GET /v1/filings?company=AAPL --paginate --jq '.data[].accession'`.
+- `invd api` calls any path the tree lacks: `invd api GET /v1/filings?symbol=AAPL --paginate --jq '.data[].accession'`.
 
 ## Output, pagination and cost
 
@@ -163,7 +168,7 @@ invd filings get 0000320193-26-000026 --expand documents --json
 invd catalog sections --form 10-K --json
 invd documents sections <version_id> --json
 invd documents get <version_id> --blocks b12-b40 --json
-invd search filings "supply chain risk" --company AAPL --form 10-K --item 1A --json
+invd search filings "supply chain risk" --symbol AAPL --form 10-K --item 1A --json
 ```
 
 A filing's documents carry the `version_id` of each immutable document version. Read a section by listing the
@@ -199,15 +204,35 @@ invd search transcripts "gross margin outlook" --event <event_id> --json
   with title, year and page, never as verified fact.
 - Slides, audio and price attribution need higher plans; a plan error exits 6 and names the plan.
 
+### Instruments and funds
+
+```bash
+invd instruments get TQQQ --json
+invd funds get SPY --json
+invd funds holdings SPY --limit 10 --json
+invd funds weights SPY --dimension sector --json
+invd dividends SPY --json
+```
+
+A fund's holdings come from the freshest source, always named in `meta.source` / `meta.as_of` (and on stderr in table
+output): the issuer's daily or monthly file, else the fund's latest N-PORT report (quarter end, about 60 days later).
+State that source and date with the numbers. An ETF of `structure` `exchange_traded_trust` (GLD, IBIT) files no
+holdings report: holdings and weights answer `not_covered` naming what is served for it.
+
 ### Ownership and insiders
 
 ```bash
-invd holdings AAPL --json
-invd holdings --filer 0000102909 --json
-invd holdings changes AAPL --type new,sold_out --json
+invd holders AAPL --json
+invd holders AAPL --source 13f --json
+invd holders NVDA --source nport --json
+invd holders changes AAPL --type new,sold_out --json
+invd filers holdings 0000102909 --json
 invd insider-trades AAPL --side buy --filed-at-gte 2026-01-01 --json
 ```
 
+`invd holders <symbol>` without `--source` is an overview: each source's top rows one after another, never summed
+(`meta.sections` gives each source's state, as-of date and total). The sources overlap (a manager's 13F contains its
+funds' N-PORT positions; an ETF's issuer file repeats its N-PORT report), so pick one `--source` for a full, paged list.
 13F rows report positions at the quarter end (`--period-end`), filed up to 45 days later; keep filing date and
 position date apart, and value apart from share count. Change types: `new`, `added`, `reduced`, `sold_out`,
 `unchanged`. `--instruments all` adds options and principal amounts.
@@ -423,8 +448,8 @@ invd alerts update alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X --body '{"version":1,"conditio
 <!-- invd:hand:api -->
 ```bash
 invd api /v1/companies/AAPL
-invd api GET /v1/filings?company=AAPL --paginate --jq '.data[].accession'
-invd api GET /v1/holdings -F company=AAPL -F limit=100 --dry-run
+invd api GET /v1/filings?symbol=AAPL --paginate --jq '.data[].accession'
+invd api GET /v1/holders -F symbol=AAPL -F source=13f -F limit=100 --dry-run
 invd api POST /v1/alerts --input alert.json
 ```
 <!-- /invd:hand:api -->
@@ -466,12 +491,9 @@ invd catalog sections --json
 
 ### companies
 
-Listed companies: list, profile, fiscal periods, dividends and splits
+Operating companies: list, profile and fiscal periods (a fund is `invd funds`)
 
 ```bash
-# List dividends (optional: --ex-date-gte, --ex-date-gt, --ex-date-lte, --ex-date-lt, --sort, --fields, --limit, --cursor, --all)
-invd companies dividends AAPL --json
-
 # List fiscal periods (optional: --sort, --fields, --limit, --cursor, --all)
 invd companies fiscal-periods AAPL --json
 
@@ -480,9 +502,6 @@ invd companies get AAPL --json
 
 # List listed companies (optional: --q, --exchange, --sector, --sort, --fields, --limit, --cursor, --all)
 invd companies list -q apple --json
-
-# List stock splits (optional: --sort, --fields, --limit, --cursor, --all)
-invd companies splits AAPL --json
 ```
 
 ### completion
@@ -536,6 +555,15 @@ invd destinations test dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G --json
 invd destinations update dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G --body '{"status":"active"}' --json
 ```
 
+### dividends
+
+Cash dividends of any instrument (a stock, an ETF, a closed-end fund, an ETN)
+
+```bash
+# List dividends (optional: --ex-date-gte, --ex-date-gt, --ex-date-lte, --ex-date-lt, --sort, --fields, --limit, --cursor, --all)
+invd dividends list AAPL --json
+```
+
 ### documents
 
 Immutable document versions, sections, figures and fact places
@@ -552,24 +580,6 @@ invd documents get dv_01JCA8XK -p 1-3 --json
 
 # List a document version's sections (optional: --outline, --limit, --cursor, --all)
 invd documents sections dv_01JCA8XK --json
-```
-
-### etf-holdings
-
-ETF composition: one ETF's freshest holdings (issuer file, else N-PORT) or the ETFs holding a company
-
-```bash
-# List ETF holdings (daily issuer files or N-PORT) (optional: --company, --as-of, --sort, --fields, --limit, --cursor, --all)
-invd etf-holdings list SPY --json
-```
-
-### etf-weights
-
-ETF sector, country and asset-class weights of the freshest composition
-
-```bash
-# List ETF sector, country and asset-class weights (optional: --dimension, --as-of, --fields, --limit, --cursor, --all)
-invd etf-weights list SPY -d sector --json
 ```
 
 ### events
@@ -625,11 +635,17 @@ invd events transcript-versions evt_01JC8M2X --json
 
 ### filers
 
-Every SEC filer (13F managers, pre-IPO issuers, former registrants), listed or not
+Every SEC filer (13F managers, pre-IPO issuers, former registrants), listed or not, and a 13F manager's portfolio and its changes
 
 ```bash
 # Get a filer (optional: --expand, --fields)
 invd filers get 0000102909 --json
+
+# List a 13F manager's position changes (optional: --period-end, --prior-period-end, --type, --fields, --limit, --cursor, --all)
+invd filers holding-changes 0000102909 -t new --json
+
+# List a 13F manager's holdings (optional: --period-end, --instruments, --sort, --fields, --limit, --cursor, --all)
+invd filers holdings 0000102909 --json
 
 # List SEC filers (optional: --q, --form, --phase, --listed, --sort, --fields, --limit, --cursor, --all)
 invd filers list -q berkshire --json
@@ -648,6 +664,9 @@ invd filings facts 0000320193-26-000026 --json
 
 # Get a filing (optional: --expand, --fields)
 invd filings get 0000320193-26-000026 --json
+
+# List a holdings filing's lines (optional: --fields, --limit, --cursor, --all)
+invd filings holdings 0002012383-26-003238 --json
 
 # List filings (optional: --form, --items, --filed-at-gte, --filed-at-gt, --filed-at-lte, --filed-at-lt, --sort, --fields, --limit, --cursor, --all)
 invd filings list AAPL --json
@@ -668,13 +687,22 @@ Statements: standardized and as-reported, plain, detailed and presentation, poin
 invd financials AAPL -s income-statement --view detailed --json
 ```
 
-### fund-holdings
+### funds
 
-N-PORT fund holdings: the funds holding a company, or one fund's quarter-end portfolio
+ETFs and closed-end funds: profiles, holdings and weights
 
 ```bash
-# List N-PORT fund holdings (optional: --filer, --series, --accession, --period-end, --sort, --fields, --limit, --cursor, --all)
-invd fund-holdings list AAPL --json
+# Get a fund (optional: --expand, --fields)
+invd funds get TQQQ --json
+
+# List a fund's holdings (optional: --as-of, --sort, --fields, --limit, --cursor, --all)
+invd funds holdings SPY --json
+
+# List funds (optional: --q, --type, --structure, --exchange, --sort, --fields, --limit, --cursor, --all)
+invd funds list -q TQQ --json
+
+# List a fund's sector, country and asset-class weights (optional: --dimension, --as-of, --fields, --limit, --cursor, --all)
+invd funds weights SPY -d sector --json
 ```
 
 ### guidance
@@ -689,16 +717,16 @@ invd guidance kpis AAPL --json
 invd guidance list AAPL --json
 ```
 
-### holdings
+### holders
 
-13F holdings and quarter-over-quarter changes
+Who holds a stock or a fund: 13F managers, funds' N-PORT reports or ETF issuer files (--source), and 13F changes
 
 ```bash
-# List 13F position changes (optional: --filer, --period-end, --prior-period-end, --type, --fields, --limit, --cursor, --all)
-invd holdings changes AAPL --json
+# List 13F position changes in a stock or a fund (optional: --filer, --period-end, --prior-period-end, --type, --fields, --limit, --cursor, --all)
+invd holders changes NVDA -t new --json
 
-# List 13F holdings (optional: --filer, --accession, --period-end, --instruments, --sort, --fields, --limit, --cursor, --all)
-invd holdings list AAPL --json
+# List who holds a stock or a fund (optional: --source, --period-end, --instruments, --sort, --fields, --limit, --cursor, --all)
+invd holders list NVDA -s 13f --json
 ```
 
 ### insider-trades
@@ -711,6 +739,18 @@ invd insider-trades get 0001127602-26-012345:1 --json
 
 # List insider trades (optional: --side, --filed-at-gte, --filed-at-gt, --filed-at-lte, --filed-at-lt, --transaction-date-gte, --transaction-date-lte, --is-derivative, --sort, --fields, --limit, --cursor, --all)
 invd insider-trades list AAPL --json
+```
+
+### instruments
+
+Everything exchange-traded: stocks, funds and ETNs, one type each
+
+```bash
+# Get an instrument (optional: --fields)
+invd instruments get TQQQ --json
+
+# List instruments (optional: --q, --type, --structure, --exchange, --is-active, --sort, --fields, --limit, --cursor, --all)
+invd instruments list -q TQQ --json
 ```
 
 ### investor-documents
@@ -879,8 +919,8 @@ invd scripts upload ema-cross.chart --script scr_01JD2Q4X7Y8Z9A0B1C2D3E4F5G   # 
 Full-text search over SEC filings, transcripts, investor documents and news
 
 ```bash
-# Search filings (optional: --mode, --case-sensitive, --company, --form, --item, --filed-at-gte, --filed-at-gt, --filed-at-lte, --filed-at-lt, --limit, --cursor, --all)
-invd search filings "supply chain risk" -c AAPL --json
+# Search filings (optional: --mode, --case-sensitive, --symbol, --form, --item, --filed-at-gte, --filed-at-gt, --filed-at-lte, --filed-at-lt, --limit, --cursor, --all)
+invd search filings "supply chain risk" -s AAPL --json
 
 # Search investor documents (optional: --company, --kind, --mode, --limit, --cursor, --all)
 invd search investor-documents "capital allocation" -c AAPL --json
@@ -902,6 +942,15 @@ invd segments list AAPL -p annual --json
 
 # List segment values with lineage (optional: --metric, --axis, --fiscal-year-gte, --fiscal-year-gt, --fiscal-year-lte, --fiscal-year-lt, --sort, --fields, --limit, --cursor, --all)
 invd segments list-detailed AAPL -p annual --json
+```
+
+### splits
+
+Stock splits of any instrument (a stock, an ETF, a closed-end fund, an ETN)
+
+```bash
+# List stock splits (optional: --sort, --fields, --limit, --cursor, --all)
+invd splits list AAPL --json
 ```
 
 <!-- invd:commands:end -->
@@ -927,8 +976,16 @@ invd financials AAPL --period quarterly --limit 1 --json
 ### Who owns a stock, and who is buying
 
 ```bash
-invd holdings AAPL --limit 50 --json
-invd holdings changes AAPL --type new,added --json
+invd holders AAPL --source 13f --limit 50 --json
+invd holders changes AAPL --type new,added --json
+```
+
+### What is this ticker, and what does a fund hold
+
+```bash
+invd instruments get TQQQ --json type,structure,datasets
+invd funds holdings TQQQ --limit 10 --json
+invd holders TQQQ --json
 ```
 
 ### Reading an earnings call

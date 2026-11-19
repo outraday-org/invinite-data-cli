@@ -49,14 +49,12 @@ export const GROUP_DESCRIPTIONS: Readonly<Record<string, string>> = {
   'alert-events': 'The fire log of your alerts: the pull feed (`tail` follows it live) and one event',
   'alert-templates': 'The indicator templates an `indicator` alert names (RSI, MACD, EMA cross …), with their inputs',
   alerts: 'Alert rules: create, change, pause, batch and test them, and read one alert\'s events',
-  companies: 'Listed companies: list, profile, fiscal periods, dividends and splits',
+  companies: 'Operating companies: list, profile and fiscal periods (a fund is `invd funds`)',
   destinations: 'Webhook endpoints alert events are delivered to: secrets, test deliveries and the delivery log',
   events: 'Earnings calls and other corporate events: transcripts, Q&A, media and call analytics',
-  filers: 'Every SEC filer (13F managers, pre-IPO issuers, former registrants), listed or not',
-  'etf-holdings': 'ETF composition: one ETF\'s freshest holdings (issuer file, else N-PORT) or the ETFs holding a company',
-  'etf-weights': 'ETF sector, country and asset-class weights of the freshest composition',
-  'fund-holdings': 'N-PORT fund holdings: the funds holding a company, or one fund\'s quarter-end portfolio',
-  holdings: '13F holdings and quarter-over-quarter changes',
+  dividends: 'Cash dividends of any instrument (a stock, an ETF, a closed-end fund, an ETN)',
+  filers: 'Every SEC filer (13F managers, pre-IPO issuers, former registrants), listed or not, and a 13F manager\'s portfolio and its changes',
+  holders: 'Who holds a stock or a fund: 13F managers, funds\' N-PORT reports or ETF issuer files (--source), and 13F changes',
   ipos: 'Offerings from registration to listing',
   market: 'US market holidays',
   metrics: 'Ratios, growth, CAGR, and the explanation of one standardized fact',
@@ -66,6 +64,7 @@ export const GROUP_DESCRIPTIONS: Readonly<Record<string, string>> = {
   scripts: 'Hosted chartlang scripts for `script` alerts: upload (`upload` reads a .chart file), list, get, delete',
   search: 'Full-text search over SEC filings, transcripts, investor documents and news',
   segments: 'Segment values (revenue by product, geography …); list-detailed adds lineage (PRO)',
+  splits: 'Stock splits of any instrument (a stock, an ETF, a closed-end fund, an ETN)',
 };
 
 /**
@@ -74,8 +73,11 @@ export const GROUP_DESCRIPTIONS: Readonly<Record<string, string>> = {
  */
 export const DROPPED_ALIASES: Readonly<Record<string, string>> = { 'GET /v1/metrics/cagr horizon': 'h' };
 
-/** The parameter a positional joins several words into: company lists with `,`, search text with a space. */
-const VARIADIC: Readonly<Record<string, 'comma' | 'space'>> = { company: 'comma', q: 'space' };
+/** The parameter a positional joins several words into: company / symbol lists with `,`, search text with a space. */
+const VARIADIC: Readonly<Record<string, 'comma' | 'space'>> = { company: 'comma', symbol: 'comma', q: 'space' };
+
+/** Operations whose `symbol` takes ONE instrument (Data API 7.0 holders): their positional is a single word. */
+const SINGLE_SUBJECT: ReadonlySet<string> = new Set(['listHolders', 'listHolderChanges']);
 
 const schemaSchema = z.object({
   type: z.unknown().optional(),
@@ -350,7 +352,7 @@ export function buildManifest(rawSpec: unknown, specText: string): Manifest {
         const param = params.find(candidate => candidate.name === cli.positional);
         if (!param) throw new Error(`${where}: x-cli.positional names no parameter: ${cli.positional}`);
         out.positional = { name: param.name, required: param.required };
-        const variadic = param.in === 'query' ? VARIADIC[param.name] : undefined;
+        const variadic = param.in === 'query' && !SINGLE_SUBJECT.has(operation.operationId) ? VARIADIC[param.name] : undefined;
         if (variadic) out.positional.variadic = variadic;
       }
       if (cli.select) out.select = cli.select;

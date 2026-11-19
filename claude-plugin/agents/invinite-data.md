@@ -26,10 +26,14 @@ the `invd` CLI (version 4, the v2 API) and return it in a clean, structured form
 - **Before reading statements, ratios, growth or CAGR, run `invd catalog metrics --json`**: values are keyed by
   `metric_id`, and the catalog says what each one means and which exist.
 - **Before reading a filing section, run `invd catalog sections --form 10-K --json`** (or the form at hand).
-- The first positional is the company (ticker or CIK, several allowed) or the member id: `invd companies get AAPL`,
-  `invd filings get 0000320193-26-000026`. `list` is the default action: `invd filings AAPL --form 10-K`.
-- Resolve an ambiguous name with `invd companies list -q "<name>" --json` (listed companies) or
-  `invd filers list -q "<name>" --json` (any SEC filer, incl. 13F managers and pre-IPO issuers).
+- The first positional is a symbol (several allowed on company and filing lists; ONE on `invd holders`) or the member
+  id: `invd companies get AAPL`, `invd funds get SPY`, `invd filings get 0000320193-26-000026`. `list` is the default
+  action: `invd filings AAPL --form 10-K`. `invd instruments get <symbol> --json` says what a symbol is (`stock`, `etf`,
+  `closed_end_fund`, `etn`) and which data families (`datasets`) are served for it: a fund is no company (no
+  financials, metrics, events or insider trades), it has holdings and weights instead (`invd funds holdings\|weights`).
+- Resolve an ambiguous name with `invd instruments list -q "<name>" --json` (every listed stock, ETF, closed-end fund
+  and ETN, each with its type) or `invd filers list -q "<name>" --json` (any SEC filer, incl. 13F managers and pre-IPO
+  issuers).
 - Statements: `invd financials <company…>` with `--basis standardized|as-reported`, `--view summary|detailed|presentation`,
   `--statement`, `--period annual|quarterly|ytd|ttm`. Default to annual unless asked otherwise; several companies plus
   one `--fiscal-year` is the cross-company snapshot.
@@ -49,13 +53,16 @@ the `invd` CLI (version 4, the v2 API) and return it in a clean, structured form
 ## MCP equivalents
 
 When the caller works over the Invinite MCP connector instead, the v2 tool roster maps onto these commands:
-`search_companies` (companies list / filers list), `get_company` (companies get, fiscal-periods, dividends, splits),
+`search_instruments` (instruments list / get, filers list), `get_company` (companies get, fiscal-periods, dividends,
+splits), `get_fund` (funds get, holdings, weights, dividends, splits),
 `get_financials` (financials), `get_metrics` (metrics ratios / growth / cagr, segments), `explain_fact` (metrics explain,
 documents fact-places), `list_filings` (filings list), `read_filing` (filings get, documents get / sections / figure),
-`search_filings` (search filings), `get_holdings` (holdings), `get_insider_trades` (insider-trades), `list_events`
+`search_filings` (search filings), `get_holders` (holders, holders changes, filers holdings / holding-changes, filings
+holdings), `get_insider_trades` (insider-trades), `list_events`
 (events list), `get_event` (events get, transcript, transcript-text, qa, stats, comparison, press-release, slides …),
 `search_transcripts` (search transcripts, search investor-documents), `get_news` (news, search news), `get_account`
-(me), `manage_alerts` (alerts, alert-events), `manage_destinations` (destinations), and `search_endpoints` + `call_api`
+(me), `manage_alerts` (alerts, alert-events), `manage_destinations` (destinations), `manage_alert_users`
+(alert-users), and `search_endpoints` + `call_api`
 (invd api). `invd alert-events tail` follows the alert event log live (no MCP tool).
 
 ## Query planning
@@ -64,11 +71,13 @@ Run independent commands in parallel rather than one after another.
 
 - **Company research**: catalog metrics (first) + companies get + financials + metrics ratios.
 - **Metrics analysis**: catalog metrics (first), then `invd metrics ratios`, `invd metrics growth` or `invd metrics cagr` with all companies in one call each.
-- **Ownership**: `invd holdings AAPL` + `invd holdings changes AAPL` + `invd insider-trades AAPL`; one manager's
-  portfolio is `invd holdings --filer 0000102909`.
+- **Ownership**: `invd holders AAPL --source 13f` + `invd holders changes AAPL` + `invd insider-trades AAPL`; the funds
+  holding it are `invd holders AAPL --source nport`; one manager's portfolio is `invd filers holdings 0000102909`.
+- **A fund**: `invd funds get SPY` + `invd funds holdings SPY` (state `meta.source` and `meta.as_of`) +
+  `invd funds weights SPY --dimension sector` + `invd holders SPY`.
 - **Filing deep-dive**: `invd filings AAPL --form 10-K --limit 1` (accession) → `invd filings get <accession> --expand documents`
   (the `version_id`) → `invd documents sections <version_id>` → `invd documents get <version_id> --blocks <blocks>`;
-  `invd search filings "<keywords>" --company AAPL` for cited passages on a topic.
+  `invd search filings "<keywords>" --symbol AAPL` for cited passages on a topic.
 - **Earnings call review**: events list (first, for the `event_id`) → then in parallel `invd events press-release`,
   `invd guidance list --event <event_id>`, `invd guidance kpis --event <event_id>`, `invd events qa`,
   `invd events comparison` (+ optionally `invd events price-attribution`: minute price moves next to what was said —

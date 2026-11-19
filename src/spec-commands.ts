@@ -179,6 +179,8 @@ function addPositionals(command: Command, operation: ManifestOperation): void {
   const name = positional.variadic ? `${positional.name}...` : positional.name;
   const note = positional.variadic === 'comma' ? ' (one or more; sent as a comma list)' : '';
   command.argument(positional.required ? `<${name}>` : `[${name}]`, `${description}${note}`);
+  // One value only (a member id, ONE held symbol since invd 8.0): a second word is a usage error, never dropped.
+  if (!positional.variadic) command.allowExcessArguments(false);
 }
 
 function addParamOptions(command: Command, operation: ManifestOperation, params: readonly ManifestParam[]): void {
@@ -421,8 +423,20 @@ const SOURCE_LABELS: Readonly<Record<string, string>> = {
   nport: 'SEC N-PORT report',
 };
 
-const REASON_LABELS: Readonly<Record<string, string>> = {
+/**
+ * Every `meta.reason` of the contract as words: the composition / weights enum of `invd funds holdings|weights`
+ * (`tests/unit/spec-commands.test.ts` reads it from `openapi.json`, so a new enum value cannot go unlabelled) and the
+ * holder lists' store reasons (`invd holders`, a free string in the contract).
+ */
+export const REASON_LABELS: Readonly<Record<string, string>> = {
   single_asset_trust: 'the fund holds one asset; there is no holdings list',
+  source_stale: 'the issuer file is more than 5 trading days old',
+  issuer_source_unavailable: 'the issuer file is unavailable; answered from the fund\'s N-PORT report',
+  weights_unavailable: 'no weights for this source',
+  no_composition: 'no composition in any source yet (coverage pending)',
+  no_etf_holders: 'no ETF issuer file holds it',
+  fund_cusip_unknown: 'the fund\'s own CUSIP is not known yet, so its holders cannot be told apart from its trust\'s other funds',
+  etn_cusip_unknown: 'the note\'s own CUSIP is not known yet',
 };
 
 /**
