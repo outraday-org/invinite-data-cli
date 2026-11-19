@@ -40,6 +40,7 @@ serves the earlier roster; use whatever tools it lists, or the CLI.
 | Account and usage | `get_account` | `invd me show\|usage` |
 | Alerts, their event log | `manage_alerts` | `invd alerts …`, `invd alert-events list\|get\|tail` |
 | Alert destinations (webhook endpoints) | `manage_destinations` | `invd destinations …` |
+| End users of your alerts, their limits and the account defaults | `manage_alert_users` | `invd alert-users …`, `invd me alert-user-defaults-get\|alert-user-defaults-update` |
 | Hosted chartlang scripts, indicator templates | `call_api` (`/v1/scripts`, `/v1/alert-templates`) | `invd scripts list\|get\|upload\|delete`, `invd script-versions list`, `invd alert-templates list` |
 | Any other operation | `search_endpoints` + `call_api` | `invd api GET /v1/…` |
 
@@ -280,6 +281,34 @@ invd alerts create --body '{"type":"script","condition":{"symbol":"AAPL","interv
 invd alerts create --body '{"type":"indicator","condition":{"symbol":"SPY","interval":"1d","template":{"key":"rsi-cross"},"evaluation":{"kind":"pre_close","offset_minutes":15}}}' --json
 ```
 
+### End users
+
+When the user builds alerts for its own customers (B2B2C, white label), each customer is an `external_user_id` on
+the alert and an **end user** of the account. Limits per end user: `max_active_alerts` (active + paused + scheduled),
+`max_script_alerts` (the `script` / `indicator` ones among them), `max_fires_per_day` (UTC day). Effective limit = the
+user's own value, else the account default (`invd me alert-user-defaults-update`), else none; the plan quota stays
+the ceiling over all users. Map the user's own customer tiers with `invd alert-users batch` (≤ 500 upserts, one result
+each).
+
+```bash
+invd me alert-user-defaults-update --max-active-alerts 10 --json
+invd alert-users update user_8812 --max-active-alerts 50 --max-fires-per-day 20 --json
+invd alerts create --validate-only --body '{"type":"filing","condition":{"symbols":["AAPL"],"form_types":["8-K"]},"external_user_id":"user_8812"}' --json
+invd alert-users get user_8812 --json
+```
+
+- A create beyond a limit: `403 alert_user_limit_reached`; for a paused user: `403 alert_user_paused`; a lowered
+  limit keeps existing alerts and refuses new ones.
+- `--validate-only` runs every check of a create (body, plan, coverage, destinations, quotas, end user) and writes
+  nothing: use it before promising a customer an alert.
+- Beyond `max_fires_per_day` the fire stays in the feed with `delivery_skipped: "alert_user_fire_cap"`, is not
+  delivered and sends one `alert_user.fire_cap_reached` event; deliveries resume at 00:00 UTC.
+- `pause` stops every alert of the user and refuses creates until `resume`, which re-arms exactly what the pause
+  paused.
+- `delete` is an **erasure** (permanent: the user's alerts, events and deliveries; `deleting` = finished in the
+  background). Confirm with the user before it; it asks unless `--yes`. A feed cursor naming an erased event answers
+  `400`: restart from the last event you hold.
+
 ## Commands Reference
 
 One example per command. `invd <group> <action> --help` lists every flag; values like `evt_01JC8M2X` are the spec's
@@ -326,6 +355,33 @@ The indicator templates an `indicator` alert names (RSI, MACD, EMA cross …), w
 invd alert-templates list --json
 ```
 
+### alert-users
+
+Your own end users on the alerts platform (B2B2C): per-user limits, usage and the account defaults
+
+```bash
+# Create or update end users in bulk (optional: --body, --body-file)
+invd alert-users batch --body '{"items":[{"external_user_id":"user_8812","max_active_alerts":50},{"external_user_id":"user_9001","max_active_alerts":10,"max_script_alerts":0}]}' --json
+
+# Delete an end user
+invd alert-users delete user_8812 --json
+
+# Get an end user
+invd alert-users get user_8812 --json
+
+# List end users (optional: --limit, --cursor, --status, --q, --all)
+invd alert-users list --json
+
+# Pause an end user
+invd alert-users pause user_8812 --json
+
+# Resume an end user
+invd alert-users resume user_8812 --json
+
+# Create or update an end user (optional: --display-name, --max-active-alerts, --max-script-alerts, --max-fires-per-day, --body, --body-file)
+invd alert-users update user_8812 --body '{"display_name":"Jane (premium)","max_active_alerts":50,"max_script_alerts":5}' --json
+```
+
 ### alerts
 
 Alert rules: create, change, pause, batch and test them, and read one alert's events
@@ -334,7 +390,7 @@ Alert rules: create, change, pause, batch and test them, and read one alert's ev
 # Change alerts in bulk (optional: --body, --body-file)
 invd alerts batch --body '{"items":[{"op":"upsert","client_reference_id":"watchlist-msft-div","type":"dividend","condition":{"symbols":["MSFT"],"kinds":["declared"]}},{"op":"pause","client_reference_id":"watchlist-aapl-8k"}]}' --json
 
-# Create an alert (optional: --idempotency-key, --type, --ciks, --symbols, --cik, --symbol, --form-types, --form-categories, --include-amendments, --stage, --keywords, --match, --scope, --sources, --kinds, --earnings-only, --events, --speaker-roles, --min-mentions, --dividend-types, --statuses, --reason-codes, --report-kinds, --event, --days-before, --offsets-days, --minutes-before, --time-of-day-minutes, --timezone, --notify-on-date-change, --asset-class, --operator, --level, --direction, --pct, --baseline, --window-minutes, --condition-mode, --interval, --multiple, --threshold, --lookback-bars, --baseline-mode, --price-direction, --frequency, --at, --weekday, --days, --script-version-id, --alert-ids, --trigger-mode, --cooldown-seconds, --cooldown-bars, --max-fires, --expires-at, --delete-on-expiry, --activate-at, --pause-until, --rearm, --rearm-distance-pct, --destination-ids, --client-reference-id, --external-user-id, --body, --body-file)
+# Create an alert (optional: --validate-only, --idempotency-key, --type, --ciks, --symbols, --cik, --symbol, --form-types, --form-categories, --include-amendments, --stage, --keywords, --match, --scope, --sources, --kinds, --earnings-only, --events, --speaker-roles, --min-mentions, --dividend-types, --statuses, --reason-codes, --report-kinds, --event, --days-before, --offsets-days, --minutes-before, --time-of-day-minutes, --timezone, --notify-on-date-change, --asset-class, --operator, --level, --direction, --pct, --baseline, --window-minutes, --condition-mode, --interval, --multiple, --threshold, --lookback-bars, --baseline-mode, --price-direction, --frequency, --at, --weekday, --days, --script-version-id, --alert-ids, --trigger-mode, --cooldown-seconds, --cooldown-bars, --max-fires, --expires-at, --delete-on-expiry, --activate-at, --pause-until, --rearm, --rearm-distance-pct, --destination-ids, --client-reference-id, --external-user-id, --body, --body-file)
 invd alerts create --body '{"type":"filing","condition":{"symbols":["AAPL"],"form_types":["8-K"],"stage":"detected"},"trigger":{"mode":"every_time"},"destination_ids":["dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G"],"client_reference_id":"watchlist-aapl-8k","external_user_id":"user_8812","metadata":{"list":"tech"}}' --json
 
 # Delete an alert
@@ -695,6 +751,12 @@ invd market holidays --json
 The caller's account and usage (0 credits)
 
 ```bash
+# Get the end-user defaults
+invd me alert-user-defaults-get --json
+
+# Update the end-user defaults (optional: --max-active-alerts, --max-script-alerts, --max-fires-per-day, --body, --body-file)
+invd me alert-user-defaults-update --body '{"max_active_alerts":10,"max_script_alerts":1}' --json
+
 # Who am I
 invd me show --json
 

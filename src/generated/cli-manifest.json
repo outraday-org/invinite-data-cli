@@ -1,6 +1,6 @@
 {
   "specVersion": "2026-11-13",
-  "specSha256": "cf4a71509aa8f440cad442ce891fe3011a0a179b15f23ec9a3f8cf1dfe265721",
+  "specSha256": "437c3db0651965b370953e90fb8fecaed703ba96d81e8eb6a3b7d5bc82d3c8eb",
   "groups": [
     {
       "name": "alert-events",
@@ -9,6 +9,10 @@
     {
       "name": "alert-templates",
       "description": "The indicator templates an `indicator` alert names (RSI, MACD, EMA cross …), with their inputs"
+    },
+    {
+      "name": "alert-users",
+      "description": "Your own end users on the alerts platform (B2B2C): per-user limits, usage and the account defaults"
     },
     {
       "name": "alerts",
@@ -212,7 +216,8 @@
             "alert.status_changed",
             "destination.disabled",
             "destination.test",
-            "account.fire_cap_reached"
+            "account.fire_cap_reached",
+            "alert_user.fire_cap_reached"
           ],
           "example": "alert.fired",
           "description": "Only events of this type",
@@ -305,6 +310,388 @@
       ]
     },
     {
+      "operationId": "batchAlertUsers",
+      "group": "alert-users",
+      "action": "batch",
+      "method": "post",
+      "path": "/v1/alert-users:batch",
+      "auth": true,
+      "summary": "Create or update end users in bulk",
+      "credits": 1,
+      "tier": "free",
+      "params": [],
+      "body": {
+        "required": true,
+        "contentType": "application/json",
+        "example": {
+          "items": [
+            {
+              "external_user_id": "user_8812",
+              "max_active_alerts": 50
+            },
+            {
+              "external_user_id": "user_9001",
+              "max_active_alerts": 10,
+              "max_script_alerts": 0
+            }
+          ]
+        },
+        "fields": []
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "index",
+        "ok",
+        "result"
+      ],
+      "fields": [
+        "results"
+      ]
+    },
+    {
+      "operationId": "deleteAlertUser",
+      "group": "alert-users",
+      "action": "delete",
+      "method": "delete",
+      "path": "/v1/alert-users/{external_user_id}",
+      "auth": true,
+      "summary": "Delete an end user",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "external_user_id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "user_8812",
+          "description": "Your end user's id (URL-encoded; any character, 1–200)",
+          "flag": "external-user-id"
+        }
+      ],
+      "positional": {
+        "name": "external_user_id",
+        "required": true
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "status",
+        "alerts_deleted",
+        "events_deleted",
+        "deliveries_deleted"
+      ],
+      "fields": [
+        "status",
+        "alerts_deleted",
+        "events_deleted",
+        "deliveries_deleted"
+      ]
+    },
+    {
+      "operationId": "getAlertUser",
+      "group": "alert-users",
+      "action": "get",
+      "method": "get",
+      "path": "/v1/alert-users/{external_user_id}",
+      "auth": true,
+      "summary": "Get an end user",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "external_user_id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "user_8812",
+          "description": "Your end user's id (URL-encoded; any character, 1–200)",
+          "flag": "external-user-id"
+        }
+      ],
+      "positional": {
+        "name": "external_user_id",
+        "required": true
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "external_user_id",
+        "status",
+        "display_name",
+        "created_at"
+      ],
+      "fields": [
+        "external_user_id",
+        "display_name",
+        "metadata",
+        "status",
+        "limits",
+        "effective_limits",
+        "usage",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    {
+      "operationId": "listAlertUsers",
+      "group": "alert-users",
+      "action": "list",
+      "method": "get",
+      "path": "/v1/alert-users",
+      "auth": true,
+      "summary": "List end users",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, max 200)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "active",
+            "paused",
+            "deleting"
+          ],
+          "example": "active",
+          "description": "Only end users in this status",
+          "flag": "status"
+        },
+        {
+          "name": "q",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "user_",
+          "description": "Only end users whose id starts with this prefix",
+          "flag": "q"
+        }
+      ],
+      "list": true,
+      "view": "table",
+      "columns": [
+        "external_user_id",
+        "status",
+        "display_name",
+        "created_at"
+      ],
+      "fields": [
+        "external_user_id",
+        "display_name",
+        "metadata",
+        "status",
+        "limits",
+        "effective_limits",
+        "usage",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    {
+      "operationId": "pauseAlertUser",
+      "group": "alert-users",
+      "action": "pause",
+      "method": "post",
+      "path": "/v1/alert-users/{external_user_id}:pause",
+      "auth": true,
+      "summary": "Pause an end user",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "external_user_id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "user_8812",
+          "description": "Your end user's id (URL-encoded; any character, 1–200)",
+          "flag": "external-user-id"
+        }
+      ],
+      "positional": {
+        "name": "external_user_id",
+        "required": true
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "external_user_id",
+        "status",
+        "display_name",
+        "created_at"
+      ],
+      "fields": [
+        "external_user_id",
+        "display_name",
+        "metadata",
+        "status",
+        "limits",
+        "effective_limits",
+        "usage",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    {
+      "operationId": "resumeAlertUser",
+      "group": "alert-users",
+      "action": "resume",
+      "method": "post",
+      "path": "/v1/alert-users/{external_user_id}:resume",
+      "auth": true,
+      "summary": "Resume an end user",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "external_user_id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "user_8812",
+          "description": "Your end user's id (URL-encoded; any character, 1–200)",
+          "flag": "external-user-id"
+        }
+      ],
+      "positional": {
+        "name": "external_user_id",
+        "required": true
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "external_user_id",
+        "status",
+        "display_name",
+        "created_at"
+      ],
+      "fields": [
+        "external_user_id",
+        "display_name",
+        "metadata",
+        "status",
+        "limits",
+        "effective_limits",
+        "usage",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    {
+      "operationId": "updateAlertUser",
+      "group": "alert-users",
+      "action": "update",
+      "method": "patch",
+      "path": "/v1/alert-users/{external_user_id}",
+      "auth": true,
+      "summary": "Create or update an end user",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "external_user_id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "example": "user_8812",
+          "description": "Your end user's id (URL-encoded; any character, 1–200)",
+          "flag": "external-user-id"
+        }
+      ],
+      "positional": {
+        "name": "external_user_id",
+        "required": true
+      },
+      "body": {
+        "required": true,
+        "contentType": "application/json",
+        "example": {
+          "display_name": "Jane (premium)",
+          "max_active_alerts": 50,
+          "max_script_alerts": 5
+        },
+        "fields": [
+          {
+            "path": [
+              "display_name"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "A name for your dashboards (null clears it)",
+            "flag": "display-name"
+          },
+          {
+            "path": [
+              "max_active_alerts"
+            ],
+            "type": "integer",
+            "required": false,
+            "description": "Alerts that may count (active, paused, scheduled) for this end user; null = the account default",
+            "flag": "max-active-alerts"
+          },
+          {
+            "path": [
+              "max_script_alerts"
+            ],
+            "type": "integer",
+            "required": false,
+            "description": "Script and indicator alerts among them; null = the account default",
+            "flag": "max-script-alerts"
+          },
+          {
+            "path": [
+              "max_fires_per_day"
+            ],
+            "type": "integer",
+            "required": false,
+            "description": "Fires per UTC day of this end user's alerts before their deliveries pause; null = the account default",
+            "flag": "max-fires-per-day"
+          }
+        ]
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "external_user_id",
+        "status",
+        "display_name",
+        "created_at"
+      ],
+      "fields": [
+        "external_user_id",
+        "display_name",
+        "metadata",
+        "status",
+        "limits",
+        "effective_limits",
+        "usage",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    {
       "operationId": "batchAlerts",
       "group": "alerts",
       "action": "batch",
@@ -364,6 +751,16 @@
       "credits": 1,
       "tier": "free",
       "params": [
+        {
+          "name": "validate_only",
+          "in": "query",
+          "required": false,
+          "type": "boolean",
+          "default": false,
+          "example": true,
+          "description": "true = run every check of the create (body, plan, coverage, destinations, quotas, end user) and answer 204 without creating anything; the same problems as a real create. Idempotency-Key is ignored",
+          "flag": "validate-only"
+        },
         {
           "name": "Idempotency-Key",
           "in": "header",
@@ -1136,7 +1533,8 @@
             "alert.status_changed",
             "destination.disabled",
             "destination.test",
-            "account.fire_cap_reached"
+            "account.fire_cap_reached",
+            "alert_user.fire_cap_reached"
           ],
           "example": "alert.fired",
           "description": "Only events of this type",
@@ -8571,6 +8969,93 @@
         "event_name",
         "start_time",
         "end_time"
+      ]
+    },
+    {
+      "operationId": "getAlertUserDefaults",
+      "group": "me",
+      "action": "alert-user-defaults-get",
+      "method": "get",
+      "path": "/v1/me/alert-user-defaults",
+      "auth": true,
+      "summary": "Get the end-user defaults",
+      "credits": 0,
+      "tier": "free",
+      "params": [],
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "max_active_alerts",
+        "max_script_alerts",
+        "max_fires_per_day"
+      ],
+      "fields": [
+        "max_active_alerts",
+        "max_script_alerts",
+        "max_fires_per_day",
+        "updated_at"
+      ]
+    },
+    {
+      "operationId": "updateAlertUserDefaults",
+      "group": "me",
+      "action": "alert-user-defaults-update",
+      "method": "patch",
+      "path": "/v1/me/alert-user-defaults",
+      "auth": true,
+      "summary": "Update the end-user defaults",
+      "credits": 0,
+      "tier": "free",
+      "params": [],
+      "body": {
+        "required": true,
+        "contentType": "application/json",
+        "example": {
+          "max_active_alerts": 10,
+          "max_script_alerts": 1
+        },
+        "fields": [
+          {
+            "path": [
+              "max_active_alerts"
+            ],
+            "type": "integer",
+            "required": false,
+            "description": "Alerts that may count (active, paused, scheduled) for an end user without its own value; null = no limit",
+            "flag": "max-active-alerts"
+          },
+          {
+            "path": [
+              "max_script_alerts"
+            ],
+            "type": "integer",
+            "required": false,
+            "description": "Script and indicator alerts among them; null = no limit",
+            "flag": "max-script-alerts"
+          },
+          {
+            "path": [
+              "max_fires_per_day"
+            ],
+            "type": "integer",
+            "required": false,
+            "description": "Fires per UTC day of an end user's alerts before their deliveries pause; null = no cap",
+            "flag": "max-fires-per-day"
+          }
+        ]
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "max_active_alerts",
+        "max_script_alerts",
+        "max_fires_per_day"
+      ],
+      "fields": [
+        "max_active_alerts",
+        "max_script_alerts",
+        "max_fires_per_day",
+        "updated_at"
       ]
     },
     {
