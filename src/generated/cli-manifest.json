@@ -1,6 +1,6 @@
 {
-  "specVersion": "2026-11-13",
-  "specSha256": "ba292c435be5eac8e943368d5df6eb163a62410c0b6a30570c4eba5d32deaad7",
+  "specVersion": "2026-11-20",
+  "specSha256": "8ce2290108d72c0fee96bdb4bf5cd32b3cad03ee39b8331b68aec97bf8b02815",
   "groups": [
     {
       "name": "alert-events",
@@ -5337,7 +5337,7 @@
           "in": "path",
           "required": true,
           "type": "string",
-          "example": "0000102909",
+          "example": "0002012383",
           "description": "The 13F manager's CIK (any padding)",
           "flag": "cik"
         }
@@ -5458,7 +5458,7 @@
           "in": "path",
           "required": true,
           "type": "string",
-          "example": "0000102909",
+          "example": "0002012383",
           "description": "The 13F manager's CIK (any padding)",
           "flag": "cik"
         }

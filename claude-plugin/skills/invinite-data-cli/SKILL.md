@@ -642,10 +642,10 @@ Every SEC filer (13F managers, pre-IPO issuers, former registrants), listed or n
 invd filers get 0000102909 --json
 
 # List a 13F manager's position changes (optional: --period-end, --prior-period-end, --type, --fields, --limit, --cursor, --all)
-invd filers holding-changes 0000102909 -t new --json
+invd filers holding-changes 0002012383 -t new --json
 
 # List a 13F manager's holdings (optional: --period-end, --instruments, --sort, --fields, --limit, --cursor, --all)
-invd filers holdings 0000102909 --json
+invd filers holdings 0002012383 --json
 
 # List SEC filers (optional: --q, --form, --phase, --listed, --sort, --fields, --limit, --cursor, --all)
 invd filers list -q berkshire --json
