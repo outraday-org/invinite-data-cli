@@ -115,6 +115,15 @@ describe('requests', () => {
     expect(calls()[0]?.url).toBe('https://api.example.com/v1/filings/0000320193-26-000026');
   });
 
+  it.each(['pause', 'resume'])("invd alert-users %s percent-encodes the end user's id in the action path (/ : space @)", async (verb) => {
+    vi.mocked(fetch).mockResolvedValueOnce(json({ external_user_id: 'org/a:b c@x', status: verb === 'pause' ? 'paused' : 'active' }));
+    await run('alert-users', verb, 'org/a:b c@x', '--json');
+    expect(calls()).toHaveLength(1);
+    // encodeURIComponent: a raw `/` or `:` would end the segment or read as the action; the server decodes it.
+    expect(calls()[0]?.url).toBe(`https://api.example.com/v1/alert-users/org%2Fa%3Ab%20c%40x:${verb}`);
+    expect(calls()[0]?.init?.method).toBe('POST');
+  });
+
   it('invd events transcript NVDA 2026Q3 resolves the event through GET /v1/events and says so', async () => {
     vi.mocked(fetch)
       .mockResolvedValueOnce(page([{ event_id: 'ev-1' }]))
