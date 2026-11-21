@@ -6,7 +6,8 @@ from `/v2` to `/v1` on 2026-11-11 when the old v1 API was deleted. 5.0 = the 4.x
 three-line error with the API `remedy`, flag meanings, `~/.config/invinite/invd.toml`). 8.0 = Data API 7.0 (backend
 `tasks/instruments-and-funds-api` task 5): `instruments`, `funds`, `holders`, `dividends`, `splits` groups; `holdings`,
 `fund-holdings`, `etf-holdings`, `etf-weights` removed (`src/cli.ts::REMOVED_COMMANDS` names the replacement in the
-unknown-command error, no alias). 4.x (`/v2`) and 3.x (old v1) call deleted routes and get no fixes.
+unknown-command error, no alias). 8.1 = Data API 7.1 (backend `tasks/data-api-dashboard` A1): `invd alerts list
+--symbol` / `-s`, `--destination-id` / `-d`. 4.x (`/v2`) and 3.x (old v1) call deleted routes and get no fixes.
 
 ## Commands come from the Data API's spec, not from this repo
 
