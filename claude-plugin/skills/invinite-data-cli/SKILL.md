@@ -427,7 +427,7 @@ invd alerts events alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X --json
 # Get an alert
 invd alerts get alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X --json
 
-# List alerts (optional: --limit, --cursor, --status, --type, --external-user-id, --client-reference-id, --all)
+# List alerts (optional: --limit, --cursor, --status, --type, --external-user-id, --client-reference-id, --symbol, --destination-id, --all)
 invd alerts list --json
 
 # Pause an alert

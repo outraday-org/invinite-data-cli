@@ -136,6 +136,16 @@ describe('requests', () => {
     expect(err.join('\n')).toContain('resolved NVDA 2026Q3 → event ev-1');
   });
 
+  it('invd alerts list filters by symbol and destination (Data API 7.1: --symbol / -s, --destination-id / -d)', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(page([{ id: 'alt_1' }])).mockResolvedValueOnce(page([{ id: 'alt_1' }]));
+    await run('alerts', 'list', '--symbol', 'AAPL', '--destination-id', 'dst_1', '--json');
+    await run('alerts', 'list', '-s', 'msft', '-d', 'dst_2', '--json');
+    expect(calls().map(call => call.url)).toEqual([
+      'https://api.example.com/v1/alerts?symbol=AAPL&destination_id=dst_1',
+      'https://api.example.com/v1/alerts?symbol=msft&destination_id=dst_2',
+    ]);
+  });
+
   it('body flags (one object deep) over --body, the header parameter, POST', async () => {
     vi.mocked(fetch).mockResolvedValueOnce(json({ id: 'alt_1' }));
     await run('alerts', 'create', '--body', '{"trigger":{"mode":"once"}}', '--type', 'filing', '--ciks', '0000320193,0000789019', '--idempotency-key', 'k-1', '--json');

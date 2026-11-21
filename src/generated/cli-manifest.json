@@ -1,6 +1,6 @@
 {
   "specVersion": "2026-11-20",
-  "specSha256": "8ce2290108d72c0fee96bdb4bf5cd32b3cad03ee39b8331b68aec97bf8b02815",
+  "specSha256": "7e45e022182c0e4472ec447159bb8c366c7b3dc046e155e18490cea2612a50ba",
   "groups": [
     {
       "name": "alert-events",
@@ -1722,6 +1722,26 @@
           "example": "watchlist-aapl-8k",
           "description": "The alert with this client reference id",
           "flag": "client-reference-id"
+        },
+        {
+          "name": "symbol",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "AAPL",
+          "description": "Only alerts whose condition names this symbol, case-insensitive: its one `symbol` (a price, indicator or script alert's instrument as stored: a ticker, a commodity pair `XAUUSD`, a crypto coin by its slug `bitcoin`) or an entry of its `symbols` (multi-company alerts included). An alert that names companies by `cik` / `ciks` is found through the company the ticker resolves to (any of its listings: `GOOG` and `GOOGL` both find an alert on Alphabet's CIK); an alert given by symbol only through that symbol. Whole-market alerts (no company named) are not found. A symbol no alert names answers an empty page",
+          "alias": "s",
+          "flag": "symbol"
+        },
+        {
+          "name": "destination_id",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G",
+          "description": "Only alerts that deliver to this destination (one of their `destination_ids`). An unknown id or one of another account answers an empty page",
+          "alias": "d",
+          "flag": "destination-id"
         }
       ],
       "list": true,
