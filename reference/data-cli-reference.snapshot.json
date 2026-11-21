@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "8.0.0",
+    "version": "8.1.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -9,11 +9,11 @@
     "engines": {
       "node": ">=20"
     },
-    "verifiedOn": "2026-11-20",
+    "verifiedOn": "2026-11-21",
     "sourceHashes": {
-      "api-contract.json": "591ad4c5ecbc66626fea321130b3acae48af88c9700ece4b3ff49db72b97885c",
-      "openapi.json": "8ce2290108d72c0fee96bdb4bf5cd32b3cad03ee39b8331b68aec97bf8b02815",
-      "package.json": "0af52cea263248535271397b0e3672744a12371c23c5cd0026dd53fb3b081a46",
+      "api-contract.json": "fa051bc5482122a88a7d09e18bccc6d3cd4b910f47ab4a8a678e1766e31f0aa8",
+      "openapi.json": "7e45e022182c0e4472ec447159bb8c366c7b3dc046e155e18490cea2612a50ba",
+      "package.json": "b140b320c31035f289c76d511b3f5a4bc3ff8f23094912afc6982162ec2cf856",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "ed216f689f39e3dbf72c7d6a1c74ee6cb9c22fbaf9982a9b4ddee2873f2d5536",
@@ -34,7 +34,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "f8349adae91c4664de0b65a19a56cd7486ad3c787fec0c29f411564bf5e5aa02",
+      "src/generated/cli-manifest.json": "001e9b210572808423a8bdd19f907b682e79b03389eb730e461655d7065998a7",
       "src/hand-written-commands.ts": "ab53fea9a1523f8db77663fb3d241be73403213b67f20d9898596e87eddd7bd0",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
@@ -50,9 +50,9 @@
       "src/spec-manifest.ts": "d3b5c1b3c3a473f7991c02bd8b204d7ee6ac67b67e1d0ec1855c7345328cc104",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "8ce2290108d72c0fee96bdb4bf5cd32b3cad03ee39b8331b68aec97bf8b02815",
-    "revision": "ae442cfa5d86bc678010ce33a1fd401fc0fdfa9f",
-    "fingerprint": "94eb2a4b33f59e460a74ab5fc498ce9565e3ad99564e1fe48f99e3abdf3881bf"
+    "specSha256": "7e45e022182c0e4472ec447159bb8c366c7b3dc046e155e18490cea2612a50ba",
+    "revision": "7515ed23a8c898929b92ea62bf90a70df3d518e5",
+    "fingerprint": "53792d3fb0438f92bd1bd5eb8e5792ea9e28379724458ca2f347a82db152ce47"
   },
   "globalOptions": [
     {
@@ -1968,6 +1968,16 @@
         {
           "flags": "--client-reference-id <value>",
           "description": "The alert with this client reference id (e.g. watchlist-aapl-8k)",
+          "required": false
+        },
+        {
+          "flags": "-s, --symbol <value>",
+          "description": "Only alerts whose condition names this symbol, case-insensitive: its one `symbol` (a price, indicator or script alert's instrument as stored: a ticker, a commodity pair `XAUUSD`, a crypto coin by its slug `bitcoin`) or an entry of its `symbols` (multi-company alerts included). An alert that names companies by `cik` / `ciks` is found through the company the ticker resolves to (any of its listings: `GOOG` and `GOOGL` both find an alert on Alphabet's CIK); an alert given by symbol only through that symbol. Whole-market alerts (no company named) are not found. A symbol no alert names answers an empty page (e.g. AAPL)",
+          "required": false
+        },
+        {
+          "flags": "-d, --destination-id <value>",
+          "description": "Only alerts that deliver to this destination (one of their `destination_ids`). An unknown id or one of another account answers an empty page (e.g. dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G)",
           "required": false
         },
         {
