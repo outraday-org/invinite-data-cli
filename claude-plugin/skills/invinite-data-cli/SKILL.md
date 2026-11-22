@@ -86,6 +86,12 @@ An auth failure exits 4: reconnect the MCP connector, or tell the user to run `i
   resolves the event through `GET /v1/events` (one extra credit; the resolution is noted on stderr).
 - Flags are the API parameters with dashes (`fiscal_year` → `--fiscal-year`, `filed_at[gte]` → `--filed-at-gte`).
   `invd <group> <action> --help` lists them with the API's descriptions, the credit cost and plan, and the row fields.
+- Plans (Data API 9.0): `companies` (with `companies fiscal-periods`), `instruments`, `catalog`, `market holidays`,
+  `events list` / `get` and `me` reach every plan; standardized `financials`, `dividends`, `splits`, `news`, `funds`
+  and the alerts commands (`alerts`, `alert-events`, `alert-templates`, `alert-users`, `destinations`, `scripts`,
+  `script-versions`) need Lite; the call comparison, transcript diff and versions, prosody, price attribution,
+  `guidance kpis` and holder changes need Pro (as does the WebSocket stream); `filings datasets` needs Enterprise; the
+  rest needs Standard or above (`--help` names it). A refused plan exits 6 and the error names the plan.
 - `invd api` calls any path the tree lacks: `invd api GET /v1/filings?symbol=AAPL --paginate --jq '.data[].accession'`.
 
 ## Output, pagination and cost
@@ -202,7 +208,8 @@ invd search transcripts "gross margin outlook" --event <event_id> --json
 - `price-attribution` lines up minute price moves with what was said: temporal coincidence, never the cause.
 - Investor documents (`invd investor-documents`, `search investor-documents`) are company-published: quote them as such,
   with title, year and page, never as verified fact.
-- Slides, audio and price attribution need higher plans; a plan error exits 6 and names the plan.
+- The call comparison, transcript diff and versions, prosody, price attribution, KPIs, slides and audio need Pro. A
+  plan error exits 6 and names the plan.
 
 ### Instruments and funds
 
@@ -288,7 +295,8 @@ its `alert_ids` (what `condition.alert_ids` may name) and each diagnostic as `fi
 compile error exits 1 (the version is stored with `status: error` and no alert can use it). Show the user the
 diagnostics, fix the source, upload again with `--script <scr-id>`. Sources are ≤ 200 KB and may import only
 `@invinite-org/chartlang-core`; a script keeps at most 20 versions, an alert keeps the version it was created with.
-`interval` is bounded by the plan (FREE / LITE 1h, STANDARD 5m, PRO 1m). While hosted scripts are switched off the
+`interval` is bounded by the plan (LITE 1h, STANDARD 5m, PRO 1m; FREE has no alerts). While hosted scripts are
+switched off the
 routes answer 503 `unavailable`.
 
 Chains and pre-close (Data API 6.4): a script's `input.externalSeries` inputs are bound per alert in

@@ -7,7 +7,11 @@ three-line error with the API `remedy`, flag meanings, `~/.config/invinite/invd.
 `tasks/instruments-and-funds-api` task 5): `instruments`, `funds`, `holders`, `dividends`, `splits` groups; `holdings`,
 `fund-holdings`, `etf-holdings`, `etf-weights` removed (`src/cli.ts::REMOVED_COMMANDS` names the replacement in the
 unknown-command error, no alias). 8.1 = Data API 7.1 (backend `tasks/data-api-dashboard` A1): `invd alerts list
---symbol` / `-s`, `--destination-id` / `-d`. 4.x (`/v2`) and 3.x (old v1) call deleted routes and get no fixes.
+--symbol` / `-s`, `--destination-id` / `-d`. 9.0 = Data API 8.0. 10.0 = Data API 9.0 (invinite `tasks-julian/todo-0/data-api-plan-restructure`): 50 operations
+moved plan up (standardized financials, dividends, splits, news, funds and every alerts group → `lite`; call comparison,
+transcript diff / versions, prosody, price attribution, KPIs, holder changes, the stream → `pro`; `filings datasets` →
+`enterprise`). `x-tier` now takes five values and `--help` prints it raw; the 403 hint stays tier-blind (the API's
+problem names the plan). 4.x (`/v2`) and 3.x (old v1) call deleted routes and get no fixes.
 
 ## Commands come from the Data API's spec, not from this repo
 

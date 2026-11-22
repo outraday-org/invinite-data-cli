@@ -56,7 +56,7 @@ const manifestOperationSchema = z.object({
   summary: z.string(),
   /** The spec's `x-credits`: the base cost of one response (`--dry-run`, the `--all` confirmation). */
   credits: z.number().nonnegative(),
-  /** The spec's `x-tier` (free, lite, standard, pro). */
+  /** The spec's `x-tier` (free, lite, standard, pro, enterprise), printed raw in `--help`: no switch over the values. */
   tier: z.string(),
   params: z.array(manifestParamSchema),
   /** The parameter the first positional fills: a company list (`AAPL MSFT` → `company=AAPL,MSFT`), a member id, `q`. */

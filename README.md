@@ -137,6 +137,13 @@ invd events press-release MSFT 2026Q1
 `invd <group> --help` lists a group's actions; `invd <group> <action> --help` lists every flag with the API's own
 description, the credit cost and plan, and the fields of each row.
 
+Plans (Data API 9.0): `companies` (with `companies fiscal-periods`), `instruments`, `catalog`, `market holidays`,
+`events list` / `get` and `me` reach every plan; standardized `financials`, `dividends`, `splits`, `news`, `funds` and
+the alerts commands (`alerts`, `alert-events`, `alert-templates`, `alert-users`, `destinations`, `scripts`,
+`script-versions`) need Lite; the call comparison, transcript diff and versions, prosody, price attribution, `guidance
+kpis` and holder changes need Pro (as does the WebSocket stream); `filings datasets` needs Enterprise; the rest needs
+Standard or above (`--help` names it). A refused plan exits 6 and the error names the plan.
+
 ## Examples
 
 ### Companies and filers
@@ -353,7 +360,7 @@ one `file:line:column severity message` line per diagnostic. A compile error is 
 `script` alert takes the script's `inputs` and a `frequency` (`once_per_bar_close` default); an `indicator` alert
 takes a `template` (`key` + `inputs` from `invd alert-templates list`) or a structured `condition` (`lhs`,
 `comparator`, `rhs`) with optional `filters`. Both watch `symbol` (+ `asset_class` for crypto) at `interval` (the
-plan's shortest: FREE / LITE 1h, STANDARD 5m, PRO 1m).
+plan's shortest: LITE 1h, STANDARD 5m, PRO 1m; FREE has no alerts).
 
 ## Output
 
