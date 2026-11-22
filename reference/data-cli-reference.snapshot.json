@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "10.0.0",
+    "version": "11.0.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -11,9 +11,9 @@
     },
     "verifiedOn": "2026-11-22",
     "sourceHashes": {
-      "api-contract.json": "8a382e96b1bdcfe0e7dbd66b7741ffa43b576ecf5d1933d80a6ce60932cc32b7",
-      "openapi.json": "be90af4c157001a48c945d0b6db38346c5e1179c47b5482f03775ac32e5664c1",
-      "package.json": "40b44f80a104948b18b082f9abc26c85ebb9e0a1019fffa520521de73fa18968",
+      "api-contract.json": "3f5cd4537277d3aec60d45f4981aa40efd34474abe40b2b7eab32cbbeaf9aacb",
+      "openapi.json": "088bccfe7018e191671724efb0a8e86d3a18558f9359d0fe466a94c445e10a79",
+      "package.json": "7b6920272d5554715451f1da1e00704dc1dc63bda8b5d9f74bf78e52b6a18a1b",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "ed216f689f39e3dbf72c7d6a1c74ee6cb9c22fbaf9982a9b4ddee2873f2d5536",
@@ -24,7 +24,7 @@
       "src/commands/agent-setup.ts": "a0a1be911a6942aa22647347d27ba3667a5810b197d787500292763b65abec90",
       "src/commands/alert-events.ts": "4cf28e95f53f18bd5e75dec9968529f68ee6ec1838da57f225aa995be951a29c",
       "src/commands/api.ts": "90133127a64a46f1e6fa2a93e2546eafedd7e48cc96aceba9add49bb83b63616",
-      "src/commands/auth.ts": "1f3369f5d1de59064e6b2b3f9e11b925695a8055fe91284ab9ea0dc5871fb223",
+      "src/commands/auth.ts": "6e7a26fd6007a61ac033847542a33182c1eb486f0234095119d4b1f7ebf4b30f",
       "src/commands/completion.ts": "d7aeaa835ac1fe16b3c9a0165a1a5e8a85cb31262f498499d829bcb7a5f88d73",
       "src/commands/config.ts": "0830211879fdfc44052c917b93ec0233451bba7ca4870275aa4dac30fe3f7130",
       "src/commands/plugin.ts": "d571726eeac6b194c825f31dcd5a25e6b46764d8d941732c7b88327cccae372d",
@@ -34,7 +34,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "f26f9dc682595a4d9c1576e60975604f6cfb1b866a8a57dc112c08071d8a4887",
+      "src/generated/cli-manifest.json": "732cbdbea0174e2787d4a234693f6f9ae2daabd01ddc95cac8460a3d204f8deb",
       "src/hand-written-commands.ts": "ab53fea9a1523f8db77663fb3d241be73403213b67f20d9898596e87eddd7bd0",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
@@ -50,9 +50,9 @@
       "src/spec-manifest.ts": "e638fd01260664e2c95e05e18e6087e6fd04694f694ec6db8921224217e580b8",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "be90af4c157001a48c945d0b6db38346c5e1179c47b5482f03775ac32e5664c1",
-    "revision": "d3d1d6c25c1ddc323a5b24281defd05f5f47e84b",
-    "fingerprint": "5b555b3a8f805c28ae2539beafdb1c2c71141f321fb0da0e9ea113e7cfddb98c"
+    "specSha256": "088bccfe7018e191671724efb0a8e86d3a18558f9359d0fe466a94c445e10a79",
+    "revision": "2ef71b78ebc37867a76811e58970eca11fab625e",
+    "fingerprint": "247111a929bc9994bd0ca8620c91a56f15a074e5a2b522942444046ce4237c15"
   },
   "globalOptions": [
     {
@@ -1457,7 +1457,7 @@
         },
         {
           "flags": "--interval <value>",
-          "description": "The bar evaluated at its close. volume_spike (1m, 5m, 15m, 30m, 1h, 1d, 1w, 1mo; every closed bar); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w, 1mo; the plan's shortest: FREE / LITE 1h, STANDARD 5m, PRO 1m) (body condition.interval)",
+          "description": "The bar evaluated at its close. volume_spike (1m, 5m, 15m, 30m, 1h, 1d, 1w, 1mo; every closed bar); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w, 1mo; the plan's shortest: LITE 1h, STANDARD 5m, PRO 1m) (body condition.interval)",
           "required": false
         },
         {
@@ -2483,7 +2483,7 @@
         },
         {
           "flags": "--interval <value>",
-          "description": "The bar evaluated at its close. volume_spike (1m, 5m, 15m, 30m, 1h, 1d, 1w, 1mo; every closed bar); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w, 1mo; the plan's shortest: FREE / LITE 1h, STANDARD 5m, PRO 1m) (body condition.interval)",
+          "description": "The bar evaluated at its close. volume_spike (1m, 5m, 15m, 30m, 1h, 1d, 1w, 1mo; every closed bar); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w, 1mo; the plan's shortest: LITE 1h, STANDARD 5m, PRO 1m) (body condition.interval)",
           "required": false
         },
         {

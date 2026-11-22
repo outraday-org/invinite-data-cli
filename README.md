@@ -137,12 +137,17 @@ invd events press-release MSFT 2026Q1
 `invd <group> --help` lists a group's actions; `invd <group> <action> --help` lists every flag with the API's own
 description, the credit cost and plan, and the fields of each row.
 
-Plans (Data API 9.0): `companies` (with `companies fiscal-periods`), `instruments`, `catalog`, `market holidays`,
-`events list` / `get` and `me` reach every plan; standardized `financials`, `dividends`, `splits`, `news`, `funds` and
-the alerts commands (`alerts`, `alert-events`, `alert-templates`, `alert-users`, `destinations`, `scripts`,
-`script-versions`) need Lite; the call comparison, transcript diff and versions, prosody, price attribution, `guidance
-kpis` and holder changes need Pro (as does the WebSocket stream); `filings datasets` needs Enterprise; the rest needs
-Standard or above (`--help` names it). A refused plan exits 6 and the error names the plan.
+Plans (Data API 10.0): `companies` (with `companies fiscal-periods`), `instruments`, `catalog`, `market holidays`,
+`events list` / `get` and `me` reach every plan. Lite adds filings, filers, `documents`, `financials` (summary
+view), `metrics`, `guidance list`, `holders list`, `dividends`, `splits`, `news`, `funds`, `ipos`, `offerings`,
+`people`, `events press-release` and the alerts commands (`alerts`, `alert-events`, `alert-templates`, `alert-users`,
+`destinations`, `scripts`, `script-versions`). Standard adds `segments list`, `insider-trades`, `search filings` and
+`search news`. Pro adds the earnings-call content (transcripts, Q&A, stats, audio, slides, comparison, prosody, price
+attribution, transcript diff and versions), `investor-documents`, `search transcripts`, `search investor-documents`,
+the detailed and presentation `financials` views, `segments list-detailed`, `guidance kpis`, holder changes and fact
+places (and the WebSocket stream); `filings datasets` needs Enterprise. Pay as you go (credits without a plan;
+`invd me show` says `payg`) reaches what Pro reaches except live data; the API's refusal says so. `--help` names each
+command's plan; a refused plan exits 6 and the error names the plan.
 
 ## Examples
 

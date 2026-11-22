@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
-import { describe, expect, it } from 'vitest';
-import { parseRetryAfter } from '../../../src/shared/errors.js';
+import { describe, expect, it, vi } from 'vitest';
+import { ApiError, parseRetryAfter, printError } from '../../../src/shared/errors.js';
 
 describe('parseRetryAfter', () => {
   it('reads delay-seconds', () => {
@@ -70,5 +70,20 @@ describe('exit codes', () => {
   it('a partial result names the resume cursor', async () => {
     const { PartialResultError } = await import('../../../src/shared/errors.js');
     expect(new PartialResultError(new Error('boom'), 50, 'c9').message).toBe('Stopped after 50 row(s): boom — resume with --cursor c9');
+  });
+});
+
+describe('a plan refusal prints the API sentence before the invd hint', () => {
+  it('a pay-as-you-go 403 on live audio shows the server detail, then "invd me show"', () => {
+    const detail = 'This endpoint is not available on pay-as-you-go credits; it needs the Pro plan.';
+    const lines: string[] = [];
+    const spy = vi.spyOn(console, 'error').mockImplementation((line: unknown) => { lines.push(String(line)); });
+    try {
+      printError(new ApiError(403, 'Forbidden', detail, undefined, 'plan_required', { code: 'plan_required', detail }));
+    } finally {
+      spy.mockRestore();
+    }
+    expect(lines[0]).toContain(detail);
+    expect(lines[1]).toContain('This operation needs a higher plan: invd me show');
   });
 });

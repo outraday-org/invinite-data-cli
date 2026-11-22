@@ -11,7 +11,7 @@ unknown-command error, no alias). 8.1 = Data API 7.1 (backend `tasks/data-api-da
 moved plan up (standardized financials, dividends, splits, news, funds and every alerts group → `lite`; call comparison,
 transcript diff / versions, prosody, price attribution, KPIs, holder changes, the stream → `pro`; `filings datasets` →
 `enterprise`). `x-tier` now takes five values and `--help` prints it raw; the 403 hint stays tier-blind (the API's
-problem names the plan). 4.x (`/v2`) and 3.x (old v1) call deleted routes and get no fixes.
+problem names the plan). 11.0 = Data API 10.0 (invinite `tasks-julian/todo-0/data-api-pricing-v2`): 40 operations moved plan (32 standard → `lite`: filings, filers, documents, guidance, holders, metrics, news items, people, IPOs, offerings; 8 standard → `pro`: transcript, Q&A, stats, investor documents and their two searches); `/v1/me.plan` gains `payg` (credits without a plan, reaches Pro minus live data). The CLI still compares no plan to a tier: `invd auth status` words `payg` as "Pay as you go" (`planLabel`), the 403's own sentence is the first error line. 4.x (`/v2`) and 3.x (old v1) call deleted routes and get no fixes.
 
 ## Commands come from the Data API's spec, not from this repo
 

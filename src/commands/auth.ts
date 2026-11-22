@@ -292,6 +292,14 @@ export async function logout(dependencies: Pick<LoginDependencies, 'fetch'> = de
   console.error(chalk.green('Logged out locally.'));
 }
 
+/**
+ * The words `invd auth status` prints for a `/v1/me` plan value. Only `payg` has words of its own (the account buys
+ * credits without a plan); every other plan prints as the API names it, and `--json` always keeps the API's value.
+ */
+export function planLabel(plan: unknown): unknown {
+  return plan === 'payg' ? 'Pay as you go' : plan;
+}
+
 /** `invd auth status`: where the key comes from and, unless `offline`, what `GET /v1/me` says about it (free). */
 export async function status(opts: { offline?: boolean; json?: boolean } = {}): Promise<void> {
   const resolved = await resolveApiKey();
@@ -318,7 +326,8 @@ export async function status(opts: { offline?: boolean; json?: boolean } = {}): 
     return;
   }
   console.error(chalk.green('Logged in.'));
-  for (const [key, value] of Object.entries(summary)) {
+  for (const [key, entry] of Object.entries(summary)) {
+    const value = key === 'plan' ? planLabel(entry) : entry;
     console.log(`  ${key.padEnd(8)}  ${typeof value === 'object' ? JSON.stringify(value) : String(value)}`);
   }
 }

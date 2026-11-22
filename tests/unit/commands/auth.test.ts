@@ -10,6 +10,7 @@ vi.mock('../../../src/config/auth.js', () => ({
   clearApiKey: mockClearApiKey,
   resolveApiKey: mockResolveApiKey,
   setApiKey: mockSetApiKey,
+  getApiKey: async () => `invd_${'d'.repeat(64)}`,
   keyHint: (key: string) => `${key.slice(0, 4)}…${key.slice(-4)}`,
 }));
 
@@ -20,7 +21,7 @@ vi.mock('../../../src/config/config-manager.js', () => ({
   DASHBOARD_URL: 'https://app.example.test/data-api',
 }));
 
-import { login, logout, parsePastedCallback, type LoginDependencies } from '../../../src/commands/auth.js';
+import { login, logout, parsePastedCallback, planLabel, status, type LoginDependencies } from '../../../src/commands/auth.js';
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -250,5 +251,31 @@ describe('login commands', () => {
     expect(parsePastedCallback('http://127.0.0.1:5000/callback?code=abc&state=s1')).toEqual({ code: 'abc', state: 's1' });
     expect(parsePastedCallback('  abc  ')).toEqual({ code: 'abc' });
     expect(parsePastedCallback('')).toEqual({});
+  });
+});
+
+describe('auth status', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it('prints a pay-as-you-go account as "Pay as you go" and keeps the API value under --json', async () => {
+    mockResolveApiKey.mockResolvedValue({ key: `invd_${'d'.repeat(64)}`, source: 'keychain' });
+    vi.stubGlobal('fetch', vi.fn(async () => jsonResponse({ account: { email: 'a@example.test' }, plan: 'payg' })));
+    const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    await status();
+    expect(log.mock.calls.map(call => String(call[0]))).toContain(`  ${'plan'.padEnd(8)}  Pay as you go`);
+
+    log.mockClear();
+    await status({ json: true });
+    expect(JSON.parse(String(log.mock.calls[0][0]))).toMatchObject({ plan: 'payg' });
+  });
+
+  it('prints every other plan as the API names it', () => {
+    expect(planLabel('payg')).toBe('Pay as you go');
+    for (const plan of ['free', 'lite', 'standard', 'pro', 'enterprise']) expect(planLabel(plan)).toBe(plan);
   });
 });
