@@ -3,7 +3,7 @@
   "info": {
     "title": "Invinite API",
     "description": "Invinite financial data API. Each operation has a base credit cost: `x-credits` is the base cost; responses add 1 credit per started 1,000 rows beyond the first 1,000; `X-Credits-Charged` reports the final debit and `X-Credits-Remaining` what is left of the plan's included credits after it. A `304 Not Modified` costs nothing. `GET /v1/me/usage` returns your account's usage by day, product family and key (it costs no credits).\n\n**Coverage.** Financial data covers US SEC registrants and their US listings; a symbol that is not a US SEC registrant (or a crypto pair such as `X:BTCUSD`) is not a known company and answers 404. A known company with no data in a family (for example no statements yet) answers 404 with `code: not_covered`; an empty page of a covered company stays 200 with an empty list. `GET /v1/companies` lists every known company.\n\n## Webhooks\n\nAlerts (`POST /v1/alerts`) deliver their events to your destinations (`POST /v1/destinations`) as [Standard Webhooks](https://github.com/standard-webhooks/standard-webhooks/blob/main/spec/standard-webhooks.md): `alert.fired`, `alert.fired.batch`, `alert.status_changed`, `destination.disabled`, `destination.test`, `account.fire_cap_reached`, `alert_user.fire_cap_reached`; see `x-webhooks` for each `data` object. Every event is also on the pull feed `GET /v1/alert-events`.\n\nEvery delivery is a `POST` with `Content-Type: application/json`, the body `{type, timestamp, data}` (or the destination's `body_template`) and the headers `webhook-id` (the event id; a batch: its `bat_…` id), `webhook-timestamp` (unix seconds) and `webhook-signature`: space-separated `v1,<base64 HMAC-SHA256 of <webhook-id>.<webhook-timestamp>.<raw body>>`, keyed with the base64-DECODED bytes of the destination's `whsec_…` secret — any Standard Webhooks library verifies it. After `POST /v1/destinations/{id}:rotate-secret` the old secret keeps signing beside the new one for 24 h (two `v1` entries). Reject a timestamp older than 5 minutes. Any 2xx within 10 s acknowledges; redirects are not followed; a body above 256 KB is not sent. A failed attempt is retried after [0, 5 s, 5 min, 30 min, 2 h, 5 h, 10 h, 10 h, 10 h, 34 h] (attempt n waits the n-th step) plus up to 10 % jitter; the delivery is dead after attempt 10. A 410 disables the destination at once; so do 72 h of nothing but failures with at least 10 failed attempts in a row (a `destination.disabled` event on the feed and a mail; `PATCH` with `status: active` re-enables it). Delivery is at-least-once and unordered: dedupe on `webhook-id`, order by `timestamp`. A `batch_webhook` destination receives `alert.fired.batch` with the pending events in `data.events[]` (dedupe on each `data.event_id`).\n\nFires and deliveries cost no credits; two fair-use caps apply instead: at most 60 fires per alert per rolling hour (beyond: suppressed and counted in the next fire's `suppressed_since_last`) and per account and UTC day FREE 100 · LITE 5,000 · STANDARD 50,000 · PRO 500,000 fires (beyond: written to the feed with `delivery_skipped: fire_cap`, not delivered; one `account.fire_cap_reached` per day). An end user's `max_fires_per_day` (or the account default) caps that user first: beyond it `delivery_skipped: alert_user_fire_cap`, not counted against the account's cap, one `alert_user.fire_cap_reached` per user and day.\n\n## Licensing\n\n| Tier | display | redistribute | rag | train | audio | resell |\n| --- | --- | --- | --- | --- | --- | --- |\n| FREE | ✓ | – | – | – | – | – |\n| LITE | ✓ | – | – | – | – | – |\n| STANDARD | ✓ | – | ✓ | – | – | – |\n| PRO | ✓ | ✓ | ✓ | – | ✓ | – |\n| ENTERPRISE | ✓ | ✓ | ✓ | – | ✓ | – |\n\nInvinite data may be shown and, from PRO, redistributed inside the licensee's own product with attribution (\"Source: Invinite\" on screen or in the API response that carries it). It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.\n\nPolicy version: 2026-10-draft. Draft — pending counsel sign-off.\n\nAudio files carry a forensic watermark that identifies the recording. Audio is subject to per-company takedown and may not be re-hosted.\n\nSEC data: Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.\n\nNews: News text is Invinite's own summary of the issuer's or the SEC's publication (the publisher's text and media are never served); the licensee shows the attribution (publisher, source URL and date) next to it; the resale rule applies.\n\nPDF documents: Branded PDFs of transcripts and news items are permanent URLs to one shared file per version. They may be shown, downloaded and forwarded unmodified with the notice page intact; the resale rule applies unchanged. News PDFs carry Invinite's summary of the issuer's or the SEC's publication under the attribution stated on their notice page; a PDF disappears when the item is taken down or its source's reuse is denied.\n\nEvery `/v1/*` data operation carries `x-license`, the minimum use right its data ships with; `GET /status/licensing` serves the same matrix per route, rendered at [data.invinite.com/docs/licensing](https://data.invinite.com/docs/licensing). `/v1/me` and `/v1/me/usage` serve no licensed data and carry none.\n\n## Status\n\n[`/status`](/status) reports whether each product family works (a status and its uptime over 7, 30 and 90 days); [`/status/licensing`](/status/licensing) serves the licensing matrix per route. The status routes need no API key and are cached for 5 minutes. The public status page is [status.data.invinite.com](https://status.data.invinite.com): a snapshot of `/status` every 15 minutes plus an external reachability probe of the API.\n\nUptime is the share of requests answered without a server error, measured by the API per product family; a window with too little traffic to judge shows no figure. Status reflects the last 24 hours.\n\nProduct families: Company, Financials, SEC Filings, Insider Trades, Institutional Ownership, IPOs, Market, Metadata, Earnings Calls, News, WebSocket, Account, Alerts.",
-    "version": "2026-11-20"
+    "version": "2026-11-22"
   },
   "components": {
     "securitySchemes": {
@@ -509,6 +509,11 @@
             "description": "While pending: seconds after which a retry is likely to find rows",
             "minimum": 0,
             "nullable": true
+          },
+          "reason": {
+            "type": "string",
+            "description": "Why a complete scope holds no rows by design; absent otherwise. period_not_computed = the metric is not computed for the requested period type (see the operation's period parameter)",
+            "example": "period_not_computed"
           }
         },
         "title": "MetaCoverage"
@@ -605,8 +610,6 @@
           "sector",
           "industry",
           "sic",
-          "fama_sector",
-          "fama_industry",
           "exchange",
           "currency",
           "cusip",
@@ -664,16 +667,6 @@
             "type": "string",
             "description": "SIC code",
             "nullable": true
-          },
-          "fama_sector": {
-            "type": "string",
-            "nullable": true,
-            "description": "Fama-French sector, from the company's SIC code"
-          },
-          "fama_industry": {
-            "type": "string",
-            "nullable": true,
-            "description": "Fama-French industry, from the company's SIC code"
           },
           "exchange": {
             "type": "string",
@@ -14466,7 +14459,7 @@
           "external_user_id": {
             "type": "string",
             "maxLength": 200,
-            "description": "Your end user's id (filters lists and events)"
+            "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)"
           },
           "metadata": {
             "type": "object",
@@ -14744,7 +14737,7 @@
           "external_user_id": {
             "type": "string",
             "maxLength": 200,
-            "description": "Your end user's id"
+            "description": "Your end user's id (1–200 characters, not . or .., which no URL path can name)"
           },
           "display_name": {
             "type": "string",
@@ -20455,8 +20448,6 @@
                   "sector": "Technology",
                   "industry": "Electronic Computers",
                   "sic": "3571",
-                  "fama_sector": null,
-                  "fama_industry": null,
                   "exchange": "XNAS",
                   "currency": "USD",
                   "cusip": "",
@@ -29453,7 +29444,7 @@
             "in": "query",
             "name": "period",
             "required": true,
-            "description": "Period type",
+            "description": "Period type. CAGR is computed from annual periods only: quarterly, ytd and ttm answer an empty page with meta.coverage.reason period_not_computed",
             "example": "annual"
           },
           {
@@ -33957,7 +33948,7 @@
         "tags": [
           "Holders"
         ],
-        "description": "Quarter-over-quarter 13F position changes of one security between `prior_period_end` (default: the quarter before) and `period_end` (default: the newest quarter end whose 13F deadline has passed): every manager's change, or with `filer=` those managers' changes. Rows are ordered by manager CIK, then position. Only changes the store can prove are listed: a position whose prior snapshot is missing or incomplete is left out and the page reads `meta.coverage.state: partial`. `type` and the left-out positions are applied to the store's pages, so a page can hold fewer than `limit` rows while `has_more` is true; follow `next_cursor` until `has_more` is false.",
+        "description": "Quarter-over-quarter 13F position changes of one security between `prior_period_end` (default: the quarter before) and `period_end` (default: the newest quarter end whose 13F deadline has passed): every manager's change, or with `filer=` those managers' changes. Rows are ordered by manager CIK, then position. Only changes the store can prove are listed: a position whose prior snapshot is missing or incomplete is left out and the page reads `meta.coverage.state: partial`. The store applies `type` before its page limit; a page can still hold fewer than `limit` rows while `has_more` is true (one page read is time-bounded), so follow `next_cursor` until `has_more` is false.",
         "parameters": [
           {
             "schema": {
@@ -42694,7 +42685,7 @@
                   "external_user_id": {
                     "type": "string",
                     "maxLength": 200,
-                    "description": "Your end user's id (filters lists and events)"
+                    "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)"
                   },
                   "metadata": {
                     "type": "object",
@@ -43102,7 +43093,7 @@
                   "external_user_id": {
                     "type": "string",
                     "maxLength": 200,
-                    "description": "Your end user's id (filters lists and events)",
+                    "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
                     "nullable": true
                   },
                   "metadata": {
@@ -46017,7 +46008,7 @@
             "in": "path",
             "name": "external_user_id",
             "required": true,
-            "description": "Your end user's id (URL-encoded; any character, 1–200)",
+            "description": "Your end user's id (URL-encoded; any character, 1–200; a new end user is never . or ..)",
             "example": "user_8812"
           }
         ],

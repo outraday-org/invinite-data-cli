@@ -1,6 +1,6 @@
 {
-  "specVersion": "2026-11-20",
-  "specSha256": "7e45e022182c0e4472ec447159bb8c366c7b3dc046e155e18490cea2612a50ba",
+  "specVersion": "2026-11-22",
+  "specSha256": "eaa5e5c252fe09b4aaf9dd60339c7036506c12670a20ae1daa1dac2c8d898ade",
   "groups": [
     {
       "name": "alert-events",
@@ -620,7 +620,7 @@
           "required": true,
           "type": "string",
           "example": "user_8812",
-          "description": "Your end user's id (URL-encoded; any character, 1–200)",
+          "description": "Your end user's id (URL-encoded; any character, 1–200; a new end user is never . or ..)",
           "flag": "external-user-id"
         }
       ],
@@ -1433,7 +1433,7 @@
             ],
             "type": "string",
             "required": false,
-            "description": "Your end user's id (filters lists and events)",
+            "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
             "flag": "external-user-id"
           }
         ]
@@ -2584,7 +2584,7 @@
             ],
             "type": "string",
             "required": false,
-            "description": "Your end user's id (filters lists and events)",
+            "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
             "flag": "external-user-id"
           }
         ]
@@ -3128,8 +3128,6 @@
         "sector",
         "industry",
         "sic",
-        "fama_sector",
-        "fama_industry",
         "exchange",
         "currency",
         "cusip",
@@ -9635,7 +9633,7 @@
             "ttm"
           ],
           "example": "annual",
-          "description": "Period type",
+          "description": "Period type. CAGR is computed from annual periods only: quarterly, ytd and ttm answer an empty page with meta.coverage.reason period_not_computed",
           "alias": "p",
           "flag": "period"
         },
