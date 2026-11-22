@@ -1,6 +1,6 @@
 {
   "specVersion": "2026-11-22",
-  "specSha256": "be90af4c157001a48c945d0b6db38346c5e1179c47b5482f03775ac32e5664c1",
+  "specSha256": "088bccfe7018e191671724efb0a8e86d3a18558f9359d0fe466a94c445e10a79",
   "groups": [
     {
       "name": "alert-events",
@@ -1193,7 +1193,7 @@
             ],
             "type": "string",
             "required": false,
-            "description": "The bar evaluated at its close. volume_spike (1m, 5m, 15m, 30m, 1h, 1d, 1w, 1mo; every closed bar); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w, 1mo; the plan's shortest: FREE / LITE 1h, STANDARD 5m, PRO 1m)",
+            "description": "The bar evaluated at its close. volume_spike (1m, 5m, 15m, 30m, 1h, 1d, 1w, 1mo; every closed bar); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w, 1mo; the plan's shortest: LITE 1h, STANDARD 5m, PRO 1m)",
             "flag": "interval"
           },
           {
@@ -2344,7 +2344,7 @@
             ],
             "type": "string",
             "required": false,
-            "description": "The bar evaluated at its close. volume_spike (1m, 5m, 15m, 30m, 1h, 1d, 1w, 1mo; every closed bar); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w, 1mo; the plan's shortest: FREE / LITE 1h, STANDARD 5m, PRO 1m)",
+            "description": "The bar evaluated at its close. volume_spike (1m, 5m, 15m, 30m, 1h, 1d, 1w, 1mo; every closed bar); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w, 1mo; the plan's shortest: LITE 1h, STANDARD 5m, PRO 1m)",
             "flag": "interval"
           },
           {
@@ -4019,7 +4019,7 @@
       "auth": true,
       "summary": "Get a figure",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "version_id",
@@ -4062,7 +4062,7 @@
       "auth": true,
       "summary": "Get a document version",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "blocks",
@@ -4151,7 +4151,7 @@
       "auth": true,
       "summary": "List a document version's sections",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "outline",
@@ -4661,7 +4661,7 @@
       "auth": true,
       "summary": "Get an event's press release",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "event_id",
@@ -4792,7 +4792,7 @@
       "auth": true,
       "summary": "List an event's Q&A pairs",
       "credits": 1,
-      "tier": "standard",
+      "tier": "pro",
       "params": [
         {
           "name": "include",
@@ -4924,7 +4924,7 @@
       "auth": true,
       "summary": "Get an event's call statistics",
       "credits": 1,
-      "tier": "standard",
+      "tier": "pro",
       "params": [
         {
           "name": "event_id",
@@ -4968,7 +4968,7 @@
       "auth": true,
       "summary": "Get an event's transcript",
       "credits": 5,
-      "tier": "standard",
+      "tier": "pro",
       "params": [
         {
           "name": "version",
@@ -5101,7 +5101,7 @@
       "auth": true,
       "summary": "Get an event's transcript as text",
       "credits": 5,
-      "tier": "standard",
+      "tier": "pro",
       "params": [
         {
           "name": "version",
@@ -5220,7 +5220,7 @@
       "auth": true,
       "summary": "Get a filer",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "expand",
@@ -5403,7 +5403,7 @@
       "auth": true,
       "summary": "List a 13F manager's holdings",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "period_end",
@@ -5521,7 +5521,7 @@
       "auth": true,
       "summary": "List SEC filers",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "q",
@@ -5700,7 +5700,7 @@
       "auth": true,
       "summary": "List a filing's numeric facts",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "tag",
@@ -5783,7 +5783,7 @@
       "auth": true,
       "summary": "Get a filing",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "expand",
@@ -5848,7 +5848,7 @@
       "auth": true,
       "summary": "List a holdings filing's lines",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "fields",
@@ -5929,7 +5929,7 @@
       "auth": true,
       "summary": "List filings",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "symbol",
@@ -6077,7 +6077,7 @@
       "auth": true,
       "summary": "List a filing's text facts",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "tag",
@@ -6154,7 +6154,7 @@
       "auth": true,
       "summary": "Get a filing's review chain",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "max_depth",
@@ -6234,7 +6234,7 @@
       "auth": true,
       "summary": "As-reported statements",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "company",
@@ -7588,7 +7588,7 @@
       "auth": true,
       "summary": "List a fund's holdings",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "as_of",
@@ -7814,7 +7814,7 @@
       "auth": true,
       "summary": "List a fund's sector, country and asset-class weights",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "dimension",
@@ -8028,7 +8028,7 @@
       "auth": true,
       "summary": "List guidance items",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "company",
@@ -8311,7 +8311,7 @@
       "auth": true,
       "summary": "List who holds a stock or a fund",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "symbol",
@@ -8918,7 +8918,7 @@
       "auth": true,
       "summary": "Get an investor document",
       "credits": 1,
-      "tier": "standard",
+      "tier": "pro",
       "params": [
         {
           "name": "expand",
@@ -8995,7 +8995,7 @@
       "auth": true,
       "summary": "List investor documents",
       "credits": 1,
-      "tier": "standard",
+      "tier": "pro",
       "params": [
         {
           "name": "company",
@@ -9149,7 +9149,7 @@
       "auth": true,
       "summary": "Get an offering",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "fields",
@@ -9208,7 +9208,7 @@
       "auth": true,
       "summary": "List offerings",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "stage",
@@ -9610,7 +9610,7 @@
       "auth": true,
       "summary": "List CAGRs",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "company",
@@ -9766,7 +9766,7 @@
       "auth": true,
       "summary": "Explain a standardized fact",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "max_depth",
@@ -9829,7 +9829,7 @@
       "auth": true,
       "summary": "List growth rates",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "company",
@@ -9986,7 +9986,7 @@
       "auth": true,
       "summary": "List ratios",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "company",
@@ -10137,7 +10137,7 @@
       "auth": true,
       "summary": "List announcements",
       "credits": 2,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "company",
@@ -10310,7 +10310,7 @@
       "auth": true,
       "summary": "Get a news item",
       "credits": 2,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "fields",
@@ -10546,7 +10546,7 @@
       "auth": true,
       "summary": "Get a news item's text",
       "credits": 2,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "cursor",
@@ -10606,7 +10606,7 @@
       "auth": true,
       "summary": "Get a Form D private offering",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "fields",
@@ -10691,7 +10691,7 @@
       "auth": true,
       "summary": "List Form D private offerings",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "company",
@@ -10867,7 +10867,7 @@
       "auth": true,
       "summary": "Get a person",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "fields",
@@ -10930,7 +10930,7 @@
       "auth": true,
       "summary": "List people",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "company",
@@ -11069,7 +11069,7 @@
       "auth": true,
       "summary": "List event participations",
       "credits": 1,
-      "tier": "standard",
+      "tier": "lite",
       "params": [
         {
           "name": "event",
@@ -11646,7 +11646,7 @@
       "auth": true,
       "summary": "Search investor documents",
       "credits": 10,
-      "tier": "standard",
+      "tier": "pro",
       "params": [
         {
           "name": "q",
@@ -11902,7 +11902,7 @@
       "auth": true,
       "summary": "Search transcripts",
       "credits": 10,
-      "tier": "standard",
+      "tier": "pro",
       "params": [
         {
           "name": "q",

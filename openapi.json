@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Invinite API",
-    "description": "Invinite financial data API. Each operation has a base credit cost: `x-credits` is the base cost; responses add 1 credit per started 1,000 rows beyond the first 1,000; `X-Credits-Charged` reports the final debit and `X-Credits-Remaining` what is left of the plan's included credits after it. A `304 Not Modified` costs nothing. `GET /v1/me/usage` returns your account's usage by day, product family and key (it costs no credits).\n\n**Coverage.** Financial data covers US SEC registrants and their US listings; a symbol that is not a US SEC registrant (or a crypto pair such as `X:BTCUSD`) is not a known company and answers 404. A known company with no data in a family (for example no statements yet) answers 404 with `code: not_covered`; an empty page of a covered company stays 200 with an empty list. `GET /v1/companies` lists every known company.\n\n## Webhooks\n\nAlerts (`POST /v1/alerts`) deliver their events to your destinations (`POST /v1/destinations`) as [Standard Webhooks](https://github.com/standard-webhooks/standard-webhooks/blob/main/spec/standard-webhooks.md): `alert.fired`, `alert.fired.batch`, `alert.status_changed`, `destination.disabled`, `destination.test`, `account.fire_cap_reached`, `alert_user.fire_cap_reached`; see `x-webhooks` for each `data` object. Every event is also on the pull feed `GET /v1/alert-events`.\n\nEvery delivery is a `POST` with `Content-Type: application/json`, the body `{type, timestamp, data}` (or the destination's `body_template`) and the headers `webhook-id` (the event id; a batch: its `bat_…` id), `webhook-timestamp` (unix seconds) and `webhook-signature`: space-separated `v1,<base64 HMAC-SHA256 of <webhook-id>.<webhook-timestamp>.<raw body>>`, keyed with the base64-DECODED bytes of the destination's `whsec_…` secret — any Standard Webhooks library verifies it. After `POST /v1/destinations/{id}:rotate-secret` the old secret keeps signing beside the new one for 24 h (two `v1` entries). Reject a timestamp older than 5 minutes. Any 2xx within 10 s acknowledges; redirects are not followed; a body above 256 KB is not sent. A failed attempt is retried after [0, 5 s, 5 min, 30 min, 2 h, 5 h, 10 h, 10 h, 10 h, 34 h] (attempt n waits the n-th step) plus up to 10 % jitter; the delivery is dead after attempt 10. A 410 disables the destination at once; so do 72 h of nothing but failures with at least 10 failed attempts in a row (a `destination.disabled` event on the feed and a mail; `PATCH` with `status: active` re-enables it). Delivery is at-least-once and unordered: dedupe on `webhook-id`, order by `timestamp`. A `batch_webhook` destination receives `alert.fired.batch` with the pending events in `data.events[]` (dedupe on each `data.event_id`).\n\nFires and deliveries cost no credits; no daily fire cap; at most 60 fires per alert per rolling hour (beyond: suppressed and counted in the next fire's `suppressed_since_last`); an Enterprise contract may set a daily cap (beyond it: written to the feed with `delivery_skipped: fire_cap`, not delivered; one `account.fire_cap_reached` per day). An end user's `max_fires_per_day` (or the account default) caps that user first: beyond it `delivery_skipped: alert_user_fire_cap`, not counted against the account's cap, one `alert_user.fire_cap_reached` per user and day.\n\n## Licensing\n\n| Tier | display | redistribute | rag | train | audio | redistribute_api | resell |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| FREE | – | – | – | – | – | – | – |\n| LITE | ✓ | – | – | – | – | – | – |\n| STANDARD | ✓ | – | ✓ | – | – | – | – |\n| PRO | ✓ | ✓ | ✓ | – | ✓ | – | – |\n| ENTERPRISE | ✓ | ✓ | ✓ | ✓* | ✓ | ✓ | – |\n\n\\* Depending on the contract.\n\nInvinite data may be shown from LITE and, from PRO, redistributed inside the licensee's own product (on screen, in exports and in embedded widgets) with attribution (\"Source: Invinite\"). Passing the data on through the licensee's own API is an ENTERPRISE right. It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.\n\nPolicy version: 2026-11-draft. Draft — pending counsel sign-off.\n\nAudio files carry a forensic watermark that identifies the recording. Audio is subject to per-company takedown and may not be re-hosted.\n\nSEC data: Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.\n\nNews: News text is Invinite's own summary of the issuer's or the SEC's publication (the publisher's text and media are never served); the licensee shows the attribution (publisher, source URL and date) next to it; the resale rule applies.\n\nPDF documents: Branded PDFs of transcripts and news items are permanent URLs to one shared file per version. They may be shown, downloaded and forwarded unmodified with the notice page intact; the resale rule applies unchanged. News PDFs carry Invinite's summary of the issuer's or the SEC's publication under the attribution stated on their notice page; a PDF disappears when the item is taken down or its source's reuse is denied.\n\nEvery `/v1/*` data operation carries `x-license`, the minimum use right its data ships with; `GET /status/licensing` serves the same matrix per route, rendered at [data.invinite.com/docs/licensing](https://data.invinite.com/docs/licensing). `/v1/me` and `/v1/me/usage` serve no licensed data and carry none.\n\n## Status\n\n[`/status`](/status) reports whether each product family works (a status and its uptime over 7, 30 and 90 days); [`/status/licensing`](/status/licensing) serves the licensing matrix per route. The status routes need no API key and are cached for 5 minutes. The public status page is [status.data.invinite.com](https://status.data.invinite.com): a snapshot of `/status` every 15 minutes plus an external reachability probe of the API.\n\nUptime is the share of requests answered without a server error, measured by the API per product family; a window with too little traffic to judge shows no figure. Status reflects the last 24 hours.\n\nProduct families: Company, Financials, SEC Filings, Insider Trades, Institutional Ownership, IPOs, Market, Metadata, Earnings Calls, News, WebSocket, Account, Alerts.",
+    "description": "Invinite financial data API. Each operation has a base credit cost: `x-credits` is the base cost; responses add 1 credit per started 1,000 rows beyond the first 1,000; `X-Credits-Charged` reports the final debit and `X-Credits-Remaining` what is left of the plan's included credits after it. A `304 Not Modified` costs nothing. `GET /v1/me/usage` returns your account's usage by day, product family and key (it costs no credits).\n\n**Coverage.** Financial data covers US SEC registrants and their US listings; a symbol that is not a US SEC registrant (or a crypto pair such as `X:BTCUSD`) is not a known company and answers 404. A known company with no data in a family (for example no statements yet) answers 404 with `code: not_covered`; an empty page of a covered company stays 200 with an empty list. `GET /v1/companies` lists every known company.\n\n## Webhooks\n\nAlerts (`POST /v1/alerts`) deliver their events to your destinations (`POST /v1/destinations`) as [Standard Webhooks](https://github.com/standard-webhooks/standard-webhooks/blob/main/spec/standard-webhooks.md): `alert.fired`, `alert.fired.batch`, `alert.status_changed`, `destination.disabled`, `destination.test`, `account.fire_cap_reached`, `alert_user.fire_cap_reached`; see `x-webhooks` for each `data` object. Every event is also on the pull feed `GET /v1/alert-events`.\n\nEvery delivery is a `POST` with `Content-Type: application/json`, the body `{type, timestamp, data}` (or the destination's `body_template`) and the headers `webhook-id` (the event id; a batch: its `bat_…` id), `webhook-timestamp` (unix seconds) and `webhook-signature`: space-separated `v1,<base64 HMAC-SHA256 of <webhook-id>.<webhook-timestamp>.<raw body>>`, keyed with the base64-DECODED bytes of the destination's `whsec_…` secret — any Standard Webhooks library verifies it. After `POST /v1/destinations/{id}:rotate-secret` the old secret keeps signing beside the new one for 24 h (two `v1` entries). Reject a timestamp older than 5 minutes. Any 2xx within 10 s acknowledges; redirects are not followed; a body above 256 KB is not sent. A failed attempt is retried after [0, 5 s, 5 min, 30 min, 2 h, 5 h, 10 h, 10 h, 10 h, 34 h] (attempt n waits the n-th step) plus up to 10 % jitter; the delivery is dead after attempt 10. A 410 disables the destination at once; so do 72 h of nothing but failures with at least 10 failed attempts in a row (a `destination.disabled` event on the feed and a mail; `PATCH` with `status: active` re-enables it). Delivery is at-least-once and unordered: dedupe on `webhook-id`, order by `timestamp`. A `batch_webhook` destination receives `alert.fired.batch` with the pending events in `data.events[]` (dedupe on each `data.event_id`).\n\nFires and deliveries cost no credits; no daily fire cap; at most 60 fires per alert per rolling hour (beyond: suppressed and counted in the next fire's `suppressed_since_last`); an Enterprise contract may set a daily cap (beyond it: written to the feed with `delivery_skipped: fire_cap`, not delivered; one `account.fire_cap_reached` per day). An end user's `max_fires_per_day` (or the account default) caps that user first: beyond it `delivery_skipped: alert_user_fire_cap`, not counted against the account's cap, one `alert_user.fire_cap_reached` per user and day.\n\n## Licensing\n\n| Tier | display | redistribute | rag | train | audio | redistribute_api | resell |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| FREE | – | – | – | – | – | – | – |\n| LITE | – | – | – | – | – | – | – |\n| STANDARD | ✓ | ✓ | ✓ | – | – | – | – |\n| PRO | ✓ | ✓ | ✓ | – | ✓ | – | – |\n| ENTERPRISE | ✓ | ✓ | ✓ | ✓* | ✓ | ✓* | – |\n\n\\* Depending on the contract.\n\nInvinite data may be used inside the licensee's own organisation from LITE and, from STANDARD, shown and redistributed inside the licensee's own product (on screen, in exports and in embedded widgets) with attribution (\"Source: Invinite\"). Passing the data on through the licensee's own API is an ENTERPRISE right, granted in the contract. It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.\n\nInternal use: Every paid plan may use the data inside the licensee's own organisation: analysis, internal tools and dashboards for the licensee's own staff. Nothing is shown or passed to third parties below STANDARD.\n\nPolicy version: 2026-11-draft-2. Draft — pending counsel sign-off.\n\nAudio files carry a forensic watermark that identifies the recording. Audio is subject to per-company takedown and may not be re-hosted.\n\nSEC data: Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.\n\nNews: News text is Invinite's own summary of the issuer's or the SEC's publication (the publisher's text and media are never served); the licensee shows the attribution (publisher, source URL and date) next to it; the resale rule applies.\n\nPDF documents: Branded PDFs of transcripts and news items are permanent URLs to one shared file per version. They may be shown, downloaded and forwarded unmodified with the notice page intact; the resale rule applies unchanged. News PDFs carry Invinite's summary of the issuer's or the SEC's publication under the attribution stated on their notice page; a PDF disappears when the item is taken down or its source's reuse is denied.\n\nEvery `/v1/*` data operation carries `x-license`, the minimum use right its data ships with; `GET /status/licensing` serves the same matrix per route, rendered at [data.invinite.com/docs/licensing](https://data.invinite.com/docs/licensing). `/v1/me` and `/v1/me/usage` serve no licensed data and carry none.\n\n## Status\n\n[`/status`](/status) reports whether each product family works (a status and its uptime over 7, 30 and 90 days); [`/status/licensing`](/status/licensing) serves the licensing matrix per route. The status routes need no API key and are cached for 5 minutes. The public status page is [status.data.invinite.com](https://status.data.invinite.com): a snapshot of `/status` every 15 minutes plus an external reachability probe of the API.\n\nUptime is the share of requests answered without a server error, measured by the API per product family; a window with too little traffic to judge shows no figure. Status reflects the last 24 hours.\n\nProduct families: Company, Financials, SEC Filings, Insider Trades, Institutional Ownership, IPOs, Market, Metadata, Earnings Calls, News, WebSocket, Account, Alerts.",
     "version": "2026-11-22"
   },
   "components": {
@@ -12487,7 +12487,7 @@
               "1w",
               "1mo"
             ],
-            "description": "The bar evaluated at its close. volume_spike (1m, 5m, 15m, 30m, 1h, 1d, 1w, 1mo; every closed bar); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w, 1mo; the plan's shortest: FREE / LITE 1h, STANDARD 5m, PRO 1m)"
+            "description": "The bar evaluated at its close. volume_spike (1m, 5m, 15m, 30m, 1h, 1d, 1w, 1mo; every closed bar); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w, 1mo; the plan's shortest: LITE 1h, STANDARD 5m, PRO 1m)"
           },
           "multiple": {
             "type": "number",
@@ -13688,7 +13688,7 @@
               "1w",
               "1mo"
             ],
-            "description": "The bar evaluated at its close. volume_spike (1m, 5m, 15m, 30m, 1h, 1d, 1w, 1mo; every closed bar); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w, 1mo; the plan's shortest: FREE / LITE 1h, STANDARD 5m, PRO 1m)"
+            "description": "The bar evaluated at its close. volume_spike (1m, 5m, 15m, 30m, 1h, 1d, 1w, 1mo; every closed bar); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w, 1mo; the plan's shortest: LITE 1h, STANDARD 5m, PRO 1m)"
           },
           "multiple": {
             "type": "number",
@@ -15404,9 +15404,10 @@
           },
           "plan": {
             "type": "string",
-            "description": "Plan. A prepaid-credits account reads `lite` (its access rank; owner decision 2026-11-09)",
+            "description": "Plan. A pay-as-you-go (prepaid-credits) account reads `payg`, also at an empty wallet (owner decision 2026-11-22)",
             "enum": [
               "free",
+              "payg",
               "lite",
               "standard",
               "pro",
@@ -18076,6 +18077,7 @@
                     "notes": {
                       "type": "object",
                       "required": [
+                        "internal_use",
                         "display",
                         "redistribute",
                         "redistribute_api",
@@ -18087,6 +18089,9 @@
                         "pdf_documents"
                       ],
                       "properties": {
+                        "internal_use": {
+                          "type": "string"
+                        },
                         "display": {
                           "type": "string"
                         },
@@ -18436,13 +18441,14 @@
                   }
                 },
                 "example": {
-                  "policy_version": "2026-11-draft",
+                  "policy_version": "2026-11-draft-2",
                   "counsel_signed_off": false,
-                  "resale": "Invinite data may be shown from LITE and, from PRO, redistributed inside the licensee's own product (on screen, in exports and in embedded widgets) with attribution (\"Source: Invinite\"). Passing the data on through the licensee's own API is an ENTERPRISE right. It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.",
+                  "resale": "Invinite data may be used inside the licensee's own organisation from LITE and, from STANDARD, shown and redistributed inside the licensee's own product (on screen, in exports and in embedded widgets) with attribution (\"Source: Invinite\"). Passing the data on through the licensee's own API is an ENTERPRISE right, granted in the contract. It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.",
                   "notes": {
-                    "display": "Show the data to the licensee's own users, with attribution. The FREE plan is for evaluation: its data may be read and tested, not shown to the licensee's users.",
+                    "internal_use": "Every paid plan may use the data inside the licensee's own organisation: analysis, internal tools and dashboards for the licensee's own staff. Nothing is shown or passed to third parties below STANDARD.",
+                    "display": "Show the data to the licensee's own users, with attribution; from STANDARD. The FREE plan and pay-as-you-go credits are for evaluation: their data may be read and tested, not shown to the licensee's users. LITE is internal use.",
                     "redistribute": "Pass the data on inside the licensee's product (on screen, exports, embedded widgets) with attribution; never through an API and never as a stand-alone data product.",
-                    "redistribute_api": "Return the data in the licensee's own API responses, with attribution in the response that carries it. Enterprise contract only; the resale rule applies unchanged.",
+                    "redistribute_api": "Return the data in the licensee's own API responses, with attribution in the response that carries it. Granted in an Enterprise contract; the resale rule applies unchanged.",
                     "rag": "Use the text as retrieval context in a customer-facing product.",
                     "train": "Model training is an Enterprise right, granted in the contract.",
                     "audio": "Audio files carry a forensic watermark that identifies the recording. Audio is subject to per-company takedown and may not be re-hosted.",
@@ -18470,7 +18476,7 @@
                       "resell": false
                     },
                     "lite": {
-                      "display": true,
+                      "display": false,
                       "redistribute": false,
                       "rag": false,
                       "train": false,
@@ -18480,7 +18486,7 @@
                     },
                     "standard": {
                       "display": true,
-                      "redistribute": false,
+                      "redistribute": true,
                       "rag": true,
                       "train": false,
                       "audio": false,
@@ -18507,7 +18513,8 @@
                     }
                   },
                   "by_contract": [
-                    "train"
+                    "train",
+                    "redistribute_api"
                   ],
                   "families": [
                     {
@@ -19824,7 +19831,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
         "x-cache-control": "private, max-age=300",
@@ -20119,7 +20126,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
         "x-cache-control": "private, max-age=300",
@@ -20848,7 +20855,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, max-age=300",
@@ -21014,7 +21021,7 @@
           }
         },
         "description": "",
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, max-age=300",
@@ -21302,7 +21309,7 @@
           }
         },
         "description": "",
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "rag",
         "x-cache-control": "private, max-age=300",
@@ -21460,7 +21467,7 @@
           }
         },
         "description": "",
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "rag",
         "x-cache-control": "private, max-age=300",
@@ -21719,7 +21726,7 @@
           }
         },
         "description": "",
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "rag",
         "x-cache-control": "private, max-age=300",
@@ -27140,7 +27147,7 @@
           }
         },
         "description": "",
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
         "x-cache-control": "private, max-age=3600",
@@ -29111,7 +29118,7 @@
           }
         },
         "description": "",
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
         "x-cache-control": "private, max-age=3600",
@@ -29446,7 +29453,7 @@
           }
         },
         "description": "",
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
         "x-cache-control": "private, max-age=3600",
@@ -29781,7 +29788,7 @@
           }
         },
         "description": "",
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
         "x-cache-control": "private, max-age=3600",
@@ -30670,7 +30677,7 @@
           }
         },
         "description": "",
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, max-age=3600",
@@ -31017,7 +31024,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, max-age=300",
@@ -31199,7 +31206,7 @@
           }
         },
         "description": "",
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, max-age=300",
@@ -31402,7 +31409,7 @@
           }
         },
         "description": "",
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, max-age=300",
@@ -31609,7 +31616,7 @@
           }
         },
         "description": "",
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, max-age=300",
@@ -31807,7 +31814,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, max-age=300",
@@ -32662,7 +32669,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
         "x-cache-control": "private, max-age=300",
@@ -32967,7 +32974,7 @@
           }
         },
         "description": "",
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "rag",
         "x-cache-control": "private, max-age=3600",
@@ -33164,7 +33171,7 @@
           }
         },
         "description": "",
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "rag",
         "x-cache-control": "private, max-age=3600",
@@ -33326,7 +33333,7 @@
           }
         },
         "description": "",
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, max-age=3600",
@@ -33971,7 +33978,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
         "x-cache-control": "private, max-age=300",
@@ -34566,7 +34573,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
         "x-cache-control": "private, max-age=300",
@@ -35766,7 +35773,7 @@
           }
         },
         "description": "",
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
         "x-cache-control": "private, max-age=60",
@@ -35994,7 +36001,7 @@
           }
         },
         "description": "",
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
         "x-cache-control": "private, max-age=60",
@@ -36340,7 +36347,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
         "x-cache-control": "private, max-age=300",
@@ -36532,7 +36539,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
         "x-cache-control": "private, max-age=300",
@@ -37329,7 +37336,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, max-age=3600",
@@ -37564,7 +37571,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "standard",
+        "x-tier": "pro",
         "x-credits": 1,
         "x-license": "rag",
         "x-cache-control": "private, max-age=3600",
@@ -38127,7 +38134,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "standard",
+        "x-tier": "pro",
         "x-credits": 1,
         "x-license": "redistribute",
         "x-cache-control": "private, max-age=3600",
@@ -38815,7 +38822,7 @@
           }
         },
         "x-pdf-document": true,
-        "x-tier": "standard",
+        "x-tier": "pro",
         "x-credits": 5,
         "x-license": "rag",
         "x-cache-control": "private, max-age=3600",
@@ -38975,7 +38982,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "standard",
+        "x-tier": "pro",
         "x-credits": 5,
         "x-license": "rag",
         "x-cache-control": "private, max-age=3600",
@@ -39689,7 +39696,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "standard",
+        "x-tier": "pro",
         "x-credits": 10,
         "x-license": "rag",
         "x-cache-control": "no-store",
@@ -40016,7 +40023,7 @@
           }
         },
         "description": "",
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
         "x-cache-control": "private, max-age=60",
@@ -40606,7 +40613,7 @@
           }
         },
         "description": "",
-        "x-tier": "standard",
+        "x-tier": "pro",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, max-age=60",
@@ -40777,7 +40784,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "standard",
+        "x-tier": "pro",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, max-age=3600",
@@ -41062,7 +41069,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "standard",
+        "x-tier": "pro",
         "x-credits": 10,
         "x-license": "display",
         "x-cache-control": "no-store",
@@ -41640,7 +41647,7 @@
         },
         "description": "",
         "x-pdf-document": true,
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 2,
         "x-license": "display",
         "x-cache-control": "private, max-age=300",
@@ -41816,7 +41823,7 @@
           }
         },
         "description": "",
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 2,
         "x-license": "display",
         "x-cache-control": "private, max-age=300",
@@ -42387,7 +42394,7 @@
           }
         },
         "description": "",
-        "x-tier": "standard",
+        "x-tier": "lite",
         "x-credits": 2,
         "x-license": "display",
         "x-cache-control": "private, max-age=60",
@@ -48227,7 +48234,7 @@
                           },
                           "delivery_skipped": {
                             "type": "string",
-                            "description": "Why the event was not delivered — it is on the pull feed and the WebSocket (you see it here only through GET /v1/alert-events): `fire_cap` = the account's daily fire cap was reached; `alert_user_fire_cap` = the daily cap of the alert's end user (`max_fires_per_day`) was reached (such a fire does not count against the account's cap)",
+                            "description": "Why the event was not delivered — it is on the pull feed and the WebSocket (you see it here only through GET /v1/alert-events): `fire_cap` = the daily fire cap of the account's Enterprise deal (`fires_per_day`) was reached; `alert_user_fire_cap` = the daily cap of the alert's end user (`max_fires_per_day`) was reached (such a fire does not count against the account's cap)",
                             "enum": [
                               "fire_cap",
                               "alert_user_fire_cap"
@@ -48790,7 +48797,7 @@
     "account.fire_cap_reached": {
       "post": {
         "summary": "account.fire_cap_reached",
-        "description": "The account reached its daily fire cap (once per UTC day, to every active destination). Further fires of the day stay on the pull feed with `delivery_skipped: fire_cap`; deliveries resume at 00:00 UTC. An end user's own cap has its own event, `alert_user.fire_cap_reached`",
+        "description": "The account reached the daily fire cap of its Enterprise deal (`fires_per_day`; no plan has a daily cap), once per UTC day, to every active destination. Further fires of the day stay on the pull feed with `delivery_skipped: fire_cap`; deliveries resume at 00:00 UTC. An end user's own cap has its own event, `alert_user.fire_cap_reached`",
         "tags": [
           "Alert events"
         ],
@@ -48842,7 +48849,7 @@
                       },
                       "data": {
                         "type": "object",
-                        "description": "The account reached its daily fire cap (once per UTC day, to every active destination). Further fires of the day stay on the pull feed with `delivery_skipped: fire_cap`; deliveries resume at 00:00 UTC. An end user's own cap has its own event, `alert_user.fire_cap_reached`",
+                        "description": "The account reached the daily fire cap of its Enterprise deal (`fires_per_day`; no plan has a daily cap), once per UTC day, to every active destination. Further fires of the day stay on the pull feed with `delivery_skipped: fire_cap`; deliveries resume at 00:00 UTC. An end user's own cap has its own event, `alert_user.fire_cap_reached`",
                         "required": [
                           "event_id",
                           "day",
@@ -48861,11 +48868,11 @@
                           },
                           "cap": {
                             "type": "integer",
-                            "description": "Fires per UTC day of the plan"
+                            "description": "Fires per UTC day of the Enterprise deal (`fires_per_day`)"
                           },
                           "tier": {
                             "type": "string",
-                            "description": "The plan the cap belongs to",
+                            "description": "The account's tier — `enterprise`: only an Enterprise deal sets a daily fire cap",
                             "enum": [
                               "free",
                               "lite",
