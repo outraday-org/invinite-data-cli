@@ -3,11 +3,11 @@
   "download": {
     "owner": "outraday-org",
     "repository": "invinite-data-cli",
-    "revision": "fa160a082c6b1c1907d098939fc10bc331ed0ca5"
+    "revision": "d3d1d6c25c1ddc323a5b24281defd05f5f47e84b"
   },
   "manifest": {
     "name": "invinite-financial-data",
-    "version": "0.16.0"
+    "version": "0.17.0"
   },
   "connector": {
     "key": "invinite-financial-data",
@@ -26,7 +26,7 @@
     "skills/invinite-data-cli/SKILL.md"
   ],
   "sourceHashes": {
-    "claude-plugin/.claude-plugin/plugin.json": "5f0cb37b8a1cb183af6dadd73f21b2998475aa70f2bb5d03d1aaa4ee91ab0099",
+    "claude-plugin/.claude-plugin/plugin.json": "8c543f96b385f183a4015bb12a391ae88d7e021e0d9aba53062022696764be62",
     "claude-plugin/.mcp.json": "a473ef1b56c55c29434aa2864d3bc0b250b4954890af437308ff9d66bc85d0d5",
     "claude-plugin/agents/invinite-data.md": "2ba0e6668111d653dea277198adf2cb0bd4809d7178cb61b2118f665d818d33b",
     "claude-plugin/commands/alert-setup.md": "9594c177866893da40ff9f35fc17f17816ab428c0bb4fd7ee5dda0430cd67de2",
@@ -35,15 +35,15 @@
     "claude-plugin/commands/compare-companies.md": "a01f24fe85852086d6be80e1cbb50c2410e8ac307400aa9c756690946d6e5b32",
     "claude-plugin/commands/financial-research.md": "5edb2fd316ceda1620f0c7c5e5f64aa9205634a11a5349c0581ac7609433be2e",
     "claude-plugin/commands/ownership-review.md": "4c0cdd69e18333474120d1fab2cabcee54a2fa47eb57586a9636007c65597a9b",
-    "claude-plugin/skills/invinite-data-cli/SKILL.md": "1b6bfd49794ee052b52c060c8d1ca4d149b4c8f6f96ee0f28d06a52d7dda1ab5",
+    "claude-plugin/skills/invinite-data-cli/SKILL.md": "3b7196791457535da49757031408fd01d21a84137e2a176ac7823726835f3274",
     "src/commands/plugin.ts": "d571726eeac6b194c825f31dcd5a25e6b46764d8d941732c7b88327cccae372d"
   },
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "9.0.0",
-    "specSha256": "eaa5e5c252fe09b4aaf9dd60339c7036506c12670a20ae1daa1dac2c8d898ade",
+    "version": "10.0.0",
+    "specSha256": "be90af4c157001a48c945d0b6db38346c5e1179c47b5482f03775ac32e5664c1",
     "sourceHashes": {
-      "claude-plugin/.claude-plugin/plugin.json": "5f0cb37b8a1cb183af6dadd73f21b2998475aa70f2bb5d03d1aaa4ee91ab0099",
+      "claude-plugin/.claude-plugin/plugin.json": "8c543f96b385f183a4015bb12a391ae88d7e021e0d9aba53062022696764be62",
       "claude-plugin/.mcp.json": "a473ef1b56c55c29434aa2864d3bc0b250b4954890af437308ff9d66bc85d0d5",
       "claude-plugin/agents/invinite-data.md": "2ba0e6668111d653dea277198adf2cb0bd4809d7178cb61b2118f665d818d33b",
       "claude-plugin/commands/alert-setup.md": "9594c177866893da40ff9f35fc17f17816ab428c0bb4fd7ee5dda0430cd67de2",
@@ -52,13 +52,13 @@
       "claude-plugin/commands/compare-companies.md": "a01f24fe85852086d6be80e1cbb50c2410e8ac307400aa9c756690946d6e5b32",
       "claude-plugin/commands/financial-research.md": "5edb2fd316ceda1620f0c7c5e5f64aa9205634a11a5349c0581ac7609433be2e",
       "claude-plugin/commands/ownership-review.md": "4c0cdd69e18333474120d1fab2cabcee54a2fa47eb57586a9636007c65597a9b",
-      "claude-plugin/skills/invinite-data-cli/SKILL.md": "1b6bfd49794ee052b52c060c8d1ca4d149b4c8f6f96ee0f28d06a52d7dda1ab5",
-      "package.json": "c24e121a342f33d3c06e62ebf28563cd17c5a2407485e87c378fa1e038cc68af",
+      "claude-plugin/skills/invinite-data-cli/SKILL.md": "3b7196791457535da49757031408fd01d21a84137e2a176ac7823726835f3274",
+      "package.json": "40b44f80a104948b18b082f9abc26c85ebb9e0a1019fffa520521de73fa18968",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-plugin-packaging.ts": "98945657178e4d4468963f9ef9b7d85025fde6c25444dbc3adb1c2334aac899e",
       "src/commands/plugin.ts": "d571726eeac6b194c825f31dcd5a25e6b46764d8d941732c7b88327cccae372d"
     },
-    "revision": "fa160a082c6b1c1907d098939fc10bc331ed0ca5",
-    "fingerprint": "9b1a53f2e58d2d11c8ccc1963deca11527d2208ed2b1ccdf71dffd6fe916b911"
+    "revision": "d3d1d6c25c1ddc323a5b24281defd05f5f47e84b",
+    "fingerprint": "7bc7e9ca648d5a03880603dd18c38a39011d9f829c110fdf98a6c632e8a0b78e"
   }
 }
