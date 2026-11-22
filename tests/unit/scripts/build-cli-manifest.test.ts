@@ -1,6 +1,7 @@
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { Command } from 'commander';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   buildManifest,
@@ -9,6 +10,7 @@ import {
   runBuildCliManifest,
   serializeManifest,
 } from '../../../scripts/build-cli-manifest.js';
+import { registerSpecCommands } from '../../../src/spec-commands.js';
 
 const envelope = (row: string) => ({
   200: {
@@ -196,6 +198,39 @@ describe('buildManifest', () => {
     shared.paths['/v1/things/{id}'].get.tags = ['Shared'];
     (shared.paths['/v1/things/{id}'].get['x-cli'] as Record<string, unknown>).group = 'others';
     expect(() => build(shared)).toThrow('shares tag "Shared"');
+  });
+});
+
+describe('tiers (Data API 9.0: free, lite, standard, pro, enterprise)', () => {
+  /** The fixture with `listThings` on `lite` and `getThing` on `enterprise`. */
+  const tiered = () => {
+    const spec = fixture();
+    spec.paths['/v1/things'].get['x-tier'] = 'lite';
+    spec.paths['/v1/things/{id}'].get['x-tier'] = 'enterprise';
+    return spec;
+  };
+  /** The `--help` text of `invd <args>` over a manifest built from `spec`. */
+  const help = (spec: ReturnType<typeof fixture>, ...args: string[]): string => {
+    let text = '';
+    const program = new Command('invd').exitOverride().configureOutput({ writeOut: chunk => { text += chunk; }, writeErr: () => undefined });
+    registerSpecCommands(program, build(spec));
+    try {
+      program.parse(['node', 'invd', ...args, '--help']);
+    } catch {
+      // commander's exitOverride throws after printing the help
+    }
+    return text;
+  };
+
+  it('a lite and an enterprise operation reach the manifest with their tier', () => {
+    const manifest = build(tiered());
+    expect(op(manifest, 'listThings')?.tier).toBe('lite');
+    expect(op(manifest, 'getThing')?.tier).toBe('enterprise');
+  });
+
+  it('the help line prints the tier raw: lite, enterprise', () => {
+    expect(help(tiered(), 'things', 'list')).toContain('Cost: 1 credit per response · plan: lite');
+    expect(help(tiered(), 'things', 'get')).toContain('Cost: 1 credit per response · plan: enterprise');
   });
 });
 

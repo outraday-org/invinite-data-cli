@@ -1,6 +1,6 @@
 {
   "specVersion": "2026-11-22",
-  "specSha256": "eaa5e5c252fe09b4aaf9dd60339c7036506c12670a20ae1daa1dac2c8d898ade",
+  "specSha256": "be90af4c157001a48c945d0b6db38346c5e1179c47b5482f03775ac32e5664c1",
   "groups": [
     {
       "name": "alert-events",
@@ -137,7 +137,7 @@
       "auth": true,
       "summary": "Get an alert event",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "id",
@@ -179,7 +179,7 @@
       "auth": true,
       "summary": "List alert events",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "limit",
@@ -272,7 +272,7 @@
       "auth": true,
       "summary": "List indicator alert templates",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "limit",
@@ -322,7 +322,7 @@
       "auth": true,
       "summary": "Create or update end users in bulk",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [],
       "body": {
         "required": true,
@@ -362,7 +362,7 @@
       "auth": true,
       "summary": "Delete an end user",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "external_user_id",
@@ -402,7 +402,7 @@
       "auth": true,
       "summary": "Get an end user",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "external_user_id",
@@ -447,7 +447,7 @@
       "auth": true,
       "summary": "List end users",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "limit",
@@ -522,7 +522,7 @@
       "auth": true,
       "summary": "Pause an end user",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "external_user_id",
@@ -567,7 +567,7 @@
       "auth": true,
       "summary": "Resume an end user",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "external_user_id",
@@ -612,7 +612,7 @@
       "auth": true,
       "summary": "Create or update an end user",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "external_user_id",
@@ -704,7 +704,7 @@
       "auth": true,
       "summary": "Change alerts in bulk",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [],
       "body": {
         "required": true,
@@ -753,7 +753,7 @@
       "auth": true,
       "summary": "Create an alert",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "validate_only",
@@ -1476,7 +1476,7 @@
       "auth": true,
       "summary": "Delete an alert",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "id",
@@ -1505,7 +1505,7 @@
       "auth": true,
       "summary": "List an alert's events",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "limit",
@@ -1584,7 +1584,7 @@
       "auth": true,
       "summary": "Get an alert",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "id",
@@ -1638,7 +1638,7 @@
       "auth": true,
       "summary": "List alerts",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "limit",
@@ -1782,7 +1782,7 @@
       "auth": true,
       "summary": "Pause an alert",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "id",
@@ -1836,7 +1836,7 @@
       "auth": true,
       "summary": "Resume an alert",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "id",
@@ -1890,7 +1890,7 @@
       "auth": true,
       "summary": "Send a test event",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "id",
@@ -1922,7 +1922,7 @@
       "auth": true,
       "summary": "Update an alert",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "id",
@@ -3273,7 +3273,7 @@
       "auth": true,
       "summary": "Create a destination",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "Idempotency-Key",
@@ -3394,7 +3394,7 @@
       "auth": true,
       "summary": "Delete a destination",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "id",
@@ -3423,7 +3423,7 @@
       "auth": true,
       "summary": "List a destination's deliveries",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "limit",
@@ -3490,7 +3490,7 @@
       "auth": true,
       "summary": "Get a destination",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "id",
@@ -3542,7 +3542,7 @@
       "auth": true,
       "summary": "List destinations",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "limit",
@@ -3601,7 +3601,7 @@
       "auth": true,
       "summary": "Rotate a destination's secret",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "id",
@@ -3637,7 +3637,7 @@
       "auth": true,
       "summary": "Send a test delivery",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "id",
@@ -3670,7 +3670,7 @@
       "auth": true,
       "summary": "Update a destination",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "id",
@@ -3801,7 +3801,7 @@
       "auth": true,
       "summary": "List dividends",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "symbol",
@@ -4265,7 +4265,7 @@
       "auth": true,
       "summary": "Compare an event with a prior one",
       "credits": 1,
-      "tier": "standard",
+      "tier": "pro",
       "params": [
         {
           "name": "prior",
@@ -4701,7 +4701,7 @@
       "auth": true,
       "summary": "Get an event's price attribution",
       "credits": 1,
-      "tier": "standard",
+      "tier": "pro",
       "params": [
         {
           "name": "event_id",
@@ -4743,7 +4743,7 @@
       "auth": true,
       "summary": "Get an event's speech prosody",
       "credits": 1,
-      "tier": "standard",
+      "tier": "pro",
       "params": [
         {
           "name": "section",
@@ -5045,7 +5045,7 @@
       "auth": true,
       "summary": "Diff two transcript versions",
       "credits": 5,
-      "tier": "standard",
+      "tier": "pro",
       "params": [
         {
           "name": "from",
@@ -5159,7 +5159,7 @@
       "auth": true,
       "summary": "List an event's transcript versions",
       "credits": 1,
-      "tier": "standard",
+      "tier": "pro",
       "params": [
         {
           "name": "limit",
@@ -5289,7 +5289,7 @@
       "auth": true,
       "summary": "List a 13F manager's position changes",
       "credits": 1,
-      "tier": "standard",
+      "tier": "pro",
       "params": [
         {
           "name": "period_end",
@@ -5646,7 +5646,7 @@
       "auth": true,
       "summary": "List SEC dataset releases",
       "credits": 1,
-      "tier": "standard",
+      "tier": "enterprise",
       "params": [
         {
           "name": "fields",
@@ -6903,7 +6903,7 @@
       "auth": true,
       "summary": "Standardized statements",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "company",
@@ -7500,7 +7500,7 @@
       "auth": true,
       "summary": "Get a fund",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "expand",
@@ -7693,7 +7693,7 @@
       "auth": true,
       "summary": "List funds",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "q",
@@ -7910,7 +7910,7 @@
       "auth": true,
       "summary": "List KPI mentions",
       "credits": 1,
-      "tier": "standard",
+      "tier": "pro",
       "params": [
         {
           "name": "company",
@@ -8187,7 +8187,7 @@
       "auth": true,
       "summary": "List 13F position changes in a stock or a fund",
       "credits": 1,
-      "tier": "standard",
+      "tier": "pro",
       "params": [
         {
           "name": "symbol",
@@ -10376,7 +10376,7 @@
       "auth": true,
       "summary": "List news items",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "company",
@@ -11172,7 +11172,7 @@
       "auth": true,
       "summary": "Upload a new script version",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "id",
@@ -11236,7 +11236,7 @@
       "auth": true,
       "summary": "List script versions",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "limit",
@@ -11302,7 +11302,7 @@
       "auth": true,
       "summary": "Upload a script",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [],
       "body": {
         "required": true,
@@ -11367,7 +11367,7 @@
       "auth": true,
       "summary": "Delete a script",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "id",
@@ -11396,7 +11396,7 @@
       "auth": true,
       "summary": "Get a script",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "id",
@@ -11438,7 +11438,7 @@
       "auth": true,
       "summary": "List scripts",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "limit",
@@ -12393,7 +12393,7 @@
       "auth": true,
       "summary": "List stock splits",
       "credits": 1,
-      "tier": "free",
+      "tier": "lite",
       "params": [
         {
           "name": "symbol",

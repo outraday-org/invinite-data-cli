@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Invinite API",
-    "description": "Invinite financial data API. Each operation has a base credit cost: `x-credits` is the base cost; responses add 1 credit per started 1,000 rows beyond the first 1,000; `X-Credits-Charged` reports the final debit and `X-Credits-Remaining` what is left of the plan's included credits after it. A `304 Not Modified` costs nothing. `GET /v1/me/usage` returns your account's usage by day, product family and key (it costs no credits).\n\n**Coverage.** Financial data covers US SEC registrants and their US listings; a symbol that is not a US SEC registrant (or a crypto pair such as `X:BTCUSD`) is not a known company and answers 404. A known company with no data in a family (for example no statements yet) answers 404 with `code: not_covered`; an empty page of a covered company stays 200 with an empty list. `GET /v1/companies` lists every known company.\n\n## Webhooks\n\nAlerts (`POST /v1/alerts`) deliver their events to your destinations (`POST /v1/destinations`) as [Standard Webhooks](https://github.com/standard-webhooks/standard-webhooks/blob/main/spec/standard-webhooks.md): `alert.fired`, `alert.fired.batch`, `alert.status_changed`, `destination.disabled`, `destination.test`, `account.fire_cap_reached`, `alert_user.fire_cap_reached`; see `x-webhooks` for each `data` object. Every event is also on the pull feed `GET /v1/alert-events`.\n\nEvery delivery is a `POST` with `Content-Type: application/json`, the body `{type, timestamp, data}` (or the destination's `body_template`) and the headers `webhook-id` (the event id; a batch: its `bat_…` id), `webhook-timestamp` (unix seconds) and `webhook-signature`: space-separated `v1,<base64 HMAC-SHA256 of <webhook-id>.<webhook-timestamp>.<raw body>>`, keyed with the base64-DECODED bytes of the destination's `whsec_…` secret — any Standard Webhooks library verifies it. After `POST /v1/destinations/{id}:rotate-secret` the old secret keeps signing beside the new one for 24 h (two `v1` entries). Reject a timestamp older than 5 minutes. Any 2xx within 10 s acknowledges; redirects are not followed; a body above 256 KB is not sent. A failed attempt is retried after [0, 5 s, 5 min, 30 min, 2 h, 5 h, 10 h, 10 h, 10 h, 34 h] (attempt n waits the n-th step) plus up to 10 % jitter; the delivery is dead after attempt 10. A 410 disables the destination at once; so do 72 h of nothing but failures with at least 10 failed attempts in a row (a `destination.disabled` event on the feed and a mail; `PATCH` with `status: active` re-enables it). Delivery is at-least-once and unordered: dedupe on `webhook-id`, order by `timestamp`. A `batch_webhook` destination receives `alert.fired.batch` with the pending events in `data.events[]` (dedupe on each `data.event_id`).\n\nFires and deliveries cost no credits; two fair-use caps apply instead: at most 60 fires per alert per rolling hour (beyond: suppressed and counted in the next fire's `suppressed_since_last`) and per account and UTC day FREE 100 · LITE 5,000 · STANDARD 50,000 · PRO 500,000 fires (beyond: written to the feed with `delivery_skipped: fire_cap`, not delivered; one `account.fire_cap_reached` per day). An end user's `max_fires_per_day` (or the account default) caps that user first: beyond it `delivery_skipped: alert_user_fire_cap`, not counted against the account's cap, one `alert_user.fire_cap_reached` per user and day.\n\n## Licensing\n\n| Tier | display | redistribute | rag | train | audio | resell |\n| --- | --- | --- | --- | --- | --- | --- |\n| FREE | ✓ | – | – | – | – | – |\n| LITE | ✓ | – | – | – | – | – |\n| STANDARD | ✓ | – | ✓ | – | – | – |\n| PRO | ✓ | ✓ | ✓ | – | ✓ | – |\n| ENTERPRISE | ✓ | ✓ | ✓ | – | ✓ | – |\n\nInvinite data may be shown and, from PRO, redistributed inside the licensee's own product with attribution (\"Source: Invinite\" on screen or in the API response that carries it). It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.\n\nPolicy version: 2026-10-draft. Draft — pending counsel sign-off.\n\nAudio files carry a forensic watermark that identifies the recording. Audio is subject to per-company takedown and may not be re-hosted.\n\nSEC data: Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.\n\nNews: News text is Invinite's own summary of the issuer's or the SEC's publication (the publisher's text and media are never served); the licensee shows the attribution (publisher, source URL and date) next to it; the resale rule applies.\n\nPDF documents: Branded PDFs of transcripts and news items are permanent URLs to one shared file per version. They may be shown, downloaded and forwarded unmodified with the notice page intact; the resale rule applies unchanged. News PDFs carry Invinite's summary of the issuer's or the SEC's publication under the attribution stated on their notice page; a PDF disappears when the item is taken down or its source's reuse is denied.\n\nEvery `/v1/*` data operation carries `x-license`, the minimum use right its data ships with; `GET /status/licensing` serves the same matrix per route, rendered at [data.invinite.com/docs/licensing](https://data.invinite.com/docs/licensing). `/v1/me` and `/v1/me/usage` serve no licensed data and carry none.\n\n## Status\n\n[`/status`](/status) reports whether each product family works (a status and its uptime over 7, 30 and 90 days); [`/status/licensing`](/status/licensing) serves the licensing matrix per route. The status routes need no API key and are cached for 5 minutes. The public status page is [status.data.invinite.com](https://status.data.invinite.com): a snapshot of `/status` every 15 minutes plus an external reachability probe of the API.\n\nUptime is the share of requests answered without a server error, measured by the API per product family; a window with too little traffic to judge shows no figure. Status reflects the last 24 hours.\n\nProduct families: Company, Financials, SEC Filings, Insider Trades, Institutional Ownership, IPOs, Market, Metadata, Earnings Calls, News, WebSocket, Account, Alerts.",
+    "description": "Invinite financial data API. Each operation has a base credit cost: `x-credits` is the base cost; responses add 1 credit per started 1,000 rows beyond the first 1,000; `X-Credits-Charged` reports the final debit and `X-Credits-Remaining` what is left of the plan's included credits after it. A `304 Not Modified` costs nothing. `GET /v1/me/usage` returns your account's usage by day, product family and key (it costs no credits).\n\n**Coverage.** Financial data covers US SEC registrants and their US listings; a symbol that is not a US SEC registrant (or a crypto pair such as `X:BTCUSD`) is not a known company and answers 404. A known company with no data in a family (for example no statements yet) answers 404 with `code: not_covered`; an empty page of a covered company stays 200 with an empty list. `GET /v1/companies` lists every known company.\n\n## Webhooks\n\nAlerts (`POST /v1/alerts`) deliver their events to your destinations (`POST /v1/destinations`) as [Standard Webhooks](https://github.com/standard-webhooks/standard-webhooks/blob/main/spec/standard-webhooks.md): `alert.fired`, `alert.fired.batch`, `alert.status_changed`, `destination.disabled`, `destination.test`, `account.fire_cap_reached`, `alert_user.fire_cap_reached`; see `x-webhooks` for each `data` object. Every event is also on the pull feed `GET /v1/alert-events`.\n\nEvery delivery is a `POST` with `Content-Type: application/json`, the body `{type, timestamp, data}` (or the destination's `body_template`) and the headers `webhook-id` (the event id; a batch: its `bat_…` id), `webhook-timestamp` (unix seconds) and `webhook-signature`: space-separated `v1,<base64 HMAC-SHA256 of <webhook-id>.<webhook-timestamp>.<raw body>>`, keyed with the base64-DECODED bytes of the destination's `whsec_…` secret — any Standard Webhooks library verifies it. After `POST /v1/destinations/{id}:rotate-secret` the old secret keeps signing beside the new one for 24 h (two `v1` entries). Reject a timestamp older than 5 minutes. Any 2xx within 10 s acknowledges; redirects are not followed; a body above 256 KB is not sent. A failed attempt is retried after [0, 5 s, 5 min, 30 min, 2 h, 5 h, 10 h, 10 h, 10 h, 34 h] (attempt n waits the n-th step) plus up to 10 % jitter; the delivery is dead after attempt 10. A 410 disables the destination at once; so do 72 h of nothing but failures with at least 10 failed attempts in a row (a `destination.disabled` event on the feed and a mail; `PATCH` with `status: active` re-enables it). Delivery is at-least-once and unordered: dedupe on `webhook-id`, order by `timestamp`. A `batch_webhook` destination receives `alert.fired.batch` with the pending events in `data.events[]` (dedupe on each `data.event_id`).\n\nFires and deliveries cost no credits; no daily fire cap; at most 60 fires per alert per rolling hour (beyond: suppressed and counted in the next fire's `suppressed_since_last`); an Enterprise contract may set a daily cap (beyond it: written to the feed with `delivery_skipped: fire_cap`, not delivered; one `account.fire_cap_reached` per day). An end user's `max_fires_per_day` (or the account default) caps that user first: beyond it `delivery_skipped: alert_user_fire_cap`, not counted against the account's cap, one `alert_user.fire_cap_reached` per user and day.\n\n## Licensing\n\n| Tier | display | redistribute | rag | train | audio | redistribute_api | resell |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| FREE | – | – | – | – | – | – | – |\n| LITE | ✓ | – | – | – | – | – | – |\n| STANDARD | ✓ | – | ✓ | – | – | – | – |\n| PRO | ✓ | ✓ | ✓ | – | ✓ | – | – |\n| ENTERPRISE | ✓ | ✓ | ✓ | ✓* | ✓ | ✓ | – |\n\n\\* Depending on the contract.\n\nInvinite data may be shown from LITE and, from PRO, redistributed inside the licensee's own product (on screen, in exports and in embedded widgets) with attribution (\"Source: Invinite\"). Passing the data on through the licensee's own API is an ENTERPRISE right. It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.\n\nPolicy version: 2026-11-draft. Draft — pending counsel sign-off.\n\nAudio files carry a forensic watermark that identifies the recording. Audio is subject to per-company takedown and may not be re-hosted.\n\nSEC data: Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.\n\nNews: News text is Invinite's own summary of the issuer's or the SEC's publication (the publisher's text and media are never served); the licensee shows the attribution (publisher, source URL and date) next to it; the resale rule applies.\n\nPDF documents: Branded PDFs of transcripts and news items are permanent URLs to one shared file per version. They may be shown, downloaded and forwarded unmodified with the notice page intact; the resale rule applies unchanged. News PDFs carry Invinite's summary of the issuer's or the SEC's publication under the attribution stated on their notice page; a PDF disappears when the item is taken down or its source's reuse is denied.\n\nEvery `/v1/*` data operation carries `x-license`, the minimum use right its data ships with; `GET /status/licensing` serves the same matrix per route, rendered at [data.invinite.com/docs/licensing](https://data.invinite.com/docs/licensing). `/v1/me` and `/v1/me/usage` serve no licensed data and carry none.\n\n## Status\n\n[`/status`](/status) reports whether each product family works (a status and its uptime over 7, 30 and 90 days); [`/status/licensing`](/status/licensing) serves the licensing matrix per route. The status routes need no API key and are cached for 5 minutes. The public status page is [status.data.invinite.com](https://status.data.invinite.com): a snapshot of `/status` every 15 minutes plus an external reachability probe of the API.\n\nUptime is the share of requests answered without a server error, measured by the API per product family; a window with too little traffic to judge shows no figure. Status reflects the last 24 hours.\n\nProduct families: Company, Financials, SEC Filings, Insider Trades, Institutional Ownership, IPOs, Market, Metadata, Earnings Calls, News, WebSocket, Account, Alerts.",
     "version": "2026-11-22"
   },
   "components": {
@@ -18059,6 +18059,7 @@
                     "notes",
                     "rights",
                     "tiers",
+                    "by_contract",
                     "families",
                     "universe"
                   ],
@@ -18077,6 +18078,7 @@
                       "required": [
                         "display",
                         "redistribute",
+                        "redistribute_api",
                         "rag",
                         "train",
                         "audio",
@@ -18089,6 +18091,9 @@
                           "type": "string"
                         },
                         "redistribute": {
+                          "type": "string"
+                        },
+                        "redistribute_api": {
                           "type": "string"
                         },
                         "rag": {
@@ -18121,6 +18126,7 @@
                           "rag",
                           "train",
                           "audio",
+                          "redistribute_api",
                           "resell"
                         ]
                       }
@@ -18143,6 +18149,7 @@
                             "rag",
                             "train",
                             "audio",
+                            "redistribute_api",
                             "resell"
                           ],
                           "properties": {
@@ -18159,6 +18166,9 @@
                               "type": "boolean"
                             },
                             "audio": {
+                              "type": "boolean"
+                            },
+                            "redistribute_api": {
                               "type": "boolean"
                             },
                             "resell": {
@@ -18174,6 +18184,7 @@
                             "rag",
                             "train",
                             "audio",
+                            "redistribute_api",
                             "resell"
                           ],
                           "properties": {
@@ -18190,6 +18201,9 @@
                               "type": "boolean"
                             },
                             "audio": {
+                              "type": "boolean"
+                            },
+                            "redistribute_api": {
                               "type": "boolean"
                             },
                             "resell": {
@@ -18205,6 +18219,7 @@
                             "rag",
                             "train",
                             "audio",
+                            "redistribute_api",
                             "resell"
                           ],
                           "properties": {
@@ -18221,6 +18236,9 @@
                               "type": "boolean"
                             },
                             "audio": {
+                              "type": "boolean"
+                            },
+                            "redistribute_api": {
                               "type": "boolean"
                             },
                             "resell": {
@@ -18236,6 +18254,7 @@
                             "rag",
                             "train",
                             "audio",
+                            "redistribute_api",
                             "resell"
                           ],
                           "properties": {
@@ -18252,6 +18271,9 @@
                               "type": "boolean"
                             },
                             "audio": {
+                              "type": "boolean"
+                            },
+                            "redistribute_api": {
                               "type": "boolean"
                             },
                             "resell": {
@@ -18267,6 +18289,7 @@
                             "rag",
                             "train",
                             "audio",
+                            "redistribute_api",
                             "resell"
                           ],
                           "properties": {
@@ -18285,11 +18308,30 @@
                             "audio": {
                               "type": "boolean"
                             },
+                            "redistribute_api": {
+                              "type": "boolean"
+                            },
                             "resell": {
                               "type": "boolean"
                             }
                           }
                         }
+                      }
+                    },
+                    "by_contract": {
+                      "type": "array",
+                      "description": "Rights a tier holds only where the account's contract grants them",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "display",
+                          "redistribute",
+                          "rag",
+                          "train",
+                          "audio",
+                          "redistribute_api",
+                          "resell"
+                        ]
                       }
                     },
                     "families": {
@@ -18394,29 +18436,37 @@
                   }
                 },
                 "example": {
-                  "policy_version": "2026-10-draft",
+                  "policy_version": "2026-11-draft",
                   "counsel_signed_off": false,
-                  "resale": "Invinite data may be shown and, from PRO, redistributed inside the licensee's own product with attribution (\"Source: Invinite\" on screen or in the API response that carries it). It may never be resold, relicensed, white-labelled or offered …",
+                  "resale": "Invinite data may be shown from LITE and, from PRO, redistributed inside the licensee's own product (on screen, in exports and in embedded widgets) with attribution (\"Source: Invinite\"). Passing the data on through the licensee's own API is an ENTERPRISE right. It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.",
                   "notes": {
-                    "display": "Show the data to the licensee's own users, with attribution.",
-                    "redistribute": "Pass the data on inside the licensee's product (exports, embedded widgets, downstream API responses) with attribution; never as a stand-alone data product.",
+                    "display": "Show the data to the licensee's own users, with attribution. The FREE plan is for evaluation: its data may be read and tested, not shown to the licensee's users.",
+                    "redistribute": "Pass the data on inside the licensee's product (on screen, exports, embedded widgets) with attribution; never through an API and never as a stand-alone data product.",
+                    "redistribute_api": "Return the data in the licensee's own API responses, with attribution in the response that carries it. Enterprise contract only; the resale rule applies unchanged.",
                     "rag": "Use the text as retrieval context in a customer-facing product.",
-                    "train": "Model training is contract-only.",
+                    "train": "Model training is an Enterprise right, granted in the contract.",
                     "audio": "Audio files carry a forensic watermark that identifies the recording. Audio is subject to per-company takedown and may not be re-hosted.",
                     "sec_data": "Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.",
                     "news": "News text is Invinite's own summary of the issuer's or the SEC's publication (the publisher's text and media are never served); the licensee shows the attribution (publisher, source URL and date) next to it; the resale rule applies.",
-                    "pdf_documents": "Branded PDFs of transcripts and news items are permanent URLs to one shared file per version. They may be shown, downloaded and forwarded unmodified with the notice page intact; the resale rule applies unchanged. News PDFs carry Invinite's …"
+                    "pdf_documents": "Branded PDFs of transcripts and news items are permanent URLs to one shared file per version. They may be shown, downloaded and forwarded unmodified with the notice page intact; the resale rule applies unchanged. News PDFs carry Invinite's summary of the issuer's or the SEC's publication under the attribution stated on their notice page; a PDF disappears when the item is taken down or its source's reuse is denied."
                   },
                   "rights": [
-                    "display"
+                    "display",
+                    "redistribute",
+                    "rag",
+                    "train",
+                    "audio",
+                    "redistribute_api",
+                    "resell"
                   ],
                   "tiers": {
                     "free": {
-                      "display": true,
+                      "display": false,
                       "redistribute": false,
                       "rag": false,
                       "train": false,
                       "audio": false,
+                      "redistribute_api": false,
                       "resell": false
                     },
                     "lite": {
@@ -18425,6 +18475,7 @@
                       "rag": false,
                       "train": false,
                       "audio": false,
+                      "redistribute_api": false,
                       "resell": false
                     },
                     "standard": {
@@ -18433,6 +18484,7 @@
                       "rag": true,
                       "train": false,
                       "audio": false,
+                      "redistribute_api": false,
                       "resell": false
                     },
                     "pro": {
@@ -18441,17 +18493,22 @@
                       "rag": true,
                       "train": false,
                       "audio": true,
+                      "redistribute_api": false,
                       "resell": false
                     },
                     "enterprise": {
                       "display": true,
                       "redistribute": true,
                       "rag": true,
-                      "train": false,
+                      "train": true,
                       "audio": true,
+                      "redistribute_api": true,
                       "resell": false
                     }
                   },
+                  "by_contract": [
+                    "train"
+                  ],
                   "families": [
                     {
                       "family": "company",
@@ -19183,7 +19240,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, max-age=300",
@@ -19390,7 +19447,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, max-age=300",
@@ -22200,7 +22257,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
         "x-cache-control": "private, max-age=300",
@@ -22441,7 +22498,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
         "x-cache-control": "private, max-age=300",
@@ -24980,7 +25037,7 @@
           }
         },
         "description": "",
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
         "x-cache-control": "private, max-age=3600",
@@ -32339,7 +32396,7 @@
           }
         },
         "description": "",
-        "x-tier": "standard",
+        "x-tier": "enterprise",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "public, max-age=86400",
@@ -34205,7 +34262,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "standard",
+        "x-tier": "pro",
         "x-credits": 1,
         "x-license": "redistribute",
         "x-cache-control": "private, max-age=300",
@@ -34785,7 +34842,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "standard",
+        "x-tier": "pro",
         "x-credits": 1,
         "x-license": "redistribute",
         "x-cache-control": "private, max-age=300",
@@ -38244,7 +38301,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "standard",
+        "x-tier": "pro",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, max-age=3600",
@@ -38410,7 +38467,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "standard",
+        "x-tier": "pro",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, max-age=3600",
@@ -38560,7 +38617,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "standard",
+        "x-tier": "pro",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, max-age=5",
@@ -39134,7 +39191,7 @@
           }
         },
         "x-pdf-document": true,
-        "x-tier": "standard",
+        "x-tier": "pro",
         "x-credits": 1,
         "x-license": "rag",
         "x-cache-control": "private, max-age=60",
@@ -39293,7 +39350,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "standard",
+        "x-tier": "pro",
         "x-credits": 5,
         "x-license": "rag",
         "x-cache-control": "private, max-age=3600",
@@ -40239,7 +40296,7 @@
           }
         },
         "description": "",
-        "x-tier": "standard",
+        "x-tier": "pro",
         "x-credits": 1,
         "x-license": "redistribute",
         "x-cache-control": "private, max-age=60",
@@ -41376,7 +41433,7 @@
         },
         "description": "",
         "x-pdf-document": true,
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, max-age=60",
@@ -42599,7 +42656,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -42905,7 +42962,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -43029,7 +43086,7 @@
           }
         },
         "description": "",
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -43209,7 +43266,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -43321,7 +43378,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -43428,7 +43485,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -43542,7 +43599,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -43685,7 +43742,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -43906,7 +43963,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -44029,7 +44086,7 @@
           }
         },
         "description": "",
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -44232,7 +44289,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -44350,7 +44407,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -44518,7 +44575,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -44703,7 +44760,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -44825,7 +44882,7 @@
           }
         },
         "description": "",
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -45014,7 +45071,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -45127,7 +45184,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -45234,7 +45291,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -45348,7 +45405,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -45531,7 +45588,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -45774,7 +45831,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -45921,7 +45978,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -46085,7 +46142,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -46196,7 +46253,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -46330,7 +46387,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -46444,7 +46501,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -46560,7 +46617,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -46731,7 +46788,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -46867,7 +46924,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -46989,7 +47046,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -47102,7 +47159,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -47236,7 +47293,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -47418,7 +47475,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -47590,7 +47647,7 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "x-tier": "free",
+        "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
         "x-cache-control": "private, no-store",
@@ -47811,7 +47868,7 @@
         ],
         "operationId": "streamEvents",
         "summary": "Stream filings, news and live events",
-        "description": "One WebSocket connection; channels `filings` (STANDARD), `news` (STANDARD), `events.live` (PRO) and `alerts` (your alert events, on any plan that opens the stream). Frames are documented per message type. WebSocket sessions cost no credits.",
+        "description": "One WebSocket connection; channels `filings` (PRO), `news` (PRO), `events.live` (PRO) and `alerts` (your alert events, on any plan that opens the stream). Frames are documented per message type. WebSocket sessions cost no credits.",
         "tags": [
           "Realtime"
         ],
@@ -47858,7 +47915,7 @@
           "events.live",
           "alerts"
         ],
-        "x-tier": "standard",
+        "x-tier": "pro",
         "x-credits": 0,
         "x-license": "display",
         "x-example-params": []
