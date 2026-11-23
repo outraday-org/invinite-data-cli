@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "11.0.0",
+    "version": "11.1.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -11,9 +11,9 @@
     },
     "verifiedOn": "2026-11-23",
     "sourceHashes": {
-      "api-contract.json": "fcdcee6ee01c8fdf7c26735869cf97784c342b83be0a47fde84b39dfe2e5fcb0",
-      "openapi.json": "97a90d110a93fdf1fa91ce1e3fedff4d2186bfe82d3ac67269a6bec755eac15c",
-      "package.json": "7b6920272d5554715451f1da1e00704dc1dc63bda8b5d9f74bf78e52b6a18a1b",
+      "api-contract.json": "327bca1818dae483beece7e6ba9aee56e2a9191587a18f1c0cd2302cac492ed1",
+      "openapi.json": "84a15416db3e3deb69da09dd2f2951dadc8c8b96f4c91093e3be36a08b59d1cf",
+      "package.json": "801dcf5ed8ded3069fdb25488b0edf6489d17609f1224f57389842bd57130356",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "ed216f689f39e3dbf72c7d6a1c74ee6cb9c22fbaf9982a9b4ddee2873f2d5536",
@@ -34,7 +34,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "0d87741c344977413165bebdb88b85184b140203ccf0865184f4afca08fff676",
+      "src/generated/cli-manifest.json": "e250c92efb9124127ec3a73f04c2439f1b0b3a5cd54cd941b7930f66aee2522a",
       "src/hand-written-commands.ts": "ab53fea9a1523f8db77663fb3d241be73403213b67f20d9898596e87eddd7bd0",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
@@ -50,9 +50,9 @@
       "src/spec-manifest.ts": "e638fd01260664e2c95e05e18e6087e6fd04694f694ec6db8921224217e580b8",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "97a90d110a93fdf1fa91ce1e3fedff4d2186bfe82d3ac67269a6bec755eac15c",
-    "revision": "6df0c856f3d5d2d6eb39392ebfad8e415bf8a3c7",
-    "fingerprint": "6e0dad6f81b84ecee8b969087364bf99d232a3a26e43d079dca871566c41335a"
+    "specSha256": "84a15416db3e3deb69da09dd2f2951dadc8c8b96f4c91093e3be36a08b59d1cf",
+    "revision": "249b1046f67783b87c466b878665d8789a089676",
+    "fingerprint": "3fb91621669c3f886a0bed6e31a7c2e10d12cb19f7cec6102772cd5c27924d49"
   },
   "globalOptions": [
     {
@@ -1342,7 +1342,7 @@
         },
         {
           "flags": "--events <list>",
-          "description": "Call lifecycle events. earnings_call (transcript_provisional, transcript_corrected, documents_updated need STANDARD; guidance_flash, keyword_hit PRO) (body condition.events)",
+          "description": "Call lifecycle events. earnings_call (transcript_provisional, transcript_corrected, documents_updated, guidance_flash, keyword_hit need PRO) (body condition.events)",
           "required": false
         },
         {
@@ -2368,7 +2368,7 @@
         },
         {
           "flags": "--events <list>",
-          "description": "Call lifecycle events. earnings_call (transcript_provisional, transcript_corrected, documents_updated need STANDARD; guidance_flash, keyword_hit PRO) (body condition.events)",
+          "description": "Call lifecycle events. earnings_call (transcript_provisional, transcript_corrected, documents_updated, guidance_flash, keyword_hit need PRO) (body condition.events)",
           "required": false
         },
         {
