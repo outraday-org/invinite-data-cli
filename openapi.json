@@ -450,7 +450,7 @@
           },
           "datasets": {
             "type": "array",
-            "description": "The data families that exist for this instrument's type (the same table every `company=` / `symbol=` refusal names); actual depth: `expand=coverage` on the company or fund",
+            "description": "The data families served for this instrument: its type's table (the same table every `company=` / `symbol=` refusal names), without `dividends` when no dividend row is stored for the symbol (an ETF or closed-end fund outside the dividend coverage scope, a stock that never paid); actual depth: `expand=coverage` on the company or fund",
             "items": {
               "type": "string",
               "enum": [
@@ -928,6 +928,7 @@
           "expense_ratio_net",
           "expense_ratio_gross",
           "expense_ratio_as_of",
+          "expense_ratio_class_id",
           "advisers",
           "share_classes",
           "homepage_url",
@@ -1073,7 +1074,7 @@
           },
           "expense_ratio_net": {
             "type": "number",
-            "description": "Net expense ratio as a fraction (0.0084 = 0.84 %), prospectus XBRL",
+            "description": "Net expense ratio as a fraction (0.0084 = 0.84 %), prospectus XBRL: this listing's own class (`class_id`) when its prospectus states one, else the series' representative class named by `expense_ratio_class_id`",
             "nullable": true
           },
           "expense_ratio_gross": {
@@ -1085,6 +1086,12 @@
             "type": "string",
             "format": "date",
             "description": "Prospectus date",
+            "nullable": true
+          },
+          "expense_ratio_class_id": {
+            "type": "string",
+            "description": "SEC class id the expense ratio belongs to: equal to `class_id` when the figure is this listing's own, another class of the series otherwise (the representative, lowest-ratio class); null with no ratio",
+            "example": "C000092055",
             "nullable": true
           },
           "advisers": {
@@ -1148,14 +1155,14 @@
           },
           "coverage": {
             "type": "object",
-            "description": "With `expand=coverage`: which data families hold rows and through which date",
+            "description": "With `expand=coverage`: which data families hold rows for the fund and through which date: `dividends` (the ticker's dividend rows) and `fund_holdings` (a stored composition, through its newest date). Weights follow the holdings' composition; whether buckets exist for it is `meta.reason` of GET /v1/funds/{fund}/weights",
             "required": [
               "families"
             ],
             "properties": {
               "families": {
                 "type": "array",
-                "description": "Families that hold rows for the fund",
+                "description": "Families that hold rows for the fund: `dividends`, `fund_holdings`",
                 "items": {
                   "type": "object",
                   "description": "One family with rows",
@@ -1167,7 +1174,7 @@
                     "family": {
                       "type": "string",
                       "description": "Data family",
-                      "example": "financials"
+                      "example": "fund_holdings"
                     },
                     "through": {
                       "type": "string",
@@ -1490,7 +1497,7 @@
           },
           "phase": {
             "type": "string",
-            "description": "Lifecycle phase",
+            "description": "Lifecycle phase: the issuer lifecycle's phase; else `public` for a listed filer; else `manager` for a filer of 13F-HR; else null. A listed company that files 13F stays `public` (see `files_13f`)",
             "enum": [
               "pre_ipo",
               "public",
@@ -1500,9 +1507,13 @@
             ],
             "nullable": true
           },
+          "files_13f": {
+            "type": "boolean",
+            "description": "The filer files 13F-HR (an institutional investment manager): its portfolio is `GET /v1/filers/{cik}/holdings`. Independent of `phase` (optional: answers captured before this field lack it)"
+          },
           "forms": {
             "type": "array",
-            "description": "Forms the filer files (e.g. `13F-HR`)",
+            "description": "The forms of the request's `form` filter (`13F-HR` for `phase=manager`); empty without one. Not the filer's own form list: `files_13f` says whether it files 13F-HR",
             "items": {
               "type": "string"
             }
@@ -1587,7 +1598,7 @@
           },
           "phase": {
             "type": "string",
-            "description": "Lifecycle phase",
+            "description": "Lifecycle phase: the issuer lifecycle's phase; else `public` for a listed filer; else `manager` for a filer of 13F-HR; else null. A listed company that files 13F stays `public` (see `files_13f`)",
             "enum": [
               "pre_ipo",
               "public",
@@ -1596,6 +1607,10 @@
               "other"
             ],
             "nullable": true
+          },
+          "files_13f": {
+            "type": "boolean",
+            "description": "The filer files 13F-HR (an institutional investment manager): its portfolio is `GET /v1/filers/{cik}/holdings`. Independent of `phase` (optional: answers captured before this field lack it)"
           },
           "listing": {
             "type": "object",
@@ -1894,7 +1909,7 @@
           "expense_ratio_class_id": {
             "type": "string",
             "nullable": true,
-            "description": "SEC class id the expense ratio belongs to"
+            "description": "SEC class id the series' expense ratio belongs to: the representative class (the lowest net ratio of the series); each class's own ratio is on its `share_classes` entry"
           },
           "returns": {
             "type": "array",
@@ -1985,7 +2000,10 @@
         "required": [
           "class_id",
           "ticker",
-          "class_name"
+          "class_name",
+          "expense_ratio_net",
+          "expense_ratio_gross",
+          "expense_ratio_as_of"
         ],
         "properties": {
           "class_id": {
@@ -2002,6 +2020,22 @@
             "type": "string",
             "nullable": true,
             "description": "Class name as reported"
+          },
+          "expense_ratio_net": {
+            "type": "number",
+            "nullable": true,
+            "description": "This class's own net expense ratio as a fraction (prospectus XBRL, the newest prospectus; gross when no net figure is filed); null when the prospectus states none for the class"
+          },
+          "expense_ratio_gross": {
+            "type": "number",
+            "nullable": true,
+            "description": "This class's own gross expense ratio as a fraction"
+          },
+          "expense_ratio_as_of": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "Prospectus date of this class's ratio"
           }
         },
         "title": "FilerFundShareClass"
@@ -2865,7 +2899,7 @@
       },
       "FilingSource": {
         "type": "object",
-        "description": "The filing a statement period was rendered from",
+        "description": "The filing that carries the statement for the period: the filing most of the statement's facts come from (ties: the earliest filing), not a later filing that only repeats or restates a few of its lines. Where a period's statements carry different filings, the newest of them",
         "required": [
           "accession",
           "form",
@@ -2875,7 +2909,7 @@
         "properties": {
           "accession": {
             "type": "string",
-            "description": "Accession of the filing this rendering comes from",
+            "description": "Accession of the filing that carries the statement for the period",
             "example": "0000320193-26-000026"
           },
           "form": {
@@ -4896,21 +4930,29 @@
           },
           "period_start": {
             "type": "string",
-            "description": "Start of a duration",
+            "description": "Start of a duration as filed (`date_precision: month`: the first day of the rounded quarter span)",
             "format": "date",
             "nullable": true
           },
           "period_end": {
             "type": "string",
-            "description": "End of a duration",
+            "description": "End of a duration as filed (`date_precision: month`: the month end the data set rounded it to)",
             "format": "date",
             "nullable": true
           },
           "instant": {
             "type": "string",
-            "description": "Instant",
+            "description": "Instant as filed (`date_precision: month`: the month end the data set rounded it to)",
             "format": "date",
             "nullable": true
+          },
+          "date_precision": {
+            "type": "string",
+            "enum": [
+              "day",
+              "month"
+            ],
+            "description": "`day` = the dates are the filed context; `month` = the data set's offsets named no whole day, so the dates are its month-end rounding"
           },
           "dimensions": {
             "type": "array",
@@ -4938,13 +4980,21 @@
           },
           "text": {
             "type": "string",
-            "description": "Text"
+            "description": "The data set's plain text (markup removed by the SEC; some typography of the original can be missing)"
           },
           "period_end": {
             "type": "string",
-            "description": "Period end",
+            "description": "Period end (or instant) as filed; with `date_precision: month` the data set's month-end rounding",
             "format": "date",
             "nullable": true
+          },
+          "date_precision": {
+            "type": "string",
+            "enum": [
+              "day",
+              "month"
+            ],
+            "description": "`day` = `period_end` is the filed date; `month` = the data set's month-end rounding"
           },
           "dimensions": {
             "type": "array",
@@ -5114,7 +5164,7 @@
           "reasons"
         ],
         "additionalProperties": true,
-        "description": "How much of the searched SEC scope the text index covers (the earnings search vocabulary). `forms_indexed` / `years_indexed` / `indexed_since` state the index policy; documents of other forms are counted in `lexical.not_indexed_by_policy` (by design, not a gap). For exactly one `cik`, `held` / `mirror` say how much of the filer's history is held (`held_through`).",
+        "description": "How much of the searched SEC scope the text index covers (the earnings search vocabulary). `forms_indexed` / `years_indexed` / `indexed_since` state the index policy; documents of other forms are counted in `lexical.not_indexed_by_policy` (by design, not a gap). With a `symbol=` the count is the subject's filings of other forms, held or not; when they are ALL its filings (nothing searched), `completeness` is `partial` with reason `form_not_indexed`. For exactly one `cik`, `held` / `mirror` say how much of the filer's history is held (`held_through`).",
         "properties": {
           "completeness": {
             "type": "string",
@@ -5129,7 +5179,7 @@
             "type": "object",
             "nullable": true,
             "additionalProperties": true,
-            "description": "The text index over the scope; null when nothing was searched (excluded / not indexed by policy)",
+            "description": "The text index over the scope; null when nothing was searched and nothing could be counted (excluded, a `form` filter naming only forms outside `forms_indexed`, indexing off)",
             "properties": {
               "state": {
                 "type": "string",
@@ -5285,7 +5335,7 @@
           },
           "forms": {
             "type": "array",
-            "description": "Forms it covers",
+            "description": "Forms it covers (SEC form types); empty for `icsc`, the yearly series / class list, which is a registry extract rather than a filing form",
             "items": {
               "type": "string"
             }
@@ -5595,7 +5645,7 @@
               "name": {
                 "type": "string",
                 "nullable": true,
-                "description": "The manager's name, or the fund's (series) name"
+                "description": "The manager's name, or the fund's (series) name; a fund that files no series name (a unit investment trust such as SPY states \"N/A\") carries its registrant's name"
               },
               "cik": {
                 "type": "string",
@@ -5653,7 +5703,7 @@
               "symbol": {
                 "type": "string",
                 "nullable": true,
-                "description": "Ticker (a listed instrument; null when none is known)"
+                "description": "Ticker (a listed instrument; null when none is known). 13F: the position's own CUSIP's ticker when it is an open listing of the issuer (02079K107 = GOOG, 02079K305 = GOOGL), else the issuer's primary listing"
               },
               "name": {
                 "type": "string",
@@ -5704,7 +5754,7 @@
           "filing_date": {
             "type": "string",
             "format": "date",
-            "description": "Filing date of the report (13F, N-PORT); null for an issuer file",
+            "description": "Filing date of the report: 13F the base filing of the effective snapshot, N-PORT the NPORT-P's SEC filing date; null for an issuer file",
             "nullable": true
           },
           "accession_number": {
@@ -5730,7 +5780,7 @@
           "value_usd": {
             "type": "number",
             "nullable": true,
-            "description": "Value in USD as reported"
+            "description": "Value in USD as reported. 13F: a filing that still states thousands after the 2023-01-03 switch to whole dollars is read x1000 for the whole filing (per-filing check against quarter-end closes)"
           },
           "weight_pct": {
             "type": "number",
@@ -5750,7 +5800,7 @@
           "investment_discretion": {
             "type": "string",
             "nullable": true,
-            "description": "13F: SOLE, DFND or OTR (filed rows); null otherwise"
+            "description": "13F: SOLE, DFND or OTR as filed. A holder / portfolio position carries the value every information-table line of the position states; null when its lines differ (a mixed position has no single discretion) or state none, and on N-PORT and issuer-file rows"
           },
           "voting_authority": {
             "type": "object",
@@ -5880,7 +5930,7 @@
               "symbol": {
                 "type": "string",
                 "nullable": true,
-                "description": "Ticker (a listed instrument; null when none is known)"
+                "description": "Ticker (a listed instrument; null when none is known). A manager's changes: the position's own CUSIP's ticker when it is an open listing of the issuer, else the issuer's primary listing"
               },
               "name": {
                 "type": "string",
@@ -6282,7 +6332,7 @@
           },
           "is_spac": {
             "type": "boolean",
-            "description": "Blank-check company"
+            "description": "Blank-check company (SPAC): the registration track's flag (SIC 6770 or a blank-check prospectus cover), the registrant's, or for a calendar-only offering Massive's SPAC unit (a unit of a share and a warrant / right)"
           },
           "exchange": {
             "type": "string",
@@ -6998,7 +7048,7 @@
           "year_of_inc": {
             "type": "string",
             "nullable": true,
-            "description": "Year of incorporation as filed (a year, or Over Five Years / Within Last Five Years)"
+            "description": "Year of incorporation as filed: a year, or Over Five Years / Within Last Five Years / Yet to Be Formed"
           }
         },
         "title": "Offering"
@@ -7163,13 +7213,31 @@
             "type": "string",
             "format": "date-time",
             "nullable": true,
-            "description": "When the live call started (first spoken words)"
+            "description": "When the call started: the first spoken words of a live capture, or the announced start of a call not captured live (see started_at_source); null when neither is known"
+          },
+          "started_at_source": {
+            "type": "string",
+            "enum": [
+              "measured",
+              "scheduled"
+            ],
+            "nullable": true,
+            "description": "Where started_at comes from: `measured` = the live capture's first spoken words; `scheduled` = the announced start and the recording's length (a call not captured live; approximate). Null when started_at is null"
           },
           "ended_at": {
             "type": "string",
             "format": "date-time",
             "nullable": true,
-            "description": "When the call ended"
+            "description": "When the call ended: the last spoken words of a live capture, or the announced start plus the recording's length (see ended_at_source)"
+          },
+          "ended_at_source": {
+            "type": "string",
+            "enum": [
+              "measured",
+              "scheduled"
+            ],
+            "nullable": true,
+            "description": "Where ended_at comes from: `measured` = the live capture; `scheduled` = the announced start and the recording's length. Null when ended_at is null"
           },
           "results_released_at": {
             "type": "string",
@@ -7197,7 +7265,8 @@
               "agent_different_date",
               "agent_no_webcast",
               "superseded_by_reschedule",
-              "results_without_call"
+              "results_without_call",
+              "agent_notice_pending"
             ],
             "description": "Why the calendar row expired, set only while `capture_status` is `expired` (a final status: an estimate that never became a call, a duplicate, a non-call issuer, …); null otherwise. Appended 2026-11"
           },
@@ -8017,7 +8086,7 @@
         "properties": {
           "news_id": {
             "type": "string",
-            "description": "The archival news item",
+            "description": "The archival news item (`/v1/news/{news_id}`): the served item holding the EDGAR sighting of `accession_number`; null for a release without an accession (an issuer page) or while no news item of the filing is served",
             "nullable": true
           },
           "event_id": {
@@ -8817,10 +8886,11 @@
             "type": "string",
             "enum": [
               "t0_wallclock",
-              "started_at"
+              "started_at",
+              "scheduled"
             ],
             "nullable": true,
-            "description": "How the recording was anchored to wall-clock time; null until the summary is written"
+            "description": "How the recording was anchored to wall-clock time: `t0_wallclock` = the live capture's clock, `started_at` = the measured speech start, `scheduled` = a call not captured live whose recording opens with the call, placed at its announced start (approximate, see anchor_uncertainty_s); null until the summary is written"
           },
           "anchor_lag_ms": {
             "type": "number",
@@ -9269,6 +9339,7 @@
           "published_at",
           "word_count",
           "change_note",
+          "change_kind",
           "corrected_by",
           "pdf"
         ],
@@ -9298,7 +9369,27 @@
           "change_note": {
             "type": "string",
             "nullable": true,
-            "description": "Why the version was published (e.g. replay_upgrade, company_transcript <sha8>)"
+            "description": "Why the version exists, as a sentence for readers (e.g. \"Speaker names assigned\", \"Company transcript text applied\", \"Transcript updated\"); one sentence per change_kind"
+          },
+          "change_kind": {
+            "type": "string",
+            "enum": [
+              "live",
+              "final_pass",
+              "naming",
+              "company_text",
+              "company_transcript",
+              "rebase",
+              "qa_split",
+              "same_call",
+              "upgrade_rollback",
+              "reshape",
+              "manual_replay",
+              "replay_upgrade",
+              "correction",
+              "other"
+            ],
+            "description": "Stable code of the change: live = live transcript, final_pass = final transcription pass, naming = speaker names assigned, company_text = company transcript text applied, company_transcript = built from the company's published transcript, rebase = earlier corrections re-applied, qa_split = question-and-answer split corrected, same_call = copied from the same call's other listing, upgrade_rollback = previous version restored, reshape = transcript structure rebuilt, manual_replay / replay_upgrade = re-processed from the recording, correction = transcript corrected, other = any other update. New kinds may be added"
           },
           "corrected_by": {
             "type": "string",
@@ -10212,6 +10303,7 @@
               "webcast",
               "other",
               "prepared_remarks",
+              "prospectus",
               "sec_filing"
             ],
             "description": "Document kind"
@@ -10929,9 +11021,10 @@
               "statement": {
                 "type": "string",
                 "enum": [
-                  "Summary written by Invinite from the publication above; not the publisher's text. Source and date above."
+                  "Summary written by Invinite from the publication above; not the publisher's text. Source and date above.",
+                  "Headline and link to the publication above; Invinite serves none of its text. Source and date above."
                 ],
-                "description": "The attribution sentence to carry with the text"
+                "description": "The attribution sentence to carry with the item: the summary wording when the response serves Invinite's summary (`content_status: available`), the headline-and-link wording otherwise (`no_text`: a metadata-only item, one outside the summary window, a text denial)"
               }
             }
           },
@@ -11082,9 +11175,10 @@
               "statement": {
                 "type": "string",
                 "enum": [
-                  "Summary written by Invinite from the publication above; not the publisher's text. Source and date above."
+                  "Summary written by Invinite from the publication above; not the publisher's text. Source and date above.",
+                  "Headline and link to the publication above; Invinite serves none of its text. Source and date above."
                 ],
-                "description": "The attribution sentence to carry with the text"
+                "description": "The attribution sentence to carry with the item: the summary wording when the response serves Invinite's summary (`content_status: available`), the headline-and-link wording otherwise (`no_text`: a metadata-only item, one outside the summary window, a text denial)"
               }
             }
           },
@@ -11552,9 +11646,10 @@
                   "statement": {
                     "type": "string",
                     "enum": [
-                      "Summary written by Invinite from the publication above; not the publisher's text. Source and date above."
+                      "Summary written by Invinite from the publication above; not the publisher's text. Source and date above.",
+                      "Headline and link to the publication above; Invinite serves none of its text. Source and date above."
                     ],
-                    "description": "The attribution sentence to carry with the text"
+                    "description": "The attribution sentence to carry with the item: the summary wording when the response serves Invinite's summary (`content_status: available`), the headline-and-link wording otherwise (`no_text`: a metadata-only item, one outside the summary window, a text denial)"
                   }
                 }
               }
@@ -11865,9 +11960,10 @@
                   "statement": {
                     "type": "string",
                     "enum": [
-                      "Summary written by Invinite from the publication above; not the publisher's text. Source and date above."
+                      "Summary written by Invinite from the publication above; not the publisher's text. Source and date above.",
+                      "Headline and link to the publication above; Invinite serves none of its text. Source and date above."
                     ],
-                    "description": "The attribution sentence to carry with the text"
+                    "description": "The attribution sentence to carry with the item: the summary wording when the response serves Invinite's summary (`content_status: available`), the headline-and-link wording otherwise (`no_text`: a metadata-only item, one outside the summary window, a text denial)"
                   }
                 }
               }
@@ -12402,7 +12498,7 @@
           "timezone": {
             "type": "string",
             "maxLength": 64,
-            "description": "IANA time zone (price_reminder: default America/New_York). event_countdown, price_reminder"
+            "description": "IANA time zone (default America/New_York). event_countdown, price_reminder"
           },
           "notify_on_date_change": {
             "type": "boolean",
@@ -13172,7 +13268,7 @@
       "AlertQuotaUsage": {
         "type": "object",
         "title": "AlertQuotaUsage",
-        "description": "The account's alert quota and its use (every page of GET /v1/alerts carries it, whatever the filters): alerts with status active, paused or scheduled count; script and indicator alerts are a subset with their own limit. Fires are included; fires_per_day_limit is the account's fair-use cap per UTC day (null = no cap)",
+        "description": "The account's CURRENT alert limits and their use (every page of GET /v1/alerts carries it, whatever the filters): the plan's defaults, or the limits an ENTERPRISE contract sets instead. Alerts with status active, paused or scheduled count; script and indicator alerts are a subset with their own limit. Plan defaults (active / script): FREE 0 / 0, LITE 50 / 5, STANDARD 500 / 50, PRO 2,000 / 500, ENTERPRISE 2,000 / 500. No plan has a daily fire cap: fires_per_day_limit is null unless an ENTERPRISE contract sets one",
         "required": [
           "active_alerts",
           "active_alerts_limit",
@@ -13187,7 +13283,7 @@
           },
           "active_alerts_limit": {
             "type": "integer",
-            "description": "The plan's active-alert quota"
+            "description": "The account's active-alert limit now: the plan's default, or the ENTERPRISE contract's"
           },
           "script_alerts": {
             "type": "integer",
@@ -13195,12 +13291,12 @@
           },
           "script_alerts_limit": {
             "type": "integer",
-            "description": "The plan's script / indicator alert quota"
+            "description": "The account's script / indicator alert limit now: the plan's default, or the ENTERPRISE contract's"
           },
           "fires_per_day_limit": {
             "type": "integer",
             "nullable": true,
-            "description": "Fires per UTC day before webhook deliveries pause (events are still logged); null = no cap"
+            "description": "Fires per UTC day before webhook deliveries pause (events are still logged); null = no cap (every plan; only an ENTERPRISE contract sets one)"
           }
         }
       },
@@ -13603,7 +13699,7 @@
           "timezone": {
             "type": "string",
             "maxLength": 64,
-            "description": "IANA time zone (price_reminder: default America/New_York). event_countdown, price_reminder"
+            "description": "IANA time zone (default America/New_York). event_countdown, price_reminder"
           },
           "notify_on_date_change": {
             "type": "boolean",
@@ -15084,7 +15180,24 @@
           },
           "last_error": {
             "type": "string",
-            "nullable": true
+            "nullable": true,
+            "enum": [
+              "blocked_address",
+              "http_status",
+              "network",
+              "redirect",
+              "timeout",
+              "gone",
+              "body_too_large",
+              "sealed_unreadable",
+              "destination_disabled",
+              "destination_deleted",
+              "event_missing",
+              "lease_expired",
+              "alert_user_deleted",
+              "account_deleted"
+            ],
+            "description": "Why the last attempt failed, or why the delivery ended without being sent; null = no failure. blocked_address = the URL is not https on port 443, or its host did not resolve to public addresses only (a private or reserved address, or a name that does not resolve); http_status = your endpoint answered with a status other than 2xx (see last_status); network = the connection failed or broke before an answer; redirect = your endpoint answered with a redirect, which is never followed; timeout = no answer within 10 seconds, or the host name did not resolve in time; gone = your endpoint answered 410 Gone; the destination was disabled; body_too_large = the request body exceeded the size limit; the delivery is not retried; sealed_unreadable = the destination's stored secret or headers could not be read; the delivery is not retried; destination_disabled = the destination was disabled before the delivery was sent; destination_deleted = the destination was deleted before the delivery was sent; event_missing = the event was no longer stored when the delivery was due; lease_expired = the delivery worker stopped during the attempt; the attempt counts, and the delivery is retried unless it was the last; alert_user_deleted = the alert's end user was deleted before the delivery was sent; account_deleted = the account was deleted before the delivery was sent"
           },
           "duration_ms": {
             "type": "integer",
@@ -15470,7 +15583,7 @@
           },
           "allowed_families": {
             "type": "array",
-            "description": "Docs groups the plan can call",
+            "description": "Docs tags (the groups of the API reference) the plan can call; not the product families of `/v1/me/usage`",
             "items": {
               "type": "string"
             }
@@ -15543,7 +15656,7 @@
           },
           "daily": {
             "type": "array",
-            "description": "One row per UTC day of the window, ascending, zero-filled",
+            "description": "One row per UTC day of the window, ascending, zero-filled; rolled up every 5 minutes",
             "items": {
               "type": "object",
               "required": [
@@ -15604,7 +15717,7 @@
           },
           "by_family": {
             "type": "array",
-            "description": "Usage per endpoint family over the window, most credits first",
+            "description": "Usage per product family (the families of `/status`) over the window, most credits first; rolled up every 5 minutes",
             "items": {
               "type": "object",
               "required": [
@@ -15616,11 +15729,11 @@
               "properties": {
                 "family": {
                   "type": "string",
-                  "description": "Endpoint family id"
+                  "description": "Product family id, as on `/status`"
                 },
                 "label": {
                   "type": "string",
-                  "description": "Endpoint family name"
+                  "description": "Product family name, as on `/status`"
                 },
                 "requests": {
                   "type": "integer",
@@ -17434,9 +17547,10 @@
                   "statement": {
                     "type": "string",
                     "enum": [
-                      "Summary written by Invinite from the publication above; not the publisher's text. Source and date above."
+                      "Summary written by Invinite from the publication above; not the publisher's text. Source and date above.",
+                      "Headline and link to the publication above; Invinite serves none of its text. Source and date above."
                     ],
-                    "description": "The attribution sentence to carry with the text"
+                    "description": "The attribution sentence to carry with the item: the summary wording when Invinite's summary is served, the headline-and-link wording otherwise"
                   }
                 }
               }
@@ -18603,7 +18717,7 @@
             "in": "query",
             "name": "is_active",
             "required": false,
-            "description": "true = listed today, false = delisted; both when absent",
+            "description": "true = listed today, false = delisted; both when absent. Until delisted stocks are kept, `false` lists delisted funds only (ETFs whose listing retired); delisted stocks follow",
             "example": true
           },
           {
@@ -19280,7 +19394,7 @@
         "tags": [
           "Funds"
         ],
-        "description": "A listed fund's profile: listing, fund key, registrant, net assets (N-PORT), expense ratio (prospectus), advisers and share classes (N-CEN). A stock answers 404 naming its GET /v1/companies/{company}, an ETN naming GET /v1/instruments/{symbol}.",
+        "description": "A listed fund's profile: listing, fund key, registrant, net assets (N-PORT), expense ratio (prospectus; this listing's own class when stated, else the series' representative class, named by `expense_ratio_class_id`), advisers and share classes (N-CEN). A stock answers 404 naming its GET /v1/companies/{company}, an ETN naming GET /v1/instruments/{symbol}.",
         "parameters": [
           {
             "schema": {
@@ -19394,6 +19508,7 @@
                   "expense_ratio_net": 0.0078,
                   "expense_ratio_gross": 0.0094,
                   "expense_ratio_as_of": "2026-05-31",
+                  "expense_ratio_class_id": "C000074098",
                   "advisers": [
                     {
                       "name": "PROSHARE ADVISORS LLC",
@@ -19863,7 +19978,7 @@
         "tags": [
           "Funds"
         ],
-        "description": "Sector, country and asset-class weights of one listed fund, from the same composition GET /v1/funds/{fund}/holdings answers from (`meta.source`, `meta.as_of`): sector = the issuer's stated sector, else the SEC SIC sector of the holding's issuer; country = the stated location, else the N-PORT country / ISIN prefix / registrant country (each bucket names its `basis`, `mixed` when its positions differ); weights in percent of the fund. `dimension=` one or several of sector, country, asset_class (default all). No buckets for the chosen source answers `data: []` with `meta.reason: weights_unavailable`. Listed funds only (owner decision 2026-11-19): an ETF or closed-end fund by ticker or fund key; a stock answers 404 naming GET /v1/companies/{company}, an ETN GET /v1/instruments/{symbol}, an ETF structured as an exchange-traded trust (GLD, IBIT: a 10-K filer without a holdings report) a 404 naming what is served for it, an unlisted fund a 404 (it appears only as a holder row).",
+        "description": "Sector, country and asset-class weights of one listed fund, from the same composition GET /v1/funds/{fund}/holdings answers from (`meta.source`, `meta.as_of`): sector = the issuer's stated sector, else the SEC SIC sector of the holding's issuer; country = the stated location, else the N-PORT country / ISIN prefix / registrant country (each bucket names its `basis`, `mixed` when its positions differ); weights in percent of the fund. `dimension=` one or several of sector, country, asset_class (default all). A fund outside the ETF holdings coverage scope answered from its N-PORT report is bucketed when read, from the same served positions by the same rule. No buckets for the chosen source answers `data: []` with `meta.reason: weights_unavailable`. Listed funds only (owner decision 2026-11-19): an ETF or closed-end fund by ticker or fund key; a stock answers 404 naming GET /v1/companies/{company}, an ETN GET /v1/instruments/{symbol}, an ETF structured as an exchange-traded trust (GLD, IBIT: a 10-K filer without a holdings report) a 404 naming what is served for it, an unlisted fund a 404 (it appears only as a holder row).",
         "parameters": [
           {
             "schema": {
@@ -20607,7 +20722,7 @@
         "tags": [
           "Companies"
         ],
-        "description": "Every SEC filer: a registry search by `q` (name), `form` or `phase` (one of them is required). Without `phase` the registry search answers ONE page of at most 50 filers (`limit` is capped at 50, `has_more` is false): narrow `q` / `form` to find more. `phase=pre_ipo|public|former|other` lists the issuer lifecycle and pages by `cursor`; `phase=manager` lists 13F-HR filers.",
+        "description": "Every SEC filer: a registry search by `q` (name), `form` or `phase` (one of them is required). Without `phase` the registry search answers in name order and pages by `cursor`. `phase=pre_ipo|public|former|other` lists the issuer lifecycle and pages by `cursor`; `phase=manager` lists every filer of 13F-HR, whatever its lifecycle phase (a listed company that files 13F keeps `phase: public`), in name order, paged by `cursor`. Every row says whether the filer files 13F-HR (`files_13f`). A page can be shorter than `limit` while `has_more` is true (`listed` filters the page the registry returned).",
         "parameters": [
           {
             "schema": {
@@ -20643,7 +20758,7 @@
             "in": "query",
             "name": "phase",
             "required": false,
-            "description": "Lifecycle phase",
+            "description": "Lifecycle phase. `manager` lists every filer of 13F-HR, whatever its lifecycle phase (each row keeps its own `phase`; `files_13f` is true on every row)",
             "example": "manager"
           },
           {
@@ -22000,7 +22115,7 @@
         "tags": [
           "Reference"
         ],
-        "description": "Keyed by ticker: every instrument type answers (`symbol=`); a row names its `company` (a stock) or its `fund` (an ETF or closed-end fund); an ETN row carries neither.",
+        "description": "Keyed by ticker: every instrument type answers (`symbol=`); a row names its `company` (a stock) or its `fund` (an ETF or closed-end fund); an ETN row carries neither. A fund's dividend history is loaded for the funds in the current coverage scope only: a symbol without rows answers 404 `not_covered` saying so, and its `datasets` (GET /v1/instruments/{symbol}) omit dividends.",
         "parameters": [
           {
             "schema": {
@@ -24216,6 +24331,7 @@
         "tags": [
           "Account"
         ],
+        "description": "Your requests and credits per UTC day, per product family and per key over the last 7, 30 or 90 days. `period.used_credits` is live; `daily`, `by_family` and `by_key` are rolled up every 5 minutes, so they trail it by up to about 7 minutes. `by_family` groups by product family (the families of `/status`), not by the docs tags `/v1/me` lists in `allowed_families`.",
         "parameters": [
           {
             "schema": {
@@ -24355,7 +24471,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "free",
         "x-credits": 0,
         "x-cache-control": "private, no-store",
@@ -31231,6 +31346,7 @@
         "tags": [
           "Filings"
         ],
+        "description": "The numeric XBRL facts of one filing from the SEC Financial Statement and Notes data set. Source and cadence: the SEC publishes that data set once a month (usually in the first days of the month, covering the filings of the month before), so a filing appears here only after the release that covers its filing date: until then `meta.coverage` is `pending` and `meta.coverage.through` names the last filing date the newest published release covers (a 10-K filed Nov 3 is served after the SEC's early-December release). Dates are the filed contexts (`date_precision: day`): the data set rounds every end date to a month end and every duration to whole quarters, and its stored offsets restore the dates the filing states; a row whose offsets name no whole day keeps the rounded dates with `date_precision: month`. A fact the filing tags more than once (same concept, context, dimensions, unit and value) is listed once.",
         "parameters": [
           {
             "schema": {
@@ -31408,7 +31524,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
@@ -31438,6 +31553,7 @@
         "tags": [
           "Filings"
         ],
+        "description": "The text facts (text blocks, policies, cover-page strings) of one filing from the SEC Financial Statement and Notes data set, on the same monthly cadence as `GET /v1/filings/{accession}/facts` (`meta.coverage.through`). `text` is the data set's plain text: the SEC removes the markup, and some typography of the original (for example typographic apostrophes such as `Company’s`) can be missing from it; the filing's own documents (its document versions) carry the original text.",
         "parameters": [
           {
             "schema": {
@@ -31615,7 +31731,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
@@ -31836,7 +31951,7 @@
         "tags": [
           "Filings"
         ],
-        "description": "Ranked passages from SEC documents with citations (`mode=lexical` by default: keywords and quoted phrases, English stemming; `literal` for the exact characters). Each request reads one page of the index: `limit` above 50 answers 50 hits and a `next_cursor`; `match.lexical_rank` counts on across pages. `meta.index` says how complete the answer is: empty `data` with `completeness: complete` is a genuine no-result, anything else is not. A search without `symbol=` reads at most `meta.index.matches.cap` matching passages, newest filings first; `meta.index.hint` says how to narrow it.",
+        "description": "Ranked passages from SEC documents with citations (`mode=lexical` by default: keywords and quoted phrases, English stemming; `literal` for the exact characters). Each request reads one page of the index: `limit` above 50 answers 50 hits and a `next_cursor`; `match.lexical_rank` counts on across pages. `meta.index` says how complete the answer is: empty `data` with `completeness: complete` is a genuine no-result, anything else is not. A search without `symbol=` reads at most `meta.index.matches.cap` matching passages, newest filings first; `meta.index.hint` says how to narrow it. Only the forms of `meta.index.forms_indexed` are indexed: a subject whose filings are all of other forms (a fund trust's 485BPOS, N-CSR, N-30D, 497, N-PORT) answers `completeness: partial`, reason `form_not_indexed`, with `lexical.not_indexed_by_policy` counting those filings. A request that searched no document (`meta.index.lexical.indexed` 0, or `lexical` null) and returned no passage cannot match and is charged 0 credits (`X-Credits-Charged: 0`).",
         "parameters": [
           {
             "schema": {
@@ -33005,13 +33120,12 @@
               "enum": [
                 "legacy",
                 "generic"
-              ],
-              "default": "generic"
+              ]
             },
             "in": "query",
             "name": "outline",
             "required": false,
-            "description": "Outline",
+            "description": "Which outline: `legacy` = the 10-K / 10-Q / 8-K Items (`item_id`), `generic` = every other heading. Without it: the generic outline, or the legacy one when the version has no generic heading (a filing whose headings all map to Items). An explicit value is served as asked: an empty list means the version has no section of that outline.",
             "example": "generic"
           },
           {
@@ -33860,7 +33974,7 @@
                               "reason": {
                                 "type": "string",
                                 "nullable": true,
-                                "description": "Why the section is empty or partial (the store's reason, such as fund_cusip_unknown, no_etf_holders)"
+                                "description": "Why the section is empty, partial or unavailable (the store's reason, such as fund_cusip_unknown, no_etf_holders). With state unavailable: upstream_timeout / upstream_unavailable = the SEC document store did not answer this one source in time (for example a first, cold read of a very large N-PORT holder list); the other sections are unaffected and a retry a few seconds later normally answers"
                               },
                               "as_of": {
                                 "type": "string",
@@ -35502,7 +35616,7 @@
             "in": "query",
             "name": "sort",
             "required": false,
-            "description": "Sort field (`-` = descending); the id tiebreaker is always appended. Default `-listing_date`",
+            "description": "Sort field (`-` = descending); the id tiebreaker is always appended. Default `-listing_date`. Offerings without a value of the sort field (no listing date yet) come last in both directions; `listing_date.gte=<today>` starts an ascending list at the next listing",
             "example": "-listing_date"
           },
           {
@@ -39138,7 +39252,8 @@
                       "version_kind": "final",
                       "published_at": "2026-10-08T17:34:32.507Z",
                       "word_count": 9372,
-                      "change_note": "naming",
+                      "change_note": "Speaker names assigned",
+                      "change_kind": "naming",
                       "corrected_by": null,
                       "pdf": {
                         "url": "https://storage.invinite.com/earnings_events/us/789019/earnings/fy2026/q4/transcript-v3.pdf",
