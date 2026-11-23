@@ -9,10 +9,10 @@
     "engines": {
       "node": ">=20"
     },
-    "verifiedOn": "2026-11-22",
+    "verifiedOn": "2026-11-23",
     "sourceHashes": {
-      "api-contract.json": "3f5cd4537277d3aec60d45f4981aa40efd34474abe40b2b7eab32cbbeaf9aacb",
-      "openapi.json": "088bccfe7018e191671724efb0a8e86d3a18558f9359d0fe466a94c445e10a79",
+      "api-contract.json": "fcdcee6ee01c8fdf7c26735869cf97784c342b83be0a47fde84b39dfe2e5fcb0",
+      "openapi.json": "97a90d110a93fdf1fa91ce1e3fedff4d2186bfe82d3ac67269a6bec755eac15c",
       "package.json": "7b6920272d5554715451f1da1e00704dc1dc63bda8b5d9f74bf78e52b6a18a1b",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
@@ -34,7 +34,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "732cbdbea0174e2787d4a234693f6f9ae2daabd01ddc95cac8460a3d204f8deb",
+      "src/generated/cli-manifest.json": "0d87741c344977413165bebdb88b85184b140203ccf0865184f4afca08fff676",
       "src/hand-written-commands.ts": "ab53fea9a1523f8db77663fb3d241be73403213b67f20d9898596e87eddd7bd0",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
@@ -50,9 +50,9 @@
       "src/spec-manifest.ts": "e638fd01260664e2c95e05e18e6087e6fd04694f694ec6db8921224217e580b8",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "088bccfe7018e191671724efb0a8e86d3a18558f9359d0fe466a94c445e10a79",
-    "revision": "2ef71b78ebc37867a76811e58970eca11fab625e",
-    "fingerprint": "247111a929bc9994bd0ca8620c91a56f15a074e5a2b522942444046ce4237c15"
+    "specSha256": "97a90d110a93fdf1fa91ce1e3fedff4d2186bfe82d3ac67269a6bec755eac15c",
+    "revision": "6df0c856f3d5d2d6eb39392ebfad8e415bf8a3c7",
+    "fingerprint": "6e0dad6f81b84ecee8b969087364bf99d232a3a26e43d079dca871566c41335a"
   },
   "globalOptions": [
     {
@@ -1402,7 +1402,7 @@
         },
         {
           "flags": "--timezone <value>",
-          "description": "IANA time zone (price_reminder: default America/New_York). event_countdown, price_reminder (body condition.timezone)",
+          "description": "IANA time zone (default America/New_York). event_countdown, price_reminder (body condition.timezone)",
           "required": false
         },
         {
@@ -2428,7 +2428,7 @@
         },
         {
           "flags": "--timezone <value>",
-          "description": "IANA time zone (price_reminder: default America/New_York). event_countdown, price_reminder (body condition.timezone)",
+          "description": "IANA time zone (default America/New_York). event_countdown, price_reminder (body condition.timezone)",
           "required": false
         },
         {
@@ -4856,7 +4856,7 @@
       "options": [
         {
           "flags": "-o, --outline <value>",
-          "description": "Outline (default: \"generic\"; e.g. generic)",
+          "description": "Which outline: `legacy` = the 10-K / 10-Q / 8-K Items (`item_id`), `generic` = every other heading. Without it: the generic outline, or the legacy one when the version has no generic heading (a filing whose headings all map to Items). An explicit value is served as asked: an empty list means the version has no section of that outline. (e.g. generic)",
           "required": false,
           "choices": [
             "legacy",
@@ -6645,7 +6645,7 @@
         },
         {
           "flags": "--phase <value>",
-          "description": "Lifecycle phase (e.g. manager)",
+          "description": "Lifecycle phase. `manager` lists every filer of 13F-HR, whatever its lifecycle phase (each row keeps its own `phase`; `files_13f` is true on every row) (e.g. manager)",
           "required": false,
           "choices": [
             "pre_ipo",
@@ -8795,7 +8795,7 @@
         },
         {
           "flags": "--is-active",
-          "description": "true = listed today, false = delisted; both when absent (e.g. true) (sends true)",
+          "description": "true = listed today, false = delisted; both when absent. Until delisted stocks are kept, `false` lists delisted funds only (ETFs whose listing retired); delisted stocks follow (e.g. true) (sends true)",
           "required": false
         },
         {
@@ -9222,7 +9222,7 @@
         },
         {
           "flags": "--sort <value>",
-          "description": "Sort field (`-` = descending); the id tiebreaker is always appended. Default `-listing_date` (default: \"-listing_date\"; e.g. -listing_date)",
+          "description": "Sort field (`-` = descending); the id tiebreaker is always appended. Default `-listing_date`. Offerings without a value of the sort field (no listing date yet) come last in both directions; `listing_date.gte=<today>` starts an ascending list at the next listing (default: \"-listing_date\"; e.g. -listing_date)",
           "required": false,
           "choices": [
             "listing_date",

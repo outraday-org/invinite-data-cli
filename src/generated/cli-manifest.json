@@ -1,6 +1,6 @@
 {
   "specVersion": "2026-11-22",
-  "specSha256": "088bccfe7018e191671724efb0a8e86d3a18558f9359d0fe466a94c445e10a79",
+  "specSha256": "97a90d110a93fdf1fa91ce1e3fedff4d2186bfe82d3ac67269a6bec755eac15c",
   "groups": [
     {
       "name": "alert-events",
@@ -1093,7 +1093,7 @@
             ],
             "type": "string",
             "required": false,
-            "description": "IANA time zone (price_reminder: default America/New_York). event_countdown, price_reminder",
+            "description": "IANA time zone (default America/New_York). event_countdown, price_reminder",
             "flag": "timezone"
           },
           {
@@ -2244,7 +2244,7 @@
             ],
             "type": "string",
             "required": false,
-            "description": "IANA time zone (price_reminder: default America/New_York). event_countdown, price_reminder",
+            "description": "IANA time zone (default America/New_York). event_countdown, price_reminder",
             "flag": "timezone"
           },
           {
@@ -4162,9 +4162,8 @@
             "legacy",
             "generic"
           ],
-          "default": "generic",
           "example": "generic",
-          "description": "Outline",
+          "description": "Which outline: `legacy` = the 10-K / 10-Q / 8-K Items (`item_id`), `generic` = every other heading. Without it: the generic outline, or the legacy one when the version has no generic heading (a filing whose headings all map to Items). An explicit value is served as asked: an empty list means the version has no section of that outline.",
           "alias": "o",
           "flag": "outline"
         },
@@ -4378,7 +4377,9 @@
         "call_time_confidence",
         "session",
         "started_at",
+        "started_at_source",
         "ended_at",
+        "ended_at_source",
         "results_released_at",
         "capture_status",
         "expired_reason",
@@ -4597,7 +4598,9 @@
         "call_time_confidence",
         "session",
         "started_at",
+        "started_at_source",
         "ended_at",
+        "ended_at_source",
         "results_released_at",
         "capture_status",
         "expired_reason",
@@ -5207,6 +5210,7 @@
         "published_at",
         "word_count",
         "change_note",
+        "change_kind",
         "corrected_by",
         "pdf"
       ]
@@ -5271,6 +5275,7 @@
         "state_of_incorporation",
         "fiscal_year_end",
         "phase",
+        "files_13f",
         "listing",
         "lifecycle",
         "proposed_symbols",
@@ -5556,7 +5561,7 @@
             "other"
           ],
           "example": "manager",
-          "description": "Lifecycle phase",
+          "description": "Lifecycle phase. `manager` lists every filer of 13F-HR, whatever its lifecycle phase (each row keeps its own `phase`; `files_13f` is true on every row)",
           "flag": "phase"
         },
         {
@@ -5631,6 +5636,7 @@
         "entity_type",
         "sic",
         "phase",
+        "files_13f",
         "forms",
         "stated_tickers",
         "listing",
@@ -5771,6 +5777,7 @@
         "period_start",
         "period_end",
         "instant",
+        "date_precision",
         "dimensions"
       ]
     },
@@ -6142,6 +6149,7 @@
         "tag",
         "text",
         "period_end",
+        "date_precision",
         "dimensions"
       ]
     },
@@ -7571,6 +7579,7 @@
         "expense_ratio_net",
         "expense_ratio_gross",
         "expense_ratio_as_of",
+        "expense_ratio_class_id",
         "advisers",
         "share_classes",
         "homepage_url",
@@ -8832,7 +8841,7 @@
           "required": false,
           "type": "boolean",
           "example": true,
-          "description": "true = listed today, false = delisted; both when absent",
+          "description": "true = listed today, false = delisted; both when absent. Until delisted stocks are kept, `false` lists delisted funds only (ETFs whose listing retired); delisted stocks follow",
           "flag": "is-active"
         },
         {
@@ -9288,7 +9297,7 @@
           ],
           "default": "-listing_date",
           "example": "-listing_date",
-          "description": "Sort field (`-` = descending); the id tiebreaker is always appended. Default `-listing_date`",
+          "description": "Sort field (`-` = descending); the id tiebreaker is always appended. Default `-listing_date`. Offerings without a value of the sort field (no listing date yet) come last in both directions; `listing_date.gte=<today>` starts an ascending list at the next listing",
           "flag": "sort"
         },
         {
