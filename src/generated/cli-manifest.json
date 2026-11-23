@@ -1,6 +1,6 @@
 {
-  "specVersion": "2026-11-22",
-  "specSha256": "84a15416db3e3deb69da09dd2f2951dadc8c8b96f4c91093e3be36a08b59d1cf",
+  "specVersion": "2026-11-23",
+  "specSha256": "391419d7fb6f7b10cd033a9a555e0100867d92070fd9f625f1ba1fd11da423f6",
   "groups": [
     {
       "name": "alert-events",
@@ -12,7 +12,7 @@
     },
     {
       "name": "alert-users",
-      "description": "Your own end users on the alerts platform (B2B2C): per-user limits, usage and the account defaults"
+      "description": "Create and update your alert end users, inspect their limits and usage, or pause and resume their alerts"
     },
     {
       "name": "alerts",
@@ -36,7 +36,7 @@
     },
     {
       "name": "documents",
-      "description": "Immutable document versions, sections, figures and fact places"
+      "description": "Read an immutable SEC filing document, its sections and figures, or locate facts in the document"
     },
     {
       "name": "events",
@@ -48,11 +48,11 @@
     },
     {
       "name": "filings",
-      "description": "SEC filings, their facts, notes, review chains, full-text search and datasets"
+      "description": "List and inspect SEC filings, read their facts, notes and holdings, follow review chains and browse dataset releases"
     },
     {
       "name": "financials",
-      "description": "Statements: standardized and as-reported, plain, detailed and presentation, point in time"
+      "description": "Read standardized and as-reported financial statements in plain, detailed or presentation form"
     },
     {
       "name": "funds",
@@ -88,7 +88,7 @@
     },
     {
       "name": "me",
-      "description": "The caller's account and usage (0 credits)"
+      "description": "Inspect your account and usage, or read and update the defaults for your alert end users"
     },
     {
       "name": "metrics",
@@ -8841,7 +8841,7 @@
           "required": false,
           "type": "boolean",
           "example": true,
-          "description": "true = listed today, false = delisted; both when absent. Until delisted stocks are kept, `false` lists delisted funds only (ETFs whose listing retired); delisted stocks follow",
+          "description": "true = listed today, false = delisted; both when absent",
           "flag": "is-active"
         },
         {

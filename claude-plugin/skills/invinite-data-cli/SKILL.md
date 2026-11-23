@@ -395,7 +395,7 @@ invd alert-templates list --json
 
 ### alert-users
 
-Your own end users on the alerts platform (B2B2C): per-user limits, usage and the account defaults
+Create and update your alert end users, inspect their limits and usage, or pause and resume their alerts
 
 ```bash
 # Create or update end users in bulk (optional: --body, --body-file)
@@ -579,7 +579,7 @@ invd dividends list AAPL --json
 
 ### documents
 
-Immutable document versions, sections, figures and fact places
+Read an immutable SEC filing document, its sections and figures, or locate facts in the document
 
 ```bash
 # List where facts appear in a document (optional: --document-version, --fact, --status, --limit, --cursor, --all)
@@ -666,7 +666,7 @@ invd filers list -q berkshire --json
 
 ### filings
 
-SEC filings, their facts, notes, review chains, full-text search and datasets
+List and inspect SEC filings, read their facts, notes and holdings, follow review chains and browse dataset releases
 
 ```bash
 # List SEC dataset releases (optional: --fields, --limit, --cursor, --all)
@@ -693,7 +693,7 @@ invd filings review-chain 0000320193-26-000026 --json
 
 ### financials
 
-Statements: standardized and as-reported, plain, detailed and presentation, point in time
+Read standardized and as-reported financial statements in plain, detailed or presentation form
 
 ```bash
 # Standardized statements [--basis as-reported|standardized, --view summary|detailed|presentation] (optional: --statement, --fiscal-year, --fiscal-quarter, --fiscal-year-gte, --fiscal-year-gt, --fiscal-year-lte, --fiscal-year-lt, --as-of, --filing, --sort, --fields, --limit, --cursor, --all)
@@ -801,7 +801,7 @@ invd market holidays --json
 
 ### me
 
-The caller's account and usage (0 credits)
+Inspect your account and usage, or read and update the defaults for your alert end users
 
 ```bash
 # Get the end-user defaults
