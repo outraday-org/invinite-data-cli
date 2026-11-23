@@ -1,6 +1,6 @@
 {
   "specVersion": "2026-11-22",
-  "specSha256": "97a90d110a93fdf1fa91ce1e3fedff4d2186bfe82d3ac67269a6bec755eac15c",
+  "specSha256": "84a15416db3e3deb69da09dd2f2951dadc8c8b96f4c91093e3be36a08b59d1cf",
   "groups": [
     {
       "name": "alert-events",
@@ -967,7 +967,7 @@
             "type": "array",
             "items": "string",
             "required": false,
-            "description": "Call lifecycle events. earnings_call (transcript_provisional, transcript_corrected, documents_updated need STANDARD; guidance_flash, keyword_hit PRO)",
+            "description": "Call lifecycle events. earnings_call (transcript_provisional, transcript_corrected, documents_updated, guidance_flash, keyword_hit need PRO)",
             "flag": "events"
           },
           {
@@ -2118,7 +2118,7 @@
             "type": "array",
             "items": "string",
             "required": false,
-            "description": "Call lifecycle events. earnings_call (transcript_provisional, transcript_corrected, documents_updated need STANDARD; guidance_flash, keyword_hit PRO)",
+            "description": "Call lifecycle events. earnings_call (transcript_provisional, transcript_corrected, documents_updated, guidance_flash, keyword_hit need PRO)",
             "flag": "events"
           },
           {

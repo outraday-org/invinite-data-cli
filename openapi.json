@@ -12255,7 +12255,7 @@
                 "keyword_hit"
               ]
             },
-            "description": "Call lifecycle events. earnings_call (transcript_provisional, transcript_corrected, documents_updated need STANDARD; guidance_flash, keyword_hit PRO)"
+            "description": "Call lifecycle events. earnings_call (transcript_provisional, transcript_corrected, documents_updated, guidance_flash, keyword_hit need PRO)"
           },
           "speaker_roles": {
             "type": "array",
@@ -13456,7 +13456,7 @@
                 "keyword_hit"
               ]
             },
-            "description": "Call lifecycle events. earnings_call (transcript_provisional, transcript_corrected, documents_updated need STANDARD; guidance_flash, keyword_hit PRO)"
+            "description": "Call lifecycle events. earnings_call (transcript_provisional, transcript_corrected, documents_updated, guidance_flash, keyword_hit need PRO)"
           },
           "speaker_roles": {
             "type": "array",
@@ -15626,13 +15626,13 @@
                 "type": "string",
                 "enum": [
                   "free",
+                  "payg",
                   "lite",
                   "standard",
                   "pro",
-                  "enterprise",
-                  "prepaid"
+                  "enterprise"
                 ],
-                "description": "The account's Data API plan"
+                "description": "The account's Data API plan, spelled as `/v1/me` `plan` spells it: a pay-as-you-go (prepaid-credits) account reads `payg` (owner decision 2026-11-23)"
               },
               "included_credits": {
                 "type": "integer",
