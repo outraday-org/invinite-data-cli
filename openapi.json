@@ -2,8 +2,8 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Invinite API",
-    "description": "Invinite financial data API. Each operation has a base credit cost: `x-credits` is the base cost; responses add 1 credit per started 1,000 rows beyond the first 1,000; `X-Credits-Charged` reports the final debit and `X-Credits-Remaining` what is left of the plan's included credits after it. A `304 Not Modified` costs nothing. `GET /v1/me/usage` returns your account's usage by day, product family and key (it costs no credits).\n\n**Coverage.** Financial data covers US SEC registrants and their US listings; a symbol that is not a US SEC registrant (or a crypto pair such as `X:BTCUSD`) is not a known company and answers 404. A known company with no data in a family (for example no statements yet) answers 404 with `code: not_covered`; an empty page of a covered company stays 200 with an empty list. `GET /v1/companies` lists every known company.\n\n## Webhooks\n\nAlerts (`POST /v1/alerts`) deliver their events to your destinations (`POST /v1/destinations`) as [Standard Webhooks](https://github.com/standard-webhooks/standard-webhooks/blob/main/spec/standard-webhooks.md): `alert.fired`, `alert.fired.batch`, `alert.status_changed`, `destination.disabled`, `destination.test`, `account.fire_cap_reached`, `alert_user.fire_cap_reached`; see `x-webhooks` for each `data` object. Every event is also on the pull feed `GET /v1/alert-events`.\n\nEvery delivery is a `POST` with `Content-Type: application/json`, the body `{type, timestamp, data}` (or the destination's `body_template`) and the headers `webhook-id` (the event id; a batch: its `bat_…` id), `webhook-timestamp` (unix seconds) and `webhook-signature`: space-separated `v1,<base64 HMAC-SHA256 of <webhook-id>.<webhook-timestamp>.<raw body>>`, keyed with the base64-DECODED bytes of the destination's `whsec_…` secret — any Standard Webhooks library verifies it. After `POST /v1/destinations/{id}:rotate-secret` the old secret keeps signing beside the new one for 24 h (two `v1` entries). Reject a timestamp older than 5 minutes. Any 2xx within 10 s acknowledges; redirects are not followed; a body above 256 KB is not sent. A failed attempt is retried after [0, 5 s, 5 min, 30 min, 2 h, 5 h, 10 h, 10 h, 10 h, 34 h] (attempt n waits the n-th step) plus up to 10 % jitter; the delivery is dead after attempt 10. A 410 disables the destination at once; so do 72 h of nothing but failures with at least 10 failed attempts in a row (a `destination.disabled` event on the feed and a mail; `PATCH` with `status: active` re-enables it). Delivery is at-least-once and unordered: dedupe on `webhook-id`, order by `timestamp`. A `batch_webhook` destination receives `alert.fired.batch` with the pending events in `data.events[]` (dedupe on each `data.event_id`).\n\nFires and deliveries cost no credits; no daily fire cap; at most 60 fires per alert per rolling hour (beyond: suppressed and counted in the next fire's `suppressed_since_last`); an Enterprise contract may set a daily cap (beyond it: written to the feed with `delivery_skipped: fire_cap`, not delivered; one `account.fire_cap_reached` per day). An end user's `max_fires_per_day` (or the account default) caps that user first: beyond it `delivery_skipped: alert_user_fire_cap`, not counted against the account's cap, one `alert_user.fire_cap_reached` per user and day.\n\n## Licensing\n\n| Tier | display | redistribute | rag | train | audio | redistribute_api | resell |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| FREE | – | – | – | – | – | – | – |\n| LITE | – | – | – | – | – | – | – |\n| STANDARD | ✓ | ✓ | ✓ | – | – | – | – |\n| PRO | ✓ | ✓ | ✓ | – | ✓ | – | – |\n| ENTERPRISE | ✓ | ✓ | ✓ | ✓* | ✓ | ✓* | – |\n\n\\* Depending on the contract.\n\nInvinite data may be used inside the licensee's own organisation from LITE and, from STANDARD, shown and redistributed inside the licensee's own product (on screen, in exports and in embedded widgets) with attribution (\"Source: Invinite\"). Passing the data on through the licensee's own API is an ENTERPRISE right, granted in the contract. It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.\n\nInternal use: Every paid plan may use the data inside the licensee's own organisation: analysis, internal tools and dashboards for the licensee's own staff. Nothing is shown or passed to third parties below STANDARD.\n\nPolicy version: 2026-11-draft-2. Draft — pending counsel sign-off.\n\nAudio files carry a forensic watermark that identifies the recording. Audio is subject to per-company takedown and may not be re-hosted.\n\nSEC data: Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.\n\nNews: News text is Invinite's own summary of the issuer's or the SEC's publication (the publisher's text and media are never served); the licensee shows the attribution (publisher, source URL and date) next to it; the resale rule applies.\n\nPDF documents: Branded PDFs of transcripts and news items are permanent URLs to one shared file per version. They may be shown, downloaded and forwarded unmodified with the notice page intact; the resale rule applies unchanged. News PDFs carry Invinite's summary of the issuer's or the SEC's publication under the attribution stated on their notice page; a PDF disappears when the item is taken down or its source's reuse is denied.\n\nEvery `/v1/*` data operation carries `x-license`, the minimum use right its data ships with; `GET /status/licensing` serves the same matrix per route, rendered at [data.invinite.com/docs/licensing](https://data.invinite.com/docs/licensing). `/v1/me` and `/v1/me/usage` serve no licensed data and carry none.\n\n## Status\n\n[`/status`](/status) reports whether each product family works (a status and its uptime over 7, 30 and 90 days); [`/status/licensing`](/status/licensing) serves the licensing matrix per route. The status routes need no API key and are cached for 5 minutes. The public status page is [status.data.invinite.com](https://status.data.invinite.com): a snapshot of `/status` every 15 minutes plus an external reachability probe of the API.\n\nUptime is the share of requests answered without a server error, measured by the API per product family; a window with too little traffic to judge shows no figure. Status reflects the last 24 hours.\n\nProduct families: Company, Financials, SEC Filings, Insider Trades, Institutional Ownership, IPOs, Market, Metadata, Earnings Calls, News, WebSocket, Account, Alerts.",
-    "version": "2026-11-22"
+    "description": "Invinite financial data API. Each operation has a base credit cost: `x-credits` is the base cost; responses add 1 credit per started 1,000 rows beyond the first 1,000; `X-Credits-Charged` reports the final debit and `X-Credits-Remaining` what is left of the plan's included credits after it. A `304 Not Modified` costs nothing. `GET /v1/me/usage` returns your account's usage by day, product family and key (it costs no credits).\n\n**Coverage.** Financial data covers US SEC registrants and their US listings; a symbol that is not a US SEC registrant (or a crypto pair such as `X:BTCUSD`) is not a known company and answers 404. A known company with no data in a family (for example no statements yet) answers 404 with `code: not_covered`; an empty page of a covered company stays 200 with an empty list. `GET /v1/companies` lists every known company.\n\n## Webhooks\n\nAlerts (`POST /v1/alerts`) deliver their events to your destinations (`POST /v1/destinations`) as [Standard Webhooks](https://github.com/standard-webhooks/standard-webhooks/blob/main/spec/standard-webhooks.md): `alert.fired`, `alert.fired.batch`, `alert.status_changed`, `destination.disabled`, `destination.test`, `account.fire_cap_reached`, `alert_user.fire_cap_reached`; see `x-webhooks` for each `data` object. Every event is also on the pull feed `GET /v1/alert-events`.\n\nEvery delivery is a `POST` with `Content-Type: application/json`, the body `{type, timestamp, data}` (or the destination's `body_template`) and the headers `webhook-id` (the event id; a batch: its `bat_…` id), `webhook-timestamp` (unix seconds) and `webhook-signature`: space-separated `v1,<base64 HMAC-SHA256 of <webhook-id>.<webhook-timestamp>.<raw body>>`, keyed with the base64-DECODED bytes of the destination's `whsec_…` secret — any Standard Webhooks library verifies it. After `POST /v1/destinations/{id}:rotate-secret` the old secret keeps signing beside the new one for 24 h (two `v1` entries). Reject a timestamp older than 5 minutes. Any 2xx within 10 s acknowledges; redirects are not followed; a body above 256 KB is not sent. A failed attempt is retried after [0, 5 s, 5 min, 30 min, 2 h, 5 h, 10 h, 10 h, 10 h, 34 h] (attempt n waits the n-th step) plus up to 10 % jitter; the delivery is dead after attempt 10. A 410 disables the destination at once; so do 72 h of nothing but failures with at least 10 failed attempts in a row (a `destination.disabled` event on the feed and a mail; `PATCH` with `status: active` re-enables it). Delivery is at-least-once and unordered: dedupe on `webhook-id`, order by `timestamp`. A `batch_webhook` destination receives `alert.fired.batch` with the pending events in `data.events[]` (dedupe on each `data.event_id`).\n\nFires and deliveries cost no credits; no daily fire cap; at most 60 fires per alert per rolling hour (beyond: suppressed and counted in the next fire's `suppressed_since_last`); an Enterprise contract may set a daily cap (beyond it: written to the feed with `delivery_skipped: fire_cap`, not delivered; one `account.fire_cap_reached` per day). An end user's `max_fires_per_day` (or the account default) caps that user first: beyond it `delivery_skipped: alert_user_fire_cap`, not counted against the account's cap, one `alert_user.fire_cap_reached` per user and day.\n\n## Licensing\n\n| Tier | display | redistribute | rag | train | audio | redistribute_api | resell |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| FREE | – | – | – | – | – | – | – |\n| LITE | – | – | – | – | – | – | – |\n| STANDARD | ✓ | ✓ | ✓ | – | – | – | – |\n| PRO | ✓ | ✓ | ✓ | – | ✓ | – | – |\n| ENTERPRISE | ✓ | ✓ | ✓ | ✓* | ✓ | ✓* | – |\n\n\\* Depending on the contract.\n\nInvinite data may be used inside the licensee's own organisation from LITE and, from STANDARD, shown and redistributed inside the licensee's own product (on screen, in exports and in embedded widgets) with attribution (\"Source: Invinite\"). Passing the data on through the licensee's own API is an ENTERPRISE right, granted in the contract. It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.\n\nInternal use: Every paid plan may use the data inside the licensee's own organisation: analysis, internal tools and dashboards for the licensee's own staff. Nothing is shown or passed to third parties below STANDARD.\n\nPolicy version: 2026-11-draft-2. Draft — pending counsel sign-off.\n\nAudio files carry a forensic watermark that identifies the recording. Audio is subject to per-company takedown and may not be re-hosted.\n\nSEC data: Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.\n\nNews: News text is Invinite's own summary of the issuer's or the SEC's publication (the publisher's text and media are never served); the licensee shows the attribution (publisher, source URL and date) next to it; the resale rule applies.\n\nPDF documents: Branded PDFs of transcripts and news items are permanent URLs to one shared file per version. They may be shown, downloaded and forwarded unmodified with the notice page intact; the resale rule applies unchanged. News PDFs carry Invinite's summary of the issuer's or the SEC's publication under the attribution stated on their notice page; a PDF disappears when the item is taken down or its source's reuse is denied.\n\nEvery `/v1/*` data operation carries `x-license`, the minimum use right its data ships with; `GET /status/licensing` serves the same matrix per route, rendered at [data.invinite.com/docs/licensing](https://data.invinite.com/docs/licensing). `/v1/me` and `/v1/me/usage` serve no licensed data and carry none.\n\n## Status\n\n[`/status`](/status) reports product-family uptime in `services` and request health and latency by documentation group in `groups`. Windows with too few requests have no figures. [`/status/licensing`](/status/licensing) serves the licensing matrix per route. The status routes need no API key and are cached for 5 minutes. The public status page is [status.data.invinite.com](https://status.data.invinite.com): a snapshot of `/status` every 15 minutes plus an external reachability probe of the API.\n\nUptime is the share of requests answered without a server error, measured by the API per product family; a window with too little traffic to judge shows no figure. Status reflects the last 24 hours.\n\nProduct families: Company, Financials, SEC Filings, Insider Trades, Institutional Ownership, IPOs, Market, Metadata, Earnings Calls, News, WebSocket, Account, Alerts.\n\nMeasured documentation groups: Corporate actions, Calendar, Instruments, Companies, Funds, Catalog, News, Financials, Metrics, Offerings, Holders, Insider trades, Filings, Events, Call analytics, Transcripts, Guidance, Investor documents, Alerts, Alert users, Alert events, Destinations, Scripts.",
+    "version": "2026-11-23"
   },
   "components": {
     "securitySchemes": {
@@ -17836,9 +17836,9 @@
         "operationId": "healthGet",
         "summary": "Health check",
         "tags": [
-          "Health"
+          "Status"
         ],
-        "description": "Health check endpoint.",
+        "description": "Check whether the Data API responds to requests.\n\nNo API key is required. A healthy process returns `ok` with the current UTC time. For service availability and latency, use `GET /status`.",
         "x-cli": {
           "group": "health",
           "action": "",
@@ -17847,6 +17847,7 @@
             "status",
             "timestamp"
           ],
+          "groupDescription": "Check whether the API is responding.",
           "pagination": "none"
         },
         "responses": {
@@ -17891,7 +17892,7 @@
         "tags": [
           "Status"
         ],
-        "description": "Whether each product works: a status and its uptime per product family, the same plus the 7-day p50 / p95 latency per v2 docs group (`groups`), and the coverage universe. Uptime is the share of requests answered without a server error, measured by the API per product family; a window with too little traffic to judge shows no figure. Status reflects the last 24 hours.",
+        "description": "Check service health and latency across the Data API.\n\nNo API key is required. The response groups uptime by product family and reports seven-day latency by documentation group. Coverage counts can still be available when request statistics are missing.\n\nUptime is the share of requests answered without a server error, measured by the API per product family; a window with too little traffic to judge shows no figure. Status reflects the last 24 hours.",
         "security": [],
         "x-cli": {
           "group": "status",
@@ -18002,27 +18003,27 @@
                           "group": {
                             "type": "string",
                             "enum": [
+                              "corporate_actions",
+                              "calendar",
                               "instruments",
                               "companies",
                               "funds",
-                              "reference",
                               "catalog",
+                              "news",
                               "financials",
                               "metrics",
-                              "filings",
-                              "documents",
+                              "offerings",
                               "holdings",
                               "insider_trades",
-                              "ipos",
+                              "filings",
                               "events",
                               "call_analytics",
                               "transcripts",
                               "guidance",
                               "investor_documents",
-                              "news",
                               "alerts",
-                              "alert_events",
                               "alert_users",
+                              "alert_events",
                               "destinations",
                               "scripts"
                             ],
@@ -18153,7 +18154,7 @@
         "tags": [
           "Status"
         ],
-        "description": "The licensing policy: rights per tier, the right and tier of every route by product family, and the coverage universe.",
+        "description": "Get the public licensing policy for Data API routes.\n\nNo API key is required. Use the rights matrix to compare permitted uses by subscription tier, then look up individual routes under their product families.",
         "security": [],
         "x-cli": {
           "group": "status",
@@ -18666,7 +18667,7 @@
         "tags": [
           "Instruments"
         ],
-        "description": "Everything exchange-traded in one list: stocks, ETFs, closed-end funds and ETNs, each with its `type`, its company or fund link and `datasets` (the families that exist for its type). Crypto and commodities are not instruments.",
+        "description": "List US stocks, ETFs, closed-end funds and ETNs.\n\nSearch by ticker prefix or part of a name with `q`. Results include active and delisted symbols in ticker order. Use `is_active=true` for current listings.\n\nEach instrument identifies the datasets its type supports. A stock points to its company and a fund to its fund profile.",
         "parameters": [
           {
             "schema": {
@@ -18717,7 +18718,7 @@
             "in": "query",
             "name": "is_active",
             "required": false,
-            "description": "true = listed today, false = delisted; both when absent. Until delisted stocks are kept, `false` lists delisted funds only (ETFs whose listing retired); delisted stocks follow",
+            "description": "true = listed today, false = delisted; both when absent",
             "example": true
           },
           {
@@ -18963,7 +18964,7 @@
         "tags": [
           "Instruments"
         ],
-        "description": "One instrument by ticker, active or delisted: its `type`, its company (`stock`) or fund (`etf`, `closed_end_fund`, with its `structure`; an `etn` has neither) and `datasets`, the families served for it.",
+        "description": "Get the instrument type and available datasets for a ticker.\n\nA known delisted ticker still has a profile with `is_active=false`. For a stock, use its company CIK to look up the issuer. For an ETF or closed-end fund, use its fund key when available. An ETN has neither link.",
         "parameters": [
           {
             "schema": {
@@ -19118,7 +19119,7 @@
         "tags": [
           "Funds"
         ],
-        "description": "Listed funds: ETFs (`type=etf`; GLD, IBIT and other exchange-traded trusts included, `structure=exchange_traded_trust`) and closed-end funds (`type=closed_end_fund`) with a ticker. A mutual fund without a listing is no resource (it appears only as a holder); an ETN is an instrument only (GET /v1/instruments/{symbol}).",
+        "description": "List ETFs and closed-end funds with active listings.\n\nSearch by ticker prefix or part of a fund name in `q`. Use `structure=exchange_traded_trust` for exchange-traded trusts. Use the ticker or `fund_key` from a result to retrieve its profile.",
         "parameters": [
           {
             "schema": {
@@ -19394,7 +19395,7 @@
         "tags": [
           "Funds"
         ],
-        "description": "A listed fund's profile: listing, fund key, registrant, net assets (N-PORT), expense ratio (prospectus; this listing's own class when stated, else the series' representative class, named by `expense_ratio_class_id`), advisers and share classes (N-CEN). A stock answers 404 naming its GET /v1/companies/{company}, an ETN naming GET /v1/instruments/{symbol}.",
+        "description": "Get a listed fund profile by ticker or fund key.\n\nUse a ticker from any listed share class. Check `net_assets_scope` to see whether the reported assets cover this listing or the entire series.\n\nThe expense ratio comes from the requested share class when available. Otherwise the profile uses the series' representative class and identifies it in `expense_ratio_class_id`.",
         "parameters": [
           {
             "schema": {
@@ -19596,7 +19597,7 @@
         "tags": [
           "Funds"
         ],
-        "description": "A listed fund's composition from the freshest source, always named: the issuer's own daily (or monthly) holdings file where the store reads one, else the fund's latest public N-PORT report (quarter end, about 60 days later) — `meta.source`, `meta.as_of`, and on every row. `as_of=` reads a stored earlier date (`meta.composition.stored_dates` lists them). Order: weight, descending, then line. Listed funds only (owner decision 2026-11-19): an ETF or closed-end fund by ticker or fund key; a stock answers 404 naming GET /v1/companies/{company}, an ETN GET /v1/instruments/{symbol}, an ETF structured as an exchange-traded trust (GLD, IBIT: a 10-K filer without a holdings report) a 404 naming what is served for it, an unlisted fund a 404 (it appears only as a holder row).",
+        "description": "List a fund's holdings, largest portfolio weight first.\n\nAddress an ETF or closed-end fund by ticker or fund key. The latest composition uses the issuer's daily or monthly holdings file if it is newer than the available SEC N-PORT report, or if no report exists. Otherwise it uses N-PORT.\n\nEvery position carries its source and reporting date, also given in `meta.source` and `meta.as_of`. Choose an earlier snapshot from `meta.composition.stored_dates` and pass its date in `as_of`.\n\nExchange-traded trusts return `404 not_covered` for holdings.",
         "parameters": [
           {
             "schema": {
@@ -19978,7 +19979,7 @@
         "tags": [
           "Funds"
         ],
-        "description": "Sector, country and asset-class weights of one listed fund, from the same composition GET /v1/funds/{fund}/holdings answers from (`meta.source`, `meta.as_of`): sector = the issuer's stated sector, else the SEC SIC sector of the holding's issuer; country = the stated location, else the N-PORT country / ISIN prefix / registrant country (each bucket names its `basis`, `mixed` when its positions differ); weights in percent of the fund. `dimension=` one or several of sector, country, asset_class (default all). A fund outside the ETF holdings coverage scope answered from its N-PORT report is bucketed when read, from the same served positions by the same rule. No buckets for the chosen source answers `data: []` with `meta.reason: weights_unavailable`. Listed funds only (owner decision 2026-11-19): an ETF or closed-end fund by ticker or fund key; a stock answers 404 naming GET /v1/companies/{company}, an ETN GET /v1/instruments/{symbol}, an ETF structured as an exchange-traded trust (GLD, IBIT: a 10-K filer without a holdings report) a 404 naming what is served for it, an unlisted fund a 404 (it appears only as a holder row).",
+        "description": "List a fund's weights by sector, country and asset class.\n\nUse `dimension` to select a breakdown. The weights use the same issuer file or SEC N-PORT report as `GET /v1/funds/{fund}/holdings`. Each bucket carries the source and reporting date.\n\nThe bucket's `basis` identifies how its positions were classified, such as an issuer's stated sector or one derived from SIC. A `mixed` basis means the positions used different classifications. Leveraged exposure can make the weights sum to more than 100 percent.\n\nWhen the selected composition has no weights, the response has an empty `data` list and `meta.reason` is `weights_unavailable`.",
         "parameters": [
           {
             "schema": {
@@ -20273,7 +20274,7 @@
         "tags": [
           "Companies"
         ],
-        "description": "Operating companies with a US listing (an instrument of type `stock`); funds are GET /v1/funds, everything exchange-traded GET /v1/instruments.",
+        "description": "List operating companies with a US stock listing.\n\nUse `q` to find a ticker or part of a company name, and narrow by exchange or sector. Results appear in ticker order. For ETFs and closed-end funds, use `GET /v1/funds`.",
         "parameters": [
           {
             "schema": {
@@ -20535,6 +20536,7 @@
         "tags": [
           "Companies"
         ],
+        "description": "Get an operating company profile by ticker or CIK.\n\nUse the ticker of any listed share class. Request `expand=coverage` to see which datasets hold company records and the latest date where available.\n\nFor a fund, a `404 not_covered` response points to `GET /v1/funds/{fund}`. For an ETN it points to `GET /v1/instruments/{symbol}`.",
         "parameters": [
           {
             "schema": {
@@ -20694,7 +20696,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "free",
         "x-credits": 1,
         "x-license": "display",
@@ -20722,7 +20723,7 @@
         "tags": [
           "Companies"
         ],
-        "description": "Every SEC filer: a registry search by `q` (name), `form` or `phase` (one of them is required). Without `phase` the registry search answers in name order and pages by `cursor`. `phase=pre_ipo|public|former|other` lists the issuer lifecycle and pages by `cursor`; `phase=manager` lists every filer of 13F-HR, whatever its lifecycle phase (a listed company that files 13F keeps `phase: public`), in name order, paged by `cursor`. Every row says whether the filer files 13F-HR (`files_13f`). A page can be shorter than `limit` while `has_more` is true (`listed` filters the page the registry returned).",
+        "description": "Search the SEC registry for listed and unlisted filers.\n\nSupply a name in `q`, a filing `form` or a registration `phase`. Use `phase=manager` to find filers of Form 13F-HR across registration phases. A listed manager can still have `phase` set to `public`.\n\nThe `listed` filter applies to each page after retrieval. Follow `next_cursor` when `has_more` is true, even if the current page has fewer rows than requested.",
         "parameters": [
           {
             "schema": {
@@ -21001,6 +21002,7 @@
         "tags": [
           "Companies"
         ],
+        "description": "Get an SEC registrant profile by its CIK.\n\nUse the CIK from `GET /v1/filers`, with or without leading zeros. Request `expand=lifecycle` for registration history, or select `former_names` and `successors` to trace changes in identity.\n\nUse `expand=fund` for fund series or `expand=private_offerings` for Form D activity. These expansions can be null even when the registrant is known.",
         "parameters": [
           {
             "schema": {
@@ -21135,7 +21137,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
@@ -21162,6 +21163,7 @@
         "tags": [
           "Companies"
         ],
+        "description": "Search for people who appeared on earnings calls.\n\nSupply a `company`, an `event` or at least two characters of a name in `q`. Narrow by `role` to find executives or analysts. People with the most recent matching appearances come first.",
         "parameters": [
           {
             "schema": {
@@ -21423,7 +21425,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "lite",
         "x-credits": 1,
         "x-license": "rag",
@@ -21458,6 +21459,7 @@
         "tags": [
           "Companies"
         ],
+        "description": "Get a speaker profile across covered earnings calls.\n\nUse a `person_id` from `GET /v1/people` to see the speaker's appearances and questions across calls. If two profiles have merged, the old ID redirects to the surviving profile.",
         "parameters": [
           {
             "schema": {
@@ -21581,7 +21583,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "lite",
         "x-credits": 1,
         "x-license": "rag",
@@ -21607,8 +21608,9 @@
         "operationId": "listParticipants",
         "summary": "List event participations",
         "tags": [
-          "Companies"
+          "Events"
         ],
+        "description": "List speakers at an event or calls featuring one person.\n\nUse `event` to see who took part and in what role. Use `person` for that person's appearances across calls. Supply both to narrow the result to one person at one event, or add `role` to select a particular role.",
         "parameters": [
           {
             "schema": {
@@ -21840,7 +21842,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "lite",
         "x-credits": 1,
         "x-license": "rag",
@@ -21871,8 +21872,9 @@
         "operationId": "listFiscalPeriods",
         "summary": "List fiscal periods",
         "tags": [
-          "Reference"
+          "Calendar"
         ],
+        "description": "List fiscal quarter ends for one or more companies.\n\nPass operating company tickers or CIKs in `company`. Each period end pairs its fiscal year and quarter with the corresponding calendar year and quarter. The most recent periods appear first.",
         "parameters": [
           {
             "schema": {
@@ -22086,7 +22088,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "free",
         "x-credits": 1,
         "x-license": "display",
@@ -22113,9 +22114,9 @@
         "operationId": "listDividends",
         "summary": "List dividends",
         "tags": [
-          "Reference"
+          "Corporate actions"
         ],
-        "description": "Keyed by ticker: every instrument type answers (`symbol=`); a row names its `company` (a stock) or its `fund` (an ETF or closed-end fund); an ETN row carries neither. A fund's dividend history is loaded for the funds in the current coverage scope only: a symbol without rows answers 404 `not_covered` saying so, and its `datasets` (GET /v1/instruments/{symbol}) omit dividends.",
+        "description": "List cash dividends for one or more instruments.\n\nUse `symbol` for stocks, ETFs, closed-end funds or ETNs. Dividends appear newest ex-dividend date first, with record and payment dates when available.\n\nDividend history covers selected funds. If none of the requested symbols has dividend history, the call can return `404 not_covered`. Check `datasets` on `GET /v1/instruments/{symbol}` for coverage.",
         "parameters": [
           {
             "schema": {
@@ -22404,9 +22405,9 @@
         "operationId": "listSplits",
         "summary": "List stock splits",
         "tags": [
-          "Reference"
+          "Corporate actions"
         ],
-        "description": "Keyed by ticker: every instrument type answers (`symbol=`); a row names its `company` (a stock) or its `fund` (an ETF or closed-end fund); an ETN row carries neither.",
+        "description": "List share splits and their ratios for one or more instruments.\n\nPass stock, fund or ETN symbols in `symbol`. Splits appear newest execution date first. For a two-for-one split, `split_from` is 1 and `split_to` is 2.",
         "parameters": [
           {
             "schema": {
@@ -22645,8 +22646,9 @@
         "operationId": "listMarketHolidays",
         "summary": "List market holidays",
         "tags": [
-          "Reference"
+          "Calendar"
         ],
+        "description": "List US equity market holidays and early closes.\n\nUse `date.gte` and `date.lte` to select a window. Each date appears once, earliest first. Both trading times are null for a full closure. A shortened session includes a `start_time` or `end_time` in UTC.",
         "parameters": [
           {
             "schema": {
@@ -22885,7 +22887,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "free",
         "x-credits": 1,
         "x-license": "display",
@@ -22911,6 +22912,7 @@
         "tags": [
           "Catalog"
         ],
+        "description": "List metric IDs and their financial definitions.\n\nUse `statement` to narrow the catalog to a financial statement. Without that filter the catalog also includes ratios, growth rates and segment metrics. Use a segment metric's ID in the `metric` filter on `GET /v1/segments`.",
         "parameters": [
           {
             "schema": {
@@ -23102,7 +23104,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "free",
         "x-credits": 1,
         "x-license": "display",
@@ -23129,6 +23130,7 @@
         "tags": [
           "Catalog"
         ],
+        "description": "List the section IDs and titles for SEC filing forms.\n\nUse `form` to see the sections of one form. Pass a section ID in the `item` filter on `GET /v1/search/filings` to search within that part of a filing.",
         "parameters": [
           {
             "schema": {
@@ -23317,7 +23319,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "free",
         "x-credits": 1,
         "x-license": "display",
@@ -23344,6 +23345,7 @@
         "tags": [
           "Catalog"
         ],
+        "description": "List SEC filing forms with their names and families.\n\nUse a form code in the `form` filter on `GET /v1/filings`. For example, `10-K` selects annual reports.",
         "parameters": [
           {
             "schema": {
@@ -23522,7 +23524,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "free",
         "x-credits": 1,
         "x-license": "display",
@@ -23548,6 +23549,7 @@
         "tags": [
           "Catalog"
         ],
+        "description": "List the event types used by the corporate calendar.\n\nPass an `event_type` in the `type` filter on `GET /v1/events` to narrow the calendar to that kind of event.",
         "parameters": [
           {
             "schema": {
@@ -23726,7 +23728,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "free",
         "x-credits": 1,
         "x-license": "display",
@@ -23752,6 +23753,7 @@
         "tags": [
           "Catalog"
         ],
+        "description": "List the document kinds used in investor relations.\n\nUse a `kind` from this catalog in the `kind` filter on `GET /v1/investor-documents`. Each kind is grouped under its usual category.",
         "parameters": [
           {
             "schema": {
@@ -23930,7 +23932,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "free",
         "x-credits": 1,
         "x-license": "display",
@@ -23957,6 +23958,7 @@
         "tags": [
           "Catalog"
         ],
+        "description": "List the rules used to standardize financial metrics.\n\nLook up a rule by `metric_id` or narrow the catalog by `statement` to see how reported figures map to standardized values. The call returns `503 unavailable` when the financial statements catalog is unavailable.",
         "parameters": [
           {
             "schema": {
@@ -24179,7 +24181,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "free",
         "x-credits": 1,
         "x-license": "display",
@@ -24206,6 +24207,7 @@
         "tags": [
           "Account"
         ],
+        "description": "Get the account and access limits for your API key.\n\nCheck your plan, request limits and remaining credits. The names in `allowed_families` are documentation groups containing at least one operation your plan can call.",
         "security": [
           {
             "bearerAuth": []
@@ -24309,7 +24311,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "free",
         "x-credits": 0,
         "x-cache-control": "private, no-store",
@@ -24331,7 +24332,7 @@
         "tags": [
           "Account"
         ],
-        "description": "Your requests and credits per UTC day, per product family and per key over the last 7, 30 or 90 days. `period.used_credits` is live; `daily`, `by_family` and `by_key` are rolled up every 5 minutes, so they trail it by up to about 7 minutes. `by_family` groups by product family (the families of `/status`), not by the docs tags `/v1/me` lists in `allowed_families`.",
+        "description": "Get your account’s API requests and credit usage.\n\nUse `days` for a 7-, 30- or 90-day reporting window. The default is 30 days. The current period total reflects live credit usage. The daily, product-family and key breakdowns can lag behind it.\n\nThe `by_family` breakdown uses the product families shown by `GET /status`. To look up accessible documentation groups, use `GET /v1/me`.",
         "parameters": [
           {
             "schema": {
@@ -24494,9 +24495,9 @@
         "operationId": "getAlertUserDefaults",
         "summary": "Get the end-user defaults",
         "tags": [
-          "Account"
+          "Alert users"
         ],
-        "description": "The account's default end-user limits (every value null until set). Answers 503 `unavailable` while the alerts platform is switched off.",
+        "description": "Get the account’s default limits for alert users.\n\nEach default applies when the end user has no override for that limit. All defaults are `null` until you set them. Returns `503` when the alerts platform is switched off.",
         "security": [
           {
             "bearerAuth": []
@@ -24601,9 +24602,9 @@
         "operationId": "updateAlertUserDefaults",
         "summary": "Update the end-user defaults",
         "tags": [
-          "Account"
+          "Alert users"
         ],
-        "description": "Sets the account's default end-user limits; null clears one. A default lowered below an end user's count keeps its alerts and refuses new ones. Answers 503 `unavailable` while the alerts platform is switched off.",
+        "description": "Update default alert limits across your account.\n\nSend `null` to clear one default and omit values you want to keep. Lowering a default preserves existing alerts. Users with their own override keep that limit. Returns `503` when the alerts platform is switched off.",
         "requestBody": {
           "content": {
             "application/json": {
@@ -24738,6 +24739,7 @@
         "tags": [
           "Financials"
         ],
+        "description": "Get financial statements keyed by standardized metric IDs.\n\nChoose `annual`, `quarterly`, `ytd` or `ttm` with `period`. Each row groups one company's statements for one fiscal period, newest period first. Use the same metric ID to compare values across companies.\n\nBy default each period shows its latest figures. Set `as_of` to read the figures available on a date, or `filing` to select one accession.",
         "parameters": [
           {
             "schema": {
@@ -25158,7 +25160,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
@@ -25198,6 +25199,7 @@
         "tags": [
           "Financials"
         ],
+        "description": "Get the sources behind standardized statement values.\n\nChoose a company and set `period` to annual, quarterly, year-to-date or trailing twelve months. Use `as_of` for figures available by a particular day or `filing` for one accession.\n\nFollow a value's `fact_id` to `GET /v1/facts/{fact_id}` for its calculation and source facts. When available, `accession` identifies the filing and `html_tag_id` locates the value in its HTML.",
         "parameters": [
           {
             "schema": {
@@ -26182,7 +26184,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "pro",
         "x-credits": 1,
         "x-license": "redistribute",
@@ -26222,6 +26223,7 @@
         "tags": [
           "Financials"
         ],
+        "description": "Get standardized statements as a tree of metrics.\n\nSet `period` to `annual`, `quarterly`, `ytd` or `ttm` and narrow by `statement` or `fiscal_year`. Use `as_of` to view the tree as of a date, or `filing` for a single accession.\n\nEach statement nests its child metrics under their parents in standard display order. Use this view to render a comparable statement layout across companies.",
         "parameters": [
           {
             "schema": {
@@ -26651,7 +26653,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "pro",
         "x-credits": 1,
         "x-license": "redistribute",
@@ -26691,6 +26692,7 @@
         "tags": [
           "Financials"
         ],
+        "description": "Get statement values under the filer's own concept names.\n\nChoose an annual, quarterly, year-to-date or trailing twelve-month `period`. Each concept carries its value and indicates whether it was derived. Set `reported_only=true` to omit derived values.\n\nUse `as_of` to see the figures available on a date, or `filing` to select one filing.",
         "parameters": [
           {
             "schema": {
@@ -27261,7 +27263,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
@@ -27301,6 +27302,7 @@
         "tags": [
           "Financials"
         ],
+        "description": "Get the filing sources for the filer's own statement values.\n\nChoose an annual, quarterly, year-to-date or trailing twelve-month `period`. Use `as_of` to read the figures available on a date or `filing` to pin one accession.\n\nWhere available, `accession` and `html_tag_id` locate the value in the filing. A changed value or caption can also carry the original figure or label and the filing that first reported it.",
         "parameters": [
           {
             "schema": {
@@ -28368,7 +28370,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "pro",
         "x-credits": 1,
         "x-license": "redistribute",
@@ -28408,6 +28409,7 @@
         "tags": [
           "Financials"
         ],
+        "description": "Get a statement tree in the filer's own presentation order.\n\nSelect `annual`, `quarterly`, `ytd` or `ttm` with `period`. The tree follows the filer's grouping and labels, with child concepts nested beneath their headings.\n\nSet `as_of` for the presentation available on a date, or `filing` to render the statements from one accession.",
         "parameters": [
           {
             "schema": {
@@ -28881,7 +28883,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "pro",
         "x-credits": 1,
         "x-license": "redistribute",
@@ -28921,6 +28922,7 @@
         "tags": [
           "Metrics"
         ],
+        "description": "List a company's financial ratios by fiscal period.\n\nSelect an annual, quarterly, year-to-date or trailing twelve-month `period`. Use `category` to request groups such as profitability or liquidity, and a `fiscal_year` range to narrow the history. The newest periods appear first.",
         "parameters": [
           {
             "schema": {
@@ -29232,7 +29234,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
@@ -29262,6 +29263,7 @@
         "tags": [
           "Metrics"
         ],
+        "description": "List changes in a company's metrics between fiscal periods.\n\nChoose a `period` and fiscal year range. Growth compares with the same period a year earlier by default. Use `basis=qoq` for a quarter-over-quarter comparison. Rates are fractions, so `0.1` means ten percent.",
         "parameters": [
           {
             "schema": {
@@ -29567,7 +29569,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
@@ -29598,6 +29599,7 @@
         "tags": [
           "Metrics"
         ],
+        "description": "List compound annual growth rates for company metrics.\n\nUse `period=annual` and choose a `horizon` of three, five or ten years. Without a horizon, each available period and horizon has its own row. Values are fractions.\n\nFor a covered company a nonannual period returns an empty page with the coverage reason `period_not_computed`.",
         "parameters": [
           {
             "schema": {
@@ -29902,7 +29904,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
@@ -29931,8 +29932,9 @@
         "operationId": "listSegments",
         "summary": "List segment values",
         "tags": [
-          "Metrics"
+          "Financials"
         ],
+        "description": "List financial values by business or geographic segment.\n\nChoose a company and `period`. Narrow by `metric` or `axis`, such as a geographic breakdown. Each row pairs a value with the dimension members that identify its segment.",
         "parameters": [
           {
             "schema": {
@@ -30233,7 +30235,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "standard",
         "x-credits": 1,
         "x-license": "redistribute",
@@ -30264,8 +30265,9 @@
         "operationId": "listSegmentsDetailed",
         "summary": "List segment values with lineage",
         "tags": [
-          "Metrics"
+          "Financials"
         ],
+        "description": "List segment values with their source filing and XBRL tag.\n\nSelect a company and `period`, then use `metric` or `axis` to narrow the segment rows. Where available, `accession` and `html_tag_id` locate the reported value in the filing.",
         "parameters": [
           {
             "schema": {
@@ -30571,7 +30573,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "pro",
         "x-credits": 1,
         "x-license": "redistribute",
@@ -30603,8 +30604,9 @@
         "operationId": "getFact",
         "summary": "Explain a standardized fact",
         "tags": [
-          "Metrics"
+          "Financials"
         ],
+        "description": "Explain how one standardized financial value was calculated.\n\nPass a `fact_id` from `GET /v1/financials/standardized/detailed` to trace the mapping rule, inputs and source facts behind that value. Use `max_depth` and `max_members` to bound the calculation detail.",
         "parameters": [
           {
             "schema": {
@@ -30791,7 +30793,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
@@ -30817,7 +30818,7 @@
         "tags": [
           "Filings"
         ],
-        "description": "An instrument’s SEC filings by filing date (newest first by default). Several symbols are read one after another: all filings of the first in the request’s order, then the next; `meta.form_facet` sums the forms of the filers read on the page. `items` is applied to the store’s pages, so a page can hold fewer than `limit` rows while `has_more` is true; follow `next_cursor` until `has_more` is false. A stock lists its company's filings; a fund that is its own SEC registrant (SPY, QQQ, PDI, GLD) its registrant's; a series of a multi-series trust (TQQQ) only the trust's accessions naming its series (`series_id`), never the whole trust.",
+        "description": "List an instrument's SEC filings by filing date.\n\nUse `symbol` for a stock or fund and narrow by form, filing date or reported `items`. With several symbols, results follow the requested symbol order, newest filings first within each symbol. A fund series lists the trust filings that name that series.\n\n`meta.form_facet` counts forms for the filers read on the page. Filtering on `items` can produce a short page while `has_more` is true. Continue with `next_cursor`.",
         "parameters": [
           {
             "schema": {
@@ -31169,6 +31170,7 @@
         "tags": [
           "Filings"
         ],
+        "description": "Get one SEC filing and its available document versions.\n\nUse the accession from `GET /v1/filings`. With `expand=documents`, each document's `current_version_id` identifies the immutable version to read at `GET /v1/document-versions/{version_id}`. Add `parties` or `relations` to the expansion when needed.",
         "parameters": [
           {
             "schema": {
@@ -31320,7 +31322,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
@@ -31346,7 +31347,7 @@
         "tags": [
           "Filings"
         ],
-        "description": "The numeric XBRL facts of one filing from the SEC Financial Statement and Notes data set. Source and cadence: the SEC publishes that data set once a month (usually in the first days of the month, covering the filings of the month before), so a filing appears here only after the release that covers its filing date: until then `meta.coverage` is `pending` and `meta.coverage.through` names the last filing date the newest published release covers (a 10-K filed Nov 3 is served after the SEC's early-December release). Dates are the filed contexts (`date_precision: day`): the data set rounds every end date to a month end and every duration to whole quarters, and its stored offsets restore the dates the filing states; a row whose offsets name no whole day keeps the rounded dates with `date_precision: month`. A fact the filing tags more than once (same concept, context, dimensions, unit and value) is listed once.",
+        "description": "List the numeric XBRL facts reported in one SEC filing.\n\nPass the accession and optionally narrow by `tag`. Repeated tags for the same fact are collapsed. The SEC Financial Statement and Notes dataset is published monthly. Until a release covers the filing date, coverage is `pending` and `meta.coverage.through` gives the latest covered date.\n\n`date_precision=day` means the dataset's offsets recover the filed dates. If the offsets cannot resolve whole days, the dates retain the dataset's month-end rounding and `date_precision` is `month`.",
         "parameters": [
           {
             "schema": {
@@ -31553,7 +31554,7 @@
         "tags": [
           "Filings"
         ],
-        "description": "The text facts (text blocks, policies, cover-page strings) of one filing from the SEC Financial Statement and Notes data set, on the same monthly cadence as `GET /v1/filings/{accession}/facts` (`meta.coverage.through`). `text` is the data set's plain text: the SEC removes the markup, and some typography of the original (for example typographic apostrophes such as `Company’s`) can be missing from it; the filing's own documents (its document versions) carry the original text.",
+        "description": "List the text facts and disclosures tagged in one SEC filing.\n\nFilter the accession's notes by `tag`. The SEC Financial Statement and Notes dataset publishes monthly. Coverage is `pending` until the filing falls within a release, and `meta.coverage.through` gives the cutoff.\n\nNotes contain the dataset's plain text. For original formatting and typography, request `GET /v1/filings/{accession}` with `expand=documents` and read the document version.",
         "parameters": [
           {
             "schema": {
@@ -31758,7 +31759,7 @@
         "tags": [
           "Filings"
         ],
-        "description": "The comment-letter graph around a filing (UPLOAD / CORRESP and the filings they review). `max_depth=1` lists the filing’s direct relations (`direction`: `down` = relations the filing makes, `up` = relations pointing at it); deeper reads follow confirmed relations up to `max_depth` hops and at most 100 nodes. `completeness` names what was cut or is still unresolved; a filing whose letters are not resolved yet answers its own node only. 503 `unavailable` only while the review store is switched off.",
+        "description": "Get the SEC comment letters and filings linked to a filing.\n\nUse `max_depth=1` for direct links. Increase the depth to follow confirmed links between letters, replies and filings. Use `direction` or `kind` to narrow the graph.\n\nCheck `completeness` for unresolved or truncated links. A filing whose links have yet to be resolved can return only its own node.",
         "parameters": [
           {
             "schema": {
@@ -31951,7 +31952,7 @@
         "tags": [
           "Filings"
         ],
-        "description": "Ranked passages from SEC documents with citations (`mode=lexical` by default: keywords and quoted phrases, English stemming; `literal` for the exact characters). Each request reads one page of the index: `limit` above 50 answers 50 hits and a `next_cursor`; `match.lexical_rank` counts on across pages. `meta.index` says how complete the answer is: empty `data` with `completeness: complete` is a genuine no-result, anything else is not. A search without `symbol=` reads at most `meta.index.matches.cap` matching passages, newest filings first; `meta.index.hint` says how to narrow it. Only the forms of `meta.index.forms_indexed` are indexed: a subject whose filings are all of other forms (a fund trust's 485BPOS, N-CSR, N-30D, 497, N-PORT) answers `completeness: partial`, reason `form_not_indexed`, with `lexical.not_indexed_by_policy` counting those filings. A request that searched no document (`meta.index.lexical.indexed` 0, or `lexical` null) and returned no passage cannot match and is charged 0 credits (`X-Credits-Charged: 0`).",
+        "description": "Search SEC filing passages and get citations for matches.\n\nUse `mode=lexical` for ranked keywords and quoted phrases or `mode=literal` for exact characters. Narrow the search with `symbol`, `form`, `item` or a filing date range. Company and market-wide searches return up to 50 hits per page.\n\nEach hit cites a document version and source. For a search across issuers, check `meta.index.matches.cap` and the narrowing hint if the match set was capped.\n\nAn empty result with complete index coverage means no match. Check `meta.index` for partial coverage or forms outside the index. If `lexical` is null or `lexical.indexed` is zero and the page is empty, no document was searched.",
         "parameters": [
           {
             "schema": {
@@ -32336,6 +32337,7 @@
         "tags": [
           "Filings"
         ],
+        "description": "List the latest available release of each SEC bulk dataset.\n\nOne row represents the active release with the latest coverage end date for that dataset. The row names the release and applicable filing forms. A dataset appears once it has an active release.",
         "parameters": [
           {
             "schema": {
@@ -32517,7 +32519,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "enterprise",
         "x-credits": 1,
         "x-license": "display",
@@ -32542,7 +32543,7 @@
         "tags": [
           "Filings"
         ],
-        "description": "The reported lines of one 13F-HR or NPORT-P filing as filed, in the filing's line order (`meta.family`: 13f or nport). An NPORT-P is served only for a listed fund (an ETF or a closed-end fund); any other fund's report answers 404 (an unlisted fund is a holder row, never a portfolio).",
+        "description": "List holdings in the order reported in one SEC filing.\n\nPass the accession of a manager's Form 13F-HR or a listed fund's NPORT-P. Each row represents an as-filed line, and `meta.family` identifies the reporting source. An NPORT-P from an unlisted fund returns `404 not_covered`.",
         "parameters": [
           {
             "schema": {
@@ -32811,8 +32812,9 @@
         "operationId": "getDocumentVersion",
         "summary": "Get a document version",
         "tags": [
-          "Documents"
+          "Filings"
         ],
+        "description": "Get the content of one immutable SEC filing document.\n\nTake `current_version_id` from `GET /v1/filings/{accession}` with `expand=documents`. Select content by block ID, page number or printed page label. Add `neighbors` or `footnotes` for context around the selected blocks.\n\nIf the selection is truncated, `selection.next_block` identifies the next block.",
         "parameters": [
           {
             "schema": {
@@ -33088,7 +33090,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "lite",
         "x-credits": 1,
         "x-license": "rag",
@@ -33111,8 +33112,9 @@
         "operationId": "listDocumentSections",
         "summary": "List a document version's sections",
         "tags": [
-          "Documents"
+          "Filings"
         ],
+        "description": "List the section outline of an SEC filing document.\n\nUse a `current_version_id` from `GET /v1/filings/{accession}` with `expand=documents`. The default uses generic headings when available and otherwise uses the filing's item outline. Each section identifies the blocks to read in the same version.",
         "parameters": [
           {
             "schema": {
@@ -33284,7 +33286,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "lite",
         "x-credits": 1,
         "x-license": "rag",
@@ -33310,8 +33311,9 @@
         "operationId": "getDocumentFigure",
         "summary": "Get a figure",
         "tags": [
-          "Documents"
+          "Filings"
         ],
+        "description": "Get a figure from a specific SEC filing document version.\n\nTake `current_version_id` from `GET /v1/filings/{accession}` with `expand=documents` and the figure's `block_id` from that document version. The figure comes with its citation and an image when available.",
         "parameters": [
           {
             "schema": {
@@ -33446,7 +33448,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
@@ -33465,9 +33466,9 @@
         "operationId": "listFactPlaces",
         "summary": "List where facts appear in a document",
         "tags": [
-          "Documents"
+          "Filings"
         ],
-        "description": "Where facts sit in a document version: the inline-XBRL element id (`html_tag_id`), XPath, block, table cell, page box and the annotated-rendition link, with a typed `status`. Filter from either end: `document_version=` (every fact place of that version, in the store’s order) or `fact=` (the places of one standardized fact’s source facts); one of the two is required. A `fact=` whose source places are not resolved yet reads `meta.coverage.state: partial`. A `status` list the store cannot answer in one read is applied to its pages, so a page can hold fewer than `limit` rows while `has_more` is true; follow `next_cursor` until `has_more` is false.",
+        "description": "List the locations of financial facts in filing documents.\n\nUse `document_version` to find facts in a filing document, or `fact` to locate the source facts behind a standardized value. Supply both to restrict that fact's locations to one version. Unresolved source locations can give a fact partial coverage.\n\nUse `status` to narrow the locations. A filtered page can hold fewer rows than `limit` while `has_more` is true. Continue with `next_cursor`.",
         "parameters": [
           {
             "schema": {
@@ -33713,7 +33714,7 @@
         "tags": [
           "Holders"
         ],
-        "description": "Who holds one stock or one fund, from three sources with different dates: `13f` = the 13F managers (quarter end, `period_end`), `nport` = the funds' public N-PORT reports (each fund's latest report on or before `period_end`; listed and unlisted funds), `issuer_file` = the ETFs whose own daily / monthly holdings file holds it (the newest file). The sources overlap (a manager's 13F includes its funds' positions; an ETF with an issuer file also files N-PORT, and its N-PORT row names `holder.issuer_file_as_of`), so rows are never merged or summed across sources. Without `source`: the overview — up to `limit` rows (at most 200) of each source, one source after another (13f, nport, issuer_file), each source's `as_of`, `total` and `has_more` in `meta.sections`; no cursor. With `source`: that source's full list, paged. Order: value in USD, descending.",
+        "description": "List the managers and funds that hold a security.\n\nLook up a stock, fund or ETN with `symbol`. The overview gives each source its own section ordered by position value. Check `meta.sections` for each section's date and whether more rows are available. Choose one `source` to page through it.\n\n`13f` shows managers at quarter end. `nport` uses each fund's latest public report on or before `period_end`. `issuer_file` uses the newest ETF holdings file. The same underlying position can appear in more than one source, so adding their totals can double-count it.",
         "parameters": [
           {
             "schema": {
@@ -34126,7 +34127,7 @@
         "tags": [
           "Holders"
         ],
-        "description": "Quarter-over-quarter 13F position changes of one security between `prior_period_end` (default: the quarter before) and `period_end` (default: the newest quarter end whose 13F deadline has passed): every manager's change, or with `filer=` those managers' changes. Rows are ordered by manager CIK, then position. Only changes the store can prove are listed: a position whose prior snapshot is missing or incomplete is left out and the page reads `meta.coverage.state: partial`. The store applies `type` before its page limit; a page can still hold fewer than `limit` rows while `has_more` is true (one page read is time-bounded), so follow `next_cursor` until `has_more` is false.",
+        "description": "List quarterly changes in who holds a security on Form 13F.\n\nSelect the security with `symbol` and optionally narrow to a manager with `filer`. By default the comparison uses the latest quarter whose filing deadline has passed and the quarter before it.\n\nOnly changes supported by both snapshots appear. Missing evidence can leave coverage `partial`. Follow `next_cursor` when `has_more` is true, even on a short page.",
         "parameters": [
           {
             "schema": {
@@ -34417,7 +34418,7 @@
         "tags": [
           "Holders"
         ],
-        "description": "One 13F manager's portfolio: its effective snapshot of the quarter (amendments applied), one row per position, order value in USD, descending. A fund registrant that files N-PORT, not 13F, answers 404 naming its funds' GET /v1/funds/{fund}/holdings (listed funds only).",
+        "description": "List the quarterly portfolio of a single 13F manager.\n\nUse the manager's CIK and optionally select `period_end`. Each position reflects amendments to that quarter's filings, and positions are ordered by value in US dollars, largest first.\n\nFor the holdings of a listed fund that reports on N-PORT, use `GET /v1/funds/{fund}/holdings`.",
         "parameters": [
           {
             "schema": {
@@ -34717,7 +34718,7 @@
         "tags": [
           "Holders"
         ],
-        "description": "Every quarter-over-quarter position change of one 13F manager between its two effective snapshots (`prior_period_end`, default the quarter before, and `period_end`). Rows are ordered by position. Only proven changes are listed (see GET /v1/holder-changes); a manager without one of the two snapshots answers an empty page with `meta.coverage.state: partial`.",
+        "description": "List changes between a 13F manager's quarterly portfolios.\n\nPass the manager's CIK and select `period_end`. By default the comparison uses the preceding quarter. Use `prior_period_end` to compare another snapshot.\n\nA change requires evidence from both snapshots. If a snapshot is missing, the page can be empty with `meta.coverage.state` set to `partial`.",
         "parameters": [
           {
             "schema": {
@@ -34996,7 +34997,7 @@
         "tags": [
           "Insider trades"
         ],
-        "description": "Insider transaction lines (Form 4; Forms 3 and 5 where the SEC insider data set supplies them), newest filing first. Since release 5.7 the default result includes derivative-security lines (options, RSUs, warrants; `is_derivative: true` on the row) beside the non-derivative ones. `is_derivative=false` restores the non-derivative-only result of the releases before 5.7, which is what a buy / sell aggregate wants.",
+        "description": "List insider transactions reported in SEC ownership filings.\n\nUse `company` and a filing or transaction date range. Results run from newest filing to oldest and include Form 4 transactions and any transaction lines supplied for Forms 3 and 5.\n\nBoth derivative and non-derivative transactions appear. Use `is_derivative=false` for non-derivative transactions alone.",
         "parameters": [
           {
             "schema": {
@@ -35357,6 +35358,7 @@
         "tags": [
           "Insider trades"
         ],
+        "description": "Get one insider transaction and its reported ownership details.\n\nPass the transaction line's `id` from `GET /v1/insider-trades`. The accession identifies the underlying filing. A derivative transaction can include exercise terms and the underlying security.",
         "parameters": [
           {
             "schema": {
@@ -35498,7 +35500,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "standard",
         "x-credits": 1,
         "x-license": "redistribute",
@@ -35523,8 +35524,9 @@
         "operationId": "listIpos",
         "summary": "List offerings",
         "tags": [
-          "IPOs"
+          "Offerings"
         ],
+        "description": "List initial public offerings from registration to listing.\n\nUse `stage` to follow a phase of the offering, or `is_spac` to narrow the list to SPACs or other issuers. The default order is newest listing date first. Sort on `first_public_at` to follow registrations instead.",
         "parameters": [
           {
             "schema": {
@@ -35886,7 +35888,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
@@ -35913,8 +35914,9 @@
         "operationId": "getIpo",
         "summary": "Get an offering",
         "tags": [
-          "IPOs"
+          "Offerings"
         ],
+        "description": "Get the registration and listing details for one IPO.\n\nPass the `ipo_id` from `GET /v1/ipos`. The registration and listing records appear together when both are available, so you can follow proposed terms through to the final offer price and listing date.",
         "parameters": [
           {
             "schema": {
@@ -36114,7 +36116,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
@@ -36138,9 +36139,9 @@
         "operationId": "listOfferings",
         "summary": "List Form D private offerings",
         "tags": [
-          "IPOs"
+          "Offerings"
         ],
-        "description": "Form D private offerings (Regulation D and Section 4(a)(5) exempt offerings) from the SEC's quarterly Form D data sets, five years held: one row per offering (SEC's Form D file number; every amendment folds into it) with the latest filing's facts — issuer and co-issuers, exemptions as filed, industry group, security types, offering / sold / remaining amounts (USD), investors, related persons — and the held filing history. Filters: `company=` (one issuer CIK or listed ticker), `filed_at.gte|lte` (latest filing date), `exemption=`, `industry=`, `total_sold.gte`, `is_amendment`. Order: latest filing date descending, then offering id. An issuer CIK the SEC registry and the data set do not know answers 404; a known issuer without offerings an empty page. Form D is research data, not limited to listed companies: `company=` answers any Form D issuer CIK (funds, private companies; a ticker resolves only for a listed company), and the list is not gated by the coverage of the financial families.",
+        "description": "List private offerings disclosed in SEC Form D filings.\n\nThe SEC's quarterly Form D dataset groups an offering and its amendments under one ID. Each row includes the latest filing's terms and the available filing history. Results run from the most recent filing date to the oldest.\n\nFilter by an issuer's CIK, including an unlisted issuer, or use a listed company's ticker. The `filed_at` range applies to the offering's latest filing. A known issuer with no matching offerings returns an empty page.",
         "parameters": [
           {
             "schema": {
@@ -36490,9 +36491,9 @@
         "operationId": "getOffering",
         "summary": "Get a Form D private offering",
         "tags": [
-          "IPOs"
+          "Offerings"
         ],
-        "description": "One Form D private offering by its id (the Form D file number, e.g. `021-528681`), with the latest filing's facts and the held filing history; an unknown id answers 404. Form D is research data, not limited to listed companies: `company=` answers any Form D issuer CIK (funds, private companies; a ticker resolves only for a listed company), and the list is not gated by the coverage of the financial families.",
+        "description": "Get the latest terms and filing history of a private offering.\n\nPass the `offering_id` from `GET /v1/offerings`. It is the SEC Form D file number or, when no file number was reported, the first accession. Amendments belong to the same offering.",
         "parameters": [
           {
             "schema": {
@@ -36679,7 +36680,7 @@
         "tags": [
           "Events"
         ],
-        "description": "Events (earnings calls by default; `type=all` or a list opts into investor days, conferences, AGMs and other events), keyset-paged by `scheduled_at` with the event id as tiebreaker. With `company=` every date of that company is listed; without `company=` the list is a calendar: the `scheduled_at` window defaults to today through today + 14 days (New York calendar days) and may span at most 92 days (a wider window is a 400 `invalid_parameter`); `status=live` alone needs no window. Expired calendar rows (an estimate that never became a call, a duplicate, a non-call issuer) are omitted, except one whose `expired_reason` is `results_without_call` (a reported quarter whose call never came); `GET /v1/events/{event_id}` still serves them. A reported quarter (`results_released_at` set) is listed even when its call date is only an estimate.",
+        "description": "List earnings calls and other scheduled company events.\n\nThe default is earnings calls. Pass `type` from `GET /v1/catalog/event-types` to include other events. With `company`, you can request the company's full history. Without it, the calendar defaults to today through 14 days ahead and allows a window of up to 92 days. A `status=live` query alone needs no date window.\n\nEvents appear in scheduled order by default. A reported quarter can appear with an estimated call date. Expired events are omitted unless `expired_reason` is `results_without_call`, meaning the company reported results and the expected call never took place.",
         "parameters": [
           {
             "schema": {
@@ -37108,7 +37109,7 @@
         "tags": [
           "Events"
         ],
-        "description": "The event (FREE: never a paid sub-object). `expand=calendar` adds the calendar object, `expand=observations` the date / time observations. Served whatever its status, expired calendar rows included. 404 `not_found` for an unknown or not served event id; 400 `invalid_parameter` for a value that is no event id.",
+        "description": "Get one company event and its scheduling history.\n\nUse the event ID from `GET /v1/events`. Request `expand=calendar` for the calendar entry or `expand=observations` for the dated observations behind its schedule.\n\nExpired events remain available by ID. An unknown or unavailable event returns `404 not_found`.",
         "parameters": [
           {
             "schema": {
@@ -37337,7 +37338,7 @@
         "tags": [
           "Events"
         ],
-        "description": "The event's results press release with its body text. `news_id` is null until press releases are linked to news items. 404 `not_found` when the event has no press release.",
+        "description": "Get the text of the results release for a company event.\n\nWhen a news item shares the release's SEC accession, `news_id` identifies it for `GET /v1/news/{id}`. Releases from an issuer page can have no accession and no matching news item.\n\nAn event without a results release returns `404 not_found`.",
         "parameters": [
           {
             "schema": {
@@ -37470,7 +37471,7 @@
         "tags": [
           "Events"
         ],
-        "description": "Analyst questions and management answers in call order (keyset on the pair's sequence); `include=scores` adds the answer scores. 404 `not_found` when the event has no transcript. An empty first page reads `meta.coverage.state` `pending` until the call's statistics are derived (they follow the Q&A), else `complete` (a call without questions).",
+        "description": "List a call's questions and answers in speaking order.\n\nEach row pairs a question with its answer. Request `include=scores` to include the answer scores.\n\nAn event without a transcript returns `404 not_found`. On an empty first page, `meta.coverage.state` is `pending` until the call statistics are ready. An empty first page with `complete` means the call had no question pairs.",
         "parameters": [
           {
             "schema": {
@@ -37712,7 +37713,7 @@
         "tags": [
           "Events"
         ],
-        "description": "The event's slide deck: `pages` (one page or a range, e.g. `3` or `1-5`) narrows the slides, `include=markdown` adds each page's text, `include=timeline` the player's slide changes (opt-in). Image URLs are permanent public URLs. 404 `not_found` when the event has no deck; 503 `unavailable` while media is unavailable.",
+        "description": "Get the presentation slides for a company event.\n\nUse `pages` to select a page or range. The response links to each slide image. Request `include=markdown` for page text or `include=timeline` to see when slides changed during the call.\n\nAn event without a deck returns `404 not_found`. If slide media is unavailable, the request returns `503 unavailable`.",
         "parameters": [
           {
             "schema": {
@@ -37874,7 +37875,7 @@
         "tags": [
           "Events"
         ],
-        "description": "The recording's permanent public URL. 403 `forbidden` whenever no recording can be served (opted out, not recorded, not released yet) — one answer for every reason; 404 `not_found` for an unknown event.",
+        "description": "Get a permanent link to a company's recorded call.\n\nUse the URL to play the recording. A missing or unreleased recording and a company audio opt-out all return the same `403 forbidden` response. An unknown event returns `404 not_found`.",
         "parameters": [
           {
             "schema": {
@@ -38003,7 +38004,7 @@
         "tags": [
           "Events"
         ],
-        "description": "A temporary playlist URL of the event's live audio (HLS). `status` says whether the stream is `available`, `not_started` (ask again), `ended` (still playable for a while) or `disabled`; `url` and `expires_at` are null unless a URL was issued. The URL is a short-lived credential (`Cache-Control: private`). 403 `forbidden` when the company opted out of audio; 503 `unavailable` while live audio is not configured.",
+        "description": "Get an expiring HLS playlist for a company's live call.\n\nThe playlist can be issued while the stream is `available` and after it has `ended`. Use `expires_at` to see when to request a fresh link. When the status is `not_started` or `disabled`, both `url` and `expires_at` are null.\n\nAn audio opt-out returns `403 forbidden`. An unknown event or missing stream record returns `404 not_found`. If playlist signing is unavailable, the request returns `503 unavailable`.",
         "parameters": [
           {
             "schema": {
@@ -38132,7 +38133,7 @@
         "tags": [
           "Call analytics"
         ],
-        "description": "Call statistics derived from the transcript. 404 `not_found` when the event has no transcript or its statistics are not derived yet; `detail` says which.",
+        "description": "Get call statistics derived from an event's transcript.\n\nUse the statistics to compare time spent on prepared remarks and questions, or see how many analysts took part. An event without a transcript or without calculated statistics returns `404 not_found`. The error detail identifies which is missing.",
         "parameters": [
           {
             "schema": {
@@ -38268,7 +38269,7 @@
         "tags": [
           "Call analytics"
         ],
-        "description": "The comparison of this event with the company’s previous call, as derived by the pipeline (one comparison per event). `prior` may name that previous call; any other event id answers 404 `not_found`, because no other pair is derived. An event without a derived comparison (its company’s first call, or not derived yet) answers 404 `not_found` with the reason in `detail`.",
+        "description": "Compare a call with the company's previous call.\n\nThe comparison draws on the transcripts to show changes in topics and tone. Omit `prior` to use the preceding call, or pass that call's event ID to check the pair.\n\nA different prior ID returns `404 not_found`. When no comparison is ready, the error detail distinguishes a company with no earlier call from a comparison still awaiting processing.",
         "parameters": [
           {
             "schema": {
@@ -38444,7 +38445,7 @@
         "tags": [
           "Call analytics"
         ],
-        "description": "Per-speaker delivery features of one section (`section`, default `all`). 404 `not_found` when the event has no transcript or its features are not derived yet.",
+        "description": "Get measures of how each speaker delivered a call.\n\nThe measures use the audio to describe delivery, including speaking pace and pitch. Read the whole call by default or restrict `section` to `prepared` or `qa`. A missing transcript or a section with no processed measures returns `404 not_found`.",
         "parameters": [
           {
             "schema": {
@@ -38610,7 +38611,7 @@
         "tags": [
           "Call analytics"
         ],
-        "description": "Minute price returns of the call with the utterances spoken in each minute; while the call is live the rows grow once a minute (`live`), the post-call run replaces them (`settled`). 404 `not_found` until the first minute is derived.",
+        "description": "Get minute-by-minute returns alongside the call dialogue.\n\nEach minute pairs the price move with utterances from that part of the call. Rows can appear during the call, before a transcript is published. After processing, `settled` rows replace the `live` figures.\n\nThe request returns `404 not_found` until the first minute is available.",
         "parameters": [
           {
             "schema": {
@@ -38758,7 +38759,7 @@
         "tags": [
           "Transcripts"
         ],
-        "description": "Speaker turns of the current transcript version (or `version`). `layer=cleaned` serves the cleaned text in the same row (`end_ms` and `speaker_confidence` null); `include=words` adds `words[]` per turn (null on the cleaned layer) and is billed by turn count. 404 `not_found` when the event has no transcript, for an unknown or unpublished version, or a version without a cleaned layer; `detail` says which.",
+        "description": "Get a call transcript as a sequence of speaker turns.\n\nRead the current version or select a published `version`. The raw layer supports `include=words`. With `layer=cleaned`, word timings, turn end times and speaker confidence are unavailable.\n\nThe call-relative `qa_start_ms` can begin when a host opens submitted questions. An invitation to submit questions during the introduction stays in prepared remarks. The boundary is null for a live version, an Q&A opening turn without a timestamp or a call with no detected Q&A.\n\nA missing transcript, unavailable version or missing cleaned layer returns `404 not_found`.",
         "parameters": [
           {
             "schema": {
@@ -38959,7 +38960,7 @@
         "tags": [
           "Transcripts"
         ],
-        "description": "The transcript as text blocks: `split=none` one `full` block, `split=sections` the prepared remarks and the Q&A (a version without stored sections: one `full` block). 404 `not_found` as for the transcript.",
+        "description": "Get the text of a call in one block or by section.\n\nUse `split=sections` for prepared remarks and questions and answers in the selected `version`. If neither section is available, the response supplies one `full` block.\n\nThe call-relative `qa_start_ms` is null for a live version or when there is no timed Q&A boundary.",
         "parameters": [
           {
             "schema": {
@@ -39118,7 +39119,7 @@
         "tags": [
           "Transcripts"
         ],
-        "description": "The event's published transcript versions, oldest first, each with its PDF. An event without a transcript answers an empty list.",
+        "description": "List the published versions of an event's transcript.\n\nVersions appear oldest first. A later version can incorporate corrections after the call. Use its number to retrieve that text or compare it with another version. A PDF link is included when available.\n\nAn event without a published transcript returns an empty list.",
         "parameters": [
           {
             "schema": {
@@ -39338,7 +39339,7 @@
         "tags": [
           "Transcripts"
         ],
-        "description": "Word-level changes from version `from` to version `to` (the cleaned layer when both versions have one). 404 `not_found` for an unknown or unpublished version; 400 `invalid_parameter` (`param: from`) when the versions differ too much to diff.",
+        "description": "Compare two published transcript versions word by word.\n\nPass version numbers from `GET /v1/events/{event_id}/transcript-versions` in `from` and `to`. The comparison uses cleaned text when both versions have it.\n\nAn unknown or unpublished version returns `404 not_found`. A `400 invalid_parameter` for `from` means the changes exceed the comparison limit. Choose closer versions.",
         "parameters": [
           {
             "schema": {
@@ -39495,7 +39496,7 @@
         "tags": [
           "Transcripts"
         ],
-        "description": "Ranked passages from earnings-call transcripts and slides (`mode=lexical` by default, `literal` for exact text). Answers ONE page: `limit` is capped at 8, `has_more` is false and `next_cursor` null (the ranking is a top-N, not a stable cursor order); narrow `company`, `event`, `type` or the `conference_date` window to find more. Without `company` and `event` the window defaults to the last 365 days.",
+        "description": "Search call transcripts and slides for cited passages.\n\nSearch by keyword or use `mode=literal` for exact text. Filter by company, event, passage type or conference date. A search with neither company nor event defaults to the last 365 days.\n\nThe response returns a single page of up to eight hits. Narrow the search to find other passages. Search returns `503 unavailable` when it is switched off.",
         "parameters": [
           {
             "schema": {
@@ -39841,6 +39842,7 @@
         "tags": [
           "Guidance"
         ],
+        "description": "List forecasts a company gave for its future performance.\n\nSelect a `company` or `event`. Guidance comes from call transcripts and results releases. Where available, citations point to the source and `change_vs_prior` compares the figures with the earlier forecast.\n\nThe newest calls appear first. Use `review=approved` to limit the result to reviewed and approved guidance.",
         "parameters": [
           {
             "schema": {
@@ -40137,7 +40139,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "lite",
         "x-credits": 1,
         "x-license": "redistribute",
@@ -40171,6 +40172,7 @@
         "tags": [
           "Guidance"
         ],
+        "description": "List performance measures from calls and results releases.\n\nSelect a `company` or `event`, then use `metric` to follow a measure across calls. Each mention includes its source sentence. A figure from a transcript can also link to a matching filing.",
         "parameters": [
           {
             "schema": {
@@ -40417,7 +40419,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "pro",
         "x-credits": 1,
         "x-license": "redistribute",
@@ -40450,6 +40451,7 @@
         "tags": [
           "Investor documents"
         ],
+        "description": "List documents a company published for investors.\n\nSelect a `company` or `event` for materials from its investor relations library and calls, including presentations. Use kinds from `GET /v1/catalog/document-kinds` to narrow the list.\n\nThis collection covers company publications. SEC filing documents are available under Filings at `GET /v1/document-versions/{version_id}`.",
         "parameters": [
           {
             "schema": {
@@ -40727,7 +40729,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "pro",
         "x-credits": 1,
         "x-license": "display",
@@ -40760,7 +40761,7 @@
         "tags": [
           "Investor documents"
         ],
-        "description": "One investor document from either source (`company` = the IR library, `call` = an event's documents); `expand=pages` inlines the per-page text (`pages`, otherwise null). 404 `not_found` for an unknown or not served document id.",
+        "description": "Get an investor document from a company or call.\n\nUse the document ID from `GET /v1/investor-documents`. Request `expand=pages` to include available page text. Without the expansion, `pages` is null.\n\nAn unknown or unavailable document returns `404 not_found`.",
         "parameters": [
           {
             "schema": {
@@ -40924,7 +40925,7 @@
         "tags": [
           "Investor documents"
         ],
-        "description": "Ranked passages from company-published investor documents (IR library and call documents) with page numbers (`mode=lexical` by default, `literal` for exact text). Answers ONE page: `limit` is capped at 20, `has_more` is false and `next_cursor` null (the ranking is a top-N, not a stable cursor order); narrow `company` or `kind` to find more.",
+        "description": "Search investor documents for passages with page numbers.\n\nSearch investor relations and call materials by keyword, or use `mode=literal` for exact text. Narrow the search to one company or selected document kinds.\n\nThe response returns a single page of up to 20 hits. Search returns `503 unavailable` when it is switched off.",
         "parameters": [
           {
             "schema": {
@@ -41215,6 +41216,7 @@
         "tags": [
           "News"
         ],
+        "description": "List news items for a company or an earnings event.\n\nSupply `company` for mentions or `event` for earnings news matched to that call's company and fiscal period or conference time. Supply both to intersect the results. Items appear newest first.\n\nThe list covers issuer publications and public records. Follow an item's ID to `GET /v1/news/{id}/text` for the available Invinite summary.",
         "parameters": [
           {
             "schema": {
@@ -41553,7 +41555,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-pdf-document": true,
         "x-tier": "lite",
         "x-credits": 1,
@@ -41587,6 +41588,7 @@
         "tags": [
           "News"
         ],
+        "description": "Get a news item with its headline and source attribution.\n\nUse the item's ID from `GET /v1/news`. A PDF link is included when a PDF is available for this revision. Read the summary at `GET /v1/news/{id}/text`. An unknown or unavailable item returns `404 not_found`.",
         "parameters": [
           {
             "schema": {
@@ -41760,7 +41762,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-pdf-document": true,
         "x-tier": "lite",
         "x-credits": 2,
@@ -41786,6 +41787,7 @@
         "tags": [
           "News"
         ],
+        "description": "Get the Invinite summary of a news item in text blocks.\n\nFollow `next_cursor` to read the remaining blocks. A page keeps each block intact, so even the first block can exceed `max_chars`. If the current revision has no summary, `content_status` is `no_text`.\n\nA revision or summary change invalidates an earlier cursor. On `400 cursor_mismatch`, repeat the request without `cursor` to read the current summary.",
         "parameters": [
           {
             "schema": {
@@ -41937,7 +41939,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "lite",
         "x-credits": 2,
         "x-license": "display",
@@ -41960,6 +41961,7 @@
         "tags": [
           "News"
         ],
+        "description": "Search news headlines, ledes and summary text.\n\nUse keywords to rank by relevance or `mode=literal` for an exact, case-sensitive match. Narrow by company, field or publication date. The default window covers the last 365 days.\n\nThe response returns a single page of up to eight hits. Summary hits can identify the matching block. Search returns `503 unavailable` when it is switched off.",
         "parameters": [
           {
             "schema": {
@@ -42209,7 +42211,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "standard",
         "x-credits": 10,
         "x-license": "display",
@@ -42239,6 +42240,7 @@
         "tags": [
           "News"
         ],
+        "description": "List company developments extracted from published news.\n\nSupply `company` for the publishing company or `item` for a single news item. Each row describes a development identified in the publication. The newest announcements appear first.\n\nFilter by announcement time to find when news appeared, or by effective date to find when the development takes effect. A missing end date uses the start date for the end-date filter.",
         "parameters": [
           {
             "schema": {
@@ -42508,7 +42510,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "lite",
         "x-credits": 2,
         "x-license": "display",
@@ -42539,7 +42540,7 @@
         "tags": [
           "Alerts"
         ],
-        "description": "The account's alerts, oldest first. Answers 503 `unavailable` while the alerts platform is switched off.",
+        "description": "List your account’s alert rules, oldest first.\n\nUse `symbol` to find rules for an instrument or `destination_id` to find rules that send to a particular webhook. Each page includes the account’s alert quota usage in `meta.quota`. Returns `503` when the alerts platform is switched off.",
         "parameters": [
           {
             "schema": {
@@ -42806,7 +42807,7 @@
         "tags": [
           "Alerts"
         ],
-        "description": "Creates an alert rule (201). With a `client_reference_id` the create is idempotent: a live alert with the same id is returned as it is (200). Counts against the plan's active-alert quota (403 `plan_required` when full). With `validate_only=true` nothing is written and a valid alert answers 204. Answers 503 `unavailable` while the alerts platform is switched off.",
+        "description": "Create an alert that fires when its condition is met.\n\nRetry the same request with the same `Idempotency-Key` to replay its response. A live alert with the same `client_reference_id` returns unchanged with `200`. Set `validate_only=true` to check the rule and receive `204` without saving it. Returns `503` when the alerts platform is switched off.",
         "requestBody": {
           "content": {
             "application/json": {
@@ -43112,6 +43113,7 @@
         "tags": [
           "Alerts"
         ],
+        "description": "Get the current rule and state of one alert.\n\nRead the alert’s `version` before editing it. The fire count and most recent fire time show whether the rule has fired. Returns `503` when the alerts platform is switched off.",
         "parameters": [
           {
             "schema": {
@@ -43207,7 +43209,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
@@ -43233,7 +43234,7 @@
         "tags": [
           "Alerts"
         ],
-        "description": "Changes the condition, trigger, destinations or references. With `version` the update applies only to that version (409 `conflict` otherwise). The type never changes.",
+        "description": "Update the rule or delivery settings of one alert.\n\nA supplied `condition`, `trigger` or `destination_ids` replaces that part of the rule. The alert keeps its type. Send the `version` from your last read to reject a concurrent edit with `409`. Returns `503` when the alerts platform is switched off.",
         "requestBody": {
           "content": {
             "application/json": {
@@ -43413,7 +43414,7 @@
         "tags": [
           "Alerts"
         ],
-        "description": "Deletes the alert (204); its events stay readable.",
+        "description": "Delete an alert and stop future evaluations.\n\nIts recorded events remain available through `GET /v1/alerts/{id}/events` after deletion. Returns `503` when the alerts platform is switched off.",
         "parameters": [
           {
             "schema": {
@@ -43520,7 +43521,7 @@
         "tags": [
           "Alerts"
         ],
-        "description": "An active or scheduled alert stops firing until it is resumed; a paused one is unchanged.",
+        "description": "Pause an active or scheduled alert in your account.\n\nPausing stops new fires and leaves queued deliveries in place. A manual pause can end at the trigger’s `pause_until` time. Returns `503` when the alerts platform is switched off.",
         "parameters": [
           {
             "schema": {
@@ -43634,7 +43635,7 @@
         "tags": [
           "Alerts"
         ],
-        "description": "A paused or triggered alert is armed again (scheduled while `trigger.activate_at` lies ahead); an active one is unchanged.",
+        "description": "Resume evaluation of a paused or triggered alert.\n\nThe alert becomes active, or scheduled if `activate_at` is in the future. Resuming leaves queued deliveries in place. An alert that is already active or scheduled keeps its state. Returns `503` when the alerts platform is switched off.",
         "parameters": [
           {
             "schema": {
@@ -43748,7 +43749,7 @@
         "tags": [
           "Alerts"
         ],
-        "description": "Up to 500 items, each `create`, `upsert` (by `client_reference_id`), `delete`, `pause` or `resume` (by `id` or `client_reference_id`). One result per item, in order; a refused item never undoes another.",
+        "description": "Change multiple alerts in a single request.\n\nSubmit up to 500 items. Use `upsert` with `client_reference_id` to create or update a rule. Results follow input order, and each successful change survives a failure in another item. Returns `503` when the alerts platform is switched off.",
         "requestBody": {
           "content": {
             "application/json": {
@@ -43889,7 +43890,7 @@
         "tags": [
           "Alert events"
         ],
-        "description": "The account's event log, oldest first: the cursor pull feed of every alert. `after` continues after an event id you already processed.",
+        "description": "List events from your account’s alert feed.\n\nEvents arrive oldest first in commit order. To resume after an event you processed, pass its ID in `after`. Narrow the feed to a specific alert or end user when needed. Returns `503` when the alerts platform is switched off.",
         "parameters": [
           {
             "schema": {
@@ -44112,6 +44113,7 @@
         "tags": [
           "Alert events"
         ],
+        "description": "Get the recorded payload of one alert event.\n\nUse the event ID from the account feed. An event outside your account or an unknown ID returns `404`. Returns `503` when the alerts platform is switched off.",
         "parameters": [
           {
             "schema": {
@@ -44207,7 +44209,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
@@ -44234,7 +44235,7 @@
         "tags": [
           "Alert events"
         ],
-        "description": "The alert's events, oldest first (the pull feed of one alert).",
+        "description": "List the recorded events for one alert rule.\n\nEvents appear oldest first and remain readable after the alert is deleted. Use `after` to continue from an event you already processed. Returns `503` when the alerts platform is switched off.",
         "parameters": [
           {
             "schema": {
@@ -44439,7 +44440,7 @@
         "tags": [
           "Alert events"
         ],
-        "description": "Queues one test `alert.fired` event to the alert's destinations (202).",
+        "description": "Send a test event through an alert’s destinations.\n\nThe test appears in the feed as `alert.fired` with `data.test` set to `true`. It queues delivery to active destinations and leaves the alert’s fire count unchanged. The `202` response identifies the event. Returns `503` when the alerts platform is switched off.",
         "parameters": [
           {
             "schema": {
@@ -44552,7 +44553,7 @@
         "tags": [
           "Destinations"
         ],
-        "description": "The account's webhook destinations, oldest first (secrets are never returned). Answers 503 `unavailable` while the alerts platform is switched off.",
+        "description": "List your account’s webhook endpoints, oldest first.\n\nUse the destination IDs to filter alerts by `destination_id`. The list includes each endpoint’s status and a hint for its signing secret. Returns `503` when the alerts platform is switched off.",
         "parameters": [
           {
             "schema": {
@@ -44722,7 +44723,7 @@
         "tags": [
           "Destinations"
         ],
-        "description": "A webhook endpoint (https, port 443, public addresses only). The signing secret (`whsec_…`, Standard Webhooks) is in this answer only. Answers 503 `unavailable` while the alerts platform is switched off.",
+        "description": "Create a webhook endpoint for alert deliveries.\n\nSupply a public HTTPS endpoint on port 443. Save the Standard Webhooks signing secret from the creation response. A later read returns only its hint. Use `Idempotency-Key` when retrying the same request. Returns `503` when the alerts platform is switched off.",
         "requestBody": {
           "content": {
             "application/json": {
@@ -44908,6 +44909,7 @@
         "tags": [
           "Destinations"
         ],
+        "description": "Get the delivery settings for one webhook endpoint.\n\nUse the destination ID to check its status and consecutive failures. Custom headers appear by name, and the signing secret is represented by a hint. Returns `503` when the alerts platform is switched off.",
         "parameters": [
           {
             "schema": {
@@ -45003,7 +45005,6 @@
             "$ref": "#/components/responses/ServiceUnavailable"
           }
         },
-        "description": "",
         "x-tier": "lite",
         "x-credits": 1,
         "x-license": "display",
@@ -45028,7 +45029,7 @@
         "tags": [
           "Destinations"
         ],
-        "description": "`status: active` re-enables a disabled destination (its failure counter resets).",
+        "description": "Update how a webhook endpoint receives alerts.\n\nSet `status` to `active` to re-enable a disabled destination and reset its consecutive failure count. Returns `503` when the alerts platform is switched off.",
         "requestBody": {
           "content": {
             "application/json": {
@@ -45219,7 +45220,7 @@
         "tags": [
           "Destinations"
         ],
-        "description": "Deletes the destination (204); alerts that named it stop sending to it.",
+        "description": "Delete a webhook endpoint from your account.\n\nThe destination is removed from each alert that used it. Those alerts keep their other destinations. Returns `503` when the alerts platform is switched off.",
         "parameters": [
           {
             "schema": {
@@ -45326,7 +45327,7 @@
         "tags": [
           "Destinations"
         ],
-        "description": "A new signing secret, in this answer only; deliveries carry a signature with each secret for 24 h.",
+        "description": "Rotate the signing secret for a webhook endpoint.\n\nSave the new secret from this response. Deliveries carry signatures from both secrets for 24 hours. Use `previous_secret_expires_at` to see when the overlap ends. Returns `503` when the alerts platform is switched off.",
         "parameters": [
           {
             "schema": {
@@ -45437,7 +45438,7 @@
         "tags": [
           "Destinations"
         ],
-        "description": "Queues one signed `destination.test` event to the destination (202).",
+        "description": "Send a signed test event to one webhook endpoint.\n\nThe `202` response identifies the queued event and delivery. Check the delivery log for its outcome. A disabled destination returns `409`. If a test is rate limited, follow `Retry-After`. Returns `503` when the alerts platform is switched off.",
         "parameters": [
           {
             "schema": {
@@ -45551,7 +45552,7 @@
         "tags": [
           "Destinations"
         ],
-        "description": "The delivery log, newest first.",
+        "description": "List webhook deliveries for one destination, newest first.\n\nUse the event ID to find the related payload. Failed attempts include their outcome and a next attempt time when a retry is scheduled. Returns `503` when the alerts platform is switched off.",
         "parameters": [
           {
             "schema": {
@@ -45738,7 +45739,7 @@
         "tags": [
           "Alert users"
         ],
-        "description": "The account's end users, ordered by `external_user_id`, each with its limits, effective limits (after the account defaults) and usage. Answers 503 `unavailable` while the alerts platform is switched off.",
+        "description": "List the end users associated with your alerts.\n\nUsers appear in order by `external_user_id`, the ID from your own system. Use `q` to match an ID prefix or `status` to find users in the same state. Returns `503` when the alerts platform is switched off.",
         "parameters": [
           {
             "schema": {
@@ -45980,7 +45981,7 @@
         "tags": [
           "Alert users"
         ],
-        "description": "One end user with its limits and usage; 404 when the account has no end user of this id. Answers 503 `unavailable` while the alerts platform is switched off.",
+        "description": "Get one end user’s alert usage and effective limits.\n\nAddress the user by your `external_user_id`. Each effective limit uses the user’s override, then the account default. An unknown ID returns `404`. Returns `503` when the alerts platform is switched off.",
         "parameters": [
           {
             "schema": {
@@ -46124,7 +46125,7 @@
         "tags": [
           "Alert users"
         ],
-        "description": "Sets the display name, metadata or limits of an end user, and creates it when absent (an upsert). A limit lowered below the current count keeps the existing alerts and refuses new ones (403 `alert_user_limit_reached`). Answers 503 `unavailable` while the alerts platform is switched off.",
+        "description": "Update an end user’s alert settings or create the user.\n\nSupply your `external_user_id` in the path. A `null` limit clears the user’s override. Lowering a limit preserves existing alerts and restricts new ones. Returns `503` when the alerts platform is switched off.",
         "requestBody": {
           "content": {
             "application/json": {
@@ -46288,7 +46289,7 @@
         "tags": [
           "Alert users"
         ],
-        "description": "Erases an end user: its live alerts are deleted (without its id, client_reference_id and metadata), its open deliveries are cancelled, and its events, deliveries, fire counters and the end user itself are permanently removed. Answers 200 with `status: deleted`, or `deleting` when the rest is finished in the background (creates for the id answer 409 until then). A pull-feed or WebSocket cursor on a removed event answers like any unknown `after`. 404 when the account knows nothing of the id. Answers 503 `unavailable` while the alerts platform is switched off.",
+        "description": "Delete an end user and erase their alert history.\n\nErasure removes the user’s live alerts from service, clears their identifying references and metadata, and cancels open deliveries. It also removes the user’s events, delivery history and fire counters.\n\nThe response reports what this call removed. If it returns `deleting`, cleanup continues in the background and new alerts for this ID receive `409` until it finishes. Returns `503` when the alerts platform is switched off.",
         "parameters": [
           {
             "schema": {
@@ -46401,7 +46402,7 @@
         "tags": [
           "Alert users"
         ],
-        "description": "Up to 500 upserts, each an `external_user_id` with the fields of `updateAlertUser`. One result per item, in order; a refused item never undoes another. Answers 503 `unavailable` while the alerts platform is switched off.",
+        "description": "Update or create several alert users in one request.\n\nSupply your `external_user_id` for each of up to 500 users. Each result identifies its input item and reports its own outcome. Successful updates survive another item’s failure. Returns `503` when the alerts platform is switched off.",
         "requestBody": {
           "content": {
             "application/json": {
@@ -46533,7 +46534,7 @@
         "tags": [
           "Alert users"
         ],
-        "description": "Pauses every active or scheduled alert of the end user (and a paused one whose `pause_until` would end its pause) and refuses new alerts and per-alert resumes (403 `alert_user_paused`) until the end user is resumed; the pause never ends by itself. Creates the end user paused when absent. A paused end user answers unchanged; 409 `conflict` while it is being deleted. Answers 503 `unavailable` while the alerts platform is switched off.",
+        "description": "Pause an end user and suspend their alert rules.\n\nThe pause covers active and scheduled alerts and holds alerts whose `pause_until` would otherwise rearm them. Creating or resuming an alert for this user returns `403` while the user is paused. An unknown ID creates a paused user. Returns `503` when the alerts platform is switched off.",
         "parameters": [
           {
             "schema": {
@@ -46649,7 +46650,7 @@
         "tags": [
           "Alert users"
         ],
-        "description": "The end user is active again and exactly the alerts its pause paused are armed again (scheduled while `trigger.activate_at` lies ahead; a `pause_until` still ahead keeps them quiet until then); an alert paused on its own stays paused. An active end user answers unchanged; 404 for an unknown id, 409 `conflict` while it is being deleted. Answers 503 `unavailable` while the alerts platform is switched off.",
+        "description": "Resume an end user and the alerts their pause suspended.\n\nAlerts that the user’s pause suspended resume according to their schedules. A separate manual pause stays in effect. Resuming an unknown ID returns `404`. Returns `503` when the alerts platform is switched off.",
         "parameters": [
           {
             "schema": {
@@ -46765,7 +46766,7 @@
         "tags": [
           "Scripts"
         ],
-        "description": "The account's scripts, oldest first, each with its latest version. Answers 503 `unavailable` while hosted scripts are switched off.",
+        "description": "List the hosted chartlang scripts in your account.\n\nScripts appear oldest first. Each entry includes its latest version so you can inspect the most recent compile result. Returns `503` when the alerts platform is switched off. Returns `503` when hosted scripts are switched off.",
         "parameters": [
           {
             "schema": {
@@ -46934,7 +46935,7 @@
         "tags": [
           "Scripts"
         ],
-        "description": "Creates the script and its version 1, compiled server-side (≤ 10 s, one compile per account at a time — a second concurrent upload answers 429 with Retry-After; a busy compiler 503 with Retry-After). A compile error is still a 201: the version has `status: error` and `diagnostics` (line, column, message). Answers 503 `unavailable` while hosted scripts are switched off.",
+        "description": "Upload a hosted chartlang script and compile its first version.\n\nCompilation errors still create version 1. Check `latest_version.status` and its diagnostics before using the version in a script alert. A busy compiler can return `429` or `503` with `Retry-After`. Returns `503` when the alerts platform is switched off. Returns `503` when hosted scripts are switched off.",
         "requestBody": {
           "content": {
             "application/json": {
@@ -47072,7 +47073,7 @@
         "tags": [
           "Scripts"
         ],
-        "description": "One script with its latest version. Answers 503 `unavailable` while hosted scripts are switched off.",
+        "description": "Get a hosted script and its latest version.\n\nUse the latest version to inspect its source and compilation diagnostics. An alert binds to a specific `script_version_id`. Returns `503` when the alerts platform is switched off. Returns `503` when hosted scripts are switched off.",
         "parameters": [
           {
             "schema": {
@@ -47191,7 +47192,7 @@
         "tags": [
           "Scripts"
         ],
-        "description": "Deletes the script and its versions (204). 409 `conflict` while an alert uses one of its versions (delete those alerts first). Answers 503 `unavailable` while hosted scripts are switched off.",
+        "description": "Delete a hosted script that alerts no longer use.\n\nDeletion returns `409` if a live alert uses any version directly or as an input to another script. Remove those references before deleting the script. Returns `503` when the alerts platform is switched off. Returns `503` when hosted scripts are switched off.",
         "parameters": [
           {
             "schema": {
@@ -47301,7 +47302,7 @@
         "tags": [
           "Scripts"
         ],
-        "description": "Adds the next version of the script (at most 20 per script), compiled like the first. Existing alerts keep their version. Answers 503 `unavailable` while hosted scripts are switched off.",
+        "description": "Upload and compile a new version of a hosted script.\n\nExisting alerts keep their selected versions. Inspect `status` and the diagnostics on the new version before pointing an alert to it. Returns `503` when the alerts platform is switched off. Returns `503` when hosted scripts are switched off.",
         "requestBody": {
           "content": {
             "application/json": {
@@ -47438,7 +47439,7 @@
         "tags": [
           "Scripts"
         ],
-        "description": "The script's versions, oldest first. Answers 503 `unavailable` while hosted scripts are switched off.",
+        "description": "List the versions of a hosted script in upload order.\n\nCompare the source and compile results across versions. Use the ID of a successfully compiled version when configuring a script alert. Returns `503` when the alerts platform is switched off. Returns `503` when hosted scripts are switched off.",
         "parameters": [
           {
             "schema": {
@@ -47624,7 +47625,7 @@
         "tags": [
           "Scripts"
         ],
-        "description": "The built-in templates of the `indicator` alert type: key, version, inputs with their defaults, snapshot fidelity and chartlang source. Answers 503 `unavailable` while hosted scripts are switched off.",
+        "description": "List built-in templates for indicator alerts.\n\nUse the template key and its input defaults to configure an `indicator` condition. The template also includes its chartlang source. Returns `503` when the alerts platform is switched off. Returns `503` when hosted scripts are switched off.",
         "parameters": [
           {
             "schema": {
@@ -47990,7 +47991,7 @@
         ],
         "operationId": "streamEvents",
         "summary": "Stream filings, news and live events",
-        "description": "One WebSocket connection; channels `filings` (PRO), `news` (PRO), `events.live` (PRO) and `alerts` (your alert events, on any plan that opens the stream). Frames are documented per message type. WebSocket sessions cost no credits.",
+        "description": "Stream new filings, news, live calls and alert events.\n\nConnect to the WebSocket with the `api_key` query parameter in a browser. New filing notices arrive automatically. Subscribe to `news`, `events.live` or `alerts` for news updates, live call updates or your account's alert events.\n\nUse the frame reference on this page for the subscription messages and the replies each channel sends.",
         "tags": [
           "Realtime"
         ],
@@ -48048,116 +48049,6 @@
     {
       "url": "https://api.data.invinite.com",
       "description": "Production"
-    }
-  ],
-  "tags": [
-    {
-      "name": "Health",
-      "description": "Liveness of the API (no API key)"
-    },
-    {
-      "name": "Status",
-      "description": "Public status and licensing (no API key)"
-    },
-    {
-      "name": "Instruments",
-      "description": "Everything exchange-traded: stocks, funds and ETNs, one type each"
-    },
-    {
-      "name": "Companies",
-      "description": "Operating companies, SEC filers, people and their participations"
-    },
-    {
-      "name": "Funds",
-      "description": "ETFs and closed-end funds: profiles, holdings and weights"
-    },
-    {
-      "name": "Reference",
-      "description": "Fiscal periods, dividends, splits and market holidays"
-    },
-    {
-      "name": "Catalog",
-      "description": "Static catalogs: metrics, sections, forms, event types, document kinds, mapping rules"
-    },
-    {
-      "name": "Financials",
-      "description": "Statements: standardized and as-reported, plain, detailed and presentation, point in time"
-    },
-    {
-      "name": "Metrics",
-      "description": "Ratios, growth, CAGR, segments and the explanation of one fact"
-    },
-    {
-      "name": "Filings",
-      "description": "SEC filings, their facts, notes, review chains, full-text search and datasets"
-    },
-    {
-      "name": "Documents",
-      "description": "Immutable document versions, sections, figures and fact places"
-    },
-    {
-      "name": "Holders",
-      "description": "Who holds a stock or a fund (13F managers, N-PORT funds, ETF issuer files), 13F managers' portfolios and position changes"
-    },
-    {
-      "name": "Insider trades",
-      "description": "Form 4 transactions"
-    },
-    {
-      "name": "IPOs",
-      "description": "Offerings from registration to listing, and Form D private offerings"
-    },
-    {
-      "name": "Events",
-      "description": "Earnings calls and other corporate events with their media"
-    },
-    {
-      "name": "Call analytics",
-      "description": "Derived analytics of one event"
-    },
-    {
-      "name": "Transcripts",
-      "description": "Transcripts, versions, diffs and transcript search"
-    },
-    {
-      "name": "Guidance",
-      "description": "Guidance items and KPI mentions"
-    },
-    {
-      "name": "Investor documents",
-      "description": "Company-published documents and their search"
-    },
-    {
-      "name": "News",
-      "description": "News items, full text, search and announcements"
-    },
-    {
-      "name": "Realtime",
-      "description": "The WebSocket stream"
-    },
-    {
-      "name": "Alerts",
-      "description": "Alert rules: create, change, pause and batch them"
-    },
-    {
-      "name": "Alert users",
-      "description": "Your own end users on the alerts platform (B2B2C): per-user limits, usage and the account defaults"
-    },
-    {
-      "name": "Alert events",
-      "description": "The fire log of your alerts: the pull feed and test events"
-    },
-    {
-      "name": "Destinations",
-      "description": "Webhook endpoints alert events are delivered to"
-    },
-    {
-      "name": "Scripts",
-      "description": "Hosted chartlang: upload scripts (compiled server-side, versioned) and use a version in `script` alerts; the built-in templates of `indicator` alerts"
-    },
-    {
-      "name": "Account",
-      "description": "The caller's account and usage (0 credits)"
     }
   ],
   "x-webhooks": {
@@ -49108,5 +48999,111 @@
         }
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "Corporate actions",
+      "description": "Look up cash dividends and stock splits."
+    },
+    {
+      "name": "Calendar",
+      "description": "Look up company fiscal periods and US market holidays."
+    },
+    {
+      "name": "Instruments",
+      "description": "Everything exchange-traded: stocks, funds and ETNs, one type each"
+    },
+    {
+      "name": "Companies",
+      "description": "Browse operating companies, SEC filers and people."
+    },
+    {
+      "name": "Funds",
+      "description": "ETFs and closed-end funds: profiles, holdings and weights"
+    },
+    {
+      "name": "Catalog",
+      "description": "Static catalogs: metrics, sections, forms, event types, document kinds, mapping rules"
+    },
+    {
+      "name": "News",
+      "description": "News items, full text, search and announcements"
+    },
+    {
+      "name": "Realtime",
+      "description": "The WebSocket stream"
+    },
+    {
+      "name": "Financials",
+      "description": "Read standardized and as-reported statements in plain, detailed or presentation form, explore segments and trace individual standardized facts."
+    },
+    {
+      "name": "Metrics",
+      "description": "Compare financial ratios, growth rates and compound annual growth rates."
+    },
+    {
+      "name": "Offerings",
+      "description": "Track IPOs from registration to listing and browse Form D private offerings."
+    },
+    {
+      "name": "Holders",
+      "description": "Who holds a stock or a fund (13F managers, N-PORT funds, ETF issuer files), 13F managers' portfolios and position changes"
+    },
+    {
+      "name": "Insider trades",
+      "description": "Form 4 transactions"
+    },
+    {
+      "name": "Filings",
+      "description": "Search SEC filings and read their facts, notes, holdings, review chains, document versions, sections, figures, fact locations and dataset releases."
+    },
+    {
+      "name": "Events",
+      "description": "Explore earnings calls and other corporate events, their media and their participants."
+    },
+    {
+      "name": "Call analytics",
+      "description": "Derived analytics of one event"
+    },
+    {
+      "name": "Transcripts",
+      "description": "Transcripts, versions, diffs and transcript search"
+    },
+    {
+      "name": "Guidance",
+      "description": "Guidance items and KPI mentions"
+    },
+    {
+      "name": "Investor documents",
+      "description": "Company-published documents and their search"
+    },
+    {
+      "name": "Alerts",
+      "description": "Alert rules: create, change, pause and batch them"
+    },
+    {
+      "name": "Alert users",
+      "description": "Manage end users on your alerts account, their usage and limits, and the account-wide defaults."
+    },
+    {
+      "name": "Alert events",
+      "description": "The fire log of your alerts: the pull feed and test events"
+    },
+    {
+      "name": "Destinations",
+      "description": "Webhook endpoints alert events are delivered to"
+    },
+    {
+      "name": "Scripts",
+      "description": "Hosted chartlang: upload scripts (compiled server-side, versioned) and use a version in `script` alerts; the built-in templates of `indicator` alerts"
+    },
+    {
+      "name": "Account",
+      "description": "Check your account and its usage."
+    },
+    {
+      "name": "Status",
+      "description": "Check API liveness, service and documentation group status, and licensing policy."
+    }
+  ]
 }

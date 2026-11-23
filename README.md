@@ -85,7 +85,7 @@ Commands are noun-verb over the API's groups:
 | `metrics` | ratios, growth, CAGR, and the explanation of one standardized fact |
 | `segments` | segment values (revenue by product, geography …) |
 | `filings` | SEC filings, their numeric and text facts, review chains, dataset releases |
-| `documents` | immutable document versions: blocks, pages, sections, figures, fact places |
+| `documents` | immutable SEC filing document versions: blocks, pages, sections, figures, fact places |
 | `events` | earnings calls and other corporate events: transcripts, Q&A, slides, audio, call analytics |
 | `guidance` | guidance items and KPI mentions |
 | `people` | executives and analysts, and who took part in which event |

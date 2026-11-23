@@ -254,6 +254,24 @@ describe('runBuildCliManifest', () => {
     expect(runBuildCliManifest({ specPath, manifestPath, check: true })).toBe(1);
   });
 
+  it('keeps filing documents and account alert defaults in their own CLI command groups', () => {
+    const text = readFileSync(DEFAULT_SPEC_PATH, 'utf8');
+    const manifest = buildManifest(JSON.parse(text), text);
+    const cases = [
+      { name: 'documents', actions: ['fact-places', 'figure', 'get', 'sections'], help: 'immutable SEC filing document' },
+      { name: 'filings', actions: ['datasets', 'facts', 'get', 'holdings', 'list', 'notes', 'review-chain'], help: 'SEC filings' },
+      { name: 'me', actions: ['alert-user-defaults-get', 'alert-user-defaults-update', 'show', 'usage'], help: 'defaults for your alert end users' },
+      { name: 'alert-users', actions: ['batch', 'delete', 'get', 'list', 'pause', 'resume', 'update'], help: 'limits and usage' },
+    ];
+    expect(manifest.groups.find(group => group.name === 'financials')?.description).toBe(
+      'Read standardized and as-reported financial statements in plain, detailed or presentation form',
+    );
+    for (const { name, actions, help } of cases) {
+      expect(manifest.operations.filter(operation => operation.group === name).map(operation => operation.action).sort()).toEqual(actions);
+      expect(manifest.groups.find(group => group.name === name)?.description).toContain(help);
+    }
+  });
+
   it('the committed manifest is what the bundled openapi.json produces', () => {
     const text = readFileSync(DEFAULT_SPEC_PATH, 'utf8');
     expect(readFileSync(DEFAULT_MANIFEST_PATH, 'utf8')).toBe(serializeManifest(buildManifest(JSON.parse(text), text)));

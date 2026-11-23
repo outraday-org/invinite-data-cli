@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "11.1.0",
+    "version": "11.2.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -11,9 +11,9 @@
     },
     "verifiedOn": "2026-11-23",
     "sourceHashes": {
-      "api-contract.json": "327bca1818dae483beece7e6ba9aee56e2a9191587a18f1c0cd2302cac492ed1",
-      "openapi.json": "84a15416db3e3deb69da09dd2f2951dadc8c8b96f4c91093e3be36a08b59d1cf",
-      "package.json": "801dcf5ed8ded3069fdb25488b0edf6489d17609f1224f57389842bd57130356",
+      "api-contract.json": "d72d444b635e02958a8032bdc468c7ab4a9e712d22af2292e3674eeb3e717122",
+      "openapi.json": "391419d7fb6f7b10cd033a9a555e0100867d92070fd9f625f1ba1fd11da423f6",
+      "package.json": "bd389502eb98d5f4b9e2f0a1a4555e60355c12faaffd6101a18c6b1ef442df21",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "ed216f689f39e3dbf72c7d6a1c74ee6cb9c22fbaf9982a9b4ddee2873f2d5536",
@@ -34,7 +34,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "e250c92efb9124127ec3a73f04c2439f1b0b3a5cd54cd941b7930f66aee2522a",
+      "src/generated/cli-manifest.json": "faf81430d50c453d4bc000e244cd51fbb1eed28c1af28fe7a77d478ba0b60f9c",
       "src/hand-written-commands.ts": "ab53fea9a1523f8db77663fb3d241be73403213b67f20d9898596e87eddd7bd0",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
@@ -50,9 +50,9 @@
       "src/spec-manifest.ts": "e638fd01260664e2c95e05e18e6087e6fd04694f694ec6db8921224217e580b8",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "84a15416db3e3deb69da09dd2f2951dadc8c8b96f4c91093e3be36a08b59d1cf",
-    "revision": "249b1046f67783b87c466b878665d8789a089676",
-    "fingerprint": "3fb91621669c3f886a0bed6e31a7c2e10d12cb19f7cec6102772cd5c27924d49"
+    "specSha256": "391419d7fb6f7b10cd033a9a555e0100867d92070fd9f625f1ba1fd11da423f6",
+    "revision": "5e15554b0cd382bc22282af76e9ce0feb334fd82",
+    "fingerprint": "145473ccc4ce5b2242117062c49cb5a6fed870ea8f7253dbb500609695dfe51b"
   },
   "globalOptions": [
     {
@@ -76,7 +76,7 @@
     },
     {
       "id": "alert-users",
-      "description": "Your own end users on the alerts platform (B2B2C): per-user limits, usage and the account defaults"
+      "description": "Create and update your alert end users, inspect their limits and usage, or pause and resume their alerts"
     },
     {
       "id": "alerts",
@@ -116,7 +116,7 @@
     },
     {
       "id": "documents",
-      "description": "Immutable document versions, sections, figures and fact places"
+      "description": "Read an immutable SEC filing document, its sections and figures, or locate facts in the document"
     },
     {
       "id": "events",
@@ -128,11 +128,11 @@
     },
     {
       "id": "filings",
-      "description": "SEC filings, their facts, notes, review chains, full-text search and datasets"
+      "description": "List and inspect SEC filings, read their facts, notes and holdings, follow review chains and browse dataset releases"
     },
     {
       "id": "financials",
-      "description": "Statements: standardized and as-reported, plain, detailed and presentation, point in time"
+      "description": "Read standardized and as-reported financial statements in plain, detailed or presentation form"
     },
     {
       "id": "funds",
@@ -168,7 +168,7 @@
     },
     {
       "id": "me",
-      "description": "The caller's account and usage (0 credits)"
+      "description": "Inspect your account and usage, or read and update the defaults for your alert end users"
     },
     {
       "id": "metrics",
@@ -7415,7 +7415,7 @@
       "command": "financials",
       "group": "financials",
       "origin": "spec",
-      "description": "Statements: standardized and as-reported, plain, detailed and presentation, point in time",
+      "description": "Read standardized and as-reported financial statements in plain, detailed or presentation form",
       "source": "src/generated/cli-manifest.json",
       "operations": [
         {
@@ -8795,7 +8795,7 @@
         },
         {
           "flags": "--is-active",
-          "description": "true = listed today, false = delisted; both when absent. Until delisted stocks are kept, `false` lists delisted funds only (ETFs whose listing retired); delisted stocks follow (e.g. true) (sends true)",
+          "description": "true = listed today, false = delisted; both when absent (e.g. true) (sends true)",
           "required": false
         },
         {
