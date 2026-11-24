@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "11.2.0",
+    "version": "11.3.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -9,11 +9,11 @@
     "engines": {
       "node": ">=20"
     },
-    "verifiedOn": "2026-11-23",
+    "verifiedOn": "2026-11-24",
     "sourceHashes": {
-      "api-contract.json": "d72d444b635e02958a8032bdc468c7ab4a9e712d22af2292e3674eeb3e717122",
-      "openapi.json": "391419d7fb6f7b10cd033a9a555e0100867d92070fd9f625f1ba1fd11da423f6",
-      "package.json": "bd389502eb98d5f4b9e2f0a1a4555e60355c12faaffd6101a18c6b1ef442df21",
+      "api-contract.json": "c90b92e94c23baf4581079409f07f253161e07bb1242e373f392be18c1bb5e5d",
+      "openapi.json": "03945a9e4a5f8ce2d79c334a476fff35754d2a587a02b7a85cd15d9c8659c35b",
+      "package.json": "ba8862ac57eacb6068b96d36a0806f6b08daa381af29280dfbf2f4281661ecba",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "ed216f689f39e3dbf72c7d6a1c74ee6cb9c22fbaf9982a9b4ddee2873f2d5536",
@@ -34,7 +34,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "faf81430d50c453d4bc000e244cd51fbb1eed28c1af28fe7a77d478ba0b60f9c",
+      "src/generated/cli-manifest.json": "3aca5715f204c2ec022b527e591348b82400f93207acd7330857b0580a4a25e8",
       "src/hand-written-commands.ts": "ab53fea9a1523f8db77663fb3d241be73403213b67f20d9898596e87eddd7bd0",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
@@ -45,14 +45,14 @@
       "src/shared/prompt.ts": "7736cb146f84382ff17badbabcdf69add6673c4a3695c38759486601f3c87d99",
       "src/shared/signals.ts": "5c5122b38e35700a9304bf77f06b900a80e3bc42da6241f93313181117b2fa6b",
       "src/shared/spinner.ts": "62e25b34f62faaaa298fbe4664cb0b1eb52fd62b4c82f498718bd14e608d0d87",
-      "src/spec-commands.ts": "0a88823b74ae136404858164ac1b7db5a78aa0ee79abe589c90a06018085c452",
+      "src/spec-commands.ts": "2e04f9e99b8448d6496048a967829a9eb68b9012c5fe288c1ccceb494a6aa084",
       "src/spec-flags.ts": "2a19ffd30dbbcd8e85164c7ddde6d7e63650eed5c77dc369161876f42729bfbb",
       "src/spec-manifest.ts": "e638fd01260664e2c95e05e18e6087e6fd04694f694ec6db8921224217e580b8",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "391419d7fb6f7b10cd033a9a555e0100867d92070fd9f625f1ba1fd11da423f6",
-    "revision": "5e15554b0cd382bc22282af76e9ce0feb334fd82",
-    "fingerprint": "145473ccc4ce5b2242117062c49cb5a6fed870ea8f7253dbb500609695dfe51b"
+    "specSha256": "03945a9e4a5f8ce2d79c334a476fff35754d2a587a02b7a85cd15d9c8659c35b",
+    "revision": "653f4330b01948f20572567cae6c081db01f94b9",
+    "fingerprint": "307275bb78faf3b7ef431b0e6dc6b2dbe0f9ee923c319a3bcfda2c7f86795fe0"
   },
   "globalOptions": [
     {
@@ -161,6 +161,10 @@
     {
       "id": "ipos",
       "description": "Offerings from registration to listing"
+    },
+    {
+      "id": "macro",
+      "description": "US inflation, output, income, labor and Treasury yields from official economic releases."
     },
     {
       "id": "market",
@@ -1516,6 +1520,21 @@
           "required": false
         },
         {
+          "flags": "--macro-events <list>",
+          "description": "Required release kinds for a macro alert (body condition.macro_events)",
+          "required": false
+        },
+        {
+          "flags": "--macro-families <list>",
+          "description": "Optional economic dataset families (body condition.macro_families)",
+          "required": false
+        },
+        {
+          "flags": "--macro-series-ids <list>",
+          "description": "Optional public macro series identifiers (body condition.macro_series_ids)",
+          "required": false
+        },
+        {
           "flags": "--trigger-mode <value>",
           "description": "`once` = the alert becomes `triggered` after its first fire (default every_time) (body trigger.mode)",
           "required": false
@@ -1957,7 +1976,8 @@
             "volume_spike",
             "price_reminder",
             "indicator",
-            "script"
+            "script",
+            "macro"
           ]
         },
         {
@@ -2539,6 +2559,21 @@
         {
           "flags": "--alert-ids <list>",
           "description": "Only these of the script's alerts (its version's `alert_ids`); empty = all. script (body condition.alert_ids)",
+          "required": false
+        },
+        {
+          "flags": "--macro-events <list>",
+          "description": "Required release kinds for a macro alert (body condition.macro_events)",
+          "required": false
+        },
+        {
+          "flags": "--macro-families <list>",
+          "description": "Optional economic dataset families (body condition.macro_families)",
+          "required": false
+        },
+        {
+          "flags": "--macro-series-ids <list>",
+          "description": "Optional public macro series identifiers (body condition.macro_series_ids)",
           "required": false
         },
         {
@@ -9276,6 +9311,934 @@
         {
           "flags": "--all",
           "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "macro gdp",
+      "group": "macro",
+      "origin": "spec",
+      "description": "List US GDP and income readings",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/macro/gdp"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "series",
+          "description": "Select a public series from this family",
+          "required": false
+        }
+      ],
+      "options": [
+        {
+          "flags": "--series <id>",
+          "description": "Select a public series from this family",
+          "required": false
+        },
+        {
+          "flags": "--reference-date-gte <value>",
+          "description": "`reference_date` on or after this value (e.g. 2026-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--reference-date-gt <value>",
+          "description": "`reference_date` after this value (e.g. 2026-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--reference-date-lte <value>",
+          "description": "`reference_date` on or before this value (e.g. 2026-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--reference-date-lt <value>",
+          "description": "`reference_date` before this value (e.g. 2026-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--sort <value>",
+          "description": "Sort by reference_date; prefix with a minus sign for descending order. (default: \"-reference_date\"; e.g. -reference_date)",
+          "required": false,
+          "choices": [
+            "reference_date",
+            "-reference_date"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, maximum 1000) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "macro gdp-snapshot",
+      "group": "macro",
+      "origin": "spec",
+      "description": "Get the US GDP and income snapshot",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/macro/gdp/snapshot"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--sort <value>",
+          "description": "Sort by series_id; prefix with a minus sign for descending order. (default: \"series_id\"; e.g. series_id)",
+          "required": false,
+          "choices": [
+            "series_id",
+            "-series_id"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, maximum 1000) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "macro inflation",
+      "group": "macro",
+      "origin": "spec",
+      "description": "List US inflation readings",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/macro/inflation"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "series",
+          "description": "Select a public series from this family",
+          "required": false
+        }
+      ],
+      "options": [
+        {
+          "flags": "--series <id>",
+          "description": "Select a public series from this family",
+          "required": false
+        },
+        {
+          "flags": "--reference-date-gte <value>",
+          "description": "`reference_date` on or after this value (e.g. 2026-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--reference-date-gt <value>",
+          "description": "`reference_date` after this value (e.g. 2026-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--reference-date-lte <value>",
+          "description": "`reference_date` on or before this value (e.g. 2026-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--reference-date-lt <value>",
+          "description": "`reference_date` before this value (e.g. 2026-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--sort <value>",
+          "description": "Sort by reference_date; prefix with a minus sign for descending order. (default: \"-reference_date\"; e.g. -reference_date)",
+          "required": false,
+          "choices": [
+            "reference_date",
+            "-reference_date"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, maximum 1000) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "macro inflation-snapshot",
+      "group": "macro",
+      "origin": "spec",
+      "description": "Get the US inflation snapshot",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/macro/inflation/snapshot"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--sort <value>",
+          "description": "Sort by series_id; prefix with a minus sign for descending order. (default: \"series_id\"; e.g. series_id)",
+          "required": false,
+          "choices": [
+            "series_id",
+            "-series_id"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, maximum 1000) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "macro labor",
+      "group": "macro",
+      "origin": "spec",
+      "description": "List US labor readings",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/macro/labor"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "series",
+          "description": "Select a public series from this family",
+          "required": false
+        }
+      ],
+      "options": [
+        {
+          "flags": "--series <id>",
+          "description": "Select a public series from this family",
+          "required": false
+        },
+        {
+          "flags": "--reference-date-gte <value>",
+          "description": "`reference_date` on or after this value (e.g. 2026-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--reference-date-gt <value>",
+          "description": "`reference_date` after this value (e.g. 2026-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--reference-date-lte <value>",
+          "description": "`reference_date` on or before this value (e.g. 2026-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--reference-date-lt <value>",
+          "description": "`reference_date` before this value (e.g. 2026-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--sort <value>",
+          "description": "Sort by reference_date; prefix with a minus sign for descending order. (default: \"-reference_date\"; e.g. -reference_date)",
+          "required": false,
+          "choices": [
+            "reference_date",
+            "-reference_date"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, maximum 1000) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "macro labor-snapshot",
+      "group": "macro",
+      "origin": "spec",
+      "description": "Get the US labor market snapshot",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/macro/labor/snapshot"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--sort <value>",
+          "description": "Sort by series_id; prefix with a minus sign for descending order. (default: \"series_id\"; e.g. series_id)",
+          "required": false,
+          "choices": [
+            "series_id",
+            "-series_id"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, maximum 1000) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "macro series",
+      "group": "macro",
+      "origin": "spec",
+      "description": "List US macro series",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/macro/series"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--family <value>",
+          "description": "Filter by macro dataset family (e.g. inflation)",
+          "required": false,
+          "choices": [
+            "inflation",
+            "gdp",
+            "labor",
+            "yield_curve"
+          ]
+        },
+        {
+          "flags": "--sort <value>",
+          "description": "Sort by series_id; prefix with a minus sign for descending order. (default: \"series_id\"; e.g. series_id)",
+          "required": false,
+          "choices": [
+            "series_id",
+            "-series_id"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, maximum 1000) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "macro yield-curve",
+      "group": "macro",
+      "origin": "spec",
+      "description": "List US Treasury yield curves",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/macro/yield-curve"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--date-gte <value>",
+          "description": "`date` on or after this value (e.g. 2026-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--date-gt <value>",
+          "description": "`date` after this value (e.g. 2026-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--date-lte <value>",
+          "description": "`date` on or before this value (e.g. 2026-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--date-lt <value>",
+          "description": "`date` before this value (e.g. 2026-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--sort <value>",
+          "description": "Sort by date; prefix with a minus sign for descending order. (default: \"-date\"; e.g. -date)",
+          "required": false,
+          "choices": [
+            "date",
+            "-date"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, maximum 1000) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "macro yield-curve-snapshot",
+      "group": "macro",
+      "origin": "spec",
+      "description": "Get the latest US Treasury yield curve",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/macro/yield-curve/snapshot"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
           "required": false
         },
         {
