@@ -35,7 +35,8 @@ serves the earlier roster; use whatever tools it lists, or the CLI.
 | Read a filing or document version | `read_filing` | `invd filings get`, `invd documents get\|sections\|figure` |
 | Full-text search of filings (100 credits) | `search_filings` | `invd search filings` |
 | Who holds a stock or a fund (13F, N-PORT, issuer files), 13F changes, a manager's portfolio | `get_holders` | `invd holders list\|changes`, `invd filers holdings\|holding-changes`, `invd filings holdings` |
-| Form 4 insider trades, Form 3/4/5 holdings, one insider across issuers | `get_insider_trades` | `invd insider-trades list\|get\|holdings`, `--owner <cik>` |
+| Form 4 insider trades, one insider across issuers | `get_insider_trades` (`company` or `owner`) | `invd insider-trades list\|get`, `--owner <cik>` |
+| Form 3/4/5 insider holdings (by company or by insider) | `search_endpoints` + `call_api` (`/v1/insider-holdings`) | `invd insider-trades holdings`, `--owner <cik>` |
 | Earnings-call calendar and history | `list_events` | `invd events list` |
 | One event: transcript, Q&A, stats, comparison, press release, slides … | `get_event` | `invd events get\|transcript\|transcript-text\|qa\|stats\|comparison\|press-release\|slides\|price-attribution` |
 | Search transcripts and investor documents | `search_transcripts` | `invd search transcripts`, `invd search investor-documents` |
