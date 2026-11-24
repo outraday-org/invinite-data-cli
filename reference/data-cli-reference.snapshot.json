@@ -11,8 +11,8 @@
     },
     "verifiedOn": "2026-11-24",
     "sourceHashes": {
-      "api-contract.json": "bd844a9173d10e92ac42f36d791c9892bf34de67c3e9b3a3ee552d9d86d68f9e",
-      "openapi.json": "5eb677ab5a54a162f33a8a62dd0de54d62c56db80ad1975ee119865137f6208a",
+      "api-contract.json": "3f9913bb139f257d5918161511248d23c75684cbbf4694b1c837ccae72dcbc97",
+      "openapi.json": "e5ce89cf740cbc5cfc4410c162644dbff7dab7c80b77f88afd54b88793c75753",
       "package.json": "ba8862ac57eacb6068b96d36a0806f6b08daa381af29280dfbf2f4281661ecba",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
@@ -34,7 +34,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "5e81bcae8c548660255eb88f3265980301243fa68d55880646cf06099cc7a474",
+      "src/generated/cli-manifest.json": "b5eb5e16e5146d8a386fe072af567fa99b6bc53dbc4f53d650bdc4b91a5a5933",
       "src/hand-written-commands.ts": "ab53fea9a1523f8db77663fb3d241be73403213b67f20d9898596e87eddd7bd0",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
@@ -50,9 +50,9 @@
       "src/spec-manifest.ts": "e638fd01260664e2c95e05e18e6087e6fd04694f694ec6db8921224217e580b8",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "5eb677ab5a54a162f33a8a62dd0de54d62c56db80ad1975ee119865137f6208a",
-    "revision": "087272eeff90e779039d3bdc55a2ffbcec44e82e",
-    "fingerprint": "3b8b0389711e08c09c8b9c775e1480c16a597de918a70b6438cec86c4966bb75"
+    "specSha256": "e5ce89cf740cbc5cfc4410c162644dbff7dab7c80b77f88afd54b88793c75753",
+    "revision": "7db8a3c974dadb155a71152657f1b1c5c1ec1f00",
+    "fingerprint": "d3cda5154c1d092e9598fe8ee453f51bdb12d3bf8b09f15717aca85747275a07"
   },
   "globalOptions": [
     {
@@ -11503,7 +11503,7 @@
       "options": [
         {
           "flags": "-c, --concept <value>",
-          "description": "XBRL concept as filed: the local name (`Revenues`) or with its prefix (`us-gaap:Revenues`) (e.g. Revenues)",
+          "description": "XBRL concept as filed: the local name (`Revenues`) or with its prefix (`us-gaap:Revenues`) (e.g. RevenueFromContractWithCustomerExcludingAssessedTax)",
           "required": true
         },
         {
@@ -11513,7 +11513,7 @@
         },
         {
           "flags": "--period-start <value>",
-          "description": "Start of the duration (omitted = every duration ending on `period_end`, and instants) (e.g. 2023-10-01)",
+          "description": "Start of the duration (omitted = every duration ending on `period_end`, and instants). Omit it for a balance-sheet value: an instant has no start (e.g. 2023-10-01)",
           "required": false
         },
         {

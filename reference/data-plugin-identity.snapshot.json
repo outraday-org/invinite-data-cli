@@ -3,7 +3,7 @@
   "download": {
     "owner": "outraday-org",
     "repository": "invinite-data-cli",
-    "revision": "087272eeff90e779039d3bdc55a2ffbcec44e82e"
+    "revision": "7db8a3c974dadb155a71152657f1b1c5c1ec1f00"
   },
   "manifest": {
     "name": "invinite-financial-data",
@@ -35,13 +35,13 @@
     "claude-plugin/commands/compare-companies.md": "a01f24fe85852086d6be80e1cbb50c2410e8ac307400aa9c756690946d6e5b32",
     "claude-plugin/commands/financial-research.md": "5edb2fd316ceda1620f0c7c5e5f64aa9205634a11a5349c0581ac7609433be2e",
     "claude-plugin/commands/ownership-review.md": "5545371987733e9caace3112adc9daad19c5e3c33b63690f017fd13e91c2c79e",
-    "claude-plugin/skills/invinite-data-cli/SKILL.md": "ce51edf1c8f493435a0c416a55687ac04e9bc12239ac4a854032d622a5c37cf8",
+    "claude-plugin/skills/invinite-data-cli/SKILL.md": "2c5afdc7df2018d893636997a08eaef14b4f50727a0ec0b5abb918fa28ea5db5",
     "src/commands/plugin.ts": "d571726eeac6b194c825f31dcd5a25e6b46764d8d941732c7b88327cccae372d"
   },
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
     "version": "11.3.0",
-    "specSha256": "5eb677ab5a54a162f33a8a62dd0de54d62c56db80ad1975ee119865137f6208a",
+    "specSha256": "e5ce89cf740cbc5cfc4410c162644dbff7dab7c80b77f88afd54b88793c75753",
     "sourceHashes": {
       "claude-plugin/.claude-plugin/plugin.json": "3b93049896432f6b77c1c52241ae791b42d1407eb9c9c2163e27f91b503e6be5",
       "claude-plugin/.mcp.json": "a473ef1b56c55c29434aa2864d3bc0b250b4954890af437308ff9d66bc85d0d5",
@@ -52,13 +52,13 @@
       "claude-plugin/commands/compare-companies.md": "a01f24fe85852086d6be80e1cbb50c2410e8ac307400aa9c756690946d6e5b32",
       "claude-plugin/commands/financial-research.md": "5edb2fd316ceda1620f0c7c5e5f64aa9205634a11a5349c0581ac7609433be2e",
       "claude-plugin/commands/ownership-review.md": "5545371987733e9caace3112adc9daad19c5e3c33b63690f017fd13e91c2c79e",
-      "claude-plugin/skills/invinite-data-cli/SKILL.md": "ce51edf1c8f493435a0c416a55687ac04e9bc12239ac4a854032d622a5c37cf8",
+      "claude-plugin/skills/invinite-data-cli/SKILL.md": "2c5afdc7df2018d893636997a08eaef14b4f50727a0ec0b5abb918fa28ea5db5",
       "package.json": "ba8862ac57eacb6068b96d36a0806f6b08daa381af29280dfbf2f4281661ecba",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-plugin-packaging.ts": "98945657178e4d4468963f9ef9b7d85025fde6c25444dbc3adb1c2334aac899e",
       "src/commands/plugin.ts": "d571726eeac6b194c825f31dcd5a25e6b46764d8d941732c7b88327cccae372d"
     },
-    "revision": "087272eeff90e779039d3bdc55a2ffbcec44e82e",
-    "fingerprint": "484a19c48fead59a1bebaaa9228532ecde5a4733b7dcee98de58a114717ece3f"
+    "revision": "7db8a3c974dadb155a71152657f1b1c5c1ec1f00",
+    "fingerprint": "b7d0c568344e642efce093aec0f4a95443ec2b1b89b0d6eb0870d2462063a7bf"
   }
 }
