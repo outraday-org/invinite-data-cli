@@ -106,23 +106,23 @@
     }
   ],
   "provenance": {
-    "secdoorsOpenapiSha256": "62679d9a57b87710c16e263e0a8e6e8ceeb58e168e1e8cf203d90e969d02b5ec",
+    "secdoorsOpenapiSha256": "8b8025a0a431cbcf3305434354f7544043bb464340f98785469fda668cbcdfe5",
     "repository": "https://github.com/outraday-org/invinite-data-api",
     "version": "1.0.0",
-    "specSha256": "03945a9e4a5f8ce2d79c334a476fff35754d2a587a02b7a85cd15d9c8659c35b",
+    "specSha256": "5eb677ab5a54a162f33a8a62dd0de54d62c56db80ad1975ee119865137f6208a",
     "sourceHashes": {
-      "openapi.json": "03945a9e4a5f8ce2d79c334a476fff35754d2a587a02b7a85cd15d9c8659c35b",
+      "openapi.json": "5eb677ab5a54a162f33a8a62dd0de54d62c56db80ad1975ee119865137f6208a",
       "package.json": "0d50038e236051fa9b6ac3dcdaf2d3357207a9826f1284ce217b46e32fcb9240",
       "scripts/export-reference.ts": "d925c60f0f895b7b55ae7506e30b1f70a82316e3650c5f7bba0c02f64fb2f09a",
       "scripts/gen-secdoors-types.ts": "860afc486f8041ddfbb515bf5a5a0de8ac9c7237af1a0238d0c08aece7dece1e",
       "scripts/generate-openapi.ts": "fd07fe65502eb0b2a29c8851ee1d26b802e0898d8b3be4f28b3bae39be061fb3",
-      "scripts/operation-ids.snapshot.json": "c68d49286d47d0201d7561e7b47300cfc1351681c2219d3f0d3c2bf3a27ee48c",
+      "scripts/operation-ids.snapshot.json": "56dc57a687786f8a9355a7c93bcc8d6f68ba07afaafb04fc00f553faa9af5e0b",
       "scripts/reference-artifacts.ts": "0ef8e67cb5454a3f50f43de77b0be1aebb7897164ddf3f5288b58dc7d0f47255",
       "scripts/reference-env.ts": "105b341c463b24e99d349d50a96634f83b1b8dca8a669c84730dc93f24e122e0",
-      "src/lib/secStore/secdoors-openapi.json": "2357e80138484c263cc8111ba4d02e93ded49d76ed8eea61afe1e9480ac44356",
+      "src/lib/secStore/secdoors-openapi.json": "5e91405e84ac10c2c0032370c36ebd051253f1e8c04c34073f92e80d618b16a3",
       "src/lib/v2/problem.ts": "ea33d1366ce470f92b9fb1abec114ee38c95781fabf4439be3879f54915b7096"
     },
-    "revision": "dc647ae34ff3579a52935b6ce6869471e2020273",
-    "fingerprint": "85f75fa9819d8e345d25b2be1747bfebadc1d5f88884ded5251fdd10cc950dba"
+    "revision": "5e02fd486b63a8bb4a5af678aa6e30efeaa79e62",
+    "fingerprint": "21f69181fc05ac85e3a188ead3ffffdc9eb8a3b655b317eb46eb594fc4041d4a"
   }
 }
