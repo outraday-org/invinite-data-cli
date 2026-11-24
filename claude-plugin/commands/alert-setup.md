@@ -15,7 +15,7 @@ Set up the alert described in `$ARGUMENTS` with Invinite Data (MCP `manage_desti
    crypto with `asset_class: "crypto"`. Since 7.3: `script` (an uploaded chartlang script, `invd scripts upload <file>`
    → `script_version_id`) or `indicator` (a built-in `template` from `invd alert-templates list`, or a structured
    `condition`), each on `symbol` + `interval`, evaluated at bar close. In flags, a field both `condition` and `trigger` carry is prefixed
-   (`--condition-mode`, `--trigger-mode`). Resolve each company to a ticker or CIK first
+   (`--condition-mode`, `--trigger-mode`). For a macro release or threshold use the national catalog below. For a company condition, resolve the company to a ticker or CIK first
    (`invd companies list -q "<name>" --json`). Check what the account allows: `invd alerts list --json` shows the
    quota in `meta.quota`; `news`, `halt` and some `earnings_call` events need a higher plan (a refusal names it).
 2. Where the events go:
@@ -34,3 +34,14 @@ Set up the alert described in `$ARGUMENTS` with Invinite Data (MCP `manage_desti
 6. Report the destination id, the alert id and status, and how the user reads the events; never print a secret
    again after step 2. Pause with `invd alerts pause <alert-id>`, resume with
    `invd alerts resume <alert-id>`, delete with `invd alerts delete <alert-id>`.
+
+
+## National macro rules
+
+Select a series and its allowed fields with `invd macro series --json`. For a ten-year Treasury yield above 4%, use an existing owned destination and save this body as `macro-alert.json`:
+
+```json
+{"type":"macro","condition":{"macro_events":["macro.released","macro.revised"],"macro_families":["yield_curve"],"macro_threshold":{"series_id":"treasury_par_y10","field":"value","operator":"gt","value":4}},"trigger":{"mode":"every_time"},"destination_ids":["dst_your_destination"]}
+```
+
+Run `invd alerts create --validate-only --body-file macro-alert.json` and then `invd alerts create --body-file macro-alert.json`. A release-only CPI condition selects `macro_events:["macro.released"]` and `macro_series_ids:["cpi_all_sa"]`; a payroll correction selects `macro.revised` and `payrolls_sa`. Inspect the saved rule and its account events. The signed webhook's account event ID survives retries. The source release version has its own `source_event_id` inside `reason.details`.

@@ -176,6 +176,10 @@ function addPositionals(command: Command, operation: ManifestOperation): void {
     command.argument('[fiscal_period]', 'With a company in place of the event id: the fiscal period (2026Q3), resolved through GET /v1/events');
     return;
   }
+  if (operation.group === 'macro' && positional.name === 'series') {
+    command.argument('[series]', description).option('--series <id>', description).allowExcessArguments(false);
+    return;
+  }
   const name = positional.variadic ? `${positional.name}...` : positional.name;
   const note = positional.variadic === 'comma' ? ' (one or more; sent as a comma list)' : '';
   command.argument(positional.required ? `<${name}>` : `[${name}]`, `${description}${note}`);
@@ -291,6 +295,16 @@ async function planRequest(operation: ManifestOperation, positionals: unknown[],
     } else if (first !== undefined) {
       values.set(positional.name, String(first));
     }
+  }
+  if (operation.group === 'macro' && positional?.name === 'series') {
+    const arg = values.get('series');
+    const flag = opts.series;
+    if (arg !== undefined && flag !== undefined && arg !== flag) throw new UsageError('The positional series and --series must name the same series');
+    const id = arg ?? flag;
+    const param = operation.params.find(p => p.name === 'series');
+    if (typeof id !== 'string' || !id) throw new UsageError('Supply a series ID or --series <id>');
+    if (param?.enum && !param.enum.includes(id)) throw new UsageError(`Unknown series for this family: ${id}. List IDs with invd macro series.`);
+    values.set('series', id);
   }
   for (const param of operation.params) {
     if (param.name === positional?.name) continue;
@@ -547,7 +561,10 @@ async function runOperation(operation: ManifestOperation, positionals: unknown[]
     await confirmOrRefuse(`invd ${commandName(operation)} --all costs ${operation.credits} credits per page and may walk many pages. Continue?`, opts);
   }
   plan = await resolveLookup(plan);
-  const shape: ShapeInfo = { list: operation.list, view: operation.view, ...(operation.columns ? { columns: operation.columns } : {}) };
+  const columns = operation.group === 'macro' && operation.columns?.includes('reference_date')
+    ? [...operation.columns, operation.action.startsWith('inflation') ? 'change_1m_pct' : 'change_prior']
+    : operation.columns;
+  const shape: ShapeInfo = { list: operation.list, view: operation.view, ...(columns ? { columns } : {}) };
   const first = await apiCall(plan.request);
   if (all) {
     await streamAll(plan.request, first, shape, settings);

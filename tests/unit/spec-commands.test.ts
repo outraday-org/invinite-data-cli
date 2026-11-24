@@ -1,4 +1,5 @@
-import { mkdtempSync, readFileSync } from 'node:fs';
+import { completionTable } from '../../src/commands/completion.js';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -500,5 +501,63 @@ describe('manifest coverage', () => {
     expect(operations.filter(operation => operation.download !== undefined).map(operation => operation.operationId).sort())
       .toEqual(['getAudio', 'getInvestorDocument', 'getNewsItem', 'getTranscript']);
     expect(operations.some(operation => operation.list && operation.download !== undefined)).toBe(false);
+  });
+});
+
+describe('US macro generated commands', () => {
+  it('discovers all nine operations, preserves market holidays and accepts either series spelling', async () => {
+    const macro = loadManifest().operations.filter(o => o.group === 'macro');
+    expect(macro).toHaveLength(9);
+    const group = createProgram().commands.find(c => c.name() === 'macro');
+    for (const op of macro) expect(group?.helpInformation()).toContain(op.action);
+    expect(createProgram().helpInformation()).toContain('US inflation');
+    expect(loadManifest().operations.find(o => o.operationId === 'listMarketHolidays')?.group).toBe('market');
+    for (const args of [['cpi_all_sa'], ['--series', 'cpi_all_sa'], ['cpi_all_sa','--series','cpi_all_sa']]) {
+      vi.mocked(fetch).mockResolvedValueOnce(page([{ series_id: 'cpi_all_sa', value: 320, change_1m_pct: null }]));
+      await run('macro', 'inflation', ...args, '--reference-date-gte', '2025-01-01', '--json');
+      const url = new URL(calls().at(-1)!.url);
+      expect(url.pathname).toBe('/v1/macro/inflation');
+      expect(url.searchParams.get('series')).toBe('cpi_all_sa');
+      expect(url.searchParams.get('reference_date.gte')).toBe('2025-01-01');
+    }
+    expect(await exitOf('macro','inflation','cpi_all_sa','--series','cpi_core_sa','--json')).not.toBe(0);
+    expect(await exitOf('macro','inflation','--series','unrecognized','--json')).not.toBe(0);
+    expect(calls()).toHaveLength(3);
+  });
+
+  it('completes macro commands and flags and sends the documented raw rule in body-file mode', async () => {
+    const shell = completionTable(createProgram());
+    expect(shell.get('macro')).toContain('yield-curve-snapshot');
+    expect(shell.get('macro labor')).toContain('--series');
+    const file = join(mkdtempSync(join(tmpdir(), 'invd-rule-')), 'macro-alert.json');
+    const body = {type:'macro', condition:{macro_events:['macro.released','macro.revised'],macro_families:['yield_curve'],
+      macro_threshold:{series_id:'treasury_par_y10',field:'value',operator:'gt',value:4}},trigger:{mode:'every_time'},destination_ids:['dst_macro_test']};
+    writeFileSync(file, JSON.stringify(body));
+    for (const flags of [['--validate-only'], []]) {
+      vi.mocked(fetch).mockResolvedValueOnce(flags.length ? new Response(null,{status:204}) : json({id:'alt_macro',...body},201));
+      await run('alerts','create',...flags,'--body-file',file,'--json');
+      expect(JSON.parse(String(calls().at(-1)?.init?.body))).toEqual(body);
+    }
+    for (const [code, param] of [['invalid_parameter','macro_series_ids'], ['invalid_parameter','macro_threshold.field'], ['plan_required','type']]) {
+      vi.mocked(fetch).mockResolvedValueOnce(json({title:'Rule refused',detail:'Invalid macro rule',status:code==='plan_required'?403:400,code,param},code==='plan_required'?403:400));
+      expect(await exitOf('alerts','create','--body-file',file,'--json')).not.toBe(0);
+    }
+  });
+
+  it('executes all nine commands and preserves nullable Treasury maturities and weekly dates', async () => {
+    const curve = {date:'2025-02-14', agency:'Treasury',m1:4.32,m1_5:null,m2:4.33,m3:4.31,m4:4.28,m6:4.29,y1:4.22,y2:4.26,y3:4.31,y5:4.38,y7:4.44,y10:4.47,y20:4.74,y30:4.69};
+    for (const op of loadManifest().operations.filter(o=>o.group==='macro')) {
+      const id = op.action === 'inflation' ? 'cpi_all_sa' : op.action === 'gdp' ? 'real_gdp_growth' : 'initial_claims_sa';
+      const record = op.action.startsWith('yield-curve') ? curve : {series_id:id, reference_date:'2026-11-14', value:203000,unit:'claims',change_prior:null};
+      vi.mocked(fetch).mockResolvedValueOnce(op.list ? page([record]) : json(record));
+      await run('macro',op.action,...(op.positional?['--series',id]:[]),'--json');
+      expect(calls().at(-1)?.url).toContain(op.path);
+      expect(out.at(-1)).toContain(op.action.startsWith('yield-curve')?'m1_5':'2026-11-14');
+    }
+    vi.mocked(fetch).mockResolvedValueOnce(page([curve],'next+page/2')).mockResolvedValueOnce(page([curve]));
+    await run('macro','yield-curve','--all','--json','--yes');
+    expect(new URL(calls().at(-1)!.url).searchParams.get('cursor')).toBe('next+page/2');
+    vi.mocked(fetch).mockResolvedValueOnce(json({type:'about:blank',title:'Access denied',status:403,code:'plan_required',detail:'This read requires Lite.'},403));
+    expect(await exitOf('macro','yield-curve-snapshot','--json')).not.toBe(0);
   });
 });

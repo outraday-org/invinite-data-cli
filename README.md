@@ -24,6 +24,25 @@ Version 6.0 keeps the 5.0 commands and follows the conventions shared with the W
 command ([Changes in 8.0](#changes-in-80)). Coming from 5.x, read [Upgrading from 5.x](#upgrading-from-5x); from 4.x,
 [Upgrading from 4.x](#upgrading-from-4x); from 3.x, [Upgrading from 3.x](#upgrading-from-3x).
 
+
+## US macro data
+
+CLI 11.3.0 and plugin 0.20.0 adopt the Data API's Macro group. The catalog is available on Free. Histories and snapshots require Lite or corresponding read entitlement. Each successful read costs one credit.
+
+```sh
+invd macro --help
+invd macro series --family labor --all --json
+invd macro inflation --series cpi_all_sa --reference-date-gte 2025-01-01 --json
+invd macro gdp-snapshot --json
+invd macro labor --series payrolls_sa --limit 1 --json
+invd macro labor --series initial_claims_sa --limit 1 --json
+invd macro yield-curve --date-gte 2025-02-14 --date-lte 2025-02-14 --json
+invd macro yield-curve-snapshot --json
+```
+
+Use `--cursor` with the same filters to continue a page. GDP and labor snapshots retain each series' own period. Treasury responses keep all fourteen maturities, including null yields. For push subscribe to the macro channel on `WS /v1/stream`; after reconnecting use the macro snapshot commands above to recover current data. The CLI and hosted MCP expose request/response operations.
+
+
 ## Installation
 
 ```bash

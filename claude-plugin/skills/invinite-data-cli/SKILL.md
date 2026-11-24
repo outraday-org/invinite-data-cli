@@ -1,12 +1,12 @@
 ---
 name: invinite-financial-data
-description: Fetch financial data through the Invinite Data API MCP connector or the invd 8 CLI. Use whenever the user wants company information, what a ticker is (stock, ETF, closed-end fund, ETN), ETF and fund holdings and weights, financial statements (standardized or as-reported, point in time), ratios, growth, CAGR, segments, SEC filings and filing documents, earnings calls (calendar, transcripts, Q&A, guidance, KPIs, slides, press releases, call comparison), executives and analysts, who holds a stock or a fund (13F, N-PORT, ETF issuer files), insider trades, IPOs, market holidays, company news and newsroom announcements, investor documents, or full-text search over filings, transcripts and news, including requests mentioning tickers, CIKs, accessions, balance sheets, income statements, cash flows, 10-K, 10-Q, 8-K, dividends, stock splits or institutional holders.
+description: Fetch financial data through the Invinite Data API MCP connector or the invd 8 CLI. Use whenever the user wants company information, what a ticker is (stock, ETF, closed-end fund, ETN), ETF and fund holdings and weights, financial statements (standardized or as-reported, point in time), ratios, growth, CAGR, segments, SEC filings and filing documents, earnings calls (calendar, transcripts, Q&A, guidance, KPIs, slides, press releases, call comparison), executives and analysts, who holds a stock or a fund (13F, N-PORT, ETF issuer files), insider trades, IPOs, market holidays, US macroeconomic data, CPI, GDP, payrolls, jobless claims, Treasury yields, company news and newsroom announcements, investor documents, or full-text search over filings, transcripts and news, including requests mentioning tickers, CIKs, accessions, balance sheets, income statements, cash flows, 10-K, 10-Q, 8-K, dividends, stock splits or institutional holders.
 allowed-tools: Bash(invd *)
 ---
 
 # Invinite Data API
 
-Use the connected Invinite Data MCP tools when available; fall back to the `invd` CLI (version 8, Data API 7.0) when MCP
+Use the connected Invinite Data MCP tools when available; fall back to the `invd` CLI (11.3 or later for US macro data) when MCP
 is unavailable or the user asks for the CLI. Both reach the same Data API and bill the same Invinite Data account.
 
 ## Transport selection
@@ -23,6 +23,7 @@ serves the earlier roster; use whatever tools it lists, or the CLI.
 
 | Data need | MCP tool (v2 roster) | CLI |
 |---|---|---|
+| US inflation, GDP and income, employment, weekly claims or Treasury yields | `search_endpoints` with `q=macro`, then `call_api` | `invd macro series`, `invd macro inflation --series cpi_all_sa`, `invd macro gdp-snapshot`, `invd macro labor --series initial_claims_sa`, `invd macro yield-curve-snapshot` |
 | What a ticker is (stock, ETF, closed-end fund, ETN) and what is served for it; find an instrument or filer | `search_instruments` | `invd instruments get TQQQ`, `invd instruments list -q apple`, `invd filers list -q berkshire` |
 | Company profile, fiscal periods, dividends, splits | `get_company` | `invd companies get\|fiscal-periods`, `invd dividends`, `invd splits` |
 | Fund profile, holdings, weights (ETFs, closed-end funds) | `get_fund` | `invd funds get\|holdings\|weights`, `invd funds list --type etf` |
@@ -428,7 +429,7 @@ Alert rules: create, change, pause, batch and test them, and read one alert's ev
 # Change alerts in bulk (optional: --body, --body-file)
 invd alerts batch --body '{"items":[{"op":"upsert","client_reference_id":"watchlist-msft-div","type":"dividend","condition":{"symbols":["MSFT"],"kinds":["declared"]}},{"op":"pause","client_reference_id":"watchlist-aapl-8k"}]}' --json
 
-# Create an alert (optional: --validate-only, --idempotency-key, --type, --ciks, --symbols, --cik, --symbol, --form-types, --form-categories, --include-amendments, --stage, --keywords, --match, --scope, --sources, --kinds, --earnings-only, --events, --speaker-roles, --min-mentions, --dividend-types, --statuses, --reason-codes, --report-kinds, --event, --days-before, --offsets-days, --minutes-before, --time-of-day-minutes, --timezone, --notify-on-date-change, --asset-class, --operator, --level, --direction, --pct, --baseline, --window-minutes, --condition-mode, --interval, --multiple, --threshold, --lookback-bars, --baseline-mode, --price-direction, --frequency, --at, --weekday, --days, --script-version-id, --alert-ids, --trigger-mode, --cooldown-seconds, --cooldown-bars, --max-fires, --expires-at, --delete-on-expiry, --activate-at, --pause-until, --rearm, --rearm-distance-pct, --destination-ids, --client-reference-id, --external-user-id, --body, --body-file)
+# Create an alert (optional: --validate-only, --idempotency-key, --type, --ciks, --symbols, --cik, --symbol, --form-types, --form-categories, --include-amendments, --stage, --keywords, --match, --scope, --sources, --kinds, --earnings-only, --events, --speaker-roles, --min-mentions, --dividend-types, --statuses, --reason-codes, --report-kinds, --event, --days-before, --offsets-days, --minutes-before, --time-of-day-minutes, --timezone, --notify-on-date-change, --asset-class, --operator, --level, --direction, --pct, --baseline, --window-minutes, --condition-mode, --interval, --multiple, --threshold, --lookback-bars, --baseline-mode, --price-direction, --frequency, --at, --weekday, --days, --script-version-id, --alert-ids, --macro-events, --macro-families, --macro-series-ids, --trigger-mode, --cooldown-seconds, --cooldown-bars, --max-fires, --expires-at, --delete-on-expiry, --activate-at, --pause-until, --rearm, --rearm-distance-pct, --destination-ids, --client-reference-id, --external-user-id, --body, --body-file)
 invd alerts create --body '{"type":"filing","condition":{"symbols":["AAPL"],"form_types":["8-K"],"stage":"detected"},"trigger":{"mode":"every_time"},"destination_ids":["dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G"],"client_reference_id":"watchlist-aapl-8k","external_user_id":"user_8812","metadata":{"list":"tech"}}' --json
 
 # Delete an alert
@@ -452,7 +453,7 @@ invd alerts resume alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X --json
 # Send a test event
 invd alerts test alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X --json
 
-# Update an alert (optional: --version, --ciks, --symbols, --cik, --symbol, --form-types, --form-categories, --include-amendments, --stage, --keywords, --match, --scope, --sources, --kinds, --earnings-only, --events, --speaker-roles, --min-mentions, --dividend-types, --statuses, --reason-codes, --report-kinds, --event, --days-before, --offsets-days, --minutes-before, --time-of-day-minutes, --timezone, --notify-on-date-change, --asset-class, --operator, --level, --direction, --pct, --baseline, --window-minutes, --condition-mode, --interval, --multiple, --threshold, --lookback-bars, --baseline-mode, --price-direction, --frequency, --at, --weekday, --days, --script-version-id, --alert-ids, --trigger-mode, --cooldown-seconds, --cooldown-bars, --max-fires, --expires-at, --delete-on-expiry, --activate-at, --pause-until, --rearm, --rearm-distance-pct, --destination-ids, --client-reference-id, --external-user-id, --body, --body-file)
+# Update an alert (optional: --version, --ciks, --symbols, --cik, --symbol, --form-types, --form-categories, --include-amendments, --stage, --keywords, --match, --scope, --sources, --kinds, --earnings-only, --events, --speaker-roles, --min-mentions, --dividend-types, --statuses, --reason-codes, --report-kinds, --event, --days-before, --offsets-days, --minutes-before, --time-of-day-minutes, --timezone, --notify-on-date-change, --asset-class, --operator, --level, --direction, --pct, --baseline, --window-minutes, --condition-mode, --interval, --multiple, --threshold, --lookback-bars, --baseline-mode, --price-direction, --frequency, --at, --weekday, --days, --script-version-id, --alert-ids, --macro-events, --macro-families, --macro-series-ids, --trigger-mode, --cooldown-seconds, --cooldown-bars, --max-fires, --expires-at, --delete-on-expiry, --activate-at, --pause-until, --rearm, --rearm-distance-pct, --destination-ids, --client-reference-id, --external-user-id, --body, --body-file)
 invd alerts update alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X --body '{"version":1,"condition":{"symbols":["AAPL","MSFT"],"form_types":["8-K"]}}' --json
 ```
 
@@ -788,6 +789,39 @@ invd ipos get ipo_0001234567_s1_1 --json
 
 # List offerings (optional: --stage, --is-spac, --listing-date-gte, --listing-date-gt, --listing-date-lte, --listing-date-lt, --company, --sort, --fields, --limit, --cursor, --all)
 invd ipos list --json
+```
+
+### macro
+
+US inflation, output, income, labor and Treasury yields from official economic releases.
+
+```bash
+# List US GDP and income readings (optional: --reference-date-gte, --reference-date-gt, --reference-date-lte, --reference-date-lt, --sort, --fields, --limit, --cursor, --all)
+invd macro gdp real_gdp_growth --json
+
+# Get the US GDP and income snapshot (optional: --sort, --fields, --limit, --cursor, --all)
+invd macro gdp-snapshot --json
+
+# List US inflation readings (optional: --reference-date-gte, --reference-date-gt, --reference-date-lte, --reference-date-lt, --sort, --fields, --limit, --cursor, --all)
+invd macro inflation cpi_all_sa --json
+
+# Get the US inflation snapshot (optional: --sort, --fields, --limit, --cursor, --all)
+invd macro inflation-snapshot --json
+
+# List US labor readings (optional: --reference-date-gte, --reference-date-gt, --reference-date-lte, --reference-date-lt, --sort, --fields, --limit, --cursor, --all)
+invd macro labor initial_claims_sa --json
+
+# Get the US labor market snapshot (optional: --sort, --fields, --limit, --cursor, --all)
+invd macro labor-snapshot --json
+
+# List US macro series (optional: --family, --sort, --fields, --limit, --cursor, --all)
+invd macro series --family inflation --json
+
+# List US Treasury yield curves (optional: --date-gte, --date-gt, --date-lte, --date-lt, --sort, --fields, --limit, --cursor, --all)
+invd macro yield-curve --json
+
+# Get the latest US Treasury yield curve (optional: --fields)
+invd macro yield-curve-snapshot --json
 ```
 
 ### market

@@ -1,6 +1,6 @@
 {
   "specVersion": "2026-11-23",
-  "specSha256": "391419d7fb6f7b10cd033a9a555e0100867d92070fd9f625f1ba1fd11da423f6",
+  "specSha256": "03945a9e4a5f8ce2d79c334a476fff35754d2a587a02b7a85cd15d9c8659c35b",
   "groups": [
     {
       "name": "alert-events",
@@ -81,6 +81,10 @@
     {
       "name": "ipos",
       "description": "Offerings from registration to listing"
+    },
+    {
+      "name": "macro",
+      "description": "US inflation, output, income, labor and Treasury yields from official economic releases."
     },
     {
       "name": "market",
@@ -1310,6 +1314,39 @@
           },
           {
             "path": [
+              "condition",
+              "macro_events"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Required release kinds for a macro alert",
+            "flag": "macro-events"
+          },
+          {
+            "path": [
+              "condition",
+              "macro_families"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Optional economic dataset families",
+            "flag": "macro-families"
+          },
+          {
+            "path": [
+              "condition",
+              "macro_series_ids"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Optional public macro series identifiers",
+            "flag": "macro-series-ids"
+          },
+          {
+            "path": [
               "trigger",
               "mode"
             ],
@@ -1699,7 +1736,8 @@
             "volume_spike",
             "price_reminder",
             "indicator",
-            "script"
+            "script",
+            "macro"
           ],
           "example": "filing",
           "description": "Only alerts of this type",
@@ -2458,6 +2496,39 @@
             "required": false,
             "description": "Only these of the script's alerts (its version's `alert_ids`); empty = all. script",
             "flag": "alert-ids"
+          },
+          {
+            "path": [
+              "condition",
+              "macro_events"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Required release kinds for a macro alert",
+            "flag": "macro-events"
+          },
+          {
+            "path": [
+              "condition",
+              "macro_families"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Optional economic dataset families",
+            "flag": "macro-families"
+          },
+          {
+            "path": [
+              "condition",
+              "macro_series_ids"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Optional public macro series identifiers",
+            "flag": "macro-series-ids"
           },
           {
             "path": [
@@ -9354,6 +9425,1016 @@
         "currency",
         "listing_date",
         "sources"
+      ]
+    },
+    {
+      "operationId": "listMacroGdp",
+      "group": "macro",
+      "action": "gdp",
+      "method": "get",
+      "path": "/v1/macro/gdp",
+      "auth": true,
+      "summary": "List US GDP and income readings",
+      "credits": 1,
+      "tier": "lite",
+      "params": [
+        {
+          "name": "series",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "consumer_spending_contribution",
+            "corporate_profits",
+            "government_contribution",
+            "investment_contribution",
+            "net_exports_contribution",
+            "nominal_gdp",
+            "personal_income",
+            "real_consumer_spending",
+            "real_gdi_growth",
+            "real_gdp",
+            "real_gdp_growth",
+            "saving_rate"
+          ],
+          "example": "real_gdp_growth",
+          "description": "Select a public series from this family",
+          "flag": "series"
+        },
+        {
+          "name": "reference_date.gte",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-01-01",
+          "description": "`reference_date` on or after this value",
+          "flag": "reference-date-gte"
+        },
+        {
+          "name": "reference_date.gt",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-01-01",
+          "description": "`reference_date` after this value",
+          "flag": "reference-date-gt"
+        },
+        {
+          "name": "reference_date.lte",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-01-01",
+          "description": "`reference_date` on or before this value",
+          "flag": "reference-date-lte"
+        },
+        {
+          "name": "reference_date.lt",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-01-01",
+          "description": "`reference_date` before this value",
+          "flag": "reference-date-lt"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "reference_date",
+            "-reference_date"
+          ],
+          "default": "-reference_date",
+          "example": "-reference_date",
+          "description": "Sort by reference_date; prefix with a minus sign for descending order.",
+          "flag": "sort"
+        },
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "fiscal_year,period_end",
+          "description": "Comma list of root-level fields to keep (R7)",
+          "flag": "fields"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, maximum 1000)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        }
+      ],
+      "positional": {
+        "name": "series",
+        "required": true
+      },
+      "list": true,
+      "view": "table",
+      "columns": [
+        "series_id",
+        "reference_date",
+        "value",
+        "unit"
+      ],
+      "fields": [
+        "series_id",
+        "family",
+        "agency",
+        "source_code",
+        "source_url",
+        "country",
+        "frequency",
+        "seasonal_adjustment",
+        "unit",
+        "base_period",
+        "scale",
+        "precision",
+        "period_anchor",
+        "reference_date",
+        "published_at",
+        "observed_at",
+        "value",
+        "status",
+        "footnotes",
+        "change_prior",
+        "change_year",
+        "change_year_pct"
+      ]
+    },
+    {
+      "operationId": "getMacroGdpSnapshot",
+      "group": "macro",
+      "action": "gdp-snapshot",
+      "method": "get",
+      "path": "/v1/macro/gdp/snapshot",
+      "auth": true,
+      "summary": "Get the US GDP and income snapshot",
+      "credits": 1,
+      "tier": "lite",
+      "params": [
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "series_id",
+            "-series_id"
+          ],
+          "default": "series_id",
+          "example": "series_id",
+          "description": "Sort by series_id; prefix with a minus sign for descending order.",
+          "flag": "sort"
+        },
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "fiscal_year,period_end",
+          "description": "Comma list of root-level fields to keep (R7)",
+          "flag": "fields"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, maximum 1000)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        }
+      ],
+      "list": true,
+      "view": "table",
+      "columns": [
+        "series_id",
+        "reference_date",
+        "value",
+        "unit"
+      ],
+      "fields": [
+        "series_id",
+        "family",
+        "agency",
+        "source_code",
+        "source_url",
+        "country",
+        "frequency",
+        "seasonal_adjustment",
+        "unit",
+        "base_period",
+        "scale",
+        "precision",
+        "period_anchor",
+        "reference_date",
+        "published_at",
+        "observed_at",
+        "value",
+        "status",
+        "footnotes",
+        "change_prior",
+        "change_year",
+        "change_year_pct"
+      ]
+    },
+    {
+      "operationId": "listMacroInflation",
+      "group": "macro",
+      "action": "inflation",
+      "method": "get",
+      "path": "/v1/macro/inflation",
+      "auth": true,
+      "summary": "List US inflation readings",
+      "credits": 1,
+      "tier": "lite",
+      "params": [
+        {
+          "name": "series",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "cpi_all_nsa",
+            "cpi_all_sa",
+            "cpi_core_nsa",
+            "cpi_core_sa",
+            "cpi_energy_nsa",
+            "cpi_energy_sa",
+            "cpi_food_nsa",
+            "cpi_food_sa",
+            "cpi_services_less_energy_nsa",
+            "cpi_services_less_energy_sa",
+            "cpi_shelter_nsa",
+            "cpi_shelter_sa",
+            "pce_all_sa",
+            "pce_core_sa"
+          ],
+          "example": "cpi_all_sa",
+          "description": "Select a public series from this family",
+          "flag": "series"
+        },
+        {
+          "name": "reference_date.gte",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-01-01",
+          "description": "`reference_date` on or after this value",
+          "flag": "reference-date-gte"
+        },
+        {
+          "name": "reference_date.gt",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-01-01",
+          "description": "`reference_date` after this value",
+          "flag": "reference-date-gt"
+        },
+        {
+          "name": "reference_date.lte",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-01-01",
+          "description": "`reference_date` on or before this value",
+          "flag": "reference-date-lte"
+        },
+        {
+          "name": "reference_date.lt",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-01-01",
+          "description": "`reference_date` before this value",
+          "flag": "reference-date-lt"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "reference_date",
+            "-reference_date"
+          ],
+          "default": "-reference_date",
+          "example": "-reference_date",
+          "description": "Sort by reference_date; prefix with a minus sign for descending order.",
+          "flag": "sort"
+        },
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "fiscal_year,period_end",
+          "description": "Comma list of root-level fields to keep (R7)",
+          "flag": "fields"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, maximum 1000)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        }
+      ],
+      "positional": {
+        "name": "series",
+        "required": true
+      },
+      "list": true,
+      "view": "table",
+      "columns": [
+        "series_id",
+        "reference_date",
+        "value",
+        "unit"
+      ],
+      "fields": [
+        "series_id",
+        "family",
+        "agency",
+        "source_code",
+        "source_url",
+        "country",
+        "frequency",
+        "seasonal_adjustment",
+        "unit",
+        "base_period",
+        "scale",
+        "precision",
+        "period_anchor",
+        "reference_date",
+        "published_at",
+        "observed_at",
+        "value",
+        "status",
+        "footnotes",
+        "change_1m_pct",
+        "change_12m_pct"
+      ]
+    },
+    {
+      "operationId": "getMacroInflationSnapshot",
+      "group": "macro",
+      "action": "inflation-snapshot",
+      "method": "get",
+      "path": "/v1/macro/inflation/snapshot",
+      "auth": true,
+      "summary": "Get the US inflation snapshot",
+      "credits": 1,
+      "tier": "lite",
+      "params": [
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "series_id",
+            "-series_id"
+          ],
+          "default": "series_id",
+          "example": "series_id",
+          "description": "Sort by series_id; prefix with a minus sign for descending order.",
+          "flag": "sort"
+        },
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "fiscal_year,period_end",
+          "description": "Comma list of root-level fields to keep (R7)",
+          "flag": "fields"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, maximum 1000)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        }
+      ],
+      "list": true,
+      "view": "table",
+      "columns": [
+        "series_id",
+        "reference_date",
+        "value",
+        "unit"
+      ],
+      "fields": [
+        "series_id",
+        "family",
+        "agency",
+        "source_code",
+        "source_url",
+        "country",
+        "frequency",
+        "seasonal_adjustment",
+        "unit",
+        "base_period",
+        "scale",
+        "precision",
+        "period_anchor",
+        "reference_date",
+        "published_at",
+        "observed_at",
+        "value",
+        "status",
+        "footnotes",
+        "change_1m_pct",
+        "change_12m_pct"
+      ]
+    },
+    {
+      "operationId": "listMacroLabor",
+      "group": "macro",
+      "action": "labor",
+      "method": "get",
+      "path": "/v1/macro/labor",
+      "auth": true,
+      "summary": "List US labor readings",
+      "credits": 1,
+      "tier": "lite",
+      "params": [
+        {
+          "name": "series",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "continued_claims_4_week_sa",
+            "continued_claims_nsa",
+            "continued_claims_sa",
+            "hires_nsa",
+            "hires_sa",
+            "hourly_earnings_nsa",
+            "hourly_earnings_sa",
+            "initial_claims_4_week_sa",
+            "initial_claims_nsa",
+            "initial_claims_sa",
+            "insured_unemployment_rate_nsa",
+            "insured_unemployment_rate_sa",
+            "job_openings_nsa",
+            "job_openings_sa",
+            "participation_rate_nsa",
+            "participation_rate_sa",
+            "payrolls_nsa",
+            "payrolls_sa",
+            "quits_nsa",
+            "quits_sa",
+            "unemployment_rate_nsa",
+            "unemployment_rate_sa",
+            "unemployment_rate_u6_nsa",
+            "unemployment_rate_u6_sa"
+          ],
+          "example": "initial_claims_sa",
+          "description": "Select a public series from this family",
+          "flag": "series"
+        },
+        {
+          "name": "reference_date.gte",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-01-01",
+          "description": "`reference_date` on or after this value",
+          "flag": "reference-date-gte"
+        },
+        {
+          "name": "reference_date.gt",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-01-01",
+          "description": "`reference_date` after this value",
+          "flag": "reference-date-gt"
+        },
+        {
+          "name": "reference_date.lte",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-01-01",
+          "description": "`reference_date` on or before this value",
+          "flag": "reference-date-lte"
+        },
+        {
+          "name": "reference_date.lt",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-01-01",
+          "description": "`reference_date` before this value",
+          "flag": "reference-date-lt"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "reference_date",
+            "-reference_date"
+          ],
+          "default": "-reference_date",
+          "example": "-reference_date",
+          "description": "Sort by reference_date; prefix with a minus sign for descending order.",
+          "flag": "sort"
+        },
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "fiscal_year,period_end",
+          "description": "Comma list of root-level fields to keep (R7)",
+          "flag": "fields"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, maximum 1000)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        }
+      ],
+      "positional": {
+        "name": "series",
+        "required": true
+      },
+      "list": true,
+      "view": "table",
+      "columns": [
+        "series_id",
+        "reference_date",
+        "value",
+        "unit"
+      ],
+      "fields": [
+        "series_id",
+        "family",
+        "agency",
+        "source_code",
+        "source_url",
+        "country",
+        "frequency",
+        "seasonal_adjustment",
+        "unit",
+        "base_period",
+        "scale",
+        "precision",
+        "period_anchor",
+        "reference_date",
+        "published_at",
+        "observed_at",
+        "value",
+        "status",
+        "footnotes",
+        "change_prior",
+        "change_year",
+        "change_year_pct"
+      ]
+    },
+    {
+      "operationId": "getMacroLaborSnapshot",
+      "group": "macro",
+      "action": "labor-snapshot",
+      "method": "get",
+      "path": "/v1/macro/labor/snapshot",
+      "auth": true,
+      "summary": "Get the US labor market snapshot",
+      "credits": 1,
+      "tier": "lite",
+      "params": [
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "series_id",
+            "-series_id"
+          ],
+          "default": "series_id",
+          "example": "series_id",
+          "description": "Sort by series_id; prefix with a minus sign for descending order.",
+          "flag": "sort"
+        },
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "fiscal_year,period_end",
+          "description": "Comma list of root-level fields to keep (R7)",
+          "flag": "fields"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, maximum 1000)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        }
+      ],
+      "list": true,
+      "view": "table",
+      "columns": [
+        "series_id",
+        "reference_date",
+        "value",
+        "unit"
+      ],
+      "fields": [
+        "series_id",
+        "family",
+        "agency",
+        "source_code",
+        "source_url",
+        "country",
+        "frequency",
+        "seasonal_adjustment",
+        "unit",
+        "base_period",
+        "scale",
+        "precision",
+        "period_anchor",
+        "reference_date",
+        "published_at",
+        "observed_at",
+        "value",
+        "status",
+        "footnotes",
+        "change_prior",
+        "change_year",
+        "change_year_pct"
+      ]
+    },
+    {
+      "operationId": "listMacroSeries",
+      "group": "macro",
+      "action": "series",
+      "method": "get",
+      "path": "/v1/macro/series",
+      "auth": true,
+      "summary": "List US macro series",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "family",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "inflation",
+            "gdp",
+            "labor",
+            "yield_curve"
+          ],
+          "example": "inflation",
+          "description": "Filter by macro dataset family",
+          "flag": "family"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "series_id",
+            "-series_id"
+          ],
+          "default": "series_id",
+          "example": "series_id",
+          "description": "Sort by series_id; prefix with a minus sign for descending order.",
+          "flag": "sort"
+        },
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "fiscal_year,period_end",
+          "description": "Comma list of root-level fields to keep (R7)",
+          "flag": "fields"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, maximum 1000)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        }
+      ],
+      "exampleParams": [
+        "family"
+      ],
+      "list": true,
+      "view": "table",
+      "columns": [
+        "series_id",
+        "label",
+        "family",
+        "unit"
+      ],
+      "fields": [
+        "series_id",
+        "family",
+        "agency",
+        "source_code",
+        "source_url",
+        "country",
+        "frequency",
+        "seasonal_adjustment",
+        "unit",
+        "base_period",
+        "scale",
+        "precision",
+        "period_anchor",
+        "label",
+        "annual_rate",
+        "tenor",
+        "maturity_months",
+        "history_operation_id",
+        "snapshot_operation_id",
+        "curve_field",
+        "first_date",
+        "last_date",
+        "reference_date",
+        "published_at",
+        "observed_at"
+      ]
+    },
+    {
+      "operationId": "listTreasuryYieldCurves",
+      "group": "macro",
+      "action": "yield-curve",
+      "method": "get",
+      "path": "/v1/macro/yield-curve",
+      "auth": true,
+      "summary": "List US Treasury yield curves",
+      "credits": 1,
+      "tier": "lite",
+      "params": [
+        {
+          "name": "date.gte",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-01-01",
+          "description": "`date` on or after this value",
+          "flag": "date-gte"
+        },
+        {
+          "name": "date.gt",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-01-01",
+          "description": "`date` after this value",
+          "flag": "date-gt"
+        },
+        {
+          "name": "date.lte",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-01-01",
+          "description": "`date` on or before this value",
+          "flag": "date-lte"
+        },
+        {
+          "name": "date.lt",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-01-01",
+          "description": "`date` before this value",
+          "flag": "date-lt"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "date",
+            "-date"
+          ],
+          "default": "-date",
+          "example": "-date",
+          "description": "Sort by date; prefix with a minus sign for descending order.",
+          "flag": "sort"
+        },
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "fiscal_year,period_end",
+          "description": "Comma list of root-level fields to keep (R7)",
+          "flag": "fields"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, maximum 1000)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        }
+      ],
+      "list": true,
+      "view": "table",
+      "columns": [
+        "date",
+        "m3",
+        "y2",
+        "y10",
+        "y30"
+      ],
+      "fields": [
+        "date",
+        "agency",
+        "source_url",
+        "observed_at",
+        "m1",
+        "m1_5",
+        "m2",
+        "m3",
+        "m4",
+        "m6",
+        "y1",
+        "y2",
+        "y3",
+        "y5",
+        "y7",
+        "y10",
+        "y20",
+        "y30"
+      ]
+    },
+    {
+      "operationId": "getTreasuryYieldCurveSnapshot",
+      "group": "macro",
+      "action": "yield-curve-snapshot",
+      "method": "get",
+      "path": "/v1/macro/yield-curve/snapshot",
+      "auth": true,
+      "summary": "Get the latest US Treasury yield curve",
+      "credits": 1,
+      "tier": "lite",
+      "params": [
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "fiscal_year,period_end",
+          "description": "Comma list of root-level fields to keep (R7)",
+          "flag": "fields"
+        }
+      ],
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "date",
+        "m3",
+        "y2",
+        "y10",
+        "y30"
+      ],
+      "fields": [
+        "date",
+        "agency",
+        "source_url",
+        "observed_at",
+        "m1",
+        "m1_5",
+        "m2",
+        "m3",
+        "m4",
+        "m6",
+        "y1",
+        "y2",
+        "y3",
+        "y5",
+        "y7",
+        "y10",
+        "y20",
+        "y30"
       ]
     },
     {
