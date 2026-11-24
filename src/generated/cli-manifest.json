@@ -1,6 +1,6 @@
 {
   "specVersion": "2026-11-23",
-  "specSha256": "5eb677ab5a54a162f33a8a62dd0de54d62c56db80ad1975ee119865137f6208a",
+  "specSha256": "e5ce89cf740cbc5cfc4410c162644dbff7dab7c80b77f88afd54b88793c75753",
   "groups": [
     {
       "name": "alert-events",
@@ -11597,7 +11597,7 @@
           "required": true,
           "type": "string",
           "pattern": "^([A-Za-z][A-Za-z0-9_.-]{0,60}:)?[A-Za-z_][A-Za-z0-9_.-]{0,200}$",
-          "example": "Revenues",
+          "example": "RevenueFromContractWithCustomerExcludingAssessedTax",
           "description": "XBRL concept as filed: the local name (`Revenues`) or with its prefix (`us-gaap:Revenues`)",
           "alias": "c",
           "flag": "concept"
@@ -11618,7 +11618,7 @@
           "required": false,
           "type": "string",
           "example": "2023-10-01",
-          "description": "Start of the duration (omitted = every duration ending on `period_end`, and instants)",
+          "description": "Start of the duration (omitted = every duration ending on `period_end`, and instants). Omit it for a balance-sheet value: an instant has no start",
           "flag": "period-start"
         },
         {

@@ -179,6 +179,20 @@ describe('--dry-run, confirmation, delete', () => {
     expect(text).toContain('dry run: no request was sent');
   });
 
+  it.each(['list', 'holdings'])('invd insider-trades %s --owner <cik> needs no company: owner=, no company=', async (action) => {
+    const path = action === 'list' ? '/v1/insider-trades' : '/v1/insider-holdings';
+    await run('insider-trades', action, '--owner', '0001214156', '--dry-run', '--output', 'table');
+    expect(fetch).not.toHaveBeenCalled();
+    expect(out.join('\n')).toContain(`GET https://api.example.com${path}?owner=0001214156`);
+
+    vi.mocked(fetch).mockResolvedValueOnce(page([]));
+    await run('insider-trades', action, '--owner', '0001214156', '--json');
+    const url = new URL(calls()[0]?.url ?? '');
+    expect(url.pathname).toBe(path);
+    expect(url.searchParams.get('owner')).toBe('0001214156');
+    expect(url.searchParams.has('company')).toBe(false);
+  });
+
   it('a dry run of a resolved event shows the lookup and the sum', async () => {
     await run('events', 'transcript', 'NVDA', '2026Q3', '--dry-run', '--json');
     const plan = JSON.parse(out.join('\n'));

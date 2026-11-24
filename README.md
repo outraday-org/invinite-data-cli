@@ -254,7 +254,7 @@ invd metrics growth MSFT -p quarterly --basis yoy
 invd metrics cagr AAPL MSFT -p annual --horizon 5
 invd metrics ratios AAPL -p annual --category efficiency     # turnover ratios
 invd metrics explain "0000320193|is_total_revenue|annual|2026|4"
-invd metrics vintages AAPL -c Revenues -e 2024-09-28           # every value filed for one fact (PRO)
+invd metrics vintages AAPL -c RevenueFromContractWithCustomerExcludingAssessedTax -e 2024-09-28           # every value filed for one fact (PRO)
 invd segments list AAPL -p annual --metric is_total_revenue
 invd segments list-detailed AAPL -p annual
 ```

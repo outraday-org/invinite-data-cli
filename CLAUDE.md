@@ -15,7 +15,7 @@ problem names the plan). 11.0 = Data API 10.0 (invinite `tasks-julian/todo-0/dat
 
 11.3.0 adds all nine US macro reads with plugin 0.20.0. The single Macro docs tag supplies the generated group help. History accepts the public series ID as a positional or `--series`, and table output includes the appropriate change field. The CLI pins API commit `eb6efa3d3923c38bf26ec67cd88da994ef5ec0ed` for this contract.
 
-11.4.0 (candidate) adopts Data API 11.2 with plugin 0.21.0 (134 operations, additive): `insider-trades holdings`, `--owner` on `insider-trades list` (company optional; one of the two required), `metrics vintages` (ONE company: `SINGLE_SUBJECT`), `catalog exchanges|sectors`, `financials --metrics`. No new `meta.reason` (the vintages 404 states its reason in the problem detail). The contract's base revision is API `5e02fd486b63a8bb4a5af678aa6e30efeaa79e62` (bundle exported in commit `e74b1d6`).
+11.4.0 (candidate) adopts Data API 11.2 with plugin 0.21.0 (134 operations, additive): `insider-trades holdings`, `--owner` on `insider-trades list` (company optional; one of the two required), `metrics vintages` (ONE company: `SINGLE_SUBJECT`), `catalog exchanges|sectors`, `financials --metrics`. No new `meta.reason` (the vintages 404 states its reason in the problem detail). The contract's base revision is API `e74b1d612183e7fa5bbe2fab466144bfe9e929f4` (bundle exported in commit `c1db1d4`).
 
 ## Commands come from the Data API's spec, not from this repo
 

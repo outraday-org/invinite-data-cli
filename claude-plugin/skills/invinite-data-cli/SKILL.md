@@ -30,7 +30,7 @@ serves the earlier roster; use whatever tools it lists, or the CLI.
 | Statements (standardized / as-reported; summary / detailed / presentation) | `get_financials` | `invd financials AAPL --basis … --view …` |
 | Ratios, growth, CAGR, segments | `get_metrics` | `invd metrics ratios\|growth\|cagr`, `invd segments list\|list-detailed` |
 | Where a number comes from | `explain_fact` | `invd metrics explain`, `invd documents fact-places` |
-| Every value filed for one XBRL fact (restatements, by filing) | `search_endpoints` + `call_api` (`/v1/financials/vintages`) | `invd metrics vintages AAPL -c Revenues -e 2024-09-28` |
+| Every value filed for one XBRL fact (restatements, by filing) | `search_endpoints` + `call_api` (`/v1/financials/vintages`) | `invd metrics vintages AAPL -c RevenueFromContractWithCustomerExcludingAssessedTax -e 2024-09-28` |
 | SEC filings of a stock or a fund | `list_filings` | `invd filings list` |
 | Read a filing or document version | `read_filing` | `invd filings get`, `invd documents get\|sections\|figure` |
 | Full-text search of filings (100 credits) | `search_filings` | `invd search filings` |
@@ -170,7 +170,7 @@ invd metrics growth MSFT -p quarterly --basis yoy --json
 invd metrics cagr AAPL MSFT -p annual --horizon 5 --json
 invd segments list AAPL -p annual --metric is_total_revenue --json
 invd metrics explain "0000320193|is_total_revenue|annual|2026|4" --json
-invd metrics vintages AAPL -c Revenues -e 2024-09-28 --json
+invd metrics vintages AAPL -c RevenueFromContractWithCustomerExcludingAssessedTax -e 2024-09-28 --json
 ```
 
 Ratio categories: `profitability`, `liquidity`, `leverage`, `efficiency` (the turnover ratios), `valuation`. `metrics explain` shows the rule
@@ -890,7 +890,7 @@ invd metrics growth AAPL -p annual --json
 invd metrics ratios AAPL -p annual --json
 
 # List the filed values of a fact (optional: --period-start, --member, --fields, --limit, --cursor, --all)
-invd metrics vintages AAPL -c Revenues -e 2024-09-28 --period-start 2023-10-01 --json
+invd metrics vintages AAPL -c RevenueFromContractWithCustomerExcludingAssessedTax -e 2024-09-28 --period-start 2023-10-01 --json
 ```
 
 ### news
