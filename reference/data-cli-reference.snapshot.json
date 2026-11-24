@@ -11,8 +11,8 @@
     },
     "verifiedOn": "2026-11-24",
     "sourceHashes": {
-      "api-contract.json": "c90b92e94c23baf4581079409f07f253161e07bb1242e373f392be18c1bb5e5d",
-      "openapi.json": "03945a9e4a5f8ce2d79c334a476fff35754d2a587a02b7a85cd15d9c8659c35b",
+      "api-contract.json": "bd844a9173d10e92ac42f36d791c9892bf34de67c3e9b3a3ee552d9d86d68f9e",
+      "openapi.json": "5eb677ab5a54a162f33a8a62dd0de54d62c56db80ad1975ee119865137f6208a",
       "package.json": "ba8862ac57eacb6068b96d36a0806f6b08daa381af29280dfbf2f4281661ecba",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
@@ -34,7 +34,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "3aca5715f204c2ec022b527e591348b82400f93207acd7330857b0580a4a25e8",
+      "src/generated/cli-manifest.json": "5e81bcae8c548660255eb88f3265980301243fa68d55880646cf06099cc7a474",
       "src/hand-written-commands.ts": "ab53fea9a1523f8db77663fb3d241be73403213b67f20d9898596e87eddd7bd0",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
@@ -50,9 +50,9 @@
       "src/spec-manifest.ts": "e638fd01260664e2c95e05e18e6087e6fd04694f694ec6db8921224217e580b8",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "03945a9e4a5f8ce2d79c334a476fff35754d2a587a02b7a85cd15d9c8659c35b",
-    "revision": "653f4330b01948f20572567cae6c081db01f94b9",
-    "fingerprint": "307275bb78faf3b7ef431b0e6dc6b2dbe0f9ee923c319a3bcfda2c7f86795fe0"
+    "specSha256": "5eb677ab5a54a162f33a8a62dd0de54d62c56db80ad1975ee119865137f6208a",
+    "revision": "087272eeff90e779039d3bdc55a2ffbcec44e82e",
+    "fingerprint": "3b8b0389711e08c09c8b9c775e1480c16a597de918a70b6438cec86c4966bb75"
   },
   "globalOptions": [
     {
@@ -92,7 +92,7 @@
     },
     {
       "id": "catalog",
-      "description": "Static catalogs: metrics, sections, forms, event types, document kinds, mapping rules"
+      "description": "Static catalogs: metrics, sections, forms, event types, document kinds, mapping rules, exchanges, sectors"
     },
     {
       "id": "companies",
@@ -148,7 +148,7 @@
     },
     {
       "id": "insider-trades",
-      "description": "Form 4 transactions"
+      "description": "Form 4 transactions and Form 3/4/5 holdings, by company or by insider"
     },
     {
       "id": "instruments",
@@ -176,7 +176,7 @@
     },
     {
       "id": "metrics",
-      "description": "Ratios, growth, CAGR, and the explanation of one standardized fact"
+      "description": "Ratios, growth, CAGR, the explanation of one standardized fact and the filed values (vintages) of one concept"
     },
     {
       "id": "news",
@@ -3014,6 +3014,89 @@
       ]
     },
     {
+      "command": "catalog exchanges",
+      "group": "catalog",
+      "origin": "spec",
+      "description": "List exchanges",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/catalog/exchanges"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
       "command": "catalog forms",
       "group": "catalog",
       "origin": "spec",
@@ -3366,6 +3449,89 @@
       ]
     },
     {
+      "command": "catalog sectors",
+      "group": "catalog",
+      "origin": "spec",
+      "description": "List sectors",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/catalog/sectors"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
       "command": "companies fiscal-periods",
       "group": "companies",
       "origin": "spec",
@@ -3485,7 +3651,7 @@
       "options": [
         {
           "flags": "--expand <value>",
-          "description": "Optional objects to include: `coverage` (comma list) (e.g. coverage)",
+          "description": "Optional objects to include: `coverage`, `former_tickers` (comma list) (e.g. coverage)",
           "required": false
         },
         {
@@ -6382,7 +6548,7 @@
       "options": [
         {
           "flags": "--expand <value>",
-          "description": "Optional objects to include: `lifecycle`, `proposed_symbols`, `former_names`, `successors`, `fund`, `private_offerings` (comma list) (e.g. lifecycle)",
+          "description": "Optional objects to include: `lifecycle`, `proposed_symbols`, `former_names`, `former_tickers`, `successors`, `fund`, `private_offerings` (comma list) (e.g. lifecycle)",
           "required": false
         },
         {
@@ -7553,6 +7719,11 @@
           ]
         },
         {
+          "flags": "--metrics <value>",
+          "description": "Comma list of XBRL concepts as `facts` names them (`Revenues`; a prefix such as `us-gaap:` is ignored) to keep inside `facts`; the presentation view keeps each listed node with the path to it. A concept the period does not state is left out (e.g. Revenues,NetIncomeLoss)",
+          "required": false
+        },
+        {
           "flags": "-l, --limit <value>",
           "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
           "required": false
@@ -8574,6 +8745,139 @@
       ]
     },
     {
+      "command": "insider-trades holdings",
+      "group": "insider-trades",
+      "origin": "spec",
+      "description": "List insider holdings",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/insider-holdings"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "company",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
+          "required": false
+        }
+      ],
+      "options": [
+        {
+          "flags": "-o, --owner <value>",
+          "description": "Reporting-owner CIK (all digits, any padding): the insider's own rows across every issuer; a comma list of 1–50 reads several owners. One of `company` / `owner` is required (e.g. 0001214156)",
+          "required": false
+        },
+        {
+          "flags": "--as-of-gte <value>",
+          "description": "`as_of` on or after this value (rows without a reported date are excluded) (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--as-of-gt <value>",
+          "description": "`as_of` after this value (rows without a reported date are excluded) (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--as-of-lte <value>",
+          "description": "`as_of` on or before this value (rows without a reported date are excluded) (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--as-of-lt <value>",
+          "description": "`as_of` before this value (rows without a reported date are excluded) (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--is-derivative",
+          "description": "Omitted = derivative and non-derivative holdings; true = only derivative securities (options, RSUs, warrants); false = only non-derivative holdings (e.g. false) (sends true)",
+          "required": false
+        },
+        {
+          "flags": "--no-is-derivative",
+          "description": "Sends is_derivative=false",
+          "required": false
+        },
+        {
+          "flags": "--sort <value>",
+          "description": "Sort field (`-` = descending); the id tiebreaker is always appended; rows without a reported date come last in descending order. Default `-as_of` (default: \"-as_of\"; e.g. -as_of)",
+          "required": false,
+          "choices": [
+            "as_of",
+            "-as_of"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
       "command": "insider-trades list",
       "group": "insider-trades",
       "origin": "spec",
@@ -8588,11 +8892,16 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
-          "required": true
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
+          "required": false
         }
       ],
       "options": [
+        {
+          "flags": "-o, --owner <value>",
+          "description": "Reporting-owner CIK (all digits, any padding): the insider's own rows across every issuer; a comma list of 1–50 reads several owners. One of `company` / `owner` is required (e.g. 0001214156)",
+          "required": false
+        },
         {
           "flags": "-s, --side <value>",
           "description": "buy = acquired, sell = disposed (e.g. buy)",
@@ -11102,6 +11411,115 @@
             "period_end",
             "-period_end"
           ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "metrics vintages",
+      "group": "metrics",
+      "origin": "spec",
+      "description": "List the filed values of a fact",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/financials/vintages"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "company",
+          "description": "Ticker (`AAPL`) or CIK of ONE company (all digits, any padding). Required.",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "-c, --concept <value>",
+          "description": "XBRL concept as filed: the local name (`Revenues`) or with its prefix (`us-gaap:Revenues`) (e.g. Revenues)",
+          "required": true
+        },
+        {
+          "flags": "-e, --period-end <value>",
+          "description": "End of the fact's duration, or its instant (e.g. 2024-09-28)",
+          "required": true
+        },
+        {
+          "flags": "--period-start <value>",
+          "description": "Start of the duration (omitted = every duration ending on `period_end`, and instants) (e.g. 2023-10-01)",
+          "required": false
+        },
+        {
+          "flags": "--member <value>",
+          "description": "One dimension member (`aapl:GreaterChinaSegmentMember` or its local name): the value of that member; omitted = the consolidated value (e.g. aapl:GreaterChinaSegmentMember)",
+          "required": false
         },
         {
           "flags": "-l, --limit <value>",
