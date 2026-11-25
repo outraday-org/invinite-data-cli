@@ -34,6 +34,19 @@ API's MCP server serves — the data guide `invinite-financial-data` and nine wo
 `commands/*.md` (`/financial-research`, `/analyze-earnings-call`, …) are gone: the workflows are skills now, and
 `invd plugin install` removes the files earlier versions wrote. See [The plugin](#the-plugin).
 
+## Changes in 11.5.0 (Data API 11.5)
+
+CLI 11.5.0 and plugin 0.23.0 adopt Data API 11.5 (additive, no command removed or renamed):
+
+- `invd ownership beneficial <company>` (Standard): Schedule 13D (activist) and 13G (passive) filings of holders above
+  5 % of a class, one row per filing with its reporting persons. `--filer` / `-f <cik>` reads one reporting person
+  across companies (one of company / `--filer` is required), `--type activist|passive`, and `--no-current` lists the
+  whole amendment chain instead of the latest filing per holder and class.
+- `invd ownership sale-notices <company>` (Standard): Form 144 notices of a planned insider sale (a proposed sale, not
+  an executed one; the executed trade is a Form 4 in `invd insider-trades`). `--owner` / `-o <cik>` reads one seller;
+  a replaced notice names its amendment in `replaced_by`.
+- The vendored `ownership-review` skill and the `invinite-financial-data` ownership guide cover both.
+
 ## Changes in 11.4.0 (Data API 11.2)
 
 CLI 11.4.0 and plugin 0.21.0 adopt Data API 11.2 (additive, no command removed or renamed):
@@ -133,6 +146,7 @@ Commands are noun-verb over the API's groups:
 | `people` | executives and analysts, and who took part in which event |
 | `holders` | who holds ONE stock or fund: `--source 13f` (13F managers), `nport` (funds' N-PORT reports), `issuer_file` (ETF issuer files), or without `--source` an overview of all three; `holders changes` = 13F quarter-over-quarter changes |
 | `insider-trades` | Form 4 transactions (trade date, owner CIK, derivative and 10b5-1 flags where the SEC Form 3/4/5 dataset has them) and Form 3/4/5 holdings (`insider-trades holdings`), by company or by insider (`--owner`) |
+| `ownership` | Schedule 13D / 13G filings of holders above 5 % (`ownership beneficial`, by company or by reporting person with `--filer`) and Form 144 notices of planned insider sales (`ownership sale-notices`, by company or by seller with `--owner`) |
 | `investor-documents` | company-published documents (annual reports, decks, letters) |
 | `news` | news from SEC filings and the companies' own newsrooms, with attribution |
 | `search` | full-text search over filings, transcripts, investor documents and news |
@@ -183,7 +197,7 @@ Plans (Data API 10.0): `companies` (with `companies fiscal-periods`), `instrumen
 `events list` / `get` and `me` reach every plan. Lite adds filings, filers, `documents`, `financials` (summary
 view), `metrics`, `guidance list`, `holders list`, `dividends`, `splits`, `news`, `funds`, `ipos`, `offerings`,
 `people`, `events press-release` and the alerts commands (`alerts`, `alert-events`, `alert-templates`, `alert-users`,
-`destinations`, `scripts`, `script-versions`). Standard adds `segments list`, `insider-trades` (incl. `holdings`), `search filings` and
+`destinations`, `scripts`, `script-versions`). Standard adds `segments list`, `insider-trades` (incl. `holdings`), `ownership`, `search filings` and
 `search news`. Pro adds the earnings-call content (transcripts, Q&A, stats, audio, slides, comparison, prosody, price
 attribution, transcript diff and versions), `investor-documents`, `search transcripts`, `search investor-documents`,
 the detailed and presentation `financials` views, `segments list-detailed`, `guidance kpis`, holder changes and fact
@@ -335,6 +349,11 @@ invd insider-trades get 0001127602-26-012345:1
 invd insider-trades list --owner 0001214156          # one insider's trades across every issuer
 invd insider-trades holdings AAPL                   # Form 3/4/5 holdings (latest first)
 invd insider-trades holdings --owner 0001214156 --as-of-gte 2026-01-01
+invd ownership beneficial AAPL                      # latest 13D / 13G filing per holder and class
+invd ownership beneficial AAPL --filer 0000102909 --no-current   # one holder's 13G amendment chain
+invd ownership beneficial --filer 0001517137 --type activist     # one holder's activist filings across companies
+invd ownership sale-notices AAPL --filed-at-gte 2026-01-01       # Form 144 notices of planned insider sales
+invd ownership sale-notices --owner 0001214156                   # one seller's notices across issuers
 ```
 
 ### News, investor documents, IPOs, market

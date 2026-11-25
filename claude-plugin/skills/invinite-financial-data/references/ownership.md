@@ -57,6 +57,24 @@ insiders bought, sold or hold.
 4 and 5 without a transaction, direct or indirect, with derivative terms (options, RSUs); `as_of` is the reported
 date. Standard, 1 credit.
 
+## Holders above 5 % (Schedule 13D / 13G)
+
+`call_api path=/v1/beneficial-ownership query={company: "AAPL"}` (or `filer: "<cik>"` for one reporting person
+across companies): one row per filing with every reporting person of its cover pages (shares with sole and shared
+voting and dispositive power, aggregate amount, percent of class). 13D = activist, 13G = passive (`type`). By default
+only the latest filing per company, primary reporting person and class (`current: true`); `current: false` returns
+the amendment chain, newest first, linked by `supersedes_accession`. A 13G is not a portfolio position: a
+manager's positions are the 13F holders. Structured filings since 2024-12-18, listed companies only. Standard, 1
+credit.
+
+## Planned insider sales (Form 144)
+
+`call_api path=/v1/insider-sale-notices query={company: "AAPL"}` (or `owner: "<cik>"`): notices of a proposed sale
+of restricted or control securities, with the securities to be sold, how they were acquired and the seller's sales
+of the past three months. A notice is a proposed sale, not an executed one; a 144/A names the notice it replaces in
+`replaces_accession` and the replaced notice names it in `replaced_by`. Electronic notices since 2023-04-13, listed
+issuers only. Standard, 1 credit.
+
 ## Presenting ownership
 
 Name every holder with its source and date, separate institutions, funds and insiders, and call out the reporting

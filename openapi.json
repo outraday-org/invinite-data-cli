@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Invinite API",
-    "description": "Invinite financial data API. Each operation has a base credit cost: `x-credits` is the base cost; responses add 1 credit per started 1,000 rows beyond the first 1,000; `X-Credits-Charged` reports the final debit and `X-Credits-Remaining` what is left of the plan's included credits after it. A `304 Not Modified` costs nothing. `GET /v1/me/usage` returns your account's usage by day, product family and key (it costs no credits).\n\n**Coverage.** Financial data covers US SEC registrants and their US listings; a symbol that is not a US SEC registrant (or a crypto pair such as `X:BTCUSD`) is not a known company and answers 404. A known company with no data in a family (for example no statements yet) answers 404 with `code: not_covered`; an empty page of a covered company stays 200 with an empty list. `GET /v1/companies` lists every known company.\n\n## Webhooks\n\nAlerts (`POST /v1/alerts`) deliver their events to your destinations (`POST /v1/destinations`) as [Standard Webhooks](https://github.com/standard-webhooks/standard-webhooks/blob/main/spec/standard-webhooks.md): `alert.fired`, `alert.fired.batch`, `alert.status_changed`, `destination.disabled`, `destination.test`, `account.fire_cap_reached`, `alert_user.fire_cap_reached`; see `x-webhooks` for each `data` object. Every event is also on the pull feed `GET /v1/alert-events`.\n\nEvery delivery is a `POST` with `Content-Type: application/json`, the body `{type, timestamp, data}` (or the destination's `body_template`) and the headers `webhook-id` (the event id; a batch: its `bat_…` id), `webhook-timestamp` (unix seconds) and `webhook-signature`: space-separated `v1,<base64 HMAC-SHA256 of <webhook-id>.<webhook-timestamp>.<raw body>>`, keyed with the base64-DECODED bytes of the destination's `whsec_…` secret — any Standard Webhooks library verifies it. After `POST /v1/destinations/{id}:rotate-secret` the old secret keeps signing beside the new one for 24 h (two `v1` entries). Reject a timestamp older than 5 minutes. Any 2xx within 10 s acknowledges; redirects are not followed; a body above 256 KB is not sent. A failed attempt is retried after [0, 5 s, 5 min, 30 min, 2 h, 5 h, 10 h, 10 h, 10 h, 34 h] (attempt n waits the n-th step) plus up to 10 % jitter; the delivery is dead after attempt 10. A 410 disables the destination at once; so do 72 h of nothing but failures with at least 10 failed attempts in a row (a `destination.disabled` event on the feed and a mail; `PATCH` with `status: active` re-enables it). Delivery is at-least-once and unordered: dedupe on `webhook-id`, order by `timestamp`. A `batch_webhook` destination receives `alert.fired.batch` with the pending events in `data.events[]` (dedupe on each `data.event_id`).\n\nFires and deliveries cost no credits; no daily fire cap; at most 60 fires per alert per rolling hour (beyond: suppressed and counted in the next fire's `suppressed_since_last`); an Enterprise contract may set a daily cap (beyond it: written to the feed with `delivery_skipped: fire_cap`, not delivered; one `account.fire_cap_reached` per day). An end user's `max_fires_per_day` (or the account default) caps that user first: beyond it `delivery_skipped: alert_user_fire_cap`, not counted against the account's cap, one `alert_user.fire_cap_reached` per user and day.\n\n## Licensing\n\n| Tier | display | redistribute | rag | train | audio | redistribute_api | resell |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| FREE | – | – | – | – | – | – | – |\n| LITE | – | – | – | – | – | – | – |\n| STANDARD | ✓ | ✓ | ✓ | – | – | – | – |\n| PRO | ✓ | ✓ | ✓ | – | ✓ | – | – |\n| ENTERPRISE | ✓ | ✓ | ✓ | ✓* | ✓ | ✓* | – |\n\n\\* Depending on the contract.\n\nInvinite data may be used inside the licensee's own organisation from LITE and, from STANDARD, shown and redistributed inside the licensee's own product (on screen, in exports and in embedded widgets) with attribution (\"Source: Invinite\"). Passing the data on through the licensee's own API is an ENTERPRISE right, granted in the contract. It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.\n\nInternal use: Every paid plan may use the data inside the licensee's own organisation: analysis, internal tools and dashboards for the licensee's own staff. Nothing is shown or passed to third parties below STANDARD.\n\nPolicy version: 2026-11-draft-2. Draft — pending counsel sign-off.\n\nAudio files carry a forensic watermark that identifies the recording. Audio is subject to per-company takedown and may not be re-hosted.\n\nSEC data: Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.\n\nNews: News text is Invinite's own summary of the issuer's or the SEC's publication (the publisher's text and media are never served); the licensee shows the attribution (publisher, source URL and date) next to it; the resale rule applies.\n\nPDF documents: Branded PDFs of transcripts and news items are permanent URLs to one shared file per version. They may be shown, downloaded and forwarded unmodified with the notice page intact; the resale rule applies unchanged. News PDFs carry Invinite's summary of the issuer's or the SEC's publication under the attribution stated on their notice page; a PDF disappears when the item is taken down or its source's reuse is denied.\n\nEvery `/v1/*` data operation carries `x-license`, the minimum use right its data ships with; `GET /status/licensing` serves the same matrix per route, rendered at [data.invinite.com/docs/licensing](https://data.invinite.com/docs/licensing). `/v1/me` and `/v1/me/usage` serve no licensed data and carry none.\n\n## Status\n\n[`/status`](/status) reports product-family uptime in `services` and request health and latency by documentation group in `groups`. Windows with too few requests have no figures. [`/status/licensing`](/status/licensing) serves the licensing matrix per route. The status routes need no API key and are cached for 5 minutes. The public status page is [status.data.invinite.com](https://status.data.invinite.com): a snapshot of `/status` every 15 minutes plus an external reachability probe of the API.\n\nUptime is the share of requests answered without a server error, measured by the API per product family; a window with too little traffic to judge shows no figure. Status reflects the last 24 hours.\n\nProduct families: Company, Financials, SEC Filings, Insider Trades, Institutional Ownership, IPOs, Market, Metadata, Earnings Calls, News, WebSocket, Account, Alerts.\n\nMeasured documentation groups: Corporate actions, Calendar, Instruments, Companies, Funds, Catalog, Macro, News, Financials, Metrics, Offerings, Holders, Insider trades, Filings, Events, Call analytics, Transcripts, Guidance, Investor documents, Alerts, Alert users, Alert events, Destinations, Scripts.",
+    "description": "Invinite financial data API. Each operation has a base credit cost: `x-credits` is the base cost; responses add 1 credit per started 1,000 rows beyond the first 1,000; `X-Credits-Charged` reports the final debit and `X-Credits-Remaining` what is left of the plan's included credits after it. A `304 Not Modified` costs nothing. `GET /v1/me/usage` returns your account's usage by day, product family and key (it costs no credits).\n\n**Coverage.** Financial data covers US SEC registrants and their US listings; a symbol that is not a US SEC registrant (or a crypto pair such as `X:BTCUSD`) is not a known company and answers 404. A known company with no data in a family (for example no statements yet) answers 404 with `code: not_covered`; an empty page of a covered company stays 200 with an empty list. `GET /v1/companies` lists every known company.\n\n## Webhooks\n\nAlerts (`POST /v1/alerts`) deliver their events to your destinations (`POST /v1/destinations`) as [Standard Webhooks](https://github.com/standard-webhooks/standard-webhooks/blob/main/spec/standard-webhooks.md): `alert.fired`, `alert.fired.batch`, `alert.status_changed`, `destination.disabled`, `destination.test`, `account.fire_cap_reached`, `alert_user.fire_cap_reached`; see `x-webhooks` for each `data` object. Every event is also on the pull feed `GET /v1/alert-events`.\n\nEvery delivery is a `POST` with `Content-Type: application/json`, the body `{type, timestamp, data}` (or the destination's `body_template`) and the headers `webhook-id` (the event id; a batch: its `bat_…` id), `webhook-timestamp` (unix seconds) and `webhook-signature`: space-separated `v1,<base64 HMAC-SHA256 of <webhook-id>.<webhook-timestamp>.<raw body>>`, keyed with the base64-DECODED bytes of the destination's `whsec_…` secret — any Standard Webhooks library verifies it. After `POST /v1/destinations/{id}:rotate-secret` the old secret keeps signing beside the new one for 24 h (two `v1` entries). Reject a timestamp older than 5 minutes. Any 2xx within 10 s acknowledges; redirects are not followed; a body above 256 KB is not sent. A failed attempt is retried after [0, 5 s, 5 min, 30 min, 2 h, 5 h, 10 h, 10 h, 10 h, 34 h] (attempt n waits the n-th step) plus up to 10 % jitter; the delivery is dead after attempt 10. A 410 disables the destination at once; so do 72 h of nothing but failures with at least 10 failed attempts in a row (a `destination.disabled` event on the feed and a mail; `PATCH` with `status: active` re-enables it). Delivery is at-least-once and unordered: dedupe on `webhook-id`, order by `timestamp`. A `batch_webhook` destination receives `alert.fired.batch` with the pending events in `data.events[]` (dedupe on each `data.event_id`).\n\nFires and deliveries cost no credits; no daily fire cap; at most 60 fires per alert per rolling hour (beyond: suppressed and counted in the next fire's `suppressed_since_last`); an Enterprise contract may set a daily cap (beyond it: written to the feed with `delivery_skipped: fire_cap`, not delivered; one `account.fire_cap_reached` per day). An end user's `max_fires_per_day` (or the account default) caps that user first: beyond it `delivery_skipped: alert_user_fire_cap`, not counted against the account's cap, one `alert_user.fire_cap_reached` per user and day.\n\n## Licensing\n\n| Tier | display | redistribute | rag | train | audio | redistribute_api | resell |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| FREE | – | – | – | – | – | – | – |\n| LITE | – | – | – | – | – | – | – |\n| STANDARD | ✓ | ✓ | ✓ | – | – | – | – |\n| PRO | ✓ | ✓ | ✓ | – | ✓ | – | – |\n| ENTERPRISE | ✓ | ✓ | ✓ | ✓* | ✓ | ✓* | – |\n\n\\* Depending on the contract.\n\nInvinite data may be used inside the licensee's own organisation from LITE and, from STANDARD, shown and redistributed inside the licensee's own product (on screen, in exports and in embedded widgets) with attribution (\"Source: Invinite\"). Passing the data on through the licensee's own API is an ENTERPRISE right, granted in the contract. It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.\n\nInternal use: Every paid plan may use the data inside the licensee's own organisation: analysis, internal tools and dashboards for the licensee's own staff. Nothing is shown or passed to third parties below STANDARD.\n\nPolicy version: 2026-11-draft-2. Draft — pending counsel sign-off.\n\nAudio files carry a forensic watermark that identifies the recording. Audio is subject to per-company takedown and may not be re-hosted.\n\nSEC data: Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.\n\nNews: News text is Invinite's own summary of the issuer's or the SEC's publication (the publisher's text and media are never served); the licensee shows the attribution (publisher, source URL and date) next to it; the resale rule applies.\n\nPDF documents: Branded PDFs of transcripts and news items are permanent URLs to one shared file per version. They may be shown, downloaded and forwarded unmodified with the notice page intact; the resale rule applies unchanged. News PDFs carry Invinite's summary of the issuer's or the SEC's publication under the attribution stated on their notice page; a PDF disappears when the item is taken down or its source's reuse is denied.\n\nEvery `/v1/*` data operation carries `x-license`, the minimum use right its data ships with; `GET /status/licensing` serves the same matrix per route, rendered at [data.invinite.com/docs/licensing](https://data.invinite.com/docs/licensing). `/v1/me` and `/v1/me/usage` serve no licensed data and carry none.\n\n## Status\n\n[`/status`](/status) reports product-family uptime in `services` and request health and latency by documentation group in `groups`. Windows with too few requests have no figures. [`/status/licensing`](/status/licensing) serves the licensing matrix per route. The status routes need no API key and are cached for 5 minutes. The public status page is [status.data.invinite.com](https://status.data.invinite.com): a snapshot of `/status` every 15 minutes plus an external reachability probe of the API.\n\nUptime is the share of requests answered without a server error, measured by the API per product family; a window with too little traffic to judge shows no figure. Status reflects the last 24 hours.\n\nProduct families: Company, Financials, SEC Filings, Insider Trades, Institutional Ownership, Ownership Filings, IPOs, Market, Metadata, Earnings Calls, News, WebSocket, Account, Alerts.\n\nMeasured documentation groups: Corporate actions, Calendar, Instruments, Companies, Funds, Catalog, Macro, News, Financials, Metrics, Offerings, Holders, Insider trades, Ownership, Filings, Events, Call analytics, Transcripts, Guidance, Investor documents, Alerts, Alert users, Alert events, Destinations, Scripts.",
     "version": "2026-11-23"
   },
   "components": {
@@ -468,6 +468,8 @@
                 "guidance",
                 "insider_trades",
                 "insider_holdings",
+                "beneficial_ownership",
+                "insider_sale_notices",
                 "people",
                 "investor_documents",
                 "news",
@@ -6680,6 +6682,607 @@
           }
         },
         "title": "InsiderHolding"
+      },
+      "BeneficialOwnershipFiling": {
+        "type": "object",
+        "description": "One Schedule 13D (activist) or 13G (passive) filing on a class of a listed company, with every reporting person of its cover pages",
+        "required": [
+          "accession_number",
+          "company",
+          "company_name",
+          "form",
+          "schedule",
+          "is_amendment",
+          "amendment_no",
+          "event_date",
+          "filed_at",
+          "accepted_at",
+          "class_title",
+          "cusip",
+          "supersedes_accession",
+          "is_current",
+          "holders",
+          "purpose",
+          "parse_state",
+          "filing_url",
+          "source_url"
+        ],
+        "properties": {
+          "accession_number": {
+            "type": "string",
+            "description": "Accession of the filing",
+            "example": "0000102909-25-000123"
+          },
+          "company": {
+            "$ref": "#/components/schemas/CompanyRef"
+          },
+          "company_name": {
+            "type": "string",
+            "description": "Subject company name as filed",
+            "example": "Apple Inc.",
+            "nullable": true
+          },
+          "form": {
+            "type": "string",
+            "description": "Form as filed (SCHEDULE 13D, SCHEDULE 13D/A, SCHEDULE 13G, SCHEDULE 13G/A)",
+            "example": "SCHEDULE 13G/A"
+          },
+          "schedule": {
+            "type": "string",
+            "enum": [
+              "13D",
+              "13G"
+            ],
+            "description": "13D = activist (the holder may seek to influence the company); 13G = passive",
+            "example": "13G"
+          },
+          "is_amendment": {
+            "type": "boolean",
+            "description": "true for an amendment (13D/A, 13G/A)",
+            "example": true
+          },
+          "amendment_no": {
+            "type": "integer",
+            "description": "Amendment number as filed; null on an original filing or when not stated",
+            "example": 12,
+            "nullable": true
+          },
+          "event_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Date of the event that requires the filing (crossing 5 %, a change)",
+            "example": "2025-09-30",
+            "nullable": true
+          },
+          "filed_at": {
+            "type": "string",
+            "format": "date",
+            "description": "Filing date",
+            "example": "2025-11-12"
+          },
+          "accepted_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When EDGAR accepted the filing",
+            "example": "2025-11-12T15:02:11Z",
+            "nullable": true
+          },
+          "class_title": {
+            "type": "string",
+            "description": "Class of securities as filed",
+            "example": "Common Stock",
+            "nullable": true
+          },
+          "cusip": {
+            "type": "string",
+            "description": "CUSIP of the class as filed",
+            "example": "037833100",
+            "nullable": true
+          },
+          "supersedes_accession": {
+            "type": "string",
+            "description": "The previous filing of the same company, primary reporting person and class (the amendment chain); null for the first filing of the chain",
+            "example": "0000102909-24-000877",
+            "nullable": true
+          },
+          "is_current": {
+            "type": "boolean",
+            "description": "true when no later filing of the same company, primary reporting person and class exists (the latest state of the chain)",
+            "example": true
+          },
+          "holders": {
+            "type": "array",
+            "description": "The reporting persons of the cover pages, in filing order",
+            "items": {
+              "$ref": "#/components/schemas/BeneficialOwnershipHolder"
+            }
+          },
+          "purpose": {
+            "type": "string",
+            "description": "Purpose of the transaction (Schedule 13D item 4) as filed; null on a 13G",
+            "example": "The Reporting Persons acquired the Shares for investment purposes.",
+            "nullable": true
+          },
+          "parse_state": {
+            "type": "string",
+            "enum": [
+              "parsed",
+              "no_structured_document",
+              "failed"
+            ],
+            "description": "parsed = the structured XML was read; no_structured_document = the filing has no XML form (its values are null); failed = the XML could not be read (its values are null)",
+            "example": "parsed"
+          },
+          "filing_url": {
+            "type": "string",
+            "description": "The filing's EDGAR index page",
+            "example": "https://www.sec.gov/Archives/edgar/data/320193/000010290925000123/0000102909-25-000123-index.htm"
+          },
+          "source_url": {
+            "type": "string",
+            "description": "Permanent public URL of the original document; null while it is not public",
+            "nullable": true
+          }
+        },
+        "title": "BeneficialOwnershipFiling"
+      },
+      "BeneficialOwnershipHolder": {
+        "type": "object",
+        "description": "One reporting person on the cover pages of a Schedule 13D / 13G filing",
+        "required": [
+          "filer_cik",
+          "name",
+          "type_of_person",
+          "citizenship",
+          "sole_voting_power",
+          "shared_voting_power",
+          "sole_dispositive_power",
+          "shared_dispositive_power",
+          "aggregate_amount",
+          "percent_of_class",
+          "source_of_funds",
+          "is_group_member"
+        ],
+        "properties": {
+          "filer_cik": {
+            "type": "string",
+            "description": "CIK of the reporting person (10 digits); null when the person has no EDGAR CIK",
+            "example": "0000102909",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Reporting person as filed",
+            "example": "VANGUARD GROUP INC"
+          },
+          "type_of_person": {
+            "type": "string",
+            "description": "Type of reporting person as filed (IA investment adviser, IN individual, CO corporation, PN partnership, …; several codes comma-separated)",
+            "example": "IA",
+            "nullable": true
+          },
+          "citizenship": {
+            "type": "string",
+            "description": "Citizenship or place of organization as filed",
+            "example": "PA",
+            "nullable": true
+          },
+          "sole_voting_power": {
+            "type": "number",
+            "description": "Shares over which the person has sole voting power",
+            "example": 0,
+            "nullable": true
+          },
+          "shared_voting_power": {
+            "type": "number",
+            "description": "Shares over which the person shares voting power",
+            "example": 1520417,
+            "nullable": true
+          },
+          "sole_dispositive_power": {
+            "type": "number",
+            "description": "Shares the person alone may dispose of",
+            "example": 147298433,
+            "nullable": true
+          },
+          "shared_dispositive_power": {
+            "type": "number",
+            "description": "Shares the person may dispose of together with others",
+            "example": 6153521,
+            "nullable": true
+          },
+          "aggregate_amount": {
+            "type": "number",
+            "description": "Shares beneficially owned in total",
+            "example": 153451954,
+            "nullable": true
+          },
+          "percent_of_class": {
+            "type": "number",
+            "description": "Percent of the class as filed (7.5 = 7.5 %)",
+            "example": 9.92,
+            "nullable": true
+          },
+          "source_of_funds": {
+            "type": "string",
+            "description": "Source of funds codes of a Schedule 13D as filed (WC working capital, OO other, PF personal funds, BK bank, AF affiliate, …); null on a 13G",
+            "example": "WC",
+            "nullable": true
+          },
+          "is_group_member": {
+            "type": "boolean",
+            "description": "true when the person reports as a member of a group; null when the filing does not say",
+            "example": false,
+            "nullable": true
+          }
+        },
+        "title": "BeneficialOwnershipHolder"
+      },
+      "InsiderSaleNotice": {
+        "type": "object",
+        "description": "One Form 144 notice of a proposed sale of restricted or control securities (a proposed sale, not an executed one)",
+        "required": [
+          "accession_number",
+          "company",
+          "company_name",
+          "filer",
+          "relationships",
+          "form",
+          "is_amendment",
+          "notice_date",
+          "filed_at",
+          "accepted_at",
+          "replaces_accession",
+          "replaced_by",
+          "plan_adoption_dates",
+          "nothing_sold_past_3_months",
+          "remarks",
+          "securities",
+          "acquisitions",
+          "sales_past_3_months",
+          "parse_state",
+          "filing_url",
+          "source_url"
+        ],
+        "properties": {
+          "accession_number": {
+            "type": "string",
+            "description": "Accession of the notice",
+            "example": "0001959173-25-006421"
+          },
+          "company": {
+            "$ref": "#/components/schemas/CompanyRef"
+          },
+          "company_name": {
+            "type": "string",
+            "description": "Issuer name as filed",
+            "example": "Apple Inc.",
+            "nullable": true
+          },
+          "filer": {
+            "$ref": "#/components/schemas/InsiderSaleNoticeFiler"
+          },
+          "relationships": {
+            "type": "array",
+            "description": "The seller's relationships to the issuer as filed (Officer, Director, 10% Securityholder, …)",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Officer",
+              "Director"
+            ]
+          },
+          "form": {
+            "type": "string",
+            "enum": [
+              "144",
+              "144/A"
+            ],
+            "description": "Form as filed",
+            "example": "144"
+          },
+          "is_amendment": {
+            "type": "boolean",
+            "description": "true for an amendment (144/A)",
+            "example": false
+          },
+          "notice_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Date of the notice",
+            "example": "2025-10-02",
+            "nullable": true
+          },
+          "filed_at": {
+            "type": "string",
+            "format": "date",
+            "description": "Filing date",
+            "example": "2025-10-02"
+          },
+          "accepted_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When EDGAR accepted the notice",
+            "example": "2025-10-02T16:31:08Z",
+            "nullable": true
+          },
+          "replaces_accession": {
+            "type": "string",
+            "description": "On an amendment: the notice it replaces; null when none is named or the reference is ambiguous",
+            "nullable": true
+          },
+          "replaced_by": {
+            "type": "string",
+            "description": "The newest amendment that replaces this notice; null when none does",
+            "nullable": true
+          },
+          "plan_adoption_dates": {
+            "type": "array",
+            "description": "Adoption dates of the Rule 10b5-1 trading plans the sale falls under (empty when none is stated)",
+            "items": {
+              "type": "string",
+              "format": "date"
+            },
+            "example": [
+              "2025-05-15"
+            ]
+          },
+          "nothing_sold_past_3_months": {
+            "type": "boolean",
+            "description": "true when the seller states no sales in the past three months; null when not stated",
+            "example": false,
+            "nullable": true
+          },
+          "remarks": {
+            "type": "string",
+            "description": "Remarks as filed",
+            "nullable": true
+          },
+          "securities": {
+            "type": "array",
+            "description": "The securities to be sold",
+            "items": {
+              "$ref": "#/components/schemas/InsiderSaleNoticeSecurity"
+            }
+          },
+          "acquisitions": {
+            "type": "array",
+            "description": "How the seller acquired the securities to be sold",
+            "items": {
+              "$ref": "#/components/schemas/InsiderSaleNoticeAcquisition"
+            }
+          },
+          "sales_past_3_months": {
+            "type": "array",
+            "description": "The seller's sales of the issuer's securities in the past three months",
+            "items": {
+              "$ref": "#/components/schemas/InsiderSaleNoticeSale"
+            }
+          },
+          "parse_state": {
+            "type": "string",
+            "enum": [
+              "parsed",
+              "no_structured_document",
+              "failed"
+            ],
+            "description": "parsed = the structured XML was read; no_structured_document = the filing has no XML form (its values are null); failed = the XML could not be read (its values are null)",
+            "example": "parsed"
+          },
+          "filing_url": {
+            "type": "string",
+            "description": "The notice's EDGAR index page",
+            "example": "https://www.sec.gov/Archives/edgar/data/320193/000195917325006421/0001959173-25-006421-index.htm"
+          },
+          "source_url": {
+            "type": "string",
+            "description": "Permanent public URL of the original document; null while it is not public",
+            "nullable": true
+          }
+        },
+        "title": "InsiderSaleNotice"
+      },
+      "InsiderSaleNoticeFiler": {
+        "type": "object",
+        "description": "The person for whose account the securities are to be sold",
+        "required": [
+          "cik",
+          "name"
+        ],
+        "properties": {
+          "cik": {
+            "type": "string",
+            "description": "CIK of the seller (10 digits); null when the notice names none",
+            "example": "0001214156",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Seller as filed",
+            "example": "COOK TIMOTHY D",
+            "nullable": true
+          }
+        },
+        "title": "InsiderSaleNoticeFiler"
+      },
+      "InsiderSaleNoticeSecurity": {
+        "type": "object",
+        "description": "One block of securities to be sold under a Form 144 notice",
+        "required": [
+          "class_title",
+          "broker",
+          "shares_to_sell",
+          "market_value",
+          "shares_outstanding",
+          "approximate_sale_date",
+          "exchange"
+        ],
+        "properties": {
+          "class_title": {
+            "type": "string",
+            "description": "Class of securities as filed",
+            "example": "Common",
+            "nullable": true
+          },
+          "broker": {
+            "type": "string",
+            "description": "Broker or market maker through which the securities are to be sold",
+            "example": "Morgan Stanley Smith Barney LLC",
+            "nullable": true
+          },
+          "shares_to_sell": {
+            "type": "number",
+            "description": "Shares (or units) to be sold",
+            "example": 129963,
+            "nullable": true
+          },
+          "market_value": {
+            "type": "number",
+            "description": "Aggregate market value in USD as filed",
+            "example": 33289983.21,
+            "nullable": true
+          },
+          "shares_outstanding": {
+            "type": "number",
+            "description": "Shares (or units) of the class outstanding as filed",
+            "example": 14776353000,
+            "nullable": true
+          },
+          "approximate_sale_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Approximate date of the sale",
+            "example": "2025-10-02",
+            "nullable": true
+          },
+          "exchange": {
+            "type": "string",
+            "description": "Securities exchange as filed",
+            "example": "NASDAQ",
+            "nullable": true
+          }
+        },
+        "title": "InsiderSaleNoticeSecurity"
+      },
+      "InsiderSaleNoticeAcquisition": {
+        "type": "object",
+        "description": "How the seller acquired the securities to be sold (table 1 of a Form 144 notice)",
+        "required": [
+          "class_title",
+          "acquired_date",
+          "nature_of_acquisition",
+          "acquired_from",
+          "is_gift",
+          "donor_acquired_date",
+          "amount_acquired",
+          "payment_date",
+          "nature_of_payment"
+        ],
+        "properties": {
+          "class_title": {
+            "type": "string",
+            "description": "Class of securities as filed",
+            "example": "Common",
+            "nullable": true
+          },
+          "acquired_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Date the securities were acquired",
+            "example": "2025-10-01",
+            "nullable": true
+          },
+          "nature_of_acquisition": {
+            "type": "string",
+            "description": "Nature of the acquisition as filed",
+            "example": "Restricted Stock Vesting",
+            "nullable": true
+          },
+          "acquired_from": {
+            "type": "string",
+            "description": "From whom the securities were acquired",
+            "example": "Issuer",
+            "nullable": true
+          },
+          "is_gift": {
+            "type": "boolean",
+            "description": "true when the securities were received as a gift",
+            "example": false,
+            "nullable": true
+          },
+          "donor_acquired_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Date the donor acquired a gifted security",
+            "nullable": true
+          },
+          "amount_acquired": {
+            "type": "number",
+            "description": "Shares (or units) acquired",
+            "example": 129963,
+            "nullable": true
+          },
+          "payment_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Date of payment",
+            "example": "2025-10-01",
+            "nullable": true
+          },
+          "nature_of_payment": {
+            "type": "string",
+            "description": "Nature of payment as filed",
+            "example": "Services rendered",
+            "nullable": true
+          }
+        },
+        "title": "InsiderSaleNoticeAcquisition"
+      },
+      "InsiderSaleNoticeSale": {
+        "type": "object",
+        "description": "A sale of the issuer's securities by the seller in the past three months (table 2 of a Form 144 notice)",
+        "required": [
+          "seller_name",
+          "class_title",
+          "sale_date",
+          "amount_sold",
+          "gross_proceeds"
+        ],
+        "properties": {
+          "seller_name": {
+            "type": "string",
+            "description": "Seller as filed",
+            "example": "Timothy D. Cook",
+            "nullable": true
+          },
+          "class_title": {
+            "type": "string",
+            "description": "Class of securities as filed",
+            "example": "Common",
+            "nullable": true
+          },
+          "sale_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Date of the sale",
+            "example": "2025-08-08",
+            "nullable": true
+          },
+          "amount_sold": {
+            "type": "number",
+            "description": "Shares (or units) sold",
+            "example": 108136,
+            "nullable": true
+          },
+          "gross_proceeds": {
+            "type": "number",
+            "description": "Gross proceeds in USD",
+            "example": 24183848.42,
+            "nullable": true
+          }
+        },
+        "title": "InsiderSaleNoticeSale"
       },
       "Ipo": {
         "type": "object",
@@ -20547,6 +21150,7 @@
                               "sec_filings",
                               "insider_trades",
                               "institutional_ownership",
+                              "ownership_forms",
                               "ipos",
                               "market",
                               "metadata",
@@ -20616,6 +21220,7 @@
                               "offerings",
                               "holdings",
                               "insider_trades",
+                              "ownership",
                               "filings",
                               "events",
                               "call_analytics",
@@ -21072,6 +21677,7 @@
                               "sec_filings",
                               "insider_trades",
                               "institutional_ownership",
+                              "ownership_forms",
                               "ipos",
                               "market",
                               "metadata",
@@ -23774,7 +24380,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
             "example": "AAPL"
           },
           {
@@ -24485,7 +25091,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required.",
             "example": "AAPL"
           },
           {
@@ -30821,7 +31427,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required.",
             "example": "AAPL"
           },
           {
@@ -31293,7 +31899,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required.",
             "example": "AAPL"
           },
           {
@@ -32329,7 +32935,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required.",
             "example": "AAPL"
           },
           {
@@ -32810,7 +33416,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required.",
             "example": "AAPL"
           },
           {
@@ -33432,7 +34038,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required.",
             "example": "AAPL"
           },
           {
@@ -34551,7 +35157,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required.",
             "example": "AAPL"
           },
           {
@@ -35354,7 +35960,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required.",
             "example": "AAPL"
           },
           {
@@ -35711,7 +36317,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required.",
             "example": "AAPL"
           },
           {
@@ -36047,7 +36653,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required.",
             "example": "AAPL"
           },
           {
@@ -36382,7 +36988,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required.",
             "example": "AAPL"
           },
           {
@@ -36715,7 +37321,7 @@
             "in": "query",
             "name": "company",
             "required": true,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required.",
             "example": "AAPL"
           },
           {
@@ -41445,7 +42051,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
             "example": "AAPL"
           },
           {
@@ -41988,7 +42594,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
             "example": "AAPL"
           },
           {
@@ -42302,6 +42908,592 @@
         ]
       }
     },
+    "/v1/beneficial-ownership": {
+      "get": {
+        "operationId": "listBeneficialOwnershipFilings",
+        "summary": "List beneficial ownership filings (13D / 13G)",
+        "tags": [
+          "Ownership"
+        ],
+        "description": "List the Schedule 13D and 13G filings of holders above 5 % of a class of a listed company.\n\nSchedule 13D is the activist form: the holder may seek to influence the company. Schedule 13G is the passive form. A 13G is a cover filing of one holder above 5 % of one class, not a portfolio position; for a manager's positions use GET /v1/holders (13F). Each row is one filing with every reporting person of its cover pages.\n\nUse `company` for the filings on a company or `filer` for one reporting person's filings across companies; one of the two is required. `current=true` (the default) lists only the latest filing per company, primary reporting person and class; `current=false` lists the whole amendment chain, linked by `supersedes_accession`. Rows run from the newest filing to the oldest.\n\nCoverage: structured filings since 2024-12-18 (the first day of mandatory XML), for listed subject companies only; older filings are not served.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "query",
+            "name": "company",
+            "required": false,
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
+            "example": "AAPL"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]{1,10}(,[0-9]{1,10}){0,49}$"
+            },
+            "in": "query",
+            "name": "filer",
+            "required": false,
+            "description": "Reporting-person CIK (all digits, any padding): that person's filings across companies; a comma list of 1–50 reads several persons. One of `company` / `filer` is required; both = the persons' filings on those companies",
+            "example": "0000102909"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "activist",
+                "passive"
+              ]
+            },
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "description": "activist = Schedule 13D only; passive = Schedule 13G only; omitted = both",
+            "example": "activist"
+          },
+          {
+            "schema": {
+              "type": "boolean",
+              "default": true
+            },
+            "in": "query",
+            "name": "current",
+            "required": false,
+            "description": "true = only the latest filing per company, primary reporting person and class; false = every filing of the amendment chain",
+            "example": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "query",
+            "name": "filed_at.gte",
+            "required": false,
+            "description": "`filed_at` on or after this date (the filing date)",
+            "example": "2025-01-01"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "query",
+            "name": "filed_at.gt",
+            "required": false,
+            "description": "`filed_at` after this date (the filing date)",
+            "example": "2025-01-01"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "query",
+            "name": "filed_at.lte",
+            "required": false,
+            "description": "`filed_at` on or before this date (the filing date)",
+            "example": "2025-01-01"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "query",
+            "name": "filed_at.lt",
+            "required": false,
+            "description": "`filed_at` before this date (the filing date)",
+            "example": "2025-01-01"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "-filed_at"
+              ],
+              "default": "-filed_at"
+            },
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "description": "Sort field: `-filed_at` (newest filing first, the only order served); the accession tiebreaker is always appended",
+            "example": "-filed_at"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "description": "Comma list of root-level fields to keep (R7)",
+            "example": "fiscal_year,period_end"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 25
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "description": "Rows per page (default 25, max 200)",
+            "example": 25
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+            "example": "eyJ2IjoyfQ"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of rows",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/Cache-Control"
+              },
+              "X-Credits-Charged": {
+                "$ref": "#/components/headers/X-Credits-Charged"
+              },
+              "X-Credits-Remaining": {
+                "$ref": "#/components/headers/X-Credits-Remaining"
+              },
+              "X-RateLimit-Limit-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Second"
+              },
+              "X-RateLimit-Remaining-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Second"
+              },
+              "X-RateLimit-Limit-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Minute"
+              },
+              "X-RateLimit-Remaining-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Minute"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
+              },
+              "RateLimit": {
+                "$ref": "#/components/headers/RateLimit"
+              },
+              "RateLimit-Policy": {
+                "$ref": "#/components/headers/RateLimit-Policy"
+              },
+              "Link": {
+                "$ref": "#/components/headers/Link"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "A page of BeneficialOwnershipFiling rows (the list envelope, R3)",
+                  "type": "object",
+                  "required": [
+                    "data",
+                    "has_more",
+                    "next_cursor",
+                    "meta"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "description": "The rows of this page",
+                      "items": {
+                        "$ref": "#/components/schemas/BeneficialOwnershipFiling"
+                      }
+                    },
+                    "has_more": {
+                      "type": "boolean",
+                      "description": "true when a next page exists"
+                    },
+                    "next_cursor": {
+                      "type": "string",
+                      "description": "Opaque cursor of the next page; null on the last page",
+                      "nullable": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "description": "Page metadata",
+                      "properties": {
+                        "coverage": {
+                          "$ref": "#/components/schemas/MetaCoverage"
+                        },
+                        "pinned_at": {
+                          "type": "string",
+                          "description": "Instant the page reads the filings at",
+                          "format": "date-time",
+                          "nullable": true
+                        },
+                        "coverage_start": {
+                          "type": "string",
+                          "description": "First filing date of the structured history (2024-12-18)",
+                          "format": "date",
+                          "nullable": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          }
+        },
+        "x-tier": "standard",
+        "x-credits": 1,
+        "x-license": "redistribute",
+        "x-cache-control": "private, max-age=300",
+        "x-cli": {
+          "group": "ownership",
+          "action": "beneficial",
+          "positional": "company",
+          "flags": {
+            "filer": "f",
+            "type": "t",
+            "limit": "l"
+          },
+          "columns": [
+            "filed_at",
+            "form",
+            "company.ticker",
+            "class_title",
+            "event_date",
+            "is_current"
+          ]
+        },
+        "x-example-params": [
+          "company"
+        ]
+      }
+    },
+    "/v1/insider-sale-notices": {
+      "get": {
+        "operationId": "listInsiderSaleNotices",
+        "summary": "List insider sale notices (Form 144)",
+        "tags": [
+          "Ownership"
+        ],
+        "description": "List the Form 144 notices of a proposed sale of restricted or control securities of a listed company.\n\nA notice is a proposed sale, not an executed one: the seller may sell less or nothing. Executed trades are reported on Form 4 (GET /v1/insider-trades). Each row is one notice with the securities to be sold, how they were acquired and the seller's sales of the past three months.\n\nAn amendment (144/A) names the notice it replaces in `replaces_accession`, and the replaced notice names its newest replacement in `replaced_by`.\n\nUse `company` for an issuer's notices or `owner` for one seller's notices across issuers (one of the two is required). Rows run from the newest filing to the oldest. Coverage: electronic notices since 2023-04-13, for listed issuers only.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "query",
+            "name": "company",
+            "required": false,
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
+            "example": "AAPL"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]{1,10}(,[0-9]{1,10}){0,49}$"
+            },
+            "in": "query",
+            "name": "owner",
+            "required": false,
+            "description": "Seller CIK (all digits, any padding): that person's notices across issuers; a comma list of 1–50 reads several sellers. One of `company` / `owner` is required; both = the sellers' notices on those companies",
+            "example": "0001214156"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "query",
+            "name": "filed_at.gte",
+            "required": false,
+            "description": "`filed_at` on or after this date (the filing date)",
+            "example": "2025-01-01"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "query",
+            "name": "filed_at.gt",
+            "required": false,
+            "description": "`filed_at` after this date (the filing date)",
+            "example": "2025-01-01"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "query",
+            "name": "filed_at.lte",
+            "required": false,
+            "description": "`filed_at` on or before this date (the filing date)",
+            "example": "2025-01-01"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "query",
+            "name": "filed_at.lt",
+            "required": false,
+            "description": "`filed_at` before this date (the filing date)",
+            "example": "2025-01-01"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "-filed_at"
+              ],
+              "default": "-filed_at"
+            },
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "description": "Sort field: `-filed_at` (newest filing first, the only order served); the accession tiebreaker is always appended",
+            "example": "-filed_at"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "description": "Comma list of root-level fields to keep (R7)",
+            "example": "fiscal_year,period_end"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 25
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "description": "Rows per page (default 25, max 200)",
+            "example": 25
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+            "example": "eyJ2IjoyfQ"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of rows",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/Cache-Control"
+              },
+              "X-Credits-Charged": {
+                "$ref": "#/components/headers/X-Credits-Charged"
+              },
+              "X-Credits-Remaining": {
+                "$ref": "#/components/headers/X-Credits-Remaining"
+              },
+              "X-RateLimit-Limit-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Second"
+              },
+              "X-RateLimit-Remaining-Second": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Second"
+              },
+              "X-RateLimit-Limit-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Limit-Minute"
+              },
+              "X-RateLimit-Remaining-Minute": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining-Minute"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
+              },
+              "RateLimit": {
+                "$ref": "#/components/headers/RateLimit"
+              },
+              "RateLimit-Policy": {
+                "$ref": "#/components/headers/RateLimit-Policy"
+              },
+              "Link": {
+                "$ref": "#/components/headers/Link"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "A page of InsiderSaleNotice rows (the list envelope, R3)",
+                  "type": "object",
+                  "required": [
+                    "data",
+                    "has_more",
+                    "next_cursor",
+                    "meta"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "description": "The rows of this page",
+                      "items": {
+                        "$ref": "#/components/schemas/InsiderSaleNotice"
+                      }
+                    },
+                    "has_more": {
+                      "type": "boolean",
+                      "description": "true when a next page exists"
+                    },
+                    "next_cursor": {
+                      "type": "string",
+                      "description": "Opaque cursor of the next page; null on the last page",
+                      "nullable": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "description": "Page metadata",
+                      "properties": {
+                        "coverage": {
+                          "$ref": "#/components/schemas/MetaCoverage"
+                        },
+                        "pinned_at": {
+                          "type": "string",
+                          "description": "Instant the page reads the filings at",
+                          "format": "date-time",
+                          "nullable": true
+                        },
+                        "coverage_start": {
+                          "type": "string",
+                          "description": "First filing date of the electronic history (2023-04-13)",
+                          "format": "date",
+                          "nullable": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "304": {
+            "$ref": "#/components/responses/NotModified"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          }
+        },
+        "x-tier": "standard",
+        "x-credits": 1,
+        "x-license": "redistribute",
+        "x-cache-control": "private, max-age=300",
+        "x-cli": {
+          "group": "ownership",
+          "action": "sale-notices",
+          "positional": "company",
+          "flags": {
+            "owner": "o",
+            "limit": "l"
+          },
+          "columns": [
+            "filed_at",
+            "company.ticker",
+            "filer.name",
+            "notice_date",
+            "form",
+            "replaced_by"
+          ]
+        },
+        "x-example-params": [
+          "company"
+        ]
+      }
+    },
     "/v1/ipos": {
       "get": {
         "operationId": "listIpos",
@@ -42384,7 +43576,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
             "example": "AAPL"
           },
           {
@@ -43473,7 +44665,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
             "example": "AAPL"
           },
           {
@@ -46300,7 +47492,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
             "example": "AAPL"
           },
           {
@@ -46635,7 +47827,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
             "example": "AAPL"
           },
           {
@@ -46965,7 +48157,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
             "example": "AAPL"
           },
           {
@@ -47244,7 +48436,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
             "example": "AAPL"
           },
           {
@@ -47729,7 +48921,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
             "example": "AAPL"
           },
           {
@@ -48009,7 +49201,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
             "example": "AAPL"
           },
           {
@@ -48765,7 +49957,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
             "example": "AAPL"
           },
           {
@@ -49033,7 +50225,7 @@
             "in": "query",
             "name": "company",
             "required": false,
-            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
+            "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
             "example": "AAPL"
           },
           {
@@ -56122,6 +57314,10 @@
     {
       "name": "Insider trades",
       "description": "Form 4 transactions and Form 3/4/5 holdings, by company or by insider"
+    },
+    {
+      "name": "Ownership",
+      "description": "Schedule 13D / 13G filings of holders above 5 % of a class and Form 144 notices of proposed insider sales"
     },
     {
       "name": "Filings",

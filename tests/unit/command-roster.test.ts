@@ -57,7 +57,7 @@ describe('the hand-written roster', () => {
       'agent-setup', 'alert-events', 'alert-templates', 'alert-users', 'alerts', 'api', 'auth', 'catalog', 'companies',
       'completion', 'config', 'destinations', 'dividends', 'documents', 'events', 'filers', 'filings', 'financials',
       'funds', 'guidance', 'holders', 'insider-trades', 'instruments', 'investor-documents', 'ipos', 'macro', 'market', 'me',
-      'metrics', 'news', 'offerings', 'people', 'plugin', 'script-versions', 'scripts', 'search', 'segments', 'splits',
+      'metrics', 'news', 'offerings', 'ownership', 'people', 'plugin', 'script-versions', 'scripts', 'search', 'segments', 'splits',
     ]);
     const tree = leaves(createProgram());
     expect(new Set(tree).size).toBe(tree.length);
