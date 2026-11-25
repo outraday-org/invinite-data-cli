@@ -1,22 +1,35 @@
 import { readdirSync, readFileSync } from 'node:fs';
+import { relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
 import type { Command, Option } from 'commander';
 import { createProgram } from '../../src/cli.js';
 
 /**
- * Every `invd …` line in a fenced block, and every inline `invd …` code span, of the README and the plugin's skill,
- * agent and commands names a registered command, and every flag on it is one that command (or the program) declares —
+ * Every `invd …` line in a fenced block, and every inline `invd …` code span, of the README, the plugin's agent and
+ * every skill file (the CLI skill, its command reference and the skills vendored from invinite-data-api) names a
+ * registered command, and every flag on it is one that command (or the program) declares —
  * the drift a renamed command or flag leaves behind. A span naming a placeholder command (`invd <group> …`) is skipped.
  */
 /** The repository root: tests run in a temporary working directory (tests/setup.ts). */
 const ROOT = fileURLToPath(new URL('../../', import.meta.url));
 
+/** Every `.md` under `claude-plugin/skills/` (`SKILL.md` and `references/*.md` of each skill folder). */
+const skillDocuments = (directory: string): string[] =>
+  readdirSync(directory, { withFileTypes: true }).flatMap(entry =>
+    entry.isDirectory()
+      ? skillDocuments(`${directory}/${entry.name}`)
+      : entry.name.endsWith('.md') ? [relative(ROOT, `${directory}/${entry.name}`).split('\\').join('/')] : [],
+  );
+
 const DOCUMENTS = [
-  'README.md',
-  'claude-plugin/skills/invinite-data-cli/SKILL.md',
-  'claude-plugin/agents/invinite-data.md',
-  ...readdirSync(`${ROOT}claude-plugin/commands`).map(file => `claude-plugin/commands/${file}`),
+  ...new Set([
+    'README.md',
+    'claude-plugin/skills/invinite-data-cli/SKILL.md',
+    'claude-plugin/skills/invinite-data-cli/references/commands.md',
+    'claude-plugin/agents/invinite-data.md',
+    ...skillDocuments(`${ROOT}claude-plugin/skills`).sort(),
+  ]),
 ];
 
 /** Shell-like words of one line: quotes group, `#` starts a comment, a pipe or redirect ends the invd command. */
@@ -145,8 +158,9 @@ describe('invd command spellings in the docs', () => {
     });
   }
 
-  it('reads the fenced and inline spellings of the README and the skill', () => {
-    for (const document of DOCUMENTS.slice(0, 2)) expect(invdLines(readFileSync(`${ROOT}${document}`, 'utf8')).length, document).toBeGreaterThan(10);
+  it('reads the fenced and inline spellings of the README, the CLI skill and its command reference', () => {
+    expect(DOCUMENTS).toContain('claude-plugin/skills/invinite-financial-data/references/financials.md');
+    for (const document of DOCUMENTS.slice(0, 3)) expect(invdLines(readFileSync(`${ROOT}${document}`, 'utf8')).length, document).toBeGreaterThan(10);
   });
 
   it('catches a renamed flag, a missing command and a stray positional', () => {

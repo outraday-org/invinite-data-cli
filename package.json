@@ -29,6 +29,8 @@
     "cli:manifest:check": "node scripts/check-api-contract.mjs && tsx scripts/build-cli-manifest.ts --check",
     "skill:commands": "tsx scripts/build-skill-commands.ts",
     "skill:commands:check": "tsx scripts/build-skill-commands.ts --check",
+    "skills:import": "tsx scripts/import-skills.ts",
+    "skills:import:check": "tsx scripts/import-skills.ts --check",
     "reference:export": "node scripts/check-api-contract.mjs && tsx scripts/snapshot-data-cli-reference.ts && tsx scripts/snapshot-data-plugin-packaging.ts",
     "reference:check": "node scripts/check-api-contract.mjs && tsx scripts/snapshot-data-cli-reference.ts --check && tsx scripts/snapshot-data-plugin-packaging.ts --check"
   },

@@ -25,6 +25,15 @@ command ([Changes in 8.0](#changes-in-80)). Coming from 5.x, read [Upgrading fro
 [Upgrading from 4.x](#upgrading-from-4x); from 3.x, [Upgrading from 3.x](#upgrading-from-3x).
 
 
+## Plugin 0.22.0: skills from the Data API
+
+Plugin 0.22.0 (published with the next CLI patch, 11.4.1; no command changed) ships the ten Agent Skills the Data
+API's MCP server serves — the data guide `invinite-financial-data` and nine workflows (`financial-research`,
+`analyze-earnings-call`, `compare-companies`, `analyze-filing`, `ownership-review`, `alert-setup`, `earnings-preview`,
+`what-changed-since-last-report`, `restatement-history`) — plus the CLI-only skill `invinite-data-cli`. The six
+`commands/*.md` (`/financial-research`, `/analyze-earnings-call`, …) are gone: the workflows are skills now, and
+`invd plugin install` removes the files earlier versions wrote. See [The plugin](#the-plugin).
+
 ## Changes in 11.4.0 (Data API 11.2)
 
 CLI 11.4.0 and plugin 0.21.0 adopt Data API 11.2 (additive, no command removed or renamed):
@@ -522,18 +531,19 @@ with one line on stderr; the old file is left in place.
 
 ## AI agents
 
-### One step: MCP connector plus skill
+### One step: MCP connector plus skills
 
 ```bash
 invd agent-setup --claude --local          # ./.mcp.json + .claude/skills
-invd agent-setup --codex --global          # ~/.codex/config.toml [mcp_servers] + skill
+invd agent-setup --codex --global          # ~/.codex/config.toml [mcp_servers] + skills
 invd agent-setup --all --global --dry-run  # show what would be written
 ```
 
 `agent-setup` adds the Invinite MCP connector (`https://api.data.invinite.com/mcp`) to Claude Code (`.mcp.json` or
-`~/.claude.json`) or Codex (`config.toml [mcp_servers.<name>]`) and installs the `invd` skill. The connector signs in
-with OAuth on first use (Dynamic Client Registration and PKCE; no key is written). MCP calls are billed to the account
-of the OAuth sign-in, CLI calls to the account of the key.
+`~/.claude.json`) or Codex (`config.toml [mcp_servers.<name>]`) and installs the plugin's skills (the same files as
+`invd plugin install` for that runtime). The connector signs in with OAuth on first use (Dynamic Client Registration
+and PKCE; no key is written). MCP calls are billed to the account of the OAuth sign-in, CLI calls to the account of
+the key.
 
 ### The plugin
 
@@ -547,24 +557,36 @@ invd plugin install --all --global
 invd plugin uninstall --all --global
 ```
 
-Re-run the install to update. The plugin bundles the skill, the data agent and the research commands:
+Re-run the install to update. The plugin bundles eleven skills and the data agent:
 
-| Runtime | Skill | Agent | Commands |
-|---|---|---|---|
-| Claude Code | `skills/invinite-data-cli/SKILL.md` | `agents/invinite-data.md` | `commands/financial-research.md`, `commands/analyze-earnings-call.md` |
-| OpenCode | `command/invinite-data-cli.md` | `agents/invinite-data.md` | `command/analyze-earnings-call.md` |
-| Codex | `skills/invinite-data-cli/SKILL.md` | — | `skills/invinite-financial-research/SKILL.md`, `skills/invinite-analyze-earnings-call/SKILL.md` |
-| Copilot | `skills/invinite-data-cli/SKILL.md` | — | `skills/invinite-financial-research/SKILL.md`, `skills/invinite-analyze-earnings-call/SKILL.md` |
+- `invinite-financial-data`: the data guide (which tool for which question, periods, coverage, cost; `references/`
+  per domain), and nine workflow skills: `financial-research`, `analyze-earnings-call`, `compare-companies`,
+  `analyze-filing`, `ownership-review`, `alert-setup`, `earnings-preview`, `what-changed-since-last-report`,
+  `restatement-history`. They are a pinned copy of the skills the Data API's MCP server serves (written in MCP tool
+  terms); a host that loads skills from the connector offers the same ones.
+- `invinite-data-cli`: the CLI fallback — the MCP ↔ CLI mapping, grammar, output flags, exit codes and
+  `references/commands.md` (one example per command).
+- `agents/invinite-data.md`: a data-retrieval agent that runs `invd` (Claude Code, OpenCode).
 
-`claude-plugin/` is the single source of these files; the copies under `.claude/` and `.codex/` are symlinks into it.
-The Claude plugin directory (`claude --plugin-dir /path/to/invinite-data-cli/claude-plugin`) also carries
-`compare-companies`, `analyze-filing` and `ownership-review`, and its `.mcp.json` connects the MCP server.
+| Runtime | Installs |
+|---|---|
+| Claude Code | `skills/<name>/…` for all eleven skills (with `references/`), `agents/invinite-data.md` |
+| Codex | `skills/<name>/…` for all eleven skills (as shipped; the CLI skill without `allowed-tools`) |
+| Copilot | `skills/<name>/…` for all eleven skills (as shipped; the CLI skill without `allowed-tools`) |
+| OpenCode (global only) | `command/invinite-data-cli.md` (the CLI skill with the command reference appended: a command file cannot carry `references/`), `command/analyze-earnings-call.md` (its last line points at `/invinite-data-cli`), `agents/invinite-data.md` — two commands only: the data guide and the other eight workflows are not installed there |
 
-```
-/financial-research Compare Apple, Microsoft and Google's profitability and growth over the last 3 years
-/analyze-earnings-call NVDA
-/analyze-earnings-call AAPL 2026 Q4
-```
+`install` and `uninstall` also remove what plugin 0.21.0 and earlier wrote and this version no longer ships:
+`commands/financial-research.md` and `commands/analyze-earnings-call.md` (Claude Code),
+`skills/invinite-financial-research/SKILL.md` and `skills/invinite-analyze-earnings-call/SKILL.md` (Codex, Copilot).
+
+`claude-plugin/` is the single source of these files. In this repository the skill folders under `.claude/skills/` are
+symlinks into `claude-plugin/skills/`, and `.codex/skills/`, `.cursor/skills/` and `.agent/skills/` link to those; the
+agent links the same way (`.codex/agents/invinite-data.toml` wraps it for Codex). The Claude plugin directory
+(`claude --plugin-dir /path/to/invinite-data-cli/claude-plugin`) carries the same skills and agent, and its `.mcp.json`
+connects the MCP server. Ask for a workflow in your own words ("analyze NVDA's latest earnings call", "compare Apple,
+Microsoft and Google's profitability over the last three years") and the matching skill loads; in Claude Code it can
+also be called by name (`/analyze-earnings-call NVDA` after `invd plugin install`,
+`/invinite-financial-data:analyze-earnings-call NVDA` from the plugin directory).
 
 ### Shell completion
 

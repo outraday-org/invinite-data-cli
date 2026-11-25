@@ -1,1 +1,0 @@
-../../claude-plugin/commands/financial-research.md

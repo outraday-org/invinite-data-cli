@@ -18,154 +18,172 @@ export interface RuntimeConfig {
   install: (sourceDir: string, targetDir: string) => void;
 }
 
+/** The CLI-only skill (this repository's own); the other skill folders are vendored from invinite-data-api. */
+const CLI_SKILL = 'invinite-data-cli';
+const AGENT = 'agents/invinite-data.md';
+
+/**
+ * The line `pnpm skills:import` appends to every vendored `SKILL.md` (`scripts/import-skills.ts`, pinned in
+ * `reference/data-skills.pin.json`). OpenCode installs the CLI skill as the command `/invinite-data-cli`, so its copy
+ * of a vendored skill points there instead.
+ */
+export const VENDORED_SKILL_FOOTER =
+  'Without a connected Invinite Data MCP server, load the `invinite-data-cli` skill: it maps every tool named here to an `invd` command.';
+const OPENCODE_FOOTER =
+  'Without a connected Invinite Data MCP server, use the `/invinite-data-cli` command: it maps every tool named here to an `invd` command.';
+
+/** The CLI skill's link to its command reference (replaced where the reference is appended inline). */
+const COMMANDS_LINK = '[references/commands.md](references/commands.md)';
+
+/** One file the installer writes: its source under `claude-plugin/`, its path under the runtime's directory. */
+export interface PlannedFile {
+  readonly from: string;
+  readonly to: string;
+  readonly transform?: (content: string) => string;
+}
+
+/** Every file under `claude-plugin/skills/` (the eleven skill folders, `references/` included), relative to the plugin. */
+export function pluginSkillFiles(sourceDir: string): string[] {
+  const walk = (directory: string): string[] =>
+    fs.readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
+      if (entry.name === '.DS_Store') return [];
+      const full = path.join(directory, entry.name);
+      return entry.isDirectory() ? walk(full) : [full];
+    });
+  return walk(path.join(sourceDir, 'skills'))
+    .map(file => path.relative(sourceDir, file).split(path.sep).join('/'))
+    .sort();
+}
+
+/**
+ * What `install` writes for a runtime, from ONE walk of `claude-plugin/skills/` — `install` and `installedPaths` both
+ * read it, so they cannot drift. Claude: the skill folders as they are + the agent. Codex / Copilot: the same folders,
+ * byte-equal except the CLI skill's `SKILL.md`, whose `allowed-tools` they do not read (stripped). OpenCode (global only) takes single
+ * command files: the CLI skill with its command reference appended (a flattened command cannot carry `references/`),
+ * the `analyze-earnings-call` skill, and the agent.
+ */
+export function installPlan(runtime: Runtime, sourceDir: string): PlannedFile[] {
+  const skills = pluginSkillFiles(sourceDir);
+  const cliSkillFile = `skills/${CLI_SKILL}/SKILL.md`;
+  switch (runtime) {
+    case 'claude':
+      return [...skills.map(file => ({ from: file, to: file })), { from: AGENT, to: AGENT }];
+    case 'codex':
+    case 'copilot':
+      return skills.map(file => (file === cliSkillFile ? { from: file, to: file, transform: stripAllowedTools } : { from: file, to: file }));
+    case 'opencode': {
+      const reference = fs.readFileSync(path.join(sourceDir, `skills/${CLI_SKILL}/references/commands.md`), 'utf-8');
+      return [
+        {
+          from: `skills/${CLI_SKILL}/SKILL.md`,
+          to: `command/${CLI_SKILL}.md`,
+          transform: content => `${transformForOpenCode(content).split(COMMANDS_LINK).join('the command reference at the end of this file')}\n${reference}`,
+        },
+        { from: AGENT, to: AGENT, transform: transformAgentForOpenCode },
+        {
+          from: 'skills/analyze-earnings-call/SKILL.md',
+          to: 'command/analyze-earnings-call.md',
+          transform: content => transformForOpenCode(content).split(VENDORED_SKILL_FOOTER).join(OPENCODE_FOOTER),
+        },
+      ];
+    }
+  }
+}
+
+/**
+ * True when `rel` under `targetDir` passes through a symbolic link, such as a skill folder linked into a checkout or a
+ * dotfiles repository: writing or deleting there would change the link's target, never this install. Skipped.
+ */
+export function throughSymlink(targetDir: string, rel: string): boolean {
+  let current = targetDir;
+  for (const segment of rel.split('/').slice(0, -1)) {
+    current = path.join(current, segment);
+    try {
+      if (fs.lstatSync(current).isSymbolicLink()) return true;
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+function warnSkipped(targetDir: string, skipped: readonly string[]): void {
+  if (skipped.length === 0) return;
+  const folders = [...new Set(skipped.map(rel => rel.split('/').slice(0, 2).join('/')))];
+  console.error(chalk.yellow(`  ${targetDir}: left ${folders.join(', ')} alone (a symbolic link; update or remove it by hand)`));
+}
+
+function installRuntime(runtime: Runtime, sourceDir: string, targetDir: string): void {
+  const skipped: string[] = [];
+  for (const legacy of LEGACY_PATHS[runtime]) {
+    if (throughSymlink(targetDir, legacy)) skipped.push(legacy);
+    else removeFile(targetDir, legacy);
+  }
+  for (const file of installPlan(runtime, sourceDir)) {
+    if (throughSymlink(targetDir, file.to)) {
+      skipped.push(file.to);
+      continue;
+    }
+    const source = path.join(sourceDir, file.from);
+    const target = path.join(targetDir, file.to);
+    if (file.transform) writeFile(target, file.transform(fs.readFileSync(source, 'utf-8')));
+    else copyFile(source, target);
+  }
+  warnSkipped(targetDir, skipped);
+}
+
 export const RUNTIMES: Record<Runtime, RuntimeConfig> = {
   claude: {
     label: 'Claude Code',
     globalDir: path.join(os.homedir(), '.claude'),
     localDir: '.claude',
-    install(sourceDir, targetDir) {
-      copyFile(
-        path.join(sourceDir, 'skills/invinite-data-cli/SKILL.md'),
-        path.join(targetDir, 'skills/invinite-data-cli/SKILL.md'),
-      );
-      copyFile(
-        path.join(sourceDir, 'agents/invinite-data.md'),
-        path.join(targetDir, 'agents/invinite-data.md'),
-      );
-      copyFile(
-        path.join(sourceDir, 'commands/financial-research.md'),
-        path.join(targetDir, 'commands/financial-research.md'),
-      );
-      copyFile(
-        path.join(sourceDir, 'commands/analyze-earnings-call.md'),
-        path.join(targetDir, 'commands/analyze-earnings-call.md'),
-      );
-    },
+    install: (sourceDir, targetDir) => installRuntime('claude', sourceDir, targetDir),
   },
   opencode: {
     label: 'OpenCode',
     globalDir: path.join(os.homedir(), '.config/opencode'),
     localDir: null,
-    install(sourceDir, targetDir) {
-      const skillContent = fs.readFileSync(
-        path.join(sourceDir, 'skills/invinite-data-cli/SKILL.md'),
-        'utf-8',
-      );
-      const transformed = transformForOpenCode(skillContent);
-      writeFile(path.join(targetDir, 'command/invinite-data-cli.md'), transformed);
-
-      const agentContent = fs.readFileSync(
-        path.join(sourceDir, 'agents/invinite-data.md'),
-        'utf-8',
-      );
-      const transformedAgent = transformAgentForOpenCode(agentContent);
-      writeFile(path.join(targetDir, 'agents/invinite-data.md'), transformedAgent);
-
-      const earningsContent = fs.readFileSync(
-        path.join(sourceDir, 'commands/analyze-earnings-call.md'),
-        'utf-8',
-      );
-      writeFile(path.join(targetDir, 'command/analyze-earnings-call.md'), transformForOpenCode(earningsContent));
-    },
+    install: (sourceDir, targetDir) => installRuntime('opencode', sourceDir, targetDir),
   },
   codex: {
     label: 'Codex',
     globalDir: path.join(os.homedir(), '.codex'),
     localDir: '.codex',
-    install(sourceDir, targetDir) {
-      const skillContent = fs.readFileSync(
-        path.join(sourceDir, 'skills/invinite-data-cli/SKILL.md'),
-        'utf-8',
-      );
-      writeFile(
-        path.join(targetDir, 'skills/invinite-data-cli/SKILL.md'),
-        transformForCodex(skillContent),
-      );
-
-      const cmdContent = fs.readFileSync(
-        path.join(sourceDir, 'commands/financial-research.md'),
-        'utf-8',
-      );
-      writeFile(
-        path.join(targetDir, 'skills/invinite-financial-research/SKILL.md'),
-        transformForCodex(cmdContent),
-      );
-
-      const earningsContent = fs.readFileSync(
-        path.join(sourceDir, 'commands/analyze-earnings-call.md'),
-        'utf-8',
-      );
-      writeFile(
-        path.join(targetDir, 'skills/invinite-analyze-earnings-call/SKILL.md'),
-        transformForCodex(earningsContent),
-      );
-    },
+    install: (sourceDir, targetDir) => installRuntime('codex', sourceDir, targetDir),
   },
   copilot: {
     label: 'Copilot',
     globalDir: path.join(os.homedir(), '.github'),
     localDir: '.github',
-    install(sourceDir, targetDir) {
-      const skillContent = fs.readFileSync(
-        path.join(sourceDir, 'skills/invinite-data-cli/SKILL.md'),
-        'utf-8',
-      );
-      writeFile(
-        path.join(targetDir, 'skills/invinite-data-cli/SKILL.md'),
-        transformForCopilot(skillContent),
-      );
-
-      const cmdContent = fs.readFileSync(
-        path.join(sourceDir, 'commands/financial-research.md'),
-        'utf-8',
-      );
-      writeFile(
-        path.join(targetDir, 'skills/invinite-financial-research/SKILL.md'),
-        transformForCopilot(cmdContent),
-      );
-
-      const earningsContent = fs.readFileSync(
-        path.join(sourceDir, 'commands/analyze-earnings-call.md'),
-        'utf-8',
-      );
-      writeFile(
-        path.join(targetDir, 'skills/invinite-analyze-earnings-call/SKILL.md'),
-        transformForCopilot(earningsContent),
-      );
-    },
+    install: (sourceDir, targetDir) => installRuntime('copilot', sourceDir, targetDir),
   },
 };
 
-export const INSTALLED_PATHS: Record<Runtime, string[]> = {
-  claude: [
-    'skills/invinite-data-cli/SKILL.md',
-    'agents/invinite-data.md',
-    'commands/financial-research.md',
-    'commands/analyze-earnings-call.md',
-  ],
-  opencode: [
-    'command/invinite-data-cli.md',
-    'agents/invinite-data.md',
-    'command/analyze-earnings-call.md',
-  ],
-  codex: [
-    'skills/invinite-data-cli/SKILL.md',
-    'skills/invinite-financial-research/SKILL.md',
-    'skills/invinite-analyze-earnings-call/SKILL.md',
-  ],
-  copilot: [
-    'skills/invinite-data-cli/SKILL.md',
-    'skills/invinite-financial-research/SKILL.md',
-    'skills/invinite-analyze-earnings-call/SKILL.md',
-  ],
+/** Every file `install` writes for a runtime (what `uninstall` removes), relative to the runtime's directory. */
+export function installedPaths(runtime: Runtime, sourceDir: string = getSourceDir()): string[] {
+  return installPlan(runtime, sourceDir).map(file => file.to);
+}
+
+/**
+ * What plugin 0.21.0 and earlier wrote and this version no longer ships: removed by `install` and `uninstall`. Exact
+ * file paths only (their now-empty folders are pruned), never a glob over the user's directory.
+ */
+export const LEGACY_PATHS: Record<Runtime, readonly string[]> = {
+  claude: ['commands/financial-research.md', 'commands/analyze-earnings-call.md'],
+  opencode: [],
+  codex: ['skills/invinite-financial-research/SKILL.md', 'skills/invinite-analyze-earnings-call/SKILL.md'],
+  copilot: ['skills/invinite-financial-research/SKILL.md', 'skills/invinite-analyze-earnings-call/SKILL.md'],
 };
 
-/** Removes the runtime's installed files from `targetDir`; returns how many were removed. */
-export function uninstallRuntime(runtime: Runtime, targetDir: string): number {
+/** Removes the runtime's installed files (and an earlier version's) from `targetDir`; returns how many were removed. */
+export function uninstallRuntime(runtime: Runtime, targetDir: string, sourceDir: string = getSourceDir()): number {
   let removed = 0;
-  for (const rel of INSTALLED_PATHS[runtime]) {
-    if (removeFile(path.join(targetDir, rel))) removed++;
+  const skipped: string[] = [];
+  for (const rel of [...installedPaths(runtime, sourceDir), ...LEGACY_PATHS[runtime]]) {
+    if (throughSymlink(targetDir, rel)) skipped.push(rel);
+    else if (removeFile(targetDir, rel)) removed++;
   }
+  warnSkipped(targetDir, skipped);
   return removed;
 }
 
@@ -219,22 +237,11 @@ function transformAgentForOpenCode(content: string): string {
   });
 }
 
-function transformForCodex(content: string): string {
-  return transformFrontmatter(content, (attrs) => {
-    const result: Record<string, string> = {};
-    if (attrs.name) result.name = attrs.name;
-    if (attrs.description) result.description = attrs.description;
-    return result;
-  });
-}
-
-function transformForCopilot(content: string): string {
-  return transformFrontmatter(content, (attrs) => {
-    const result: Record<string, string> = {};
-    if (attrs.name) result.name = attrs.name;
-    if (attrs.description) result.description = attrs.description;
-    return result;
-  });
+/** Codex / Copilot: the CLI skill without `allowed-tools` (a Claude Code key they do not read); every other key stays. */
+function stripAllowedTools(content: string): string {
+  return transformFrontmatter(content, attrs =>
+    Object.fromEntries(Object.entries(attrs).filter(([key]) => key !== 'allowed-tools')),
+  );
 }
 
 // --- File utilities ---
@@ -249,21 +256,28 @@ function writeFile(dest: string, content: string): void {
   fs.writeFileSync(dest, content, 'utf-8');
 }
 
-function removeFile(filePath: string): boolean {
+/** Removes `targetDir`/`rel` and the folders it leaves empty below `targetDir` (never `targetDir` itself or above). */
+function removeFile(targetDir: string, rel: string): boolean {
+  const filePath = path.join(targetDir, rel);
   try {
     fs.unlinkSync(filePath);
-    // Clean up empty parent directories
-    let dir = path.dirname(filePath);
-    while (dir !== path.dirname(dir)) {
+  } catch {
+    return false;
+  }
+  // Clean up empty parent directories (a failure here does not undo the removal).
+  try {
+    const root = path.resolve(targetDir);
+    let dir = path.dirname(path.resolve(filePath));
+    while (dir !== root && dir.startsWith(root + path.sep)) {
       const entries = fs.readdirSync(dir);
       if (entries.length > 0) break;
       fs.rmdirSync(dir);
       dir = path.dirname(dir);
     }
-    return true;
   } catch {
-    return false;
+    // A parent that cannot be listed or removed stays.
   }
+  return true;
 }
 
 /** The bundled `claude-plugin/`: two levels above this file under tsx (`src/commands/`), three in the build. */

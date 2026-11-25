@@ -1,1 +1,0 @@
-../../claude-plugin/commands/analyze-earnings-call.md

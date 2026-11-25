@@ -93,11 +93,11 @@ describe('build-skill-commands', () => {
     expect(() => renderSkill(skill, manifest, [])).toThrow('`invd things export`');
   });
 
-  it('refuses a SKILL.md without the markers', () => {
+  it('refuses a command reference without the markers', () => {
     expect(() => renderSkill('no markers', loadManifest(), HAND_WRITTEN_COMMANDS)).toThrow(BLOCK_START);
   });
 
-  it('the committed SKILL.md is what the manifest produces (pnpm skill:commands)', () => {
+  it('the committed references/commands.md is what the manifest produces (pnpm skill:commands)', () => {
     const skill = readFileSync(DEFAULT_SKILL_PATH, 'utf8');
     expect(renderSkill(skill, loadManifest(), HAND_WRITTEN_COMMANDS)).toBe(skill);
   });

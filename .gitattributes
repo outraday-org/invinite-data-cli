@@ -2,3 +2,6 @@
 * text=auto
 
 *.sh text eol=lf
+
+# Vendored skills are hash-pinned (reference/data-skills.pin.json): keep LF on every platform
+claude-plugin/skills/** text eol=lf

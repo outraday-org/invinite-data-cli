@@ -71,6 +71,8 @@ exportArtifact(
     ...walk(pluginRoot),
     resolve(REPO_ROOT, 'src/commands/plugin.ts'),
     resolve(REPO_ROOT, 'scripts/snapshot-data-plugin-packaging.ts'),
+    // The invinite-data-api revision the vendored skills were imported from (scripts/import-skills.ts).
+    resolve(REPO_ROOT, 'reference/data-skills.pin.json'),
   ].map((file) => relative(REPO_ROOT, file)),
   process.argv.includes('--check'),
 );
