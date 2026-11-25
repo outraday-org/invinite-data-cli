@@ -62,7 +62,8 @@ The server's prompts are `analyse_earnings_call`, `compare_companies`, `summaris
 ### MCP
 
 Connect `https://api.data.invinite.com/mcp` with OAuth and sign in to the Invinite Data account to be billed. Leave the
-OAuth client ID and secret empty (Dynamic Client Registration and PKCE). `invd agent-setup` writes the connector for
+OAuth client ID and secret empty (the client registers itself by
+Client ID Metadata Document or Dynamic Client Registration, with PKCE). `invd agent-setup` writes the connector for
 Claude Code or Codex in one step.
 
 ### CLI
