@@ -6385,7 +6385,7 @@
             "format": "date",
             "nullable": true,
             "example": "2026-11-10",
-            "description": "Date of the transaction (YYYY-MM-DD); sec_api rows (realtime Form 4 feed) leave it null"
+            "description": "Date of the transaction (YYYY-MM-DD); sec_api rows leave it null, edgar rows (the realtime feed built from the filing's own XML) fill it"
           },
           "deemed_execution_date": {
             "type": "string",
@@ -6407,7 +6407,7 @@
             ],
             "nullable": true,
             "example": "D",
-            "description": "Ownership form: D = direct, I = indirect; sec_api rows (realtime Form 4 feed) leave it null"
+            "description": "Ownership form: D = direct, I = indirect; sec_api rows leave it null, edgar rows (the realtime feed built from the filing's own XML) fill it"
           },
           "nature_of_ownership": {
             "type": "string",
@@ -6417,7 +6417,7 @@
           "is_derivative": {
             "type": "boolean",
             "example": false,
-            "description": "true = a derivative-security line (option, RSU, warrant); false = a non-derivative line (sec_api rows are always false)"
+            "description": "true = a derivative-security line (option, RSU, warrant); false = a non-derivative line (sec_api rows are always false; edgar and f345 rows carry derivative lines too)"
           },
           "conversion_exercise_price": {
             "type": "number",
@@ -6452,21 +6452,22 @@
             "items": {
               "$ref": "#/components/schemas/InsiderTradeFootnote"
             },
-            "description": "The filing's footnotes referenced by this line; sec_api rows (realtime Form 4 feed) leave it null"
+            "description": "The filing's footnotes referenced by this line; sec_api rows leave it null, edgar rows (the realtime feed built from the filing's own XML) fill it"
           },
           "is_10b5_1": {
             "type": "boolean",
             "nullable": true,
-            "description": "true = the filer marked the transaction as made under a Rule 10b5-1 trading plan; sec_api rows (realtime Form 4 feed) leave it null"
+            "description": "true = the filer marked the transaction as made under a Rule 10b5-1 trading plan; sec_api rows leave it null, edgar rows (the realtime feed built from the filing's own XML) fill it"
           },
           "source": {
             "type": "string",
             "enum": [
               "sec_api",
-              "f345"
+              "f345",
+              "edgar"
             ],
             "example": "sec_api",
-            "description": "Origin of the row: sec_api = the realtime Form 4 feed; f345 = the SEC insider transactions dataset (Forms 3, 4, 5), whose rows carry the fields above"
+            "description": "Origin of the row: sec_api = the earlier realtime Form 4 feed, which leaves the fields above null; edgar = the realtime feed built from the SEC filing's own XML (Forms 3, 4, 5), one row per reporting owner, which fills them; f345 = the SEC insider transactions dataset (Forms 3, 4, 5), whose rows carry the fields above"
           }
         },
         "title": "InsiderTrade"
@@ -6671,9 +6672,10 @@
             "type": "string",
             "enum": [
               "f345",
-              "sec_api"
+              "sec_api",
+              "edgar"
             ],
-            "description": "f345 = the SEC Form 3/4/5 data set (quarterly, the record), sec_api = the realtime feed",
+            "description": "f345 = the SEC Form 3/4/5 data set (quarterly, the record); sec_api = the earlier realtime feed; edgar = the realtime feed built from the SEC filing's own XML",
             "example": "f345"
           }
         },
@@ -7671,6 +7673,19 @@
               "agent_notice_pending"
             ],
             "description": "Why the calendar row expired, set only while `capture_status` is `expired` (a final status: an estimate that never became a call, a duplicate, a non-call issuer, …); null otherwise. Appended 2026-11"
+          },
+          "capture_mode": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "live",
+              "replay"
+            ],
+            "description": "The kind of the capture run that is planned or running for the call: `live` = captured while the call runs, `replay` = a recording captured after the call (a missed call being recovered; capture_status then moves through pending / armed / capturing / captured like a live capture). Null when no capture run is planned or running (for example after publication or a final miss)"
+          },
+          "awaiting_replay": {
+            "type": "boolean",
+            "description": "True while capture_status is `missed` only because the live capture handed the call over to a later replay capture (live capture probe mode) that is still being attempted and has not produced a transcript yet; false otherwise, including every published call and a call whose replay attempts are exhausted. It turns false as soon as the replay capture is queued; capture_mode then reads `replay`"
           },
           "reschedule_count": {
             "type": "integer",

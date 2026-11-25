@@ -21,6 +21,12 @@ Plugin 0.22.0 (with the next patch publish, 11.4.1; no command changed) replaces
 by skills: the ten skills of `invinite-data-api` `src/skills/` (vendored, see below) + this repository's CLI-only skill
 `invinite-data-cli`; `invd plugin install` copies skill folders.
 
+11.4.2 (not yet published) adopts Data API 11.4 (bundle of API commit `65c52a5`, spec sha256 `b60f0f4a…`, base revision
+`c1f58457`; plugin stays 0.22.0, no command changed): 11.3 adds `edgar` to the insider trade / holding `source` enum (a
+response field, no parameter), 11.4 adds the optional Event fields `capture_mode` (`live` | `replay`) and
+`awaiting_replay`. Neither has an `x-cli` column: `invd events list|get` print the same table / key-value view and
+accept the two fields only through `--fields` / `--json <fields>`.
+
 ## Commands come from the Data API's spec, not from this repo
 
 Every plain command — one REST call, printed as a table, a key/value list or JSON — is GENERATED. The chain:
