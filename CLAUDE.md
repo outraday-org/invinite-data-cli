@@ -32,7 +32,7 @@ accept the two fields only through `--fields` / `--json <fields>`.
 `GROUP_DESCRIPTIONS` line) with `ownership beneficial` (Schedule 13D / 13G; `--filer` / `-f`, `--type` / `-t`,
 `--current` / `--no-current`) and `ownership sale-notices` (Form 144; `--owner` / `-o`). No new `meta.reason`. The
 vendored `ownership-review` skill and `invinite-financial-data/references/ownership.md` name both routes. The bundle
-is the API feature commit `08227a6` until the release re-adopts the released API commit.
+is the API feature commit `08227a6` (its base revision field reads `cdd8ff65…`, the commit it was exported on) until the release re-adopts the released API commit.
 
 ## Commands come from the Data API's spec, not from this repo
 
