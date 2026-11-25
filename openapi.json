@@ -26919,6 +26919,32 @@
                       }
                     }
                   }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "mic": "ARCX",
+                      "name": "NYSE Arca",
+                      "company_count": 1,
+                      "instrument_count": 2675
+                    }
+                  ],
+                  "has_more": false,
+                  "next_cursor": null,
+                  "meta": {
+                    "coverage": {
+                      "state": "complete",
+                      "through": null,
+                      "retry_after_s": null,
+                      "reason": "period_not_computed"
+                    },
+                    "source": {
+                      "dataset_release": null,
+                      "version_id": null,
+                      "accession": null,
+                      "fetched_at": null
+                    }
+                  }
                 }
               }
             }
@@ -27099,6 +27125,36 @@
                           "$ref": "#/components/schemas/MetaSource"
                         }
                       }
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "sector": "Basic Materials",
+                      "company_count": 353,
+                      "industries": [
+                        {
+                          "industry": "Gold and Silver Ores",
+                          "company_count": 76
+                        }
+                      ]
+                    }
+                  ],
+                  "has_more": false,
+                  "next_cursor": null,
+                  "meta": {
+                    "coverage": {
+                      "state": "complete",
+                      "through": null,
+                      "retry_after_s": null,
+                      "reason": "period_not_computed"
+                    },
+                    "source": {
+                      "dataset_release": null,
+                      "version_id": null,
+                      "accession": null,
+                      "fetched_at": null
                     }
                   }
                 }
@@ -35176,6 +35232,36 @@
                       }
                     }
                   }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "accession": "0000320193-24-000123",
+                      "form": "10-K",
+                      "filing_date": "2024-11-01",
+                      "period_start": "2023-10-01",
+                      "period_end": "2024-09-28",
+                      "value": 391035000000,
+                      "unit": "USD",
+                      "is_current": false
+                    }
+                  ],
+                  "has_more": false,
+                  "next_cursor": null,
+                  "meta": {
+                    "coverage": {
+                      "state": "complete",
+                      "through": null,
+                      "retry_after_s": null,
+                      "reason": "period_not_computed"
+                    },
+                    "source": {
+                      "dataset_release": null,
+                      "version_id": null,
+                      "accession": null,
+                      "fetched_at": null
+                    }
+                  }
                 }
               }
             }
@@ -35482,7 +35568,16 @@
                           "ratio_debt_to_assets_ratio": 0.2,
                           "ratio_debt_to_equity_ratio": 0.73,
                           "ratio_long_term_debt_to_total_assets_ratio": 0.17,
-                          "ratio_long_term_debt_to_total_equity_ratio": 0.61
+                          "ratio_long_term_debt_to_total_equity_ratio": 0.61,
+                          "ratio_equity_multiplier": 3.61
+                        },
+                        "efficiency": {
+                          "ratio_inventory_turnover": 16.86,
+                          "ratio_asset_turnover": 1.18,
+                          "ratio_receivables_turnover": 11.46,
+                          "ratio_working_capital_turnover": 121.47,
+                          "ratio_days_sales_outstanding": 31.86,
+                          "ratio_days_inventory_outstanding": 21.64
                         },
                         "valuation": {
                           "ratio_price_to_earnings_ratio": 37.5,
@@ -35492,14 +35587,9 @@
                         },
                         "liquidity": {
                           "ratio_quick_ratio": 0.59,
-                          "ratio_current_ratio": 1.02
-                        },
-                        "efficiency": {
-                          "ratio_inventory_turnover": 16.86,
-                          "ratio_asset_turnover": 1.18,
-                          "ratio_receivables_turnover": 11.46,
-                          "ratio_days_sales_outstanding": 31.86,
-                          "ratio_days_inventory_outstanding": 21.64
+                          "ratio_current_ratio": 1.02,
+                          "ratio_cash_ratio": 0.21,
+                          "ratio_operating_cash_flow_ratio": 0.85
                         },
                         "profitability": {
                           "ratio_return_on_assets_pct": 34.61,
@@ -35509,7 +35599,12 @@
                           "ratio_operating_margin_pct": 33.01,
                           "ratio_ebitda_margin_pct": 35.81,
                           "ratio_net_margin_pct": 27.6,
-                          "ratio_payout_ratio_pct": 11.89
+                          "ratio_free_cash_flow_margin_pct": 28.41,
+                          "ratio_cash_conversion_ratio": 1.1,
+                          "ratio_payout_ratio_pct": 11.89,
+                          "ratio_capital_expenditures_to_revenue_pct": 1.89,
+                          "ratio_rnd_to_revenue_pct": 9.56,
+                          "ratio_sga_to_revenue_pct": 6.22
                         }
                       }
                     }
@@ -35520,12 +35615,13 @@
                     "coverage": {
                       "state": "complete",
                       "through": null,
-                      "retry_after_s": null
+                      "retry_after_s": null,
+                      "reason": "period_not_computed"
                     },
                     "source": {
-                      "dataset_release": "2026q3",
+                      "dataset_release": null,
                       "version_id": null,
-                      "accession": "0000320193-26-000026",
+                      "accession": null,
                       "fetched_at": null
                     }
                   }
@@ -42082,6 +42178,55 @@
                           "$ref": "#/components/schemas/MetaSource"
                         }
                       }
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": "sec_api:0001140361-26-044773:nonderiv_holding:8b431b2029dc629cd1a2:0",
+                      "accession_number": "0001140361-26-044773",
+                      "form": "4",
+                      "cik": "0000320193",
+                      "filed_at": "2026-11-18T23:30:10.000Z",
+                      "as_of": "2026-11-16",
+                      "owner_cik": "0001214128",
+                      "reporting_person_name": "LEVINSON ARTHUR D",
+                      "reporting_person_is_director": true,
+                      "reporting_person_is_officer": false,
+                      "reporting_person_officer_title": null,
+                      "reporting_person_is_ten_percent_owner": false,
+                      "reporting_person_is_other": false,
+                      "reporting_person_other_text": null,
+                      "security_title": "Common Stock",
+                      "shares_owned": 56000,
+                      "value_owned": null,
+                      "direct_indirect": "I",
+                      "nature_of_ownership": "By Spouse",
+                      "is_derivative": false,
+                      "conversion_exercise_price": null,
+                      "exercise_date": null,
+                      "expiration_date": null,
+                      "underlying_security_title": null,
+                      "underlying_shares": null,
+                      "footnotes": null,
+                      "source": "sec_api"
+                    }
+                  ],
+                  "has_more": true,
+                  "next_cursor": "eyJ2IjoyLCJhZnRlciI6WyIyMDI2LTAxLTAyIiwiZjM0NTowMDAyMTAwNTIzLTI2LTAwMDAwMjpub25kZXJpdl9ob2xkaW5nOjY3OWE1ZGY4OGViN2M4NWM1NDQ0OjA6MjEwMDUyMyJdLCJmIjoiNTQxNjAyNzZkZWQ0NTZjMSJ9",
+                  "meta": {
+                    "coverage": {
+                      "state": "complete",
+                      "through": null,
+                      "retry_after_s": null,
+                      "reason": "period_not_computed"
+                    },
+                    "source": {
+                      "dataset_release": null,
+                      "version_id": null,
+                      "accession": null,
+                      "fetched_at": null
                     }
                   }
                 }

@@ -1,6 +1,6 @@
 {
   "specVersion": "2026-11-23",
-  "specSha256": "e5ce89cf740cbc5cfc4410c162644dbff7dab7c80b77f88afd54b88793c75753",
+  "specSha256": "b1d363f9adc9f004dd8439d0dacab41e8b9c8587a5c27ab1b0f4741c0114f10d",
   "groups": [
     {
       "name": "alert-events",
