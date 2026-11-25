@@ -541,8 +541,8 @@ invd agent-setup --all --global --dry-run  # show what would be written
 
 `agent-setup` adds the Invinite MCP connector (`https://api.data.invinite.com/mcp`) to Claude Code (`.mcp.json` or
 `~/.claude.json`) or Codex (`config.toml [mcp_servers.<name>]`) and installs the plugin's skills (the same files as
-`invd plugin install` for that runtime). The connector signs in with OAuth on first use (Dynamic Client Registration
-and PKCE; no key is written). MCP calls are billed to the account of the OAuth sign-in, CLI calls to the account of
+`invd plugin install` for that runtime). The connector signs in with OAuth on first use (a Client ID Metadata Document or
+Dynamic Client Registration, and PKCE; no key is written). MCP calls are billed to the account of the OAuth sign-in, CLI calls to the account of
 the key.
 
 ### The plugin
