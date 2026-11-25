@@ -1,6 +1,6 @@
 {
   "specVersion": "2026-11-23",
-  "specSha256": "b1d363f9adc9f004dd8439d0dacab41e8b9c8587a5c27ab1b0f4741c0114f10d",
+  "specSha256": "b60f0f4aae0421d7ed26d3f836fb403ae65d08f6179237c0fa1155c18a51f01c",
   "groups": [
     {
       "name": "alert-events",
@@ -4564,6 +4564,8 @@
         "results_released_at",
         "capture_status",
         "expired_reason",
+        "capture_mode",
+        "awaiting_replay",
         "reschedule_count",
         "has_transcript",
         "has_audio",
@@ -4785,6 +4787,8 @@
         "results_released_at",
         "capture_status",
         "expired_reason",
+        "capture_mode",
+        "awaiting_replay",
         "reschedule_count",
         "has_transcript",
         "has_audio",
