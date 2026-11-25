@@ -1,0 +1,84 @@
+{
+  "repository": "https://github.com/outraday-org/invinite-data-api",
+  "revision": "8edaed20ca8e449c115a7f7acc937a9457fe54da",
+  "path": "src/skills",
+  "footer": "Without a connected Invinite Data MCP server, load the `invinite-data-cli` skill: it maps every tool named here to an `invd` command.",
+  "skills": [
+    "alert-setup",
+    "analyze-earnings-call",
+    "analyze-filing",
+    "compare-companies",
+    "earnings-preview",
+    "financial-research",
+    "invinite-financial-data",
+    "ownership-review",
+    "restatement-history",
+    "what-changed-since-last-report"
+  ],
+  "files": {
+    "alert-setup/SKILL.md": {
+      "source": "82515e2b219964deb0ee0997963693fee756dcd265927479ff0a93db79d994ba",
+      "written": "7f41ebc57647985290bc08dbb8547b7d3248669d3f476ff196b60e75950893cd"
+    },
+    "analyze-earnings-call/SKILL.md": {
+      "source": "833adc095572d1eb0c4898f83f763e8a2f119bfcc465700618572d3723dc14a0",
+      "written": "9b446467223330be15c6beead8be901b9298a19bf79217cd18b262136debfeb6"
+    },
+    "analyze-filing/SKILL.md": {
+      "source": "e8160e90bcf9b815075127c3d3ee7b91c41473177bf0a75116d10b3b9dd3e535",
+      "written": "36a2e35d30eba11874ecc51e5ff28316a9401e7d1a8b2f91709c270c4a9a5c06"
+    },
+    "compare-companies/SKILL.md": {
+      "source": "620165dc76bb3b7d6c72f281cdf88a7244f277acb0c3108604b98ebf6fb7817a",
+      "written": "8e62236c54402f1d9e3defaaf2691afc85e77c47c1a56f40734f8724ec908c27"
+    },
+    "earnings-preview/SKILL.md": {
+      "source": "a77565d975673bdadffe27821028088fa6adf87a45c7148cee3094fa6c40c414",
+      "written": "b61ac74eb95916923334c0b6f9b63551c0edce78883e1319df482ba11e23b950"
+    },
+    "financial-research/SKILL.md": {
+      "source": "1c2dcf458a7eac89ac8c296f7e0740bcb359ec2d5c3d71b7d3f4b5a48851abba",
+      "written": "0e643549a6fb96c559db40c09f317537963afefff232351997c46600fa536de9"
+    },
+    "invinite-financial-data/SKILL.md": {
+      "source": "e374298f42807a8862fdf5351fc3c192411c3184daf85ac40f42d30e7f27e78d",
+      "written": "ad1df08e8d13bfaaf269c5f2456f832ef21feabac422d8500e01dc8dcc85c2bd"
+    },
+    "invinite-financial-data/references/alerts.md": {
+      "source": "118c3054ab7fb3606e4335e1f3cbe1a3d1c8a2738084496d6ada5729b8cb3362",
+      "written": "118c3054ab7fb3606e4335e1f3cbe1a3d1c8a2738084496d6ada5729b8cb3362"
+    },
+    "invinite-financial-data/references/earnings-calls.md": {
+      "source": "c9afaba0d01aa77849d185daaddcf5b3d500c0ce26a5c06bf5168e1cb49d0c69",
+      "written": "c9afaba0d01aa77849d185daaddcf5b3d500c0ce26a5c06bf5168e1cb49d0c69"
+    },
+    "invinite-financial-data/references/filings.md": {
+      "source": "34086a2a6aa7078c1884c50f26afaa72441db494d9a592ce79bc011d13ec5ad8",
+      "written": "34086a2a6aa7078c1884c50f26afaa72441db494d9a592ce79bc011d13ec5ad8"
+    },
+    "invinite-financial-data/references/financials.md": {
+      "source": "57a19d115a3ccab56c8c6fdc782fb49be5f0355b7f9af68683740e9a3b8400f3",
+      "written": "57a19d115a3ccab56c8c6fdc782fb49be5f0355b7f9af68683740e9a3b8400f3"
+    },
+    "invinite-financial-data/references/news.md": {
+      "source": "de3fed4ddeb1ff0e6f656cc0c8c6fe49a2221a9d61a2368cdc68a4ff60feb69e",
+      "written": "de3fed4ddeb1ff0e6f656cc0c8c6fe49a2221a9d61a2368cdc68a4ff60feb69e"
+    },
+    "invinite-financial-data/references/ownership.md": {
+      "source": "dd8b5f2480b0e8aecd376387914856e32a30f423a427fcf23aa75cc780debb9b",
+      "written": "dd8b5f2480b0e8aecd376387914856e32a30f423a427fcf23aa75cc780debb9b"
+    },
+    "ownership-review/SKILL.md": {
+      "source": "0fa2a38402b5afbcdd738acf15475699b96f5325888e5d5d279f61c1d4d35739",
+      "written": "f30e6337cefe93faddc6e9324c0fe8340d890025ec1fdc27642e328e369ee290"
+    },
+    "restatement-history/SKILL.md": {
+      "source": "2e6d4e8c06e5ceb8906e452fda6a943b5a13338ba3e92b1fe3f99979e0e839ca",
+      "written": "42687d9dfac83d3cd3adf5c5554bb45a757ca03f52becf8687eff8afb01b7032"
+    },
+    "what-changed-since-last-report/SKILL.md": {
+      "source": "1ad46374b6d9579930769917ca804a6f93c6e2be1cd4ee9be46c2c6b4bff4383",
+      "written": "5496bd47ad4b470f2b20af3e9beee1b22b2185bbe04e1fd85856e74400e98362"
+    }
+  }
+}

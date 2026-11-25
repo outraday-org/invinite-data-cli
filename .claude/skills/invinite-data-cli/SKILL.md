@@ -1,1 +1,0 @@
-../../../claude-plugin/skills/invinite-data-cli/SKILL.md

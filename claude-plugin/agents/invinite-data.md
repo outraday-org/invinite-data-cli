@@ -3,6 +3,7 @@ name: invinite-data
 description: Fetches financial data from the Invinite Data API (v2) for analysis. Use this agent whenever you need company financials (standardized or as-reported, point in time), ratios, growth, CAGR, segments, SEC filings and filing documents, 13F holdings, insider trades, earnings calls (calendar, transcripts, Q&A, guidance and KPIs, call comparison, press releases, slides), executives and analysts, company news and announcements, investor documents, IPOs, or any stock/company data. Delegate to this agent when the user asks for financial data retrieval, company research, or comparative financial analysis — even if they don't mention "Invinite" explicitly. This agent knows how to efficiently query the right endpoints, combine data from multiple sources, and return structured results ready for analysis. Covers US inflation, GDP, labor, jobless claims and Treasury yields.
 tools: Bash(invd *), Read, Glob, Grep
 skills:
+  - invinite-financial-data
   - invinite-data-cli
 model: sonnet
 ---

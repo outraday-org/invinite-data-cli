@@ -13,7 +13,7 @@
     "sourceHashes": {
       "api-contract.json": "171a884e55bab240efc3be0f93f9b65c58dbf8841f17996c693a926a0a5fe1d3",
       "openapi.json": "b1d363f9adc9f004dd8439d0dacab41e8b9c8587a5c27ab1b0f4741c0114f10d",
-      "package.json": "64d18a04dd7c116f7c80b2f7391524969c3a1b005cc1dc4911f5f35a1e002241",
+      "package.json": "c88a0ccadb86a37322be0cec5f7559cbbe76ed255d58ee9558869c32263acfde",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "ed216f689f39e3dbf72c7d6a1c74ee6cb9c22fbaf9982a9b4ddee2873f2d5536",
@@ -21,13 +21,13 @@
       "src/client/api-client.ts": "17d0817be6964b04fd03ccbc5ff91492551d13260664190510d5211a4c6e883e",
       "src/client/download.ts": "7e7ff500f176d859a0d94788b02b364218580eee9834a8394262d22cb2b0dda4",
       "src/client/pagination.ts": "2b759864d496f021ed8b01147a6fce1576315f0b0e789fb3022b2b8857534efe",
-      "src/commands/agent-setup.ts": "a0a1be911a6942aa22647347d27ba3667a5810b197d787500292763b65abec90",
+      "src/commands/agent-setup.ts": "6e717a116341eeecc1060d0c0cd4a359cac983e1a853eff70ce8fcb3b413e073",
       "src/commands/alert-events.ts": "4cf28e95f53f18bd5e75dec9968529f68ee6ec1838da57f225aa995be951a29c",
       "src/commands/api.ts": "90133127a64a46f1e6fa2a93e2546eafedd7e48cc96aceba9add49bb83b63616",
       "src/commands/auth.ts": "6e7a26fd6007a61ac033847542a33182c1eb486f0234095119d4b1f7ebf4b30f",
       "src/commands/completion.ts": "d7aeaa835ac1fe16b3c9a0165a1a5e8a85cb31262f498499d829bcb7a5f88d73",
       "src/commands/config.ts": "0830211879fdfc44052c917b93ec0233451bba7ca4870275aa4dac30fe3f7130",
-      "src/commands/plugin.ts": "d571726eeac6b194c825f31dcd5a25e6b46764d8d941732c7b88327cccae372d",
+      "src/commands/plugin.ts": "b007ebc20b353034cd287273391aa6d83f6c11867090f73231f3f995bce62f11",
       "src/commands/scripts.ts": "e57faa3d6e66238f90648fe1a55167caa76aa04f44f39ae453dbc86d90bff8aa",
       "src/config/auth.ts": "23ade6f5f4a2feb427b8554651a55a30ba1fc026d5488fada70b9a90e838086a",
       "src/config/config-manager.ts": "e5f89c8be2c63e0ceae36b1e95c80d4518e4d818d77453bf1f03a0d113c4766f",
@@ -35,7 +35,7 @@
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
       "src/generated/cli-manifest.json": "6484112fe31b5b292fea9f80fd0d0579bd743527b209bf300e955402dbfa9719",
-      "src/hand-written-commands.ts": "ab53fea9a1523f8db77663fb3d241be73403213b67f20d9898596e87eddd7bd0",
+      "src/hand-written-commands.ts": "a095d5f00a17a9cd643a8a0e6e5dcadbb7050dfd8b14d846ce81f3536a9920b9",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
       "src/output/render.ts": "320d0a99ebf23c3d81cef46b4e6ed1360579ac980285b0c626b50b844fbd950b",
@@ -51,8 +51,8 @@
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
     "specSha256": "b1d363f9adc9f004dd8439d0dacab41e8b9c8587a5c27ab1b0f4741c0114f10d",
-    "revision": "16275618352580130e258172298d9e5cfa6cdc8b",
-    "fingerprint": "27fc249cedf6d8f88d5811382b0d20ead7055a212b723c3d9a053d32fb1a5e6b"
+    "revision": "aca74628425baf131a2677445a2ad59c2d3142a6",
+    "fingerprint": "c467ab6273fa0d783bed14b0ee2d71506bd52b4a4121154429bd214251cdb223"
   },
   "globalOptions": [
     {
@@ -64,7 +64,7 @@
   "groups": [
     {
       "id": "agent-setup",
-      "description": "Connect an AI agent: the Invinite MCP connector plus the invd skill, in one step"
+      "description": "Connect an AI agent: the Invinite MCP connector plus the plugin skills, in one step"
     },
     {
       "id": "alert-events",
@@ -220,7 +220,7 @@
       "command": "agent-setup",
       "group": "agent-setup",
       "origin": "hand",
-      "description": "Connect an AI agent: the Invinite MCP connector plus the invd skill, in one step",
+      "description": "Connect an AI agent: the Invinite MCP connector plus the plugin skills, in one step",
       "source": "src/commands/agent-setup.ts",
       "operations": [],
       "arguments": [],

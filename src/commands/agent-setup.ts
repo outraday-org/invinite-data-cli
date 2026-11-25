@@ -73,12 +73,12 @@ function writeMcp(runtime: AgentRuntime, scope: 'global' | 'local', connector: C
 
 /**
  * `invd agent-setup`: one step for an agent — the MCP connector in the runtime's config (Claude Code, Codex) and the
- * skill / agent / commands the plugin installs. The connector signs in with OAuth on first use; no key is written.
+ * skill folders and agent the plugin installs. The connector signs in with OAuth on first use; no key is written.
  */
 export function registerAgentSetupCommand(program: Command): void {
   program
     .command('agent-setup')
-    .description('Connect an AI agent: the Invinite MCP connector plus the invd skill, in one step')
+    .description('Connect an AI agent: the Invinite MCP connector plus the plugin skills, in one step')
     .option('--claude', 'Claude Code (.mcp.json / ~/.claude.json + .claude/)')
     .option('--codex', 'Codex (config.toml [mcp_servers] + .codex/skills)')
     .option('--all', 'Both')
@@ -110,7 +110,7 @@ export function registerAgentSetupCommand(program: Command): void {
         const skillRoot = scope === 'global' ? config.globalDir : config.localDir ? path.resolve(process.cwd(), config.localDir) : null;
         if (skillRoot && !dryRun) config.install(sourceDir, skillRoot);
         const verb = dryRun ? 'would write' : 'wrote';
-        console.error(chalk.green(`  ✓ ${config.label}`) + chalk.dim(` — ${verb} MCP ${connector.name} → ${mcp}${skillRoot ? `; skill → ${skillRoot}` : ''}`));
+        console.error(chalk.green(`  ✓ ${config.label}`) + chalk.dim(` — ${verb} MCP ${connector.name} → ${mcp}${skillRoot ? `; skills → ${skillRoot}` : ''}`));
       }
       console.error(dryRun
         ? chalk.bold('\nDry run: nothing was written.')

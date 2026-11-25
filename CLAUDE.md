@@ -17,6 +17,10 @@ problem names the plan). 11.0 = Data API 10.0 (invinite `tasks-julian/todo-0/dat
 
 11.4.0 (published 2026-11-25) adopts Data API 11.2 with plugin 0.21.0 (134 operations, additive): `insider-trades holdings`, `--owner` on `insider-trades list` (company optional; one of the two required), `metrics vintages` (ONE company: `SINGLE_SUBJECT`), `catalog exchanges|sectors`, `financials --metrics`. No new `meta.reason` (the vintages 404 states its reason in the problem detail). The bundle is the released API commit `082fb6c` (SDK 11.2.0, Fly v185); its base revision field reads `65446951fc2a273962f6be7401b96f0ffaa30156` (the merge of the 11.2 code).
 
+Plugin 0.22.0 (with the next patch publish, 11.4.1; no command changed) replaces the six `claude-plugin/commands/*.md`
+by skills: the ten skills of `invinite-data-api` `src/skills/` (vendored, see below) + this repository's CLI-only skill
+`invinite-data-cli`; `invd plugin install` copies skill folders.
+
 ## Commands come from the Data API's spec, not from this repo
 
 Every plain command — one REST call, printed as a table, a key/value list or JSON — is GENERATED. The chain:
@@ -104,18 +108,42 @@ file). A project file's `base_url` must be a loopback host and `invd api` refuse
 nothing a cloned repository or a pasted URL holds may send the key to another host. The update notice (`src/update-notifier.ts`) checks npm once a day — never in CI, under vitest, without a
 terminal on stderr, or with `INVD_NO_UPDATE_NOTIFIER`.
 
-## The skill's command block and the docs' spellings are generated / gated
+## The plugin's skills: vendored, generated, gated
 
-- `claude-plugin/skills/invinite-data-cli/SKILL.md`'s `<!-- invd:commands:start -->` … `end` block is written by
-  `pnpm skill:commands` (`scripts/build-skill-commands.ts`) from the manifest + the roster; `skill:commands:check` and a
-  test cell fail on drift. Edit only inside an `<!-- invd:hand:<command> -->` block (one per roster entry, carried over
-  verbatim); the prose around the block is hand-written. Each example is the second `--help` example of
-  `src/examples.ts` (positional + required flags + the spec's `x-example-params`, valued with the spec's parameter
-  `example`s); `invd financials` appears once for its six operations.
-- `tests/unit/doc-commands.test.ts` resolves every `invd …` line (fenced, or an inline code span) of `README.md` and
-  the plugin's skill, agent and commands against `createProgram()` (default subcommands and variadic positionals
-  included): an unknown command, flag or stray positional fails. `invinite`'s docs read this repo only through its
-  committed snapshot (`pnpm reference:export`, rerun after a command change).
+- **The ten Data skills are vendored, never hand-edited.** `invinite-data-api` `src/skills/` (served by its MCP
+  server, guarded there against the tool roster) is the source of `claude-plugin/skills/<name>/` for every folder but
+  `invinite-data-cli`. Only `pnpm skills:import -- --from ../invinite-data-api --rev <committed sha>`
+  (`scripts/import-skills.ts`) writes them: it reads the revision with `git ls-tree` / `git show` (never the API's
+  working tree), appends one footer line to each vendored `SKILL.md` (the only CLI mention in them), drops a folder the
+  revision no longer has, and writes `reference/data-skills.pin.json` (repository, 40-hex revision, per file the sha256
+  of the source and of the written bytes). `pnpm skills:import:check` (CI) recomputes the written hashes and fails on a
+  hand edit, an unpinned file or folder, or a pin from another repository. Adopting a new API revision = commit there,
+  `skills:import`, commit the plugin, then `reference:export` (the plugin snapshot also hashes the pin).
+- **The CLI skill** `claude-plugin/skills/invinite-data-cli/SKILL.md` (`name: invinite-data-cli` = its folder,
+  `allowed-tools: Bash(invd *)`) holds only CLI facts: transport selection, the MCP ↔ CLI mapping table,
+  prerequisites, grammar, output / pagination flags, CLI-only specifics (financials flags, chartlang upload, batch,
+  `--save`), common patterns and tips. The data rules live in the vendored `invinite-financial-data`, in MCP tool terms.
+- **Its command block** lives in `claude-plugin/skills/invinite-data-cli/references/commands.md`, between
+  `<!-- invd:commands:start -->` … `end`, written by `pnpm skill:commands` (`scripts/build-skill-commands.ts`) from the
+  manifest + the roster; `skill:commands:check` and a test cell fail on drift. Edit only inside an
+  `<!-- invd:hand:<command> -->` block (one per roster entry, carried over verbatim); the prose around the block is
+  hand-written. Each example is the second `--help` example of `src/examples.ts` (positional + required flags + the
+  spec's `x-example-params`, valued with the spec's parameter `example`s); `invd financials` appears once for its six
+  operations.
+- `tests/unit/doc-commands.test.ts` resolves every `invd …` line (fenced, or an inline code span) of `README.md`, the
+  agent and every `.md` under `claude-plugin/skills/` against `createProgram()` (default subcommands and variadic
+  positionals included): an unknown command, flag or stray positional fails. `invinite`'s docs read this repo only
+  through its committed snapshot (`pnpm reference:export`, rerun after a command change).
+- **The installer** (`src/commands/plugin.ts`, also `agent-setup`): `installPlan` walks `claude-plugin/skills/` once and
+  both `install` and `installedPaths` (what `uninstall` removes) read it. Claude / Codex / Copilot get the eleven
+  folders (byte-equal; Codex / Copilot drop only the CLI skill's `allowed-tools`); OpenCode (global only) gets
+  `command/invinite-data-cli.md` (the CLI skill with `references/commands.md` appended) and
+  `command/analyze-earnings-call.md` (its footer pointing at the `/invinite-data-cli` command) plus the agent. Uninstall
+  prunes emptied folders below the runtime's directory, never the directory itself. `LEGACY_PATHS` lists the exact files plugin 0.21.0 wrote and this
+  one no longer ships (removed on install and uninstall; never a glob).
+- **Dev links**: `.claude/skills/<name>` are directory links into `claude-plugin/skills/`; `.codex/skills/`,
+  `.cursor/skills/`, `.agent/skills/` link to `.claude/skills/<name>`. A dangling link fails nothing in CI: check with
+  `find -L . -type l -not -path './node_modules/*'` (prints only dangling links).
 
 ## Traps
 
@@ -128,7 +156,7 @@ terminal on stderr, or with `INVD_NO_UPDATE_NOTIFIER`.
   explicitly (`pnpm version X.Y.0 --no-git-tag-version`) and publishes with `pnpm publish --access public`. A 3.x fix
   publishes from the `cli-3.x` branch with `--tag v3-maintenance` so it never becomes `latest`.
 - The plugin identity snapshot (`reference/data-plugin-identity.snapshot.json`) refuses uncommitted plugin edits: commit
-  the plugin files first, then `pnpm reference:export`, then commit the snapshot.
+  the plugin files first (a skills import included), then `pnpm reference:export`, then commit the snapshot.
 
 ## Versioned reference exports
 

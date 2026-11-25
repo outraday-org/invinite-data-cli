@@ -1,4 +1,4 @@
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -129,6 +129,28 @@ describe('invd agent-setup', () => {
     const { readdirSync } = await import('node:fs');
     expect(readdirSync(cwd)).toEqual(['keep.txt']);
     vi.restoreAllMocks();
+  });
+
+  it('writes the connector and the same skill folders as invd plugin install (Claude and Codex)', async () => {
+    const cwd = mkdtempSync(join(tmpdir(), 'invd-agent-'));
+    try {
+      vi.spyOn(process, 'cwd').mockReturnValue(cwd);
+      vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      await createProgram().parseAsync(['node', 'invd', 'agent-setup', '--all', '--local']);
+      const { existsSync } = await import('node:fs');
+      const { installedPaths } = await import('../../../src/commands/plugin.js');
+      expect(existsSync(join(cwd, '.mcp.json'))).toBe(true);
+      expect(existsSync(join(cwd, '.codex/config.toml'))).toBe(true);
+      for (const [runtime, dir] of [['claude', '.claude'], ['codex', '.codex']] as const) {
+        const paths = installedPaths(runtime);
+        expect(paths).toContain('skills/invinite-financial-data/references/ownership.md');
+        expect(paths).toContain('skills/invinite-data-cli/references/commands.md');
+        for (const file of paths) expect(existsSync(join(cwd, dir, file)), `${dir}/${file}`).toBe(true);
+      }
+    } finally {
+      vi.restoreAllMocks();
+      rmSync(cwd, { recursive: true, force: true });
+    }
   });
 });
 

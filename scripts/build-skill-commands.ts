@@ -1,7 +1,8 @@
 /**
- * src/generated/cli-manifest.json + src/hand-written-commands.ts → the command block of the plugin skill
- * (`claude-plugin/skills/invinite-data-cli/SKILL.md`, between `<!-- invd:commands:start -->` and
- * `<!-- invd:commands:end -->`). `--check` exits 1 when the committed block is not what the manifest produces.
+ * src/generated/cli-manifest.json + src/hand-written-commands.ts → the command block of the CLI skill's reference
+ * (`claude-plugin/skills/invinite-data-cli/references/commands.md`, between `<!-- invd:commands:start -->` and
+ * `<!-- invd:commands:end -->`; the skill's `SKILL.md` links it). `--check` exits 1 when the committed block is not what
+ * the manifest produces.
  *
  *   pnpm skill:commands          rewrite the block
  *   pnpm skill:commands:check    the drift gate
@@ -22,7 +23,7 @@ import { exampleLines, shellWord } from '../src/examples.js';
 import { commandName, parseManifest, type Manifest, type ManifestOperation } from '../src/spec-manifest.js';
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-export const DEFAULT_SKILL_PATH = resolve(REPO_ROOT, 'claude-plugin/skills/invinite-data-cli/SKILL.md');
+export const DEFAULT_SKILL_PATH = resolve(REPO_ROOT, 'claude-plugin/skills/invinite-data-cli/references/commands.md');
 export const DEFAULT_MANIFEST_PATH = resolve(REPO_ROOT, 'src/generated/cli-manifest.json');
 
 export const BLOCK_START = '<!-- invd:commands:start -->';
@@ -59,13 +60,13 @@ export function commentLine(operation: ManifestOperation, siblings: readonly Man
   return `# ${operation.summary}${selectors}${optional.length ? ` (optional: ${optional.join(', ')})` : ''}`;
 }
 
-/** Every `<!-- invd:hand:<command> -->` block of a SKILL.md, by command; a command given twice fails. */
+/** Every `<!-- invd:hand:<command> -->` block of the command reference, by command; a command given twice fails. */
 export function extractHandBlocks(text: string): Map<string, string> {
   const blocks = new Map<string, string>();
   for (const match of text.matchAll(/<!-- invd:hand:([^>]+?) -->\n([\s\S]*?)<!-- \/invd:hand:\1 -->/g)) {
     const [, command, content] = match;
     if (command === undefined || content === undefined) continue;
-    if (blocks.has(command)) throw new Error(`SKILL.md has two hand blocks for \`invd ${command}\``);
+    if (blocks.has(command)) throw new Error(`the command reference has two hand blocks for \`invd ${command}\``);
     blocks.set(command, content);
   }
   return blocks;
@@ -83,7 +84,7 @@ export function renderCommandBlock(
   const rosterNames = new Set(roster.map(entry => entry.command));
   const stale = [...handBlocks.keys()].filter(command => !rosterNames.has(command));
   if (stale.length > 0) {
-    throw new Error(`SKILL.md has a hand block for a command that is not on the roster: ${stale.map(c => `\`invd ${c}\``).join(', ')} — move its text out of the block or roster the command`);
+    throw new Error(`the command reference has a hand block for a command that is not on the roster: ${stale.map(c => `\`invd ${c}\``).join(', ')} — move its text out of the block or roster the command`);
   }
   const descriptions = new Map(manifest.groups.map(group => [group.name, group.description]));
   const groups = [...new Set([...manifest.groups.map(group => group.name), ...roster.map(entry => topLevel(entry.command))])]
@@ -123,11 +124,11 @@ export function renderCommandBlock(
   ].join('\n');
 }
 
-/** The SKILL.md text with its block re-rendered; a file without both markers fails by name. */
+/** The command reference text with its block re-rendered; a file without both markers fails by name. */
 export function renderSkill(skill: string, manifest: Manifest, roster: readonly RosterEntry[]): string {
   const start = skill.indexOf(BLOCK_START);
   const end = skill.indexOf(BLOCK_END);
-  if (start < 0 || end < start) throw new Error(`SKILL.md needs ${BLOCK_START} … ${BLOCK_END} around its command block`);
+  if (start < 0 || end < start) throw new Error(`the command reference needs ${BLOCK_START} … ${BLOCK_END} around its command block`);
   const current = skill.slice(start, end + BLOCK_END.length);
   return `${skill.slice(0, start)}${renderCommandBlock(manifest, roster, extractHandBlocks(current))}${skill.slice(end + BLOCK_END.length)}`;
 }
