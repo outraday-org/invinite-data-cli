@@ -62,7 +62,7 @@
   },
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "11.4.0",
+    "version": "11.4.1",
     "specSha256": "b1d363f9adc9f004dd8439d0dacab41e8b9c8587a5c27ab1b0f4741c0114f10d",
     "sourceHashes": {
       "claude-plugin/.claude-plugin/plugin.json": "0b17f775cd6e7b1b0212cec44710748bec10435bd4efe0aab725f0056dcd14e0",
@@ -86,13 +86,13 @@
       "claude-plugin/skills/ownership-review/SKILL.md": "f30e6337cefe93faddc6e9324c0fe8340d890025ec1fdc27642e328e369ee290",
       "claude-plugin/skills/restatement-history/SKILL.md": "42687d9dfac83d3cd3adf5c5554bb45a757ca03f52becf8687eff8afb01b7032",
       "claude-plugin/skills/what-changed-since-last-report/SKILL.md": "5496bd47ad4b470f2b20af3e9beee1b22b2185bbe04e1fd85856e74400e98362",
-      "package.json": "c88a0ccadb86a37322be0cec5f7559cbbe76ed255d58ee9558869c32263acfde",
+      "package.json": "d7d2b84b6b7d1acd21fe94a54158a2db8184e8034cabe7cfd6455f6285688eba",
       "reference/data-skills.pin.json": "aef1400fd026d2d5b0eac81e6b51aeb32401c7ce7d7677338f22566e81a200c9",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-plugin-packaging.ts": "cbaf84c1ce55050652105f485a5915e92e16ece42870ad6d55d10a7d76bc0cf6",
       "src/commands/plugin.ts": "b007ebc20b353034cd287273391aa6d83f6c11867090f73231f3f995bce62f11"
     },
-    "revision": "836567eb92481a2d7a88495513cd10b55067b2e2",
-    "fingerprint": "8214768f6930c4ca9d361381c6a9e82a43f6269db69a8e60217d8ab0ce1de1cc"
+    "revision": "d0d5a66137745b2bd154e26088f141fd8b06d699",
+    "fingerprint": "0a4a31b738ba0087454ff167eaa5edce8a769b6c714950be40ea49673148bf81"
   }
 }
