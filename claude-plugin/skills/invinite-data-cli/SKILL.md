@@ -30,11 +30,13 @@ serves the earlier roster; use whatever tools it lists, or the CLI.
 | Statements (standardized / as-reported; summary / detailed / presentation) | `get_financials` | `invd financials AAPL --basis … --view …` |
 | Ratios, growth, CAGR, segments | `get_metrics` | `invd metrics ratios\|growth\|cagr`, `invd segments list\|list-detailed` |
 | Where a number comes from | `explain_fact` | `invd metrics explain`, `invd documents fact-places` |
+| Every value filed for one XBRL fact (restatements, by filing) | `search_endpoints` + `call_api` (`/v1/financials/vintages`) | `invd metrics vintages AAPL -c RevenueFromContractWithCustomerExcludingAssessedTax -e 2024-09-28` |
 | SEC filings of a stock or a fund | `list_filings` | `invd filings list` |
 | Read a filing or document version | `read_filing` | `invd filings get`, `invd documents get\|sections\|figure` |
 | Full-text search of filings (100 credits) | `search_filings` | `invd search filings` |
 | Who holds a stock or a fund (13F, N-PORT, issuer files), 13F changes, a manager's portfolio | `get_holders` | `invd holders list\|changes`, `invd filers holdings\|holding-changes`, `invd filings holdings` |
-| Form 4 insider trades | `get_insider_trades` | `invd insider-trades list\|get` |
+| Form 4 insider trades, one insider across issuers | `get_insider_trades` (`company` or `owner`) | `invd insider-trades list\|get`, `--owner <cik>` |
+| Form 3/4/5 insider holdings (by company or by insider) | `search_endpoints` + `call_api` (`/v1/insider-holdings`) | `invd insider-trades holdings`, `--owner <cik>` |
 | Earnings-call calendar and history | `list_events` | `invd events list` |
 | One event: transcript, Q&A, stats, comparison, press release, slides … | `get_event` | `invd events get\|transcript\|transcript-text\|qa\|stats\|comparison\|press-release\|slides\|price-attribution` |
 | Search transcripts and investor documents | `search_transcripts` | `invd search transcripts`, `invd search investor-documents` |
@@ -48,7 +50,7 @@ serves the earlier roster; use whatever tools it lists, or the CLI.
 
 MCP resources `invinite://catalog/metrics`, `invinite://catalog/sections`, `invinite://catalog/event-types`,
 `invinite://catalog/forms` and `invinite://catalog/document-kinds` are the catalogs (`invd catalog metrics`, `invd catalog sections`, `invd catalog event-types`, `invd catalog forms`,
-`invd catalog document-kinds`).
+`invd catalog document-kinds`); `invd catalog exchanges` and `invd catalog sectors` list the exchanges and sectors.
 The server's prompts are `analyse_earnings_call`, `compare_companies`, `summarise_10k_risk_factors`, `earnings_preview`,
 `ownership_and_insiders`, `what_changed_since_last_report` and `restatement_history`.
 
@@ -91,11 +93,11 @@ An auth failure exits 4: reconnect the MCP connector, or tell the user to run `i
   `events list` / `get` and `me` reach every plan. Lite adds filings, filers, `documents`, `financials` (summary
   view), `metrics`, `guidance list`, `holders list`, `dividends`, `splits`, `news`, `funds`, `ipos`, `offerings`,
   `people`, `events press-release` and the alerts commands (`alerts`, `alert-events`, `alert-templates`, `alert-users`,
-  `destinations`, `scripts`, `script-versions`). Standard adds `segments list`, `insider-trades`, `search filings` and
+  `destinations`, `scripts`, `script-versions`). Standard adds `segments list`, `insider-trades` (incl. `holdings`), `search filings` and
   `search news`. Pro adds the earnings-call content (transcripts, Q&A, stats, audio, slides, comparison, prosody, price
   attribution, transcript diff and versions), `investor-documents`, `search transcripts`, `search investor-documents`,
   the detailed and presentation `financials` views, `segments list-detailed`, `guidance kpis`, holder changes and fact
-  places (and the WebSocket stream); `filings datasets` needs Enterprise. Pay as you go (credits without a plan;
+  places, `metrics vintages` (and the WebSocket stream); `filings datasets` needs Enterprise. Pay as you go (credits without a plan;
   `invd me show` says `payg`) reaches what Pro reaches except live data; the API's refusal says so. `--help` names each
   command's plan; a refused plan exits 6 and the error names the plan.
 - `invd api` calls any path the tree lacks: `invd api GET /v1/filings?symbol=AAPL --paginate --jq '.data[].accession'`.
@@ -147,6 +149,8 @@ An error is at most three stderr lines: `✗ <detail>  (<code>)`, then what to d
 - `--as-of 2025-01-31` = point in time (the newest rendering of each period filed by that day); `--filing <accession>`
   pins one filing's rendering.
 - `--reported-only` and `--display-sign cash_flow_direction` exist on `--basis as-reported` only.
+- `--metrics` keeps only the listed metric ids (standardized) or XBRL concepts (as-reported) inside `facts`.
+- `source.is_preliminary` marks a row taken from a preliminary source (an earnings release before the 10-Q / 10-K).
 - Several companies plus one fiscal year (and quarter) is a cross-company snapshot.
 
 ```bash
@@ -156,6 +160,7 @@ invd financials MSFT --period quarterly --limit 4 --json
 invd financials AAPL MSFT GOOGL --fiscal-year 2025 --json
 invd financials AAPL --basis as-reported -s cash-flow --view presentation --json
 invd financials AAPL --as-of 2025-01-31 --fiscal-year-gte 2020 --json
+invd financials AAPL -s income-statement --metrics is_total_revenue,is_net_income --json
 ```
 
 ### Metrics, segments and lineage
@@ -166,11 +171,13 @@ invd metrics growth MSFT -p quarterly --basis yoy --json
 invd metrics cagr AAPL MSFT -p annual --horizon 5 --json
 invd segments list AAPL -p annual --metric is_total_revenue --json
 invd metrics explain "0000320193|is_total_revenue|annual|2026|4" --json
+invd metrics vintages AAPL -c RevenueFromContractWithCustomerExcludingAssessedTax -e 2024-09-28 --json
 ```
 
-Ratio categories: `profitability`, `liquidity`, `leverage`, `efficiency`, `valuation`. `metrics explain` shows the rule
+Ratio categories: `profitability`, `liquidity`, `leverage`, `efficiency` (the turnover ratios), `valuation`. `metrics explain` shows the rule
 and operands behind one standardized fact and the source facts it came from; `documents fact-places --fact <fact_id>`
-shows where a fact sits in the filing document (PRO).
+shows where a fact sits in the filing document (PRO). `metrics vintages` lists every value filed for one XBRL concept
+and period (`--period-start`, `--member` narrow it), one row per filing, with `is_current` on the value in force (PRO).
 
 ### Filings and documents
 
@@ -241,6 +248,8 @@ invd holders NVDA --source nport --json
 invd holders changes AAPL --type new,sold_out --json
 invd filers holdings 0000102909 --json
 invd insider-trades AAPL --side buy --filed-at-gte 2026-01-01 --json
+invd insider-trades holdings AAPL --json
+invd insider-trades list --owner 0001214156 --json
 ```
 
 `invd holders <symbol>` without `--source` is an overview: each source's top rows one after another, never summed
@@ -249,6 +258,10 @@ funds' N-PORT positions; an ETF's issuer file repeats its N-PORT report), so pic
 13F rows report positions at the quarter end (`--period-end`), filed up to 45 days later; keep filing date and
 position date apart, and value apart from share count. Change types: `new`, `added`, `reduced`, `sold_out`,
 `unchanged`. `--instruments all` adds options and principal amounts.
+
+`insider-trades list` and `insider-trades holdings` take a company, or `--owner <cik>` (the `owner_cik` of a trade
+row) for one insider's rows across every issuer; one of the two is required. Holdings are the positions stated on
+Forms 3/4/5 (`as_of` = the reported date), not trades.
 
 ### News
 
@@ -481,7 +494,7 @@ invd auth logout
 
 ### catalog
 
-Static catalogs: metrics, sections, forms, event types, document kinds, mapping rules
+Static catalogs: metrics, sections, forms, event types, document kinds, mapping rules, exchanges, sectors
 
 ```bash
 # List investor-document kinds (optional: --fields, --limit, --cursor, --all)
@@ -489,6 +502,9 @@ invd catalog document-kinds --json
 
 # List event types (optional: --fields, --limit, --cursor, --all)
 invd catalog event-types --json
+
+# List exchanges (optional: --fields, --limit, --cursor, --all)
+invd catalog exchanges --json
 
 # List SEC forms (optional: --fields, --limit, --cursor, --all)
 invd catalog forms --json
@@ -501,6 +517,9 @@ invd catalog metrics --json
 
 # List filing section ids (optional: --form, --fields, --limit, --cursor, --all)
 invd catalog sections --json
+
+# List sectors (optional: --fields, --limit, --cursor, --all)
+invd catalog sectors --json
 ```
 
 ### companies
@@ -697,7 +716,7 @@ invd filings review-chain 0000320193-26-000026 --json
 Read standardized and as-reported financial statements in plain, detailed or presentation form
 
 ```bash
-# Standardized statements [--basis as-reported|standardized, --view summary|detailed|presentation] (optional: --statement, --fiscal-year, --fiscal-quarter, --fiscal-year-gte, --fiscal-year-gt, --fiscal-year-lte, --fiscal-year-lt, --as-of, --filing, --sort, --fields, --limit, --cursor, --all)
+# Standardized statements [--basis as-reported|standardized, --view summary|detailed|presentation] (optional: --statement, --fiscal-year, --fiscal-quarter, --fiscal-year-gte, --fiscal-year-gt, --fiscal-year-lte, --fiscal-year-lt, --as-of, --filing, --sort, --metrics, --fields, --limit, --cursor, --all)
 invd financials AAPL -s income-statement --view detailed --json
 ```
 
@@ -745,13 +764,16 @@ invd holders list NVDA -s 13f --json
 
 ### insider-trades
 
-Form 4 transactions
+Form 4 transactions and Form 3/4/5 holdings, by company or by insider
 
 ```bash
 # Get an insider trade (optional: --fields)
 invd insider-trades get 0001127602-26-012345:1 --json
 
-# List insider trades (optional: --side, --filed-at-gte, --filed-at-gt, --filed-at-lte, --filed-at-lt, --transaction-date-gte, --transaction-date-lte, --is-derivative, --sort, --fields, --limit, --cursor, --all)
+# List insider holdings (optional: --owner, --as-of-gte, --as-of-gt, --as-of-lte, --as-of-lt, --is-derivative, --sort, --fields, --limit, --cursor, --all)
+invd insider-trades holdings AAPL --json
+
+# List insider trades (optional: --owner, --side, --filed-at-gte, --filed-at-gt, --filed-at-lte, --filed-at-lt, --transaction-date-gte, --transaction-date-lte, --is-derivative, --sort, --fields, --limit, --cursor, --all)
 invd insider-trades list AAPL --json
 ```
 
@@ -853,7 +875,7 @@ invd me usage --json
 
 ### metrics
 
-Ratios, growth, CAGR, and the explanation of one standardized fact
+Ratios, growth, CAGR, the explanation of one standardized fact and the filed values (vintages) of one concept
 
 ```bash
 # List CAGRs (optional: --horizon, --fiscal-year-gte, --fiscal-year-gt, --fiscal-year-lte, --fiscal-year-lt, --sort, --fields, --limit, --cursor, --all)
@@ -867,6 +889,9 @@ invd metrics growth AAPL -p annual --json
 
 # List ratios (optional: --category, --fiscal-year-gte, --fiscal-year-gt, --fiscal-year-lte, --fiscal-year-lt, --sort, --fields, --limit, --cursor, --all)
 invd metrics ratios AAPL -p annual --json
+
+# List the filed values of a fact (optional: --period-start, --member, --fields, --limit, --cursor, --all)
+invd metrics vintages AAPL -c RevenueFromContractWithCustomerExcludingAssessedTax -e 2024-09-28 --period-start 2023-10-01 --json
 ```
 
 ### news

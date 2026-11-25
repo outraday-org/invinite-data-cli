@@ -1,6 +1,6 @@
 {
   "specVersion": "2026-11-23",
-  "specSha256": "03945a9e4a5f8ce2d79c334a476fff35754d2a587a02b7a85cd15d9c8659c35b",
+  "specSha256": "b1d363f9adc9f004dd8439d0dacab41e8b9c8587a5c27ab1b0f4741c0114f10d",
   "groups": [
     {
       "name": "alert-events",
@@ -20,7 +20,7 @@
     },
     {
       "name": "catalog",
-      "description": "Static catalogs: metrics, sections, forms, event types, document kinds, mapping rules"
+      "description": "Static catalogs: metrics, sections, forms, event types, document kinds, mapping rules, exchanges, sectors"
     },
     {
       "name": "companies",
@@ -68,7 +68,7 @@
     },
     {
       "name": "insider-trades",
-      "description": "Form 4 transactions"
+      "description": "Form 4 transactions and Form 3/4/5 holdings, by company or by insider"
     },
     {
       "name": "instruments",
@@ -96,7 +96,7 @@
     },
     {
       "name": "metrics",
-      "description": "Ratios, growth, CAGR, and the explanation of one standardized fact"
+      "description": "Ratios, growth, CAGR, the explanation of one standardized fact and the filed values (vintages) of one concept"
     },
     {
       "name": "news",
@@ -2797,6 +2797,62 @@
       ]
     },
     {
+      "operationId": "listExchangeCatalog",
+      "group": "catalog",
+      "action": "exchanges",
+      "method": "get",
+      "path": "/v1/catalog/exchanges",
+      "auth": true,
+      "summary": "List exchanges",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "fiscal_year,period_end",
+          "description": "Comma list of root-level fields to keep (R7)",
+          "flag": "fields"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, max 200)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        }
+      ],
+      "list": true,
+      "view": "table",
+      "columns": [
+        "mic",
+        "name",
+        "company_count",
+        "instrument_count"
+      ],
+      "fields": [
+        "mic",
+        "name",
+        "company_count",
+        "instrument_count"
+      ]
+    },
+    {
       "operationId": "listFormCatalog",
       "group": "catalog",
       "action": "forms",
@@ -3053,6 +3109,59 @@
       ]
     },
     {
+      "operationId": "listSectorCatalog",
+      "group": "catalog",
+      "action": "sectors",
+      "method": "get",
+      "path": "/v1/catalog/sectors",
+      "auth": true,
+      "summary": "List sectors",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "fiscal_year,period_end",
+          "description": "Comma list of root-level fields to keep (R7)",
+          "flag": "fields"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, max 200)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        }
+      ],
+      "list": true,
+      "view": "table",
+      "columns": [
+        "sector",
+        "company_count"
+      ],
+      "fields": [
+        "sector",
+        "company_count",
+        "industries"
+      ]
+    },
+    {
       "operationId": "listFiscalPeriods",
       "group": "companies",
       "action": "fiscal-periods",
@@ -3154,9 +3263,9 @@
           "in": "query",
           "required": false,
           "type": "string",
-          "pattern": "^(coverage)(,(coverage))*$",
+          "pattern": "^(coverage|former_tickers)(,(coverage|former_tickers))*$",
           "example": "coverage",
-          "description": "Optional objects to include: `coverage` (comma list)",
+          "description": "Optional objects to include: `coverage`, `former_tickers` (comma list)",
           "flag": "expand"
         },
         {
@@ -3224,7 +3333,8 @@
         "zip_code",
         "country_code",
         "filer_cik",
-        "coverage"
+        "coverage",
+        "former_tickers"
       ]
     },
     {
@@ -5302,9 +5412,9 @@
           "in": "query",
           "required": false,
           "type": "string",
-          "pattern": "^(lifecycle|proposed_symbols|former_names|successors|fund|private_offerings)(,(lifecycle|proposed_symbols|former_names|successors|fund|private_offerings))*$",
+          "pattern": "^(lifecycle|proposed_symbols|former_names|former_tickers|successors|fund|private_offerings)(,(lifecycle|proposed_symbols|former_names|former_tickers|successors|fund|private_offerings))*$",
           "example": "lifecycle",
-          "description": "Optional objects to include: `lifecycle`, `proposed_symbols`, `former_names`, `successors`, `fund`, `private_offerings` (comma list)",
+          "description": "Optional objects to include: `lifecycle`, `proposed_symbols`, `former_names`, `former_tickers`, `successors`, `fund`, `private_offerings` (comma list)",
           "flag": "expand"
         },
         {
@@ -5353,7 +5463,8 @@
         "former_names",
         "successors",
         "fund",
-        "private_offerings"
+        "private_offerings",
+        "former_tickers"
       ]
     },
     {
@@ -6440,6 +6551,16 @@
           "flag": "sort"
         },
         {
+          "name": "metrics",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "pattern": "^([A-Za-z][A-Za-z0-9_.-]{0,60}:)?[A-Za-z_][A-Za-z0-9_.-]{0,200}(,([A-Za-z][A-Za-z0-9_.-]{0,60}:)?[A-Za-z_][A-Za-z0-9_.-]{0,200}){0,99}$",
+          "example": "Revenues,NetIncomeLoss",
+          "description": "Comma list of XBRL concepts as `facts` names them (`Revenues`; a prefix such as `us-gaap:` is ignored) to keep inside `facts`; the presentation view keeps each listed node with the path to it. A concept the period does not state is left out",
+          "flag": "metrics"
+        },
+        {
           "name": "fields",
           "in": "query",
           "required": false,
@@ -6661,6 +6782,16 @@
           "example": "-period_end",
           "description": "Sort field (`-` = descending); the id tiebreaker is always appended. Default `-period_end`",
           "flag": "sort"
+        },
+        {
+          "name": "metrics",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "pattern": "^([A-Za-z][A-Za-z0-9_.-]{0,60}:)?[A-Za-z_][A-Za-z0-9_.-]{0,200}(,([A-Za-z][A-Za-z0-9_.-]{0,60}:)?[A-Za-z_][A-Za-z0-9_.-]{0,200}){0,99}$",
+          "example": "Revenues,NetIncomeLoss",
+          "description": "Comma list of XBRL concepts as `facts` names them (`Revenues`; a prefix such as `us-gaap:` is ignored) to keep inside `facts`; the presentation view keeps each listed node with the path to it. A concept the period does not state is left out",
+          "flag": "metrics"
         },
         {
           "name": "fields",
@@ -6886,6 +7017,16 @@
           "flag": "sort"
         },
         {
+          "name": "metrics",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "pattern": "^([A-Za-z][A-Za-z0-9_.-]{0,60}:)?[A-Za-z_][A-Za-z0-9_.-]{0,200}(,([A-Za-z][A-Za-z0-9_.-]{0,60}:)?[A-Za-z_][A-Za-z0-9_.-]{0,200}){0,99}$",
+          "example": "Revenues,NetIncomeLoss",
+          "description": "Comma list of XBRL concepts as `facts` names them (`Revenues`; a prefix such as `us-gaap:` is ignored) to keep inside `facts`; the presentation view keeps each listed node with the path to it. A concept the period does not state is left out",
+          "flag": "metrics"
+        },
+        {
           "name": "fields",
           "in": "query",
           "required": false,
@@ -7109,6 +7250,16 @@
           "flag": "sort"
         },
         {
+          "name": "metrics",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "pattern": "^[a-z0-9_]{1,120}(,[a-z0-9_]{1,120}){0,99}$",
+          "example": "is_total_revenue,is_net_income",
+          "description": "Comma list of metric ids (GET /v1/catalog/metrics) to keep inside `facts`; the presentation view keeps each listed node with the path to it. An unknown id answers 400",
+          "flag": "metrics"
+        },
+        {
           "name": "fields",
           "in": "query",
           "required": false,
@@ -7308,6 +7459,16 @@
           "flag": "sort"
         },
         {
+          "name": "metrics",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "pattern": "^[a-z0-9_]{1,120}(,[a-z0-9_]{1,120}){0,99}$",
+          "example": "is_total_revenue,is_net_income",
+          "description": "Comma list of metric ids (GET /v1/catalog/metrics) to keep inside `facts`; the presentation view keeps each listed node with the path to it. An unknown id answers 400",
+          "flag": "metrics"
+        },
+        {
           "name": "fields",
           "in": "query",
           "required": false,
@@ -7505,6 +7666,16 @@
           "example": "-period_end",
           "description": "Sort field (`-` = descending); the id tiebreaker is always appended. Default `-period_end`",
           "flag": "sort"
+        },
+        {
+          "name": "metrics",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "pattern": "^[a-z0-9_]{1,120}(,[a-z0-9_]{1,120}){0,99}$",
+          "example": "is_total_revenue,is_net_income",
+          "description": "Comma list of metric ids (GET /v1/catalog/metrics) to keep inside `facts`; the presentation view keeps each listed node with the path to it. An unknown id answers 400",
+          "flag": "metrics"
         },
         {
           "name": "fields",
@@ -8600,6 +8771,174 @@
       ]
     },
     {
+      "operationId": "listInsiderHoldings",
+      "group": "insider-trades",
+      "action": "holdings",
+      "method": "get",
+      "path": "/v1/insider-holdings",
+      "auth": true,
+      "summary": "List insider holdings",
+      "credits": 1,
+      "tier": "standard",
+      "params": [
+        {
+          "name": "company",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "AAPL",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
+          "flag": "company"
+        },
+        {
+          "name": "owner",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "pattern": "^[0-9]{1,10}(,[0-9]{1,10}){0,49}$",
+          "example": "0001214156",
+          "description": "Reporting-owner CIK (all digits, any padding): the insider's own rows across every issuer; a comma list of 1–50 reads several owners. One of `company` / `owner` is required",
+          "alias": "o",
+          "flag": "owner"
+        },
+        {
+          "name": "as_of.gte",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2025-01-01",
+          "description": "`as_of` on or after this value (rows without a reported date are excluded)",
+          "flag": "as-of-gte"
+        },
+        {
+          "name": "as_of.gt",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2025-01-01",
+          "description": "`as_of` after this value (rows without a reported date are excluded)",
+          "flag": "as-of-gt"
+        },
+        {
+          "name": "as_of.lte",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2025-01-01",
+          "description": "`as_of` on or before this value (rows without a reported date are excluded)",
+          "flag": "as-of-lte"
+        },
+        {
+          "name": "as_of.lt",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2025-01-01",
+          "description": "`as_of` before this value (rows without a reported date are excluded)",
+          "flag": "as-of-lt"
+        },
+        {
+          "name": "is_derivative",
+          "in": "query",
+          "required": false,
+          "type": "boolean",
+          "example": false,
+          "description": "Omitted = derivative and non-derivative holdings; true = only derivative securities (options, RSUs, warrants); false = only non-derivative holdings",
+          "flag": "is-derivative"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "as_of",
+            "-as_of"
+          ],
+          "default": "-as_of",
+          "example": "-as_of",
+          "description": "Sort field (`-` = descending); the id tiebreaker is always appended; rows without a reported date come last in descending order. Default `-as_of`",
+          "flag": "sort"
+        },
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "fiscal_year,period_end",
+          "description": "Comma list of root-level fields to keep (R7)",
+          "flag": "fields"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, max 200)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        }
+      ],
+      "positional": {
+        "name": "company",
+        "required": false,
+        "variadic": "comma"
+      },
+      "exampleParams": [
+        "company"
+      ],
+      "list": true,
+      "view": "table",
+      "columns": [
+        "as_of",
+        "reporting_person_name",
+        "security_title",
+        "shares_owned",
+        "direct_indirect",
+        "is_derivative"
+      ],
+      "fields": [
+        "id",
+        "accession_number",
+        "form",
+        "cik",
+        "filed_at",
+        "as_of",
+        "owner_cik",
+        "reporting_person_name",
+        "reporting_person_is_director",
+        "reporting_person_is_officer",
+        "reporting_person_officer_title",
+        "reporting_person_is_ten_percent_owner",
+        "reporting_person_is_other",
+        "reporting_person_other_text",
+        "security_title",
+        "shares_owned",
+        "value_owned",
+        "direct_indirect",
+        "nature_of_ownership",
+        "is_derivative",
+        "conversion_exercise_price",
+        "exercise_date",
+        "expiration_date",
+        "underlying_security_title",
+        "underlying_shares",
+        "footnotes",
+        "source"
+      ]
+    },
+    {
       "operationId": "listInsiderTrades",
       "group": "insider-trades",
       "action": "list",
@@ -8613,11 +8952,22 @@
         {
           "name": "company",
           "in": "query",
-          "required": true,
+          "required": false,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required.",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
           "flag": "company"
+        },
+        {
+          "name": "owner",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "pattern": "^[0-9]{1,10}(,[0-9]{1,10}){0,49}$",
+          "example": "0001214156",
+          "description": "Reporting-owner CIK (all digits, any padding): the insider's own rows across every issuer; a comma list of 1–50 reads several owners. One of `company` / `owner` is required",
+          "alias": "o",
+          "flag": "owner"
         },
         {
           "name": "side",
@@ -8742,9 +9092,12 @@
       ],
       "positional": {
         "name": "company",
-        "required": true,
+        "required": false,
         "variadic": "comma"
       },
+      "exampleParams": [
+        "company"
+      ],
       "list": true,
       "view": "table",
       "columns": [
@@ -11216,6 +11569,125 @@
         "calendar_year",
         "calendar_quarter",
         "ratios"
+      ]
+    },
+    {
+      "operationId": "listFinancialVintages",
+      "group": "metrics",
+      "action": "vintages",
+      "method": "get",
+      "path": "/v1/financials/vintages",
+      "auth": true,
+      "summary": "List the filed values of a fact",
+      "credits": 1,
+      "tier": "pro",
+      "params": [
+        {
+          "name": "company",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "example": "AAPL",
+          "description": "Ticker (`AAPL`) or CIK of ONE company (all digits, any padding). Required.",
+          "flag": "company"
+        },
+        {
+          "name": "concept",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "pattern": "^([A-Za-z][A-Za-z0-9_.-]{0,60}:)?[A-Za-z_][A-Za-z0-9_.-]{0,200}$",
+          "example": "RevenueFromContractWithCustomerExcludingAssessedTax",
+          "description": "XBRL concept as filed: the local name (`Revenues`) or with its prefix (`us-gaap:Revenues`)",
+          "alias": "c",
+          "flag": "concept"
+        },
+        {
+          "name": "period_end",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "example": "2024-09-28",
+          "description": "End of the fact's duration, or its instant",
+          "alias": "e",
+          "flag": "period-end"
+        },
+        {
+          "name": "period_start",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2023-10-01",
+          "description": "Start of the duration (omitted = every duration ending on `period_end`, and instants). Omit it for a balance-sheet value: an instant has no start",
+          "flag": "period-start"
+        },
+        {
+          "name": "member",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "pattern": "^([A-Za-z_][A-Za-z0-9_.-]{0,60}:)?[A-Za-z_][A-Za-z0-9_.-]{0,200}$",
+          "example": "aapl:GreaterChinaSegmentMember",
+          "description": "One dimension member (`aapl:GreaterChinaSegmentMember` or its local name): the value of that member; omitted = the consolidated value",
+          "flag": "member"
+        },
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "fiscal_year,period_end",
+          "description": "Comma list of root-level fields to keep (R7)",
+          "flag": "fields"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, max 200)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        }
+      ],
+      "positional": {
+        "name": "company",
+        "required": true
+      },
+      "exampleParams": [
+        "period_start"
+      ],
+      "list": true,
+      "view": "table",
+      "columns": [
+        "filing_date",
+        "form",
+        "accession",
+        "period_start",
+        "period_end",
+        "value",
+        "is_current"
+      ],
+      "fields": [
+        "accession",
+        "form",
+        "filing_date",
+        "period_start",
+        "period_end",
+        "value",
+        "unit",
+        "is_current"
       ]
     },
     {

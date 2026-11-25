@@ -1,13 +1,13 @@
 {
-  "observedAt": "2026-11-24",
+  "observedAt": "2026-11-25",
   "download": {
     "owner": "outraday-org",
     "repository": "invinite-data-cli",
-    "revision": "653f4330b01948f20572567cae6c081db01f94b9"
+    "revision": "b8fd50dad5fb5437e3ee6bd140f6feab2c88970d"
   },
   "manifest": {
     "name": "invinite-financial-data",
-    "version": "0.20.0"
+    "version": "0.21.0"
   },
   "connector": {
     "key": "invinite-financial-data",
@@ -26,7 +26,7 @@
     "skills/invinite-data-cli/SKILL.md"
   ],
   "sourceHashes": {
-    "claude-plugin/.claude-plugin/plugin.json": "a6f98f0aa75f18dd1b719b7ccc414c5bedfd0d145f9c2f8135431f5546131534",
+    "claude-plugin/.claude-plugin/plugin.json": "3b93049896432f6b77c1c52241ae791b42d1407eb9c9c2163e27f91b503e6be5",
     "claude-plugin/.mcp.json": "a473ef1b56c55c29434aa2864d3bc0b250b4954890af437308ff9d66bc85d0d5",
     "claude-plugin/agents/invinite-data.md": "0c7c905baa1df4c37b9f6bf01e641351bdd63f8215f594c928080f32f7c3ef6e",
     "claude-plugin/commands/alert-setup.md": "920811835864fb96e3417d6b1ab346d089138937b5456bf54830ca43679598a3",
@@ -34,16 +34,16 @@
     "claude-plugin/commands/analyze-filing.md": "dfdccc076c88c8b91bd284d658030f095625c112fea86379b9e6ef5c73bec363",
     "claude-plugin/commands/compare-companies.md": "a01f24fe85852086d6be80e1cbb50c2410e8ac307400aa9c756690946d6e5b32",
     "claude-plugin/commands/financial-research.md": "5edb2fd316ceda1620f0c7c5e5f64aa9205634a11a5349c0581ac7609433be2e",
-    "claude-plugin/commands/ownership-review.md": "4c0cdd69e18333474120d1fab2cabcee54a2fa47eb57586a9636007c65597a9b",
-    "claude-plugin/skills/invinite-data-cli/SKILL.md": "99e6d612508e950b111284ddf28570b42604585df94ea2f51aee9cba5e54abf6",
+    "claude-plugin/commands/ownership-review.md": "5545371987733e9caace3112adc9daad19c5e3c33b63690f017fd13e91c2c79e",
+    "claude-plugin/skills/invinite-data-cli/SKILL.md": "3db61f9a127fa4d72b39d34efb180439913948ed6e383c0b5098e190bd282cf4",
     "src/commands/plugin.ts": "d571726eeac6b194c825f31dcd5a25e6b46764d8d941732c7b88327cccae372d"
   },
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "11.3.0",
-    "specSha256": "03945a9e4a5f8ce2d79c334a476fff35754d2a587a02b7a85cd15d9c8659c35b",
+    "version": "11.4.0",
+    "specSha256": "b1d363f9adc9f004dd8439d0dacab41e8b9c8587a5c27ab1b0f4741c0114f10d",
     "sourceHashes": {
-      "claude-plugin/.claude-plugin/plugin.json": "a6f98f0aa75f18dd1b719b7ccc414c5bedfd0d145f9c2f8135431f5546131534",
+      "claude-plugin/.claude-plugin/plugin.json": "3b93049896432f6b77c1c52241ae791b42d1407eb9c9c2163e27f91b503e6be5",
       "claude-plugin/.mcp.json": "a473ef1b56c55c29434aa2864d3bc0b250b4954890af437308ff9d66bc85d0d5",
       "claude-plugin/agents/invinite-data.md": "0c7c905baa1df4c37b9f6bf01e641351bdd63f8215f594c928080f32f7c3ef6e",
       "claude-plugin/commands/alert-setup.md": "920811835864fb96e3417d6b1ab346d089138937b5456bf54830ca43679598a3",
@@ -51,14 +51,14 @@
       "claude-plugin/commands/analyze-filing.md": "dfdccc076c88c8b91bd284d658030f095625c112fea86379b9e6ef5c73bec363",
       "claude-plugin/commands/compare-companies.md": "a01f24fe85852086d6be80e1cbb50c2410e8ac307400aa9c756690946d6e5b32",
       "claude-plugin/commands/financial-research.md": "5edb2fd316ceda1620f0c7c5e5f64aa9205634a11a5349c0581ac7609433be2e",
-      "claude-plugin/commands/ownership-review.md": "4c0cdd69e18333474120d1fab2cabcee54a2fa47eb57586a9636007c65597a9b",
-      "claude-plugin/skills/invinite-data-cli/SKILL.md": "99e6d612508e950b111284ddf28570b42604585df94ea2f51aee9cba5e54abf6",
-      "package.json": "ba8862ac57eacb6068b96d36a0806f6b08daa381af29280dfbf2f4281661ecba",
+      "claude-plugin/commands/ownership-review.md": "5545371987733e9caace3112adc9daad19c5e3c33b63690f017fd13e91c2c79e",
+      "claude-plugin/skills/invinite-data-cli/SKILL.md": "3db61f9a127fa4d72b39d34efb180439913948ed6e383c0b5098e190bd282cf4",
+      "package.json": "64d18a04dd7c116f7c80b2f7391524969c3a1b005cc1dc4911f5f35a1e002241",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-plugin-packaging.ts": "98945657178e4d4468963f9ef9b7d85025fde6c25444dbc3adb1c2334aac899e",
       "src/commands/plugin.ts": "d571726eeac6b194c825f31dcd5a25e6b46764d8d941732c7b88327cccae372d"
     },
-    "revision": "653f4330b01948f20572567cae6c081db01f94b9",
-    "fingerprint": "4e899bed6e87d70da05749f7e407cf54e515ed62d67363f5c023d9869bfd887c"
+    "revision": "16275618352580130e258172298d9e5cfa6cdc8b",
+    "fingerprint": "6172b3f1a83835449c33eb5421e9458ee69876a939b0d046348b1bfe3681ba4f"
   }
 }

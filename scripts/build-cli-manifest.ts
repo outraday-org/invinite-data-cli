@@ -62,7 +62,7 @@ export const GROUP_DESCRIPTIONS: Readonly<Record<string, string>> = {
   ipos: 'Offerings from registration to listing',
   market: 'US market holidays',
   me: 'Inspect your account and usage, or read and update the defaults for your alert end users',
-  metrics: 'Ratios, growth, CAGR, and the explanation of one standardized fact',
+  metrics: 'Ratios, growth, CAGR, the explanation of one standardized fact and the filed values (vintages) of one concept',
   offerings: 'Form D private offerings (Regulation D exemptions), amendments folded per offering',
   people: 'Executives and analysts, and who took part in which event',
   'script-versions': 'The versions of one hosted chartlang script: compile status, diagnostics and alert ids',
@@ -81,8 +81,11 @@ export const DROPPED_ALIASES: Readonly<Record<string, string>> = { 'GET /v1/metr
 /** The parameter a positional joins several words into: company / symbol lists with `,`, search text with a space. */
 const VARIADIC: Readonly<Record<string, 'comma' | 'space'>> = { company: 'comma', symbol: 'comma', q: 'space' };
 
-/** Operations whose `symbol` takes ONE instrument (Data API 7.0 holders): their positional is a single word. */
-const SINGLE_SUBJECT: ReadonlySet<string> = new Set(['listHolders', 'listHolderChanges']);
+/**
+ * Operations whose subject takes ONE value: `symbol` of the Data API 7.0 holders, `company` of the filed values of one
+ * fact (Data API 11.2 `metrics vintages`). Their positional is a single word.
+ */
+const SINGLE_SUBJECT: ReadonlySet<string> = new Set(['listHolders', 'listHolderChanges', 'listFinancialVintages']);
 
 const schemaSchema = z.object({
   type: z.unknown().optional(),

@@ -25,6 +25,20 @@ command ([Changes in 8.0](#changes-in-80)). Coming from 5.x, read [Upgrading fro
 [Upgrading from 4.x](#upgrading-from-4x); from 3.x, [Upgrading from 3.x](#upgrading-from-3x).
 
 
+## Changes in 11.4.0 (Data API 11.2)
+
+CLI 11.4.0 and plugin 0.21.0 adopt Data API 11.2 (additive, no command removed or renamed):
+
+- `invd insider-trades holdings` (Standard): Form 3/4/5 holdings of a company, or of one insider with `--owner` / `-o`.
+- `invd insider-trades list --owner <cik>`: the company is now optional; one of the company / `--owner` is required
+  (the API answers 400 without either). Use the `owner_cik` of a trade row to follow one insider across issuers.
+- `invd metrics vintages <company> -c <concept> -e <period_end>` (Pro): every value filed for one fact, by filing.
+- `invd catalog exchanges` and `invd catalog sectors` (Free): the exchanges and sectors with their counts.
+- `invd financials --metrics <list>`: keep only the listed metric ids (standardized) or XBRL concepts (as-reported)
+  inside `facts`, on all six statement operations.
+- The turnover ratios (asset, inventory, receivables) are in the `efficiency` category of `metrics ratios`.
+- New fields: `source.is_preliminary` on statement rows, `former_tickers` (`--expand`) on a company or filer.
+
 ## US macro data
 
 CLI 11.3.0 and plugin 0.20.0 adopt the Data API's Macro group. The catalog is available on Free. Histories and snapshots require Lite or corresponding read entitlement. Each successful read costs one credit.
@@ -101,7 +115,7 @@ Commands are noun-verb over the API's groups:
 | `dividends`, `splits` | dividends and splits of any instrument (a stock, a fund, an ETN) |
 | `filers` | every SEC filer (13F managers, pre-IPO issuers, former registrants), listed or not; a 13F manager's portfolio (`filers holdings`) and its changes (`filers holding-changes`) |
 | `financials` | statements: standardized or as-reported, summary / detailed / presentation, point in time |
-| `metrics` | ratios, growth, CAGR, and the explanation of one standardized fact |
+| `metrics` | ratios, growth, CAGR, the explanation of one standardized fact, and every filed value of one fact (`metrics vintages`) |
 | `segments` | segment values (revenue by product, geography …) |
 | `filings` | SEC filings, their numeric and text facts, review chains, dataset releases |
 | `documents` | immutable SEC filing document versions: blocks, pages, sections, figures, fact places |
@@ -109,12 +123,12 @@ Commands are noun-verb over the API's groups:
 | `guidance` | guidance items and KPI mentions |
 | `people` | executives and analysts, and who took part in which event |
 | `holders` | who holds ONE stock or fund: `--source 13f` (13F managers), `nport` (funds' N-PORT reports), `issuer_file` (ETF issuer files), or without `--source` an overview of all three; `holders changes` = 13F quarter-over-quarter changes |
-| `insider-trades` | Form 4 transactions (trade date, owner CIK, derivative and 10b5-1 flags where the SEC Form 3/4/5 dataset has them) |
+| `insider-trades` | Form 4 transactions (trade date, owner CIK, derivative and 10b5-1 flags where the SEC Form 3/4/5 dataset has them) and Form 3/4/5 holdings (`insider-trades holdings`), by company or by insider (`--owner`) |
 | `investor-documents` | company-published documents (annual reports, decks, letters) |
 | `news` | news from SEC filings and the companies' own newsrooms, with attribution |
 | `search` | full-text search over filings, transcripts, investor documents and news |
 | `ipos`, `offerings`, `market` | offerings from registration to listing; Form D private offerings; US market holidays |
-| `catalog` | static catalogs: metrics, sections, forms, event types, document kinds, mapping rules |
+| `catalog` | static catalogs: metrics, sections, forms, event types, document kinds, mapping rules, exchanges, sectors |
 | `me` | your account and usage (free) |
 | `alerts`, `destinations`, `alert-events` | alert rules (filings, news, halts, dividends, earnings calls and results, metrics, countdowns …), the webhook endpoints their events are delivered to, and the event log (pull feed; `invd alert-events tail` follows it) |
 | `scripts`, `script-versions`, `alert-templates` | hosted chartlang scripts for `script` alerts (`invd scripts upload` reads a file) and their versions; the built-in templates of `indicator` alerts |
@@ -160,11 +174,11 @@ Plans (Data API 10.0): `companies` (with `companies fiscal-periods`), `instrumen
 `events list` / `get` and `me` reach every plan. Lite adds filings, filers, `documents`, `financials` (summary
 view), `metrics`, `guidance list`, `holders list`, `dividends`, `splits`, `news`, `funds`, `ipos`, `offerings`,
 `people`, `events press-release` and the alerts commands (`alerts`, `alert-events`, `alert-templates`, `alert-users`,
-`destinations`, `scripts`, `script-versions`). Standard adds `segments list`, `insider-trades`, `search filings` and
+`destinations`, `scripts`, `script-versions`). Standard adds `segments list`, `insider-trades` (incl. `holdings`), `search filings` and
 `search news`. Pro adds the earnings-call content (transcripts, Q&A, stats, audio, slides, comparison, prosody, price
 attribution, transcript diff and versions), `investor-documents`, `search transcripts`, `search investor-documents`,
 the detailed and presentation `financials` views, `segments list-detailed`, `guidance kpis`, holder changes and fact
-places (and the WebSocket stream); `filings datasets` needs Enterprise. Pay as you go (credits without a plan;
+places, `metrics vintages` (and the WebSocket stream); `filings datasets` needs Enterprise. Pay as you go (credits without a plan;
 `invd me show` says `payg`) reaches what Pro reaches except live data; the API's refusal says so. `--help` names each
 command's plan; a refused plan exits 6 and the error names the plan.
 
@@ -214,6 +228,7 @@ An ETF that is an exchange-traded trust (GLD, IBIT: `structure` `exchange_traded
 | `--as-of` | point in time: the newest rendering of each period filed on or before that day |
 | `--filing` | pin the rendering of one filing (accession) |
 | `--reported-only`, `--display-sign` | as-reported only |
+| `--metrics` | a comma list to keep inside `facts`: metric ids (standardized) or XBRL concepts (as-reported); the presentation view keeps each with its path |
 
 ```bash
 invd financials AAPL                                         # annual, all three statements
@@ -224,6 +239,8 @@ invd financials AAPL --as-of 2025-01-31 --fiscal-year-gte 2020
 invd financials AAPL --filing 0000320193-25-000079
 invd financials AAPL MSFT GOOGL --fiscal-year 2025           # several companies, one period: a snapshot
 invd financials AAPL --basis as-reported --reported-only --display-sign cash_flow_direction -s cash-flow
+invd financials AAPL -s income-statement --metrics is_total_revenue,is_net_income
+invd financials AAPL --basis as-reported --metrics Revenues,NetIncomeLoss
 ```
 
 Standardized values are keyed by `metric_id`; `invd catalog metrics` lists them.
@@ -235,7 +252,9 @@ invd catalog metrics --statement income-statement
 invd metrics ratios AAPL -p annual --category profitability,valuation
 invd metrics growth MSFT -p quarterly --basis yoy
 invd metrics cagr AAPL MSFT -p annual --horizon 5
+invd metrics ratios AAPL -p annual --category efficiency     # turnover ratios
 invd metrics explain "0000320193|is_total_revenue|annual|2026|4"
+invd metrics vintages AAPL -c RevenueFromContractWithCustomerExcludingAssessedTax -e 2024-09-28           # every value filed for one fact (PRO)
 invd segments list AAPL -p annual --metric is_total_revenue
 invd segments list-detailed AAPL -p annual
 ```
@@ -249,6 +268,8 @@ invd filings facts 0000320193-26-000026 --tag us-gaap:Revenues
 invd filings notes 0000320193-26-000026
 invd filings review-chain 0000320193-26-000026
 invd catalog sections --form 10-K
+invd catalog exchanges
+invd catalog sectors
 invd documents sections <version_id>
 invd documents get <version_id> --blocks b12-b40 --footnotes
 invd documents get <version_id> --pages 1-3
@@ -302,6 +323,9 @@ invd filings holdings 0001067983-26-000004          # one 13F-HR or NPORT-P fili
 invd insider-trades AAPL --filed-at-gte 2026-01-01
 invd insider-trades NVDA --transaction-date-gte 2026-10-01 --is-derivative false
 invd insider-trades get 0001127602-26-012345:1
+invd insider-trades list --owner 0001214156          # one insider's trades across every issuer
+invd insider-trades holdings AAPL                   # Form 3/4/5 holdings (latest first)
+invd insider-trades holdings --owner 0001214156 --as-of-gte 2026-01-01
 ```
 
 ### News, investor documents, IPOs, market
