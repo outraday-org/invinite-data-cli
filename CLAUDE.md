@@ -33,6 +33,14 @@ accept the two fields only through `--fields` / `--json <fields>`.
 `--current` / `--no-current`) and `ownership sale-notices` (Form 144; `--owner` / `-o`). No new `meta.reason`. The
 vendored `ownership-review` skill and `invinite-financial-data/references/ownership.md` name both routes. The bundle is the released API commit `c39e99e` (SDK 11.5.0, examples captured; its base revision field reads `e6a5ef58`); it also vendors #54's `alert-setup` sentence.
 
+12.0.0 adopts Data API 12.0 with plugin 0.24.0 (BREAKING; invinite-data-api `tasks/directory-listed-default` task 5):
+`--is-active` takes `true|false|all` (commander `choices`; default listed today, the API's — the CLI sends nothing
+without the flag), also on `funds list`; `--no-is-active` is gone (no alias: `--is-active false` replaces it);
+`companies get` without `is_delisted`; `people list` without call operators unless `--include-operators`. The vendored
+`invinite-financial-data` `SKILL.md` and `references/earnings-calls.md` follow. The bundle is the released API commit
+`d541344` (tag `data-sdk-v12.0.0`, SDK 12.0.0, Fly v193; spec sha256 `14aba1a4…`, its base revision field reads
+`0e29760f`).
+
 ## Commands come from the Data API's spec, not from this repo
 
 Every plain command — one REST call, printed as a table, a key/value list or JSON — is GENERATED. The chain:

@@ -193,6 +193,44 @@ describe('--dry-run, confirmation, delete', () => {
     expect(url.searchParams.has('company')).toBe(false);
   });
 
+  it.each([
+    ['instruments', 'all', '/v1/instruments?is_active=all'],
+    ['funds', 'false', '/v1/funds?is_active=false'],
+  ])('invd %s list --is-active %s plans the value; no flag sends nothing (the API default)', async (group, value, request) => {
+    await run(group, 'list', '--is-active', value, '--dry-run', '--output', 'table');
+    expect(fetch).not.toHaveBeenCalled();
+    expect(out.join('\n')).toContain(`GET https://api.example.com${request}`);
+
+    vi.mocked(fetch).mockResolvedValueOnce(page([]));
+    await run(group, 'list', '--json');
+    expect(new URL(calls()[0]?.url ?? '').searchParams.has('is_active')).toBe(false);
+  });
+
+  it('--is-active takes only true|false|all; --no-is-active is gone (commander, exit 2 in bin)', async () => {
+    const program = () => {
+      const created = createProgram();
+      created.commands.forEach(command => command.commands.forEach(child => child.exitOverride()));
+      return created;
+    };
+    await expect(program().parseAsync(['node', 'invd', 'instruments', 'list', '--is-active', 'yes']))
+      .rejects.toMatchObject({ code: 'commander.invalidArgument' });
+    await expect(program().parseAsync(['node', 'invd', 'instruments', 'list', '--no-is-active']))
+      .rejects.toMatchObject({ code: 'commander.unknownOption' });
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('invd people list AAPL --include-operators sends include_operators=true; without it nothing', async () => {
+    await run('people', 'list', 'AAPL', '--include-operators', '--dry-run', '--output', 'table');
+    expect(fetch).not.toHaveBeenCalled();
+    expect(out.join('\n')).toContain('GET https://api.example.com/v1/people?company=AAPL&include_operators=true');
+
+    vi.mocked(fetch).mockResolvedValueOnce(page([]));
+    await run('people', 'list', 'AAPL', '--json');
+    const url = new URL(calls()[0]?.url ?? '');
+    expect(url.searchParams.get('company')).toBe('AAPL');
+    expect(url.searchParams.has('include_operators')).toBe(false);
+  });
+
   it('a dry run of a resolved event shows the lookup and the sum', async () => {
     await run('events', 'transcript', 'NVDA', '2026Q3', '--dry-run', '--json');
     const plan = JSON.parse(out.join('\n'));

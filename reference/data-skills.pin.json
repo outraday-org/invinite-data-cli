@@ -1,6 +1,6 @@
 {
   "repository": "https://github.com/outraday-org/invinite-data-api",
-  "revision": "c39e99e6a97b444f4af422a5eabdaa68e44a77f4",
+  "revision": "d541344cdcc48e65325d32aedf2e9277bcd9e6f4",
   "path": "src/skills",
   "footer": "Without a connected Invinite Data MCP server, load the `invinite-data-cli` skill: it maps every tool named here to an `invd` command.",
   "skills": [
@@ -41,16 +41,16 @@
       "written": "0e643549a6fb96c559db40c09f317537963afefff232351997c46600fa536de9"
     },
     "invinite-financial-data/SKILL.md": {
-      "source": "e374298f42807a8862fdf5351fc3c192411c3184daf85ac40f42d30e7f27e78d",
-      "written": "ad1df08e8d13bfaaf269c5f2456f832ef21feabac422d8500e01dc8dcc85c2bd"
+      "source": "ca628357836f187cec4f46b582ae84f264d42f886b4b01aad8ef551a0fea4de5",
+      "written": "a4b8c5bf4a2c2c6f022a1c3f64a6fc717396f0d6284b07dc406915a939b43c36"
     },
     "invinite-financial-data/references/alerts.md": {
       "source": "118c3054ab7fb3606e4335e1f3cbe1a3d1c8a2738084496d6ada5729b8cb3362",
       "written": "118c3054ab7fb3606e4335e1f3cbe1a3d1c8a2738084496d6ada5729b8cb3362"
     },
     "invinite-financial-data/references/earnings-calls.md": {
-      "source": "c9afaba0d01aa77849d185daaddcf5b3d500c0ce26a5c06bf5168e1cb49d0c69",
-      "written": "c9afaba0d01aa77849d185daaddcf5b3d500c0ce26a5c06bf5168e1cb49d0c69"
+      "source": "e4ac4435158316699a0b9f5268d16a0bd8db5d8e7278312f82e45c83667a5206",
+      "written": "e4ac4435158316699a0b9f5268d16a0bd8db5d8e7278312f82e45c83667a5206"
     },
     "invinite-financial-data/references/filings.md": {
       "source": "34086a2a6aa7078c1884c50f26afaa72441db494d9a592ce79bc011d13ec5ad8",

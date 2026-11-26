@@ -3,7 +3,7 @@
   "info": {
     "title": "Invinite API",
     "description": "Invinite financial data API. Each operation has a base credit cost: `x-credits` is the base cost; responses add 1 credit per started 1,000 rows beyond the first 1,000; `X-Credits-Charged` reports the final debit and `X-Credits-Remaining` what is left of the plan's included credits after it. A `304 Not Modified` costs nothing. `GET /v1/me/usage` returns your account's usage by day, product family and key (it costs no credits).\n\n**Coverage.** Financial data covers US SEC registrants and their US listings; a symbol that is not a US SEC registrant (or a crypto pair such as `X:BTCUSD`) is not a known company and answers 404. A known company with no data in a family (for example no statements yet) answers 404 with `code: not_covered`; an empty page of a covered company stays 200 with an empty list. `GET /v1/companies` lists every known company.\n\n## Webhooks\n\nAlerts (`POST /v1/alerts`) deliver their events to your destinations (`POST /v1/destinations`) as [Standard Webhooks](https://github.com/standard-webhooks/standard-webhooks/blob/main/spec/standard-webhooks.md): `alert.fired`, `alert.fired.batch`, `alert.status_changed`, `destination.disabled`, `destination.test`, `account.fire_cap_reached`, `alert_user.fire_cap_reached`; see `x-webhooks` for each `data` object. Every event is also on the pull feed `GET /v1/alert-events`.\n\nEvery delivery is a `POST` with `Content-Type: application/json`, the body `{type, timestamp, data}` (or the destination's `body_template`) and the headers `webhook-id` (the event id; a batch: its `bat_…` id), `webhook-timestamp` (unix seconds) and `webhook-signature`: space-separated `v1,<base64 HMAC-SHA256 of <webhook-id>.<webhook-timestamp>.<raw body>>`, keyed with the base64-DECODED bytes of the destination's `whsec_…` secret — any Standard Webhooks library verifies it. After `POST /v1/destinations/{id}:rotate-secret` the old secret keeps signing beside the new one for 24 h (two `v1` entries). Reject a timestamp older than 5 minutes. Any 2xx within 10 s acknowledges; redirects are not followed; a body above 256 KB is not sent. A failed attempt is retried after [0, 5 s, 5 min, 30 min, 2 h, 5 h, 10 h, 10 h, 10 h, 34 h] (attempt n waits the n-th step) plus up to 10 % jitter; the delivery is dead after attempt 10. A 410 disables the destination at once; so do 72 h of nothing but failures with at least 10 failed attempts in a row (a `destination.disabled` event on the feed and a mail; `PATCH` with `status: active` re-enables it). Delivery is at-least-once and unordered: dedupe on `webhook-id`, order by `timestamp`. A `batch_webhook` destination receives `alert.fired.batch` with the pending events in `data.events[]` (dedupe on each `data.event_id`).\n\nFires and deliveries cost no credits; no daily fire cap; at most 60 fires per alert per rolling hour (beyond: suppressed and counted in the next fire's `suppressed_since_last`); an Enterprise contract may set a daily cap (beyond it: written to the feed with `delivery_skipped: fire_cap`, not delivered; one `account.fire_cap_reached` per day). An end user's `max_fires_per_day` (or the account default) caps that user first: beyond it `delivery_skipped: alert_user_fire_cap`, not counted against the account's cap, one `alert_user.fire_cap_reached` per user and day.\n\n## Licensing\n\n| Tier | display | redistribute | rag | train | audio | redistribute_api | resell |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| FREE | – | – | – | – | – | – | – |\n| LITE | – | – | – | – | – | – | – |\n| STANDARD | ✓ | ✓ | ✓ | – | – | – | – |\n| PRO | ✓ | ✓ | ✓ | – | ✓ | – | – |\n| ENTERPRISE | ✓ | ✓ | ✓ | ✓* | ✓ | ✓* | – |\n\n\\* Depending on the contract.\n\nInvinite data may be used inside the licensee's own organisation from LITE and, from STANDARD, shown and redistributed inside the licensee's own product (on screen, in exports and in embedded widgets) with attribution (\"Source: Invinite\"). Passing the data on through the licensee's own API is an ENTERPRISE right, granted in the contract. It may never be resold, relicensed, white-labelled or offered as a data feed as the licensee's own data, at any tier, under any contract.\n\nInternal use: Every paid plan may use the data inside the licensee's own organisation: analysis, internal tools and dashboards for the licensee's own staff. Nothing is shown or passed to third parties below STANDARD.\n\nPolicy version: 2026-11-draft-2. Draft — pending counsel sign-off.\n\nAudio files carry a forensic watermark that identifies the recording. Audio is subject to per-company takedown and may not be re-hosted.\n\nSEC data: Figures and filings originate from SEC EDGAR; the standardisation, mapping and derived metrics are Invinite's.\n\nNews: News text is Invinite's own summary of the issuer's or the SEC's publication (the publisher's text and media are never served); the licensee shows the attribution (publisher, source URL and date) next to it; the resale rule applies.\n\nPDF documents: Branded PDFs of transcripts and news items are permanent URLs to one shared file per version. They may be shown, downloaded and forwarded unmodified with the notice page intact; the resale rule applies unchanged. News PDFs carry Invinite's summary of the issuer's or the SEC's publication under the attribution stated on their notice page; a PDF disappears when the item is taken down or its source's reuse is denied.\n\nEvery `/v1/*` data operation carries `x-license`, the minimum use right its data ships with; `GET /status/licensing` serves the same matrix per route, rendered at [data.invinite.com/docs/licensing](https://data.invinite.com/docs/licensing). `/v1/me` and `/v1/me/usage` serve no licensed data and carry none.\n\n## Status\n\n[`/status`](/status) reports product-family uptime in `services` and request health and latency by documentation group in `groups`. Windows with too few requests have no figures. [`/status/licensing`](/status/licensing) serves the licensing matrix per route. The status routes need no API key and are cached for 5 minutes. The public status page is [status.data.invinite.com](https://status.data.invinite.com): a snapshot of `/status` every 15 minutes plus an external reachability probe of the API.\n\nUptime is the share of requests answered without a server error, measured by the API per product family; a window with too little traffic to judge shows no figure. Status reflects the last 24 hours.\n\nProduct families: Company, Financials, SEC Filings, Insider Trades, Institutional Ownership, Ownership Filings, IPOs, Market, Metadata, Earnings Calls, News, WebSocket, Account, Alerts.\n\nMeasured documentation groups: Corporate actions, Calendar, Instruments, Companies, Funds, Catalog, Macro, News, Financials, Metrics, Offerings, Holders, Insider trades, Ownership, Filings, Events, Call analytics, Transcripts, Guidance, Investor documents, Alerts, Alert users, Alert events, Destinations, Scripts.",
-    "version": "2026-11-23"
+    "version": "2026-11-26"
   },
   "components": {
     "securitySchemes": {
@@ -617,7 +617,6 @@
           "currency",
           "cusip",
           "composite_figi",
-          "is_delisted",
           "list_date",
           "employees",
           "market_cap",
@@ -688,10 +687,6 @@
             "type": "string",
             "nullable": true,
             "description": "Composite FIGI"
-          },
-          "is_delisted": {
-            "type": "boolean",
-            "description": "Whether the security is delisted"
           },
           "list_date": {
             "type": "string",
@@ -21874,7 +21869,7 @@
         "tags": [
           "Instruments"
         ],
-        "description": "List US stocks, ETFs, closed-end funds and ETNs.\n\nSearch by ticker prefix or part of a name with `q`. Results include active and delisted symbols in ticker order. Use `is_active=true` for current listings.\n\nEach instrument identifies the datasets its type supports. A stock points to its company and a fund to its fund profile.",
+        "description": "List US stocks, ETFs, closed-end funds and ETNs.\n\nSearch by ticker prefix or part of a name with `q`. Results are symbols listed today, in ticker order. Use `is_active=all` to include delisted symbols, `is_active=false` for delisted ones only.\n\nEach instrument identifies the datasets its type supports. A stock points to its company and a fund to its fund profile.",
         "parameters": [
           {
             "schema": {
@@ -21920,13 +21915,19 @@
           },
           {
             "schema": {
-              "type": "boolean"
+              "type": "string",
+              "enum": [
+                "true",
+                "false",
+                "all"
+              ],
+              "default": "true"
             },
             "in": "query",
             "name": "is_active",
             "required": false,
-            "description": "true = listed today, false = delisted; both when absent",
-            "example": true
+            "description": "`true` (default) = listed today, `false` = delisted, `all` = both",
+            "example": "true"
           },
           {
             "schema": {
@@ -22326,7 +22327,7 @@
         "tags": [
           "Funds"
         ],
-        "description": "List ETFs and closed-end funds with active listings.\n\nSearch by ticker prefix or part of a fund name in `q`. Use `structure=exchange_traded_trust` for exchange-traded trusts. Use the ticker or `fund_key` from a result to retrieve its profile.",
+        "description": "List ETFs and closed-end funds listed today.\n\nSearch by ticker prefix or part of a fund name in `q`. Use `is_active=all` to include delisted funds, `is_active=false` for delisted ones only. Use `structure=exchange_traded_trust` for exchange-traded trusts. Use the ticker or `fund_key` from a result to retrieve its profile.",
         "parameters": [
           {
             "schema": {
@@ -22369,6 +22370,22 @@
             "required": false,
             "description": "Exchange (MIC), comma list",
             "example": "XNAS"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false",
+                "all"
+              ],
+              "default": "true"
+            },
+            "in": "query",
+            "name": "is_active",
+            "required": false,
+            "description": "`true` (default) = listed today, `false` = delisted, `all` = both",
+            "example": "true"
           },
           {
             "schema": {
@@ -23840,7 +23857,6 @@
                   "currency": "USD",
                   "cusip": "",
                   "composite_figi": "BBG000B9XRY4",
-                  "is_delisted": false,
                   "list_date": "1980-12-12",
                   "employees": 167000,
                   "market_cap": 4975383151340,
@@ -24370,7 +24386,7 @@
         "tags": [
           "Companies"
         ],
-        "description": "Search for people who appeared on earnings calls.\n\nSupply a `company`, an `event` or at least two characters of a name in `q`. Narrow by `role` to find executives or analysts. People with the most recent matching appearances come first.",
+        "description": "Search for people who appeared on earnings calls.\n\nSupply a `company`, an `event` or at least two characters of a name in `q`. Narrow by `role` to find executives or analysts. People with the most recent matching appearances come first.\n\nConference-call operators are left out unless `include_operators=true` or `role=operator`.",
         "parameters": [
           {
             "schema": {
@@ -24408,6 +24424,17 @@
             "required": false,
             "description": "Role",
             "example": "analyst"
+          },
+          {
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "in": "query",
+            "name": "include_operators",
+            "required": false,
+            "description": "true = also list conference-call operators (hidden by default; `role=operator` lists them anyway)",
+            "example": false
           },
           {
             "schema": {
@@ -42915,7 +42942,7 @@
         "tags": [
           "Ownership"
         ],
-        "description": "List the Schedule 13D and 13G filings of holders above 5 % of a class of a listed company.\n\nSchedule 13D is the activist form: the holder may seek to influence the company. Schedule 13G is the passive form. A 13G is a cover filing of one holder above 5 % of one class, not a portfolio position; for a manager's positions use GET /v1/holders (13F). Each row is one filing with every reporting person of its cover pages.\n\nUse `company` for the filings on a company or `filer` for one reporting person's filings across companies; one of the two is required. `current=true` (the default) lists only the latest filing per company, primary reporting person and class; `current=false` lists the whole amendment chain, linked by `supersedes_accession`. Rows run from the newest filing to the oldest.\n\nCoverage: structured filings since 2024-12-18 (the first day of mandatory XML), for listed subject companies only; older filings are not served.",
+        "description": "List the Schedule 13D and 13G filings of holders above 5 % of a class of a listed company.\n\nSchedule 13D is the activist form: the holder may seek to influence the company. Schedule 13G is the passive form. A 13G is a cover filing of one holder above 5 % of one class, not a portfolio position; for a manager's positions use GET /v1/holders (13F). Each row is one filing with every reporting person of its cover pages.\n\nUse `company` for the filings on a company or `filer` for one reporting person's filings across companies; one of the two is required. `current=true` (the default) lists only the latest filing per company, primary reporting person and class; `current=false` lists the whole amendment chain, linked by `supersedes_accession`. Rows run from the newest filing to the oldest.\n\nWith several companies or persons, results follow the requested order, newest filings first within each. Coverage: structured filings since 2024-12-18 (the first day of mandatory XML), for listed subject companies only; older filings are not served.",
         "parameters": [
           {
             "schema": {
@@ -43276,7 +43303,7 @@
         "tags": [
           "Ownership"
         ],
-        "description": "List the Form 144 notices of a proposed sale of restricted or control securities of a listed company.\n\nA notice is a proposed sale, not an executed one: the seller may sell less or nothing. Executed trades are reported on Form 4 (GET /v1/insider-trades). Each row is one notice with the securities to be sold, how they were acquired and the seller's sales of the past three months.\n\nAn amendment (144/A) names the notice it replaces in `replaces_accession`, and the replaced notice names its newest replacement in `replaced_by`.\n\nUse `company` for an issuer's notices or `owner` for one seller's notices across issuers (one of the two is required). Rows run from the newest filing to the oldest. Coverage: electronic notices since 2023-04-13, for listed issuers only.",
+        "description": "List the Form 144 notices of a proposed sale of restricted or control securities of a listed company.\n\nA notice is a proposed sale, not an executed one: the seller may sell less or nothing. Executed trades are reported on Form 4 (GET /v1/insider-trades). Each row is one notice with the securities to be sold, how they were acquired and the seller's sales of the past three months.\n\nAn amendment (144/A) names the notice it replaces in `replaces_accession`, and the replaced notice names its newest replacement in `replaced_by`.\n\nUse `company` for an issuer's notices or `owner` for one seller's notices across issuers (one of the two is required). Rows run from the newest filing to the oldest; with several companies or sellers, results follow the requested order, newest notices first within each. Coverage: electronic notices since 2023-04-13, for listed issuers only.",
         "parameters": [
           {
             "schema": {

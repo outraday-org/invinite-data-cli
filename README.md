@@ -34,6 +34,17 @@ API's MCP server serves — the data guide `invinite-financial-data` and nine wo
 `commands/*.md` (`/financial-research`, `/analyze-earnings-call`, …) are gone: the workflows are skills now, and
 `invd plugin install` removes the files earlier versions wrote. See [The plugin](#the-plugin).
 
+## Changes in 12.0.0 (Data API 12.0)
+
+CLI 12.0.0 and plugin 0.24.0 adopt Data API 12.0 (BREAKING):
+
+- `invd instruments list` and `invd funds list` take `--is-active <true|false|all>`: `true` (the API's default) =
+  listed today, `false` = delisted, `all` = both. Without the flag the lists now show listed-today symbols only (the
+  `--q` search included). `--no-is-active` is gone: use `--is-active false`.
+- `invd companies get` no longer has `is_delisted` (the companies list holds listed companies only).
+- `invd people list` leaves conference-call operators out; `--include-operators` lists them (`--role operator` lists
+  them anyway).
+
 ## Changes in 11.5.0 (Data API 11.5)
 
 CLI 11.5.0 and plugin 0.23.0 adopt Data API 11.5 (additive, no command removed or renamed):
