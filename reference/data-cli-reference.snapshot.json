@@ -34,9 +34,9 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "b84c8e26c1e7e0a0e110676f30dbb6a86d846ed0f179983e0571dc9cfde1f940",
+      "src/generated/cli-manifest.json": "976e8c9815c62350ebd012327aab02d4f1c568da3692379728fa74e193070207",
       "src/hand-written-commands.ts": "a095d5f00a17a9cd643a8a0e6e5dcadbb7050dfd8b14d846ce81f3536a9920b9",
-      "src/job-wait.ts": "d2a2bcfb64361c656338f960ff775275acd6bf45c00a8807f5d2c2e3eccc6c6f",
+      "src/job-wait.ts": "3341ed6f5356bcf2aa5c3b22513ce88f01a638a779a03a278eb39af40d86f737",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
       "src/output/render.ts": "320d0a99ebf23c3d81cef46b4e6ed1360579ac980285b0c626b50b844fbd950b",
@@ -46,14 +46,14 @@
       "src/shared/prompt.ts": "7736cb146f84382ff17badbabcdf69add6673c4a3695c38759486601f3c87d99",
       "src/shared/signals.ts": "5c5122b38e35700a9304bf77f06b900a80e3bc42da6241f93313181117b2fa6b",
       "src/shared/spinner.ts": "62e25b34f62faaaa298fbe4664cb0b1eb52fd62b4c82f498718bd14e608d0d87",
-      "src/spec-commands.ts": "44d2c1849275154696e4cb9bab4771fd20ba0533d4a3eb6908330dcdb0714f7e",
+      "src/spec-commands.ts": "434ab5b03f0b98286581b9ea30465f68f282e94efcda3e102fc30327af7eedc1",
       "src/spec-flags.ts": "314fc089a8fae973ce68b9fc475fb3eca409267fd28265a98a1ff0c3a1ec2b79",
-      "src/spec-manifest.ts": "52f07f58ab8eade9d970d5a310840e5b745ec9638b6c7b6906ac01ceac184fc3",
+      "src/spec-manifest.ts": "a6ecff23211b8bd82e28611df4e7bebe3569a23f543cadda2a6cc8c55b4a0a5a",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
     "specSha256": "bde498d7f3213823c5e144f01807166ff74dcc600759f97bf379be71c2b8f31b",
-    "revision": "3652365ed3f7ea9e5d7587b6c30ce447de151edb",
-    "fingerprint": "e505dc91421fc597192aadb811a93e3c2b3453331186cc219e13db87568f8b10"
+    "revision": "5dc1fb134c4d78a07f3753e84f3c35ada45b5f01",
+    "fingerprint": "c8ff8ca837ae8c8ebbb906bc4c817fd46e1e0648ee06a3768b6f233ec8070222"
   },
   "globalOptions": [
     {
@@ -5882,13 +5882,8 @@
           "required": false
         },
         {
-          "flags": "--out <dir>",
-          "description": "Save the file this response points to into this directory under the answer's file name",
-          "required": false
-        },
-        {
           "flags": "--force",
-          "description": "With --save / --out: replace an existing file",
+          "description": "With --save: replace an existing file",
           "required": false
         },
         {
@@ -6915,13 +6910,8 @@
           "required": false
         },
         {
-          "flags": "--out <dir>",
-          "description": "Save the file this response points to into this directory under the answer's file name",
-          "required": false
-        },
-        {
           "flags": "--force",
-          "description": "With --save / --out: replace an existing file",
+          "description": "With --save: replace an existing file",
           "required": false
         },
         {
@@ -10272,13 +10262,8 @@
           "required": false
         },
         {
-          "flags": "--out <dir>",
-          "description": "Save the file this response points to into this directory under the answer's file name",
-          "required": false
-        },
-        {
           "flags": "--force",
-          "description": "With --save / --out: replace an existing file",
+          "description": "With --save: replace an existing file",
           "required": false
         },
         {
@@ -12773,13 +12758,8 @@
           "required": false
         },
         {
-          "flags": "--out <dir>",
-          "description": "Save the file this response points to into this directory under the answer's file name",
-          "required": false
-        },
-        {
           "flags": "--force",
-          "description": "With --save / --out: replace an existing file",
+          "description": "With --save: replace an existing file",
           "required": false
         },
         {
