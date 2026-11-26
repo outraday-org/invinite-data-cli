@@ -27,12 +27,11 @@ response field, no parameter), 11.4 adds the optional Event fields `capture_mode
 `awaiting_replay`. Neither has an `x-cli` column: `invd events list|get` print the same table / key-value view and
 accept the two fields only through `--fields` / `--json <fields>`.
 
-11.5.0 (not yet published) adopts Data API 11.5 with plugin 0.23.0 (136 operations, additive; backend
+11.5.0 (published 2026-11-26) adopts Data API 11.5 with plugin 0.23.0 (136 operations, additive; backend
 `tasks/financialdatasets-parity/2-ownership-forms` task 4): the new group `ownership` (tag `Ownership`, its own
 `GROUP_DESCRIPTIONS` line) with `ownership beneficial` (Schedule 13D / 13G; `--filer` / `-f`, `--type` / `-t`,
 `--current` / `--no-current`) and `ownership sale-notices` (Form 144; `--owner` / `-o`). No new `meta.reason`. The
-vendored `ownership-review` skill and `invinite-financial-data/references/ownership.md` name both routes. The bundle
-is the API feature commit `08227a6` (its base revision field reads `cdd8ff65…`, the commit it was exported on) until the release re-adopts the released API commit.
+vendored `ownership-review` skill and `invinite-financial-data/references/ownership.md` name both routes. The bundle is the released API commit `c39e99e` (SDK 11.5.0, examples captured; its base revision field reads `e6a5ef58`); it also vendors #54's `alert-setup` sentence.
 
 ## Commands come from the Data API's spec, not from this repo
 

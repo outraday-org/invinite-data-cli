@@ -43155,6 +43155,61 @@
                       }
                     }
                   }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "accession_number": "0000950157-26-001110",
+                      "company": {
+                        "cik": "0001632127",
+                        "ticker": "CABO"
+                      },
+                      "company_name": "Cable One, Inc.",
+                      "form": "SCHEDULE 13D/A",
+                      "schedule": "13D",
+                      "is_amendment": true,
+                      "amendment_no": 7,
+                      "event_date": "2026-10-16",
+                      "filed_at": "2026-10-19",
+                      "accepted_at": "2026-10-20T01:48:39Z",
+                      "class_title": "Common Stock, par value $0.01 per share",
+                      "cusip": "12685J105",
+                      "supersedes_accession": "0000950157-26-001101",
+                      "is_current": true,
+                      "holders": [
+                        {
+                          "filer_cik": "0001018401",
+                          "name": "Donald E. Graham",
+                          "type_of_person": "IN",
+                          "citizenship": "X1",
+                          "sole_voting_power": 55811,
+                          "shared_voting_power": 227071,
+                          "sole_dispositive_power": 55811,
+                          "shared_dispositive_power": 227071,
+                          "aggregate_amount": 282882,
+                          "percent_of_class": 4.99,
+                          "source_of_funds": "OO",
+                          "is_group_member": false
+                        }
+                      ],
+                      "purpose": null,
+                      "parse_state": "parsed",
+                      "filing_url": "https://www.sec.gov/Archives/edgar/data/1632127/000095015726001110/0000950157-26-001110-index.htm",
+                      "source_url": null
+                    }
+                  ],
+                  "has_more": false,
+                  "next_cursor": null,
+                  "meta": {
+                    "coverage": {
+                      "state": "complete",
+                      "through": null,
+                      "retry_after_s": null,
+                      "reason": "period_not_computed"
+                    },
+                    "pinned_at": "2026-11-26T06:48:11.734Z",
+                    "coverage_start": "2024-12-18"
+                  }
                 }
               }
             }
@@ -43435,6 +43490,83 @@
                         }
                       }
                     }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "accession_number": "0000080424-26-000259",
+                      "company": {
+                        "cik": "0000080424",
+                        "ticker": "PG"
+                      },
+                      "company_name": "PROCTER & GAMBLE Co",
+                      "filer": {
+                        "cik": "0002110932",
+                        "name": "Gama Paul"
+                      },
+                      "relationships": [
+                        "Officer"
+                      ],
+                      "form": "144",
+                      "is_amendment": false,
+                      "notice_date": "2026-10-22",
+                      "filed_at": "2026-10-22",
+                      "accepted_at": "2026-10-22T21:04:11Z",
+                      "replaces_accession": null,
+                      "replaced_by": null,
+                      "plan_adoption_dates": [],
+                      "nothing_sold_past_3_months": false,
+                      "remarks": "1) Aggregate market value based on average of high and low price on October 21, 2026.",
+                      "securities": [
+                        {
+                          "class_title": "Common Stock",
+                          "broker": "Morgan Stanley Smith Barney LLC Executive Financial Services",
+                          "shares_to_sell": 14623,
+                          "market_value": 2306558.91,
+                          "shares_outstanding": 2324433060,
+                          "approximate_sale_date": "2026-10-23",
+                          "exchange": "NYSE"
+                        }
+                      ],
+                      "acquisitions": [
+                        {
+                          "class_title": "Common Stock",
+                          "acquired_date": "2026-10-01",
+                          "nature_of_acquisition": "Restricted Stock Unit Award",
+                          "acquired_from": "The Procter & Gamble Company",
+                          "is_gift": false,
+                          "donor_acquired_date": null,
+                          "amount_acquired": 12517,
+                          "payment_date": "2026-10-01",
+                          "nature_of_payment": "NA"
+                        }
+                      ],
+                      "sales_past_3_months": [
+                        {
+                          "seller_name": "Paul Gama",
+                          "class_title": "Common Stock",
+                          "sale_date": "2026-10-05",
+                          "amount_sold": 2225,
+                          "gross_proceeds": 323381.56
+                        }
+                      ],
+                      "parse_state": "parsed",
+                      "filing_url": "https://www.sec.gov/Archives/edgar/data/80424/000008042426000259/0000080424-26-000259-index.htm",
+                      "source_url": null
+                    }
+                  ],
+                  "has_more": false,
+                  "next_cursor": null,
+                  "meta": {
+                    "coverage": {
+                      "state": "complete",
+                      "through": null,
+                      "retry_after_s": null,
+                      "reason": "period_not_computed"
+                    },
+                    "pinned_at": "2026-11-26T06:48:11.960Z",
+                    "coverage_start": "2023-04-13"
                   }
                 }
               }
