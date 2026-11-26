@@ -562,6 +562,18 @@ invd offerings get 021-528681 --json
 invd offerings list 0001991882 --json
 ```
 
+### ownership
+
+Schedule 13D (activist) / 13G (passive) filings of holders above 5 % and Form 144 notices of planned insider sales
+
+```bash
+# List beneficial ownership filings (13D / 13G) (optional: --filer, --type, --current, --filed-at-gte, --filed-at-gt, --filed-at-lte, --filed-at-lt, --sort, --fields, --limit, --cursor, --all)
+invd ownership beneficial AAPL --json
+
+# List insider sale notices (Form 144) (optional: --owner, --filed-at-gte, --filed-at-gt, --filed-at-lte, --filed-at-lt, --sort, --fields, --limit, --cursor, --all)
+invd ownership sale-notices AAPL --json
+```
+
 ### people
 
 Executives and analysts, and who took part in which event

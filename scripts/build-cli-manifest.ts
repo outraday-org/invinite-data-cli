@@ -64,6 +64,7 @@ export const GROUP_DESCRIPTIONS: Readonly<Record<string, string>> = {
   me: 'Inspect your account and usage, or read and update the defaults for your alert end users',
   metrics: 'Ratios, growth, CAGR, the explanation of one standardized fact and the filed values (vintages) of one concept',
   offerings: 'Form D private offerings (Regulation D exemptions), amendments folded per offering',
+  ownership: 'Schedule 13D (activist) / 13G (passive) filings of holders above 5 % and Form 144 notices of planned insider sales',
   people: 'Executives and analysts, and who took part in which event',
   'script-versions': 'The versions of one hosted chartlang script: compile status, diagnostics and alert ids',
   scripts: 'Hosted chartlang scripts for `script` alerts: upload (`upload` reads a .chart file), list, get, delete',

@@ -1,6 +1,6 @@
 {
   "repository": "https://github.com/outraday-org/invinite-data-api",
-  "revision": "8edaed20ca8e449c115a7f7acc937a9457fe54da",
+  "revision": "c39e99e6a97b444f4af422a5eabdaa68e44a77f4",
   "path": "src/skills",
   "footer": "Without a connected Invinite Data MCP server, load the `invinite-data-cli` skill: it maps every tool named here to an `invd` command.",
   "skills": [
@@ -17,8 +17,8 @@
   ],
   "files": {
     "alert-setup/SKILL.md": {
-      "source": "82515e2b219964deb0ee0997963693fee756dcd265927479ff0a93db79d994ba",
-      "written": "7f41ebc57647985290bc08dbb8547b7d3248669d3f476ff196b60e75950893cd"
+      "source": "5cd99782d68ccd0690d0b429ceeed6e384800f3367e705443c708edc3e57c9d9",
+      "written": "c7976ef71631d906324e29697a15152d6fe89a94b070f39edca82dbf3d377a84"
     },
     "analyze-earnings-call/SKILL.md": {
       "source": "833adc095572d1eb0c4898f83f763e8a2f119bfcc465700618572d3723dc14a0",
@@ -65,12 +65,12 @@
       "written": "de3fed4ddeb1ff0e6f656cc0c8c6fe49a2221a9d61a2368cdc68a4ff60feb69e"
     },
     "invinite-financial-data/references/ownership.md": {
-      "source": "dd8b5f2480b0e8aecd376387914856e32a30f423a427fcf23aa75cc780debb9b",
-      "written": "dd8b5f2480b0e8aecd376387914856e32a30f423a427fcf23aa75cc780debb9b"
+      "source": "f1695b3d84126410b9b9223cb99e90485cbf63277c269723dfc169de02a9c071",
+      "written": "f1695b3d84126410b9b9223cb99e90485cbf63277c269723dfc169de02a9c071"
     },
     "ownership-review/SKILL.md": {
-      "source": "0fa2a38402b5afbcdd738acf15475699b96f5325888e5d5d279f61c1d4d35739",
-      "written": "f30e6337cefe93faddc6e9324c0fe8340d890025ec1fdc27642e328e369ee290"
+      "source": "b204daab952fbb042e001cb10426cb0e47ef7c465ea565441672e0627838494e",
+      "written": "a461d9539bf5c5b74f0c71a096a2adc1cd29c1512ca9c9467876ab9f71f5464b"
     },
     "restatement-history/SKILL.md": {
       "source": "2e6d4e8c06e5ceb8906e452fda6a943b5a13338ba3e92b1fe3f99979e0e839ca",

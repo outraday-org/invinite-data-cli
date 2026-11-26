@@ -40,6 +40,8 @@ serves the earlier roster; use whatever tools it lists, or the CLI.
 | Who holds a stock or a fund (13F, N-PORT, issuer files), 13F changes, a manager's portfolio | `get_holders` | `invd holders list\|changes`, `invd filers holdings\|holding-changes`, `invd filings holdings` |
 | Form 4 insider trades, one insider across issuers | `get_insider_trades` (`company` or `owner`) | `invd insider-trades list\|get`, `--owner <cik>` |
 | Form 3/4/5 insider holdings (by company or by insider) | `search_endpoints` + `call_api` (`/v1/insider-holdings`) | `invd insider-trades holdings`, `--owner <cik>` |
+| Holders above 5 % (Schedule 13D activist / 13G passive), the amendment chain | `search_endpoints` + `call_api` (`/v1/beneficial-ownership`) | `invd ownership beneficial`, `--filer <cik>`, `--type`, `--no-current` |
+| Planned insider sales (Form 144) | `search_endpoints` + `call_api` (`/v1/insider-sale-notices`) | `invd ownership sale-notices`, `--owner <cik>` |
 | Earnings-call calendar and history | `list_events` | `invd events list` |
 | One event: transcript, Q&A, stats, comparison, press release, slides … | `get_event` | `invd events get\|transcript\|transcript-text\|qa\|stats\|comparison\|press-release\|slides\|price-attribution` |
 | Search transcripts and investor documents | `search_transcripts` | `invd search transcripts`, `invd search investor-documents` |
@@ -94,7 +96,7 @@ An auth failure exits 4: reconnect the MCP connector, or tell the user to run `i
   `events list` / `get` and `me` reach every plan. Lite adds filings, filers, `documents`, `financials` (summary
   view), `metrics`, `guidance list`, `holders list`, `dividends`, `splits`, `news`, `funds`, `ipos`, `offerings`,
   `people`, `events press-release` and the alerts commands (`alerts`, `alert-events`, `alert-templates`, `alert-users`,
-  `destinations`, `scripts`, `script-versions`). Standard adds `segments list`, `insider-trades` (incl. `holdings`), `search filings` and
+  `destinations`, `scripts`, `script-versions`). Standard adds `segments list`, `insider-trades` (incl. `holdings`), `ownership`, `search filings` and
   `search news`. Pro adds the earnings-call content (transcripts, Q&A, stats, audio, slides, comparison, prosody, price
   attribution, transcript diff and versions), `investor-documents`, `search transcripts`, `search investor-documents`,
   the detailed and presentation `financials` views, `segments list-detailed`, `guidance kpis`, holder changes and fact

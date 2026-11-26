@@ -37,7 +37,8 @@ Pick the alert `type` from the request:
 ## 2. Decide where the events go
 
 - **No endpoint**: skip the destination. Every event is in the pull feed (`manage_alerts action=events`).
-- **A webhook**: `manage_destinations action=create url=https://…`. The answer holds the signing secret (`whsec_…`)
+- **A webhook**: `manage_destinations action=create url=https://…` (list the existing ones first only when the user
+  says they already have one). The answer holds the signing secret (`whsec_…`)
   exactly once: give it to the user now, tell them to store it, and never print it again. `kind=batch_webhook` sends
   many fires per request; `digest_seconds` holds events and sends them as one batch; `max_events_per_minute` throttles.
 - **A Claude routine**: `preset=claude_routine` with `headers={Authorization: "Bearer …"}`.

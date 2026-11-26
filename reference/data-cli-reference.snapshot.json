@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "11.4.2",
+    "version": "11.5.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -9,11 +9,11 @@
     "engines": {
       "node": ">=20"
     },
-    "verifiedOn": "2026-11-25",
+    "verifiedOn": "2026-11-26",
     "sourceHashes": {
-      "api-contract.json": "8778027185fb3accc2c99a6506639c85449e85c1321aba3d774607d7dd3cd27c",
-      "openapi.json": "b60f0f4aae0421d7ed26d3f836fb403ae65d08f6179237c0fa1155c18a51f01c",
-      "package.json": "2a48ebaa73ba9dbff82a5ff7dfec84e55b925516886e516b05066a0a3437c426",
+      "api-contract.json": "8a6e8c3bb942da2f01a7635baa7e9491a771d5b1386a20f2efd3bd88e4bdcdb2",
+      "openapi.json": "f11741b65086e9785078fd2086502ce3820d9af0c9cf24a351e41c1dd32bc82e",
+      "package.json": "b23aeb92b375babe5df732cddd2059547c302d846c7371a322a0ea09d4fb0311",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "ed216f689f39e3dbf72c7d6a1c74ee6cb9c22fbaf9982a9b4ddee2873f2d5536",
@@ -34,7 +34,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "35d9ca8104dba40434ba2b4dabd1de391d0c421effe438cf5f56d0280a3178bb",
+      "src/generated/cli-manifest.json": "366bfeec20197271a5a88453bc643db3d62482763319a37c3ddacd27f4d9acdf",
       "src/hand-written-commands.ts": "a095d5f00a17a9cd643a8a0e6e5dcadbb7050dfd8b14d846ce81f3536a9920b9",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
@@ -50,9 +50,9 @@
       "src/spec-manifest.ts": "e638fd01260664e2c95e05e18e6087e6fd04694f694ec6db8921224217e580b8",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "b60f0f4aae0421d7ed26d3f836fb403ae65d08f6179237c0fa1155c18a51f01c",
-    "revision": "29371f1162990cf43e647b8333aa19c8aac9e02f",
-    "fingerprint": "e0b8107ec6aae9f993935498fa2e714a8d1c80e9350806ae9a75403447d8fd39"
+    "specSha256": "f11741b65086e9785078fd2086502ce3820d9af0c9cf24a351e41c1dd32bc82e",
+    "revision": "9a6154bac5541c85ad348b730e0c0b2d9de9924a",
+    "fingerprint": "143000a83119fb9a632504855d60938931821b38baee01fcec19b58d13d9c552"
   },
   "globalOptions": [
     {
@@ -185,6 +185,10 @@
     {
       "id": "offerings",
       "description": "Form D private offerings (Regulation D exemptions), amendments folded per offering"
+    },
+    {
+      "id": "ownership",
+      "description": "Schedule 13D (activist) / 13G (passive) filings of holders above 5 % and Form 144 notices of planned insider sales"
     },
     {
       "id": "people",
@@ -3546,7 +3550,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
           "required": true
         }
       ],
@@ -5405,7 +5409,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
           "required": false
         }
       ],
@@ -7627,7 +7631,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
           "required": true
         }
       ],
@@ -8220,7 +8224,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
           "required": false
         }
       ],
@@ -8328,7 +8332,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
           "required": false
         }
       ],
@@ -8759,7 +8763,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
           "required": false
         }
       ],
@@ -8892,7 +8896,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
           "required": false
         }
       ],
@@ -9331,7 +9335,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
           "required": false
         }
       ],
@@ -9561,7 +9565,7 @@
         },
         {
           "flags": "--company <value>",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (e.g. AAPL)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (e.g. AAPL)",
           "required": false
         },
         {
@@ -11001,7 +11005,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
           "required": true
         }
       ],
@@ -11224,7 +11228,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
           "required": true
         }
       ],
@@ -11362,7 +11366,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
           "required": true
         }
       ],
@@ -11605,7 +11609,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
           "required": false
         }
       ],
@@ -11827,7 +11831,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
           "required": false
         }
       ],
@@ -12236,6 +12240,269 @@
       ]
     },
     {
+      "command": "ownership beneficial",
+      "group": "ownership",
+      "origin": "spec",
+      "description": "List beneficial ownership filings (13D / 13G)",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/beneficial-ownership"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "company",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
+          "required": false
+        }
+      ],
+      "options": [
+        {
+          "flags": "-f, --filer <value>",
+          "description": "Reporting-person CIK (all digits, any padding): that person's filings across companies; a comma list of 1–50 reads several persons. One of `company` / `filer` is required; both = the persons' filings on those companies (e.g. 0000102909)",
+          "required": false
+        },
+        {
+          "flags": "-t, --type <value>",
+          "description": "activist = Schedule 13D only; passive = Schedule 13G only; omitted = both (e.g. activist)",
+          "required": false,
+          "choices": [
+            "activist",
+            "passive"
+          ]
+        },
+        {
+          "flags": "--current",
+          "description": "true = only the latest filing per company, primary reporting person and class; false = every filing of the amendment chain (default: true; e.g. true) (sends true)",
+          "required": false
+        },
+        {
+          "flags": "--no-current",
+          "description": "Sends current=false",
+          "required": false
+        },
+        {
+          "flags": "--filed-at-gte <value>",
+          "description": "`filed_at` on or after this date (the filing date) (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--filed-at-gt <value>",
+          "description": "`filed_at` after this date (the filing date) (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--filed-at-lte <value>",
+          "description": "`filed_at` on or before this date (the filing date) (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--filed-at-lt <value>",
+          "description": "`filed_at` before this date (the filing date) (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--sort <value>",
+          "description": "Sort field: `-filed_at` (newest filing first, the only order served); the accession tiebreaker is always appended (default: \"-filed_at\"; e.g. -filed_at)",
+          "required": false,
+          "choices": [
+            "-filed_at"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "ownership sale-notices",
+      "group": "ownership",
+      "origin": "spec",
+      "description": "List insider sale notices (Form 144)",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/insider-sale-notices"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "company",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
+          "required": false
+        }
+      ],
+      "options": [
+        {
+          "flags": "-o, --owner <value>",
+          "description": "Seller CIK (all digits, any padding): that person's notices across issuers; a comma list of 1–50 reads several sellers. One of `company` / `owner` is required; both = the sellers' notices on those companies (e.g. 0001214156)",
+          "required": false
+        },
+        {
+          "flags": "--filed-at-gte <value>",
+          "description": "`filed_at` on or after this date (the filing date) (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--filed-at-gt <value>",
+          "description": "`filed_at` after this date (the filing date) (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--filed-at-lte <value>",
+          "description": "`filed_at` on or before this date (the filing date) (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--filed-at-lt <value>",
+          "description": "`filed_at` before this date (the filing date) (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--sort <value>",
+          "description": "Sort field: `-filed_at` (newest filing first, the only order served); the accession tiebreaker is always appended (default: \"-filed_at\"; e.g. -filed_at)",
+          "required": false,
+          "choices": [
+            "-filed_at"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
       "command": "people get",
       "group": "people",
       "origin": "spec",
@@ -12324,7 +12591,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
           "required": false
         }
       ],
@@ -13349,7 +13616,7 @@
       "options": [
         {
           "flags": "-c, --company <value>",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (e.g. AAPL)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (e.g. AAPL)",
           "required": false
         },
         {
@@ -13457,7 +13724,7 @@
       "options": [
         {
           "flags": "-c, --company <value>",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (e.g. AAPL)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (e.g. AAPL)",
           "required": false
         },
         {
@@ -13591,7 +13858,7 @@
       "options": [
         {
           "flags": "-c, --company <value>",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (e.g. AAPL)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (e.g. AAPL)",
           "required": false
         },
         {
@@ -13717,7 +13984,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
           "required": true
         }
       ],
@@ -13856,7 +14123,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
           "required": true
         }
       ],
