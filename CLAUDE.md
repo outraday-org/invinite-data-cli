@@ -41,6 +41,13 @@ without the flag), also on `funds list`; `--no-is-active` is gone (no alias: `--
 `d541344` (tag `data-sdk-v12.0.0`, SDK 12.0.0, Fly v193; spec sha256 `14aba1a4…`, its base revision field reads
 `0e29760f`).
 
+12.1.0 (published 2026-11-26) adopts Data API 12.1 with plugin 0.25.0 (139 operations, additive; backend
+`tasks/financialdatasets-parity/3-earnings-extraction` task 6): `guidance non-gaap` (`--event` / `-e`, `--metric` /
+`-m`, `--period-kind`, `--period-end-*`), `guidance kpi-series` (`--kpi` / `-k`, `--segment`, `--period-*`),
+`catalog kpis` (`--sector` / `-s`) and `--qualitative` / `--no-qualitative` on `guidance list`. No new `meta.reason`,
+no new group (the `guidance` and `catalog` descriptions come from the API's tag descriptions). The vendored
+`analyze-earnings-call` skill and `invinite-financial-data/references/earnings-calls.md` name the routes. The bundle is the released API commit `f196ad7` (tag `data-sdk-v12.1.0`, SDK 12.1.0, Fly v195; spec sha256 `55a3697a…`, its base revision field reads `7509d1de`); it also carries the additive `FundListItem.is_active` → an `is_active` column on `funds list`.
+
 ## Commands come from the Data API's spec, not from this repo
 
 Every plain command — one REST call, printed as a table, a key/value list or JSON — is GENERATED. The chain:

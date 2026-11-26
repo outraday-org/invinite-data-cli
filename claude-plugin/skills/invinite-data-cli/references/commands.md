@@ -132,7 +132,7 @@ invd auth logout
 
 ### catalog
 
-Static catalogs: metrics, sections, forms, event types, document kinds, mapping rules, exchanges, sectors
+Static catalogs: metrics, sections, forms, event types, document kinds, mapping rules, exchanges, sectors, KPIs
 
 ```bash
 # List investor-document kinds (optional: --fields, --limit, --cursor, --all)
@@ -146,6 +146,9 @@ invd catalog exchanges --json
 
 # List SEC forms (optional: --fields, --limit, --cursor, --all)
 invd catalog forms --json
+
+# List KPIs by sector (optional: --sector, --fields, --limit, --cursor, --all)
+invd catalog kpis --json
 
 # List standardized mapping rules (optional: --statement, --metric-id, --fields, --limit, --cursor, --all)
 invd catalog mapping-rules --json
@@ -378,14 +381,20 @@ invd funds weights SPY -d sector --json
 
 ### guidance
 
-Guidance items and KPI mentions
+Guidance items, KPI mentions, KPI series and reported non-GAAP figures
 
 ```bash
+# List KPI time series (optional: --kpi, --period-kind, --period-end-gte, --period-end-gt, --period-end-lte, --period-end-lt, --segment, --sort, --fields, --limit, --cursor, --all)
+invd guidance kpi-series AAPL --json
+
 # List KPI mentions (optional: --event, --metric, --sort, --fields, --limit, --cursor, --all)
 invd guidance kpis AAPL --json
 
-# List guidance items (optional: --event, --metric, --period-kind, --basis, --review, --sort, --fields, --limit, --cursor, --all)
+# List guidance items (optional: --event, --metric, --period-kind, --basis, --review, --qualitative, --sort, --fields, --limit, --cursor, --all)
 invd guidance list AAPL --json
+
+# List reported non-GAAP figures (optional: --event, --metric, --period-kind, --period-end-gte, --period-end-gt, --period-end-lte, --period-end-lt, --sort, --fields, --limit, --cursor, --all)
+invd guidance non-gaap AAPL --json
 ```
 
 ### holders
