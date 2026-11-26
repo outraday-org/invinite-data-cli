@@ -203,11 +203,11 @@ const isDownloadObject = (spec: Spec, schema: JsonSchema): boolean => {
   return 'url' in properties && ('bytes' in properties || 'sha256' in properties);
 };
 
-/** A download object whose URL expires (`expires_at`): a short-lived signed URL, never a permanent public one. */
-function isSignedDownload(spec: Spec, schema: JsonSchema, path: string): boolean {
+/** The download object's properties (`path` `""` = the answer itself). */
+const downloadProperties = (spec: Spec, schema: JsonSchema, path: string): Record<string, JsonSchema> => {
   const target = path === '' ? schema : propertiesOf(spec, schema)[path];
-  return target !== undefined && 'expires_at' in propertiesOf(spec, target);
-}
+  return target === undefined ? {} : propertiesOf(spec, target);
+};
 
 function downloadPath(spec: Spec, schema: JsonSchema): string | undefined {
   if (isDownloadObject(spec, schema)) return '';
@@ -398,7 +398,12 @@ export function buildManifest(rawSpec: unknown, specText: string): Manifest {
       if (cli.columns) out.columns = cli.columns;
       const download = success && method === 'get' && !list ? downloadPath(spec, success) : undefined;
       if (download !== undefined) out.download = download;
-      if (download !== undefined && success && isSignedDownload(spec, success, download)) out.signedDownload = true;
+      if (download !== undefined && success) {
+        const properties = downloadProperties(spec, success, download);
+        // A URL that expires is a short-lived signed one, never a permanent public URL.
+        if ('expires_at' in properties) out.signedDownload = true;
+        if ('filename' in properties) out.downloadNamed = true;
+      }
 
       // One spelling per command; the operations of a multi-operation command differ by their `select`.
       const key = `${commandName(out)} ${JSON.stringify(out.select ?? null)}`;

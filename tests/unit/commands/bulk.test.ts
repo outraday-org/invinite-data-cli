@@ -1,10 +1,10 @@
 import { createHash } from 'node:crypto';
-import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createProgram, loadManifest } from '../../../src/cli.js';
-import { waitClock } from '../../../src/job-wait.js';
+import { PENDING_STATUSES, waitClock } from '../../../src/job-wait.js';
 import { setJsonMode } from '../../../src/shared/spinner.js';
 import { hiddenUrl, jobCoverageNote, REASON_LABELS, SCOPE_LABELS } from '../../../src/spec-commands.js';
 
@@ -158,16 +158,33 @@ describe('invd bulk download', () => {
     expect(out.join('\n')).toContain('https://storage.invinite.com/n1.pdf');
   });
 
-  it('--out on an answer without a filename is refused with a sentence', async () => {
-    vi.mocked(fetch).mockResolvedValueOnce(json({ id: 'n1', pdf: { url: 'https://storage.invinite.com/n1.pdf', sha256: SHA } }));
-    expect(await exitOf('news', 'get', 'n1', '--out', dir)).toBe(1);
+  it('--out exists only where the answer states a filename (the bulk downloads); a public-URL download has --save only', async () => {
+    const named = loadManifest().operations.filter(operation => operation.downloadNamed).map(operation => operation.operationId);
+    expect(named.sort()).toEqual(['getBulkExportDownload', 'getBulkFileDownload']);
+    await expect(run('news', 'get', 'n1', '--out', dir)).rejects.toThrow("unknown option '--out'");
+    expect(calls()).toHaveLength(0);
+  });
+
+  it('an answer whose filename is missing or reduces to nothing is refused for --out, nothing saved', async () => {
+    for (const filename of [undefined, '..']) {
+      vi.mocked(fetch).mockResolvedValueOnce(json(ticket(SIGNED, { filename })));
+      expect(await exitOf('bulk', 'download', 'bf_1', '--out', dir)).toBe(1);
+    }
     expect(err.join('\n')).toContain('names no file name for --out');
+    expect(calls()).toHaveLength(2);
   });
 
   it('a filename with a path is reduced to its base name inside --out', async () => {
     vi.mocked(fetch).mockResolvedValueOnce(json(ticket(SIGNED, { filename: '../../etc/f13.parquet' }))).mockResolvedValueOnce(file());
     await run('bulk', 'export-download', 'bx_1', '--out', dir);
     expect(readFileSync(join(dir, 'f13.parquet'))).toEqual(BYTES);
+  });
+
+  it.each([['--jq', '.url'], ['--output', 'csv'], ['--output', 'jsonl']])('%s %s never shows the signed URL', async (...flags) => {
+    vi.mocked(fetch).mockResolvedValueOnce(json(ticket()));
+    await run('bulk', 'download', 'bf_1', ...flags);
+    expect(out.join('\n')).not.toContain('X-Amz');
+    expect(out.join('\n')).toContain('hidden: valid until');
   });
 });
 
@@ -211,6 +228,65 @@ describe('invd bulk export --wait', () => {
     expect(calls()).toHaveLength(2);
     expect(out.join('\n')).toContain(status);
     expect(err.join('\n')).toContain(status === 'failed' ? 'failed (build_failed)' : 'expired');
+  });
+
+  it('names the export id on stderr before polling, also under --json (the spinner is silent there)', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(json(job('queued'), 202)).mockResolvedValueOnce(json(job('ready')));
+    await run(...create, '--wait', '--json');
+    expect(err.join('\n')).toContain('bx_01JDXR2A4B6C8D0E2F4G6H8J0K created');
+    expect(JSON.parse(out.join('\n')).status).toBe('ready');
+  });
+
+  it('an expired URL during --wait is asked for once more', async () => {
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(json(job('queued'), 202))
+      .mockResolvedValueOnce(json(job('ready')))
+      .mockResolvedValueOnce(json(ticket()))
+      .mockResolvedValueOnce(file(403))
+      .mockResolvedValueOnce(json(ticket()))
+      .mockResolvedValueOnce(file());
+    await run(...create, '--wait', '--out', dir);
+    expect(calls().filter(url => url.endsWith('/download'))).toHaveLength(2);
+    expect(readFileSync(join(dir, 'sec-f13-2026q3.parquet'))).toEqual(BYTES);
+  });
+
+  it('a failed download after the job is ready prints the job first and how to download it again', async () => {
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(json(job('queued'), 202))
+      .mockResolvedValueOnce(json(job('ready')))
+      .mockResolvedValueOnce(json(ticket(SIGNED, { sha256: '0'.repeat(64) })))
+      .mockResolvedValueOnce(file());
+    expect(await exitOf(...create, '--wait', '--out', dir)).toBe(5);
+    expect(out.join('\n')).toContain('ready');
+    expect(err.join('\n')).toContain('invd bulk export-download bx_01JDXR2A4B6C8D0E2F4G6H8J0K --out <dir>');
+  });
+
+  it('a wait that gives up names the export id and how to follow it', async () => {
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(json(job('queued'), 202))
+      .mockResolvedValueOnce(json({ title: 'Not found', status: 404, code: 'not_found', detail: 'gone' }, 404));
+    expect(await exitOf(...create, '--wait')).toBe(3);
+    expect(err.join('\n')).toContain('follow it with invd bulk export-status bx_01JDXR2A4B6C8D0E2F4G6H8J0K');
+  });
+
+  it('an existing --save target is refused before the export is created', async () => {
+    const target = join(dir, 'f13.parquet');
+    writeFileSync(target, 'old');
+    expect(await exitOf(...create, '--wait', '--save', target)).toBe(2);
+    expect(calls()).toHaveLength(0);
+  });
+
+  it('a status the CLI does not know ends the wait with exit 1 instead of polling forever', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(json(job('queued'), 202)).mockResolvedValueOnce(json(job('cancelled')));
+    expect(await exitOf(...create, '--wait')).toBe(1);
+    expect(calls()).toHaveLength(2);
+    expect(err.join('\n')).toContain('unknown status cancelled');
+  });
+
+  it('every BulkExport.status of the spec is pending or one of the three handled terminal statuses', () => {
+    const spec = JSON.parse(readFileSync(new URL('../../../openapi.json', import.meta.url), 'utf8'));
+    const statuses: string[] = spec.components.schemas.BulkExport.properties.status.enum;
+    expect(statuses.filter(status => !PENDING_STATUSES.includes(status)).sort()).toEqual(['expired', 'failed', 'ready']);
   });
 
   it('an export already ready (an idempotent replay) is not polled', async () => {

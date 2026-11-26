@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises';
+import { access, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import chalk from 'chalk';
 import { Command, Option } from 'commander';
@@ -26,7 +26,7 @@ import {
 import { PartialResultError, UsageError, withErrorHandling } from './shared/errors.js';
 import { splitList } from './shared/options.js';
 import { confirmOrRefuse, readStdin } from './shared/prompt.js';
-import { resumeOnInterrupt } from './shared/signals.js';
+import { onInterrupt, resumeOnInterrupt } from './shared/signals.js';
 import { GLOBAL_PARAM_FLAGS } from './spec-flags.js';
 import {
   commandName,
@@ -229,8 +229,10 @@ function addCommandOptions(command: Command, operation: ManifestOperation, conte
   if (operation.download !== undefined || wait) {
     const when = wait ? 'With --wait: save the finished job\'s file' : 'Save the file this response points to';
     command.option('--save <file>', `${when} (size and SHA-256 verified)`);
-    command.option('--out <dir>', `${when} into this directory under the answer's file name`);
-    command.option('--force', 'With --save / --out: replace an existing file');
+    if (operation.downloadNamed || wait?.download.downloadNamed) {
+      command.option('--out <dir>', `${when} into this directory under the answer's file name`);
+    }
+    command.option('--force', `With --save${operation.downloadNamed || wait ? ' / --out' : ''}: replace an existing file`);
   }
   if (operation.signedDownload) {
     command.option('--print-url', 'Print the short-lived download URL and download nothing (never store or share it)');
@@ -529,6 +531,15 @@ async function resolveLookup(plan: Plan): Promise<Plan> {
   return { request: { ...plan.request, path: plan.request.path.replace('{event_id}', encodeURIComponent(eventId)) } };
 }
 
+const exists = async (path: string): Promise<boolean> => {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 /** Where `--save` / `--out` put the file. */
 interface SaveTarget {
   file?: string;
@@ -688,6 +699,10 @@ async function runOperation(operation: ManifestOperation, positionals: unknown[]
   if (wait && target && opts.wait !== true) {
     throw new UsageError(`${target.file !== undefined ? '--save' : '--out'} saves the finished job's file: add --wait`);
   }
+  // Refused before the job is created, not after minutes of waiting.
+  if (wait && target?.file !== undefined && !target.force && await exists(target.file)) {
+    throw new UsageError(`${target.file} already exists (use --force to overwrite)`);
+  }
   let plan = await planRequest(operation, positionals, opts, context);
   if (opts.dryRun) {
     printPlan(operation, plan, opts, all);
@@ -757,22 +772,40 @@ async function finishJob(
     auth: step.auth,
     silent: true,
   })).body;
-  const job = await waitForJob(created, {
-    id,
-    read: read(wait.status),
-    resumeHint: status => `Stopped waiting; ${id} is ${status} and keeps running. Follow it with: invd ${commandName(wait.status)} ${id}` +
-      `, then invd ${commandName(wait.download)} ${id} --out <dir>`,
-  });
+  const follow = `invd ${commandName(wait.status)} ${id}`;
+  const fetchFile = `invd ${commandName(wait.download)} ${id} ${wait.download.downloadNamed ? '--out <dir>' : '--save <file>'}`;
+  const resumeHint = (status: string) => `${id} is ${status} and keeps running; follow it with ${follow}, then ${fetchFile}`;
+  // On stderr in every format (the spinner is silent under --json and without a terminal): the handle on the job.
+  console.error(chalk.dim(`${commandName(operation)}: ${id} created; waiting (Ctrl-C stops waiting, the job keeps running)`));
+  let job: unknown;
+  try {
+    job = await waitForJob(created, { id, read: read(wait.status), resumeHint: status => `Stopped waiting; ${resumeHint(status)}` });
+  } catch (error) {
+    console.error(chalk.yellow(`Stopped waiting; ${resumeHint('not finished yet')}`));
+    throw error;
+  }
   const status = isRecord(job) && typeof job.status === 'string' ? job.status : 'unknown';
-  if (status === 'ready' && target) await saveDownload(wait.download, await read(wait.download)(), target, read(wait.download));
   const human = !settings.jq && (settings.format === 'table' || settings.format === 'plain');
   const coverage = jobCoverageNote(job);
   if (coverage && human) console.error(chalk.yellow(coverage));
   const shape: ShapeInfo = { list: false, view: wait.status.view, ...(wait.status.columns ? { columns: wait.status.columns } : {}) };
   emit(renderBody(job, shape, settings), { human });
+  if (status === 'ready' && target) {
+    const retry = `${id} is ready; download it with ${fetchFile}`;
+    const unregister = onInterrupt(() => console.error(retry));
+    try {
+      await saveDownload(wait.download, await read(wait.download)(), target, read(wait.download));
+    } catch (error) {
+      console.error(chalk.yellow(retry));
+      throw error;
+    } finally {
+      unregister();
+    }
+  }
   if (status === 'failed') {
     const code = isRecord(job) && typeof job.error_code === 'string' ? ` (${job.error_code})` : '';
     throw new Error(`${id} failed${code}; nothing to download (create a new one with invd ${commandName(operation)})`);
   }
   if (status === 'expired') throw new Error(`${id} expired and its file was deleted (create a new one with invd ${commandName(operation)})`);
+  if (status !== 'ready') throw new Error(`${id} answered the unknown status ${status}; follow it with ${follow}`);
 }

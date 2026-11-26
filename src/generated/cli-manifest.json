@@ -2740,7 +2740,8 @@
         "content_type"
       ],
       "download": "",
-      "signedDownload": true
+      "signedDownload": true,
+      "downloadNamed": true
     },
     {
       "operationId": "createBulkExport",
@@ -2924,7 +2925,8 @@
         "content_type"
       ],
       "download": "",
-      "signedDownload": true
+      "signedDownload": true,
+      "downloadNamed": true
     },
     {
       "operationId": "getBulkExport",

@@ -285,7 +285,7 @@ invd documents sections dv_01JCA8XK --json
 Earnings calls and other corporate events: transcripts, Q&A, media and call analytics
 
 ```bash
-# Get an event's recording (optional: --save, --out)
+# Get an event's recording (optional: --save)
 invd events audio evt_01JC8M2X --json
 
 # Compare an event with a prior one (optional: --prior)
@@ -318,7 +318,7 @@ invd events slides evt_01JC8M2X --json
 # Get an event's call statistics
 invd events stats evt_01JC8M2X --json
 
-# Get an event's transcript (optional: --version, --layer, --include, --save, --out)
+# Get an event's transcript (optional: --version, --layer, --include, --save)
 invd events transcript evt_01JC8M2X --json
 
 # Diff two transcript versions
@@ -465,7 +465,7 @@ invd instruments list -q TQQ --json
 Company-published documents and their search
 
 ```bash
-# Get an investor document (optional: --expand, --save, --out)
+# Get an investor document (optional: --expand, --save)
 invd investor-documents get doc_01JC7Q2M --json
 
 # List investor documents (optional: --event, --category, --kind, --fiscal-year, --sort, --fields, --limit, --cursor, --all)
@@ -573,7 +573,7 @@ News items, full text, search and announcements
 # List announcements (optional: --topic, --item, --announced-at-gte, --announced-at-gt, --announced-at-lte, --announced-at-lt, --effective-from-gte, --effective-to-lte, --sort, --fields, --limit, --cursor, --all)
 invd news announcements AAPL --json
 
-# Get a news item (optional: --fields, --save, --out)
+# Get a news item (optional: --fields, --save)
 invd news get nws_01JCB4R8 --json
 
 # List news items (optional: --event, --kind, --topic, --published-at-gte, --published-at-gt, --published-at-lte, --published-at-lt, --sort, --fields, --limit, --cursor, --all)

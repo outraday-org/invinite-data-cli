@@ -118,7 +118,7 @@ An auth failure exits 4: reconnect the MCP connector, or tell the user to run `i
 | `--dry-run` | the request plan and credit estimate; sends nothing |
 | `--show-cost` | the credits the command cost, on stderr (or `INVD_SHOW_COST=1`) |
 | `--yes`, `--no-input` | skip / refuse the confirmation of a costly `--all` walk or a delete |
-| `--save <file>` / `--out <dir>` | save the file a response points to (transcript PDF, audio, news PDF, investor document, a bulk data file) to a file / into a directory under its own name; size and SHA-256 verified |
+| `--save <file>` | save the file a response points to (transcript PDF, audio, news PDF, investor document, a bulk data file); size and SHA-256 verified; the bulk downloads also take `--out <dir>` (saved under the file's own name) |
 
 Data is on stdout; progress, cost and coverage notes on stderr, so `--json` output stays clean. When a response's
 `meta.coverage` is `pending` or `partial`, few or no rows are not proof that something does not exist: say the data is
@@ -153,12 +153,13 @@ An error is at most three stderr lines: `✗ <detail>  (<code>)`, then what to d
   version), `invd events transcript-text <event_id> --split sections` (prepared remarks and Q&A apart),
   `invd events comparison <event_id> --prior <event_id>`, `invd guidance NVDA --review approved`,
   `invd guidance kpis NVDA --event <event_id>`.
-- **Files**: `--save <file>` (or `--out <dir>`) stores what a response points to (transcript PDF, audio, news PDF,
-  investor document), size and SHA-256 verified. Never pass it unless the user asked for a file.
+- **Files**: `--save <file>` stores what a response points to (transcript PDF, audio, news PDF, investor document),
+  size and SHA-256 verified. Never pass it unless the user asked for a file.
 - **Bulk data** (Enterprise, no MCP equivalent: the downloads are unreachable from MCP by design): `invd bulk files
   --dataset f13 --kind parsed`, `invd bulk download <file_id> --out <dir>`, `invd bulk export --dataset f13 --company
   AAPL --from 2026-01-01 --to 2026-06-30 --wait --out <dir>` (polls until ready, then saves). The download URL is a
-  15-minute credential: it prints as `<hidden: …>`; never use `--print-url` to put it in an answer. Each download and
+  15-minute credential: it prints as `<hidden: …>`; never use `--print-url` (or `invd api` on a download path, which
+  prints the raw answer) to put it in an answer. Each download and
   each new export counts against a daily limit, so download only what the user asked for.
 - **Alerts**: `invd alert-events tail` follows new events live as JSON lines (no MCP equivalent);
   `invd alerts batch --body-file alerts.json` upserts many alerts by `client_reference_id`; a delete asks first unless

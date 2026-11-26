@@ -48,7 +48,8 @@ the `invd` CLI (version 11.3 or later for macro data) and return it in a clean, 
   `invd search filings` costs 100 credits a page.
 - Exit 4 = no or invalid key: report it and tell the caller to run `invd auth login` (or set `INVD_API_KEY`).
   Exit 6 = credits exhausted or plan required: report the plan or credit message as given.
-- Never pass `--save` unless the caller asked for a file.
+- Never pass `--save` / `--out` unless the caller asked for a file; never pass `--print-url` (a bulk download URL is a
+  short-lived credential).
 - When the command tree lacks an operation, `invd api GET /v1/<path>` reaches it (it prints JSON).
 
 ## MCP equivalents

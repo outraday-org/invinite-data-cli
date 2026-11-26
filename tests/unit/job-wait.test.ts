@@ -25,7 +25,7 @@ describe('waitForJob', () => {
     expect(read).toHaveBeenCalledTimes(2);
   });
 
-  it('skips a 429 / 5xx read, but gives up after MAX_FAILED_READS in a row; another error ends the wait at once', async () => {
+  it('skips a 429 / 5xx / network-error read, but gives up after MAX_FAILED_READS in a row; another error ends the wait at once', async () => {
     vi.spyOn(waitClock, 'sleep').mockResolvedValue();
     const unavailable = new ApiError(503, 'Unavailable', 'down');
     const read = vi.fn().mockRejectedValueOnce(unavailable).mockResolvedValueOnce({ status: 'failed' });
@@ -33,6 +33,8 @@ describe('waitForJob', () => {
     const always = vi.fn().mockRejectedValue(unavailable);
     await expect(waitForJob({ status: 'queued' }, { id: 'bx_1', read: always, resumeHint: hint })).rejects.toBe(unavailable);
     expect(always).toHaveBeenCalledTimes(MAX_FAILED_READS);
+    const offline = vi.fn().mockRejectedValueOnce(new TypeError('fetch failed')).mockResolvedValueOnce({ status: 'ready' });
+    expect(await waitForJob({ status: 'queued' }, { id: 'bx_1', read: offline, resumeHint: hint })).toEqual({ status: 'ready' });
     const notFound = new ApiError(404, 'Not found', 'gone', undefined, 'not_found');
     const once = vi.fn().mockRejectedValue(notFound);
     await expect(waitForJob({ status: 'queued' }, { id: 'bx_1', read: once, resumeHint: hint })).rejects.toBe(notFound);

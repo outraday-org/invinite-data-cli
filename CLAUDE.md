@@ -53,11 +53,13 @@ no new group (the `guidance` and `catalog` descriptions come from the API's tag 
 `exports`, `export-status`, `export-download`. The builder marks a download object that states `expires_at` as
 `signedDownload` (only `BulkDownload`): its URL is hidden in every rendered format (`withHiddenUrl`,
 `<hidden: valid until …>`), `--print-url` prints it and downloads nothing, and a 403 from the file host asks the
-operation once more (a second download count) before failing. Every download command takes `--out <dir>` (the
-answer's `filename`, reduced by `safeFileName`; refused without one) beside `--save`. `export --wait` is hand-written
+operation once more (a second download count) before failing. A download object that states `filename`
+(`downloadNamed`, today only `BulkDownload`) also gets `--out <dir>` (that name, reduced by `safeFileName`; an answer
+without a usable one is refused) beside `--save`. `export --wait` is hand-written
 behaviour on the generated command (`src/job-wait.ts` `JOB_WAITS`: the job's read and download operations; 10 s
-backing off to 60 s, three 429 / 5xx reads in a row end it, Ctrl-C prints the resume commands); `--save` / `--out` on
-`export` need `--wait`. `REASON_LABELS` + `SCOPE_LABELS` word an export's `coverage.reason` / `coverage.scope`
+backing off to 60 s, any status but `queued` / `running` ends it, three 429 / 5xx / network failures in a row end it;
+the job id goes to stderr first, and Ctrl-C or a failure prints the resume commands); `--save` / `--out` on `export`
+need `--wait` (an existing `--save` target is refused before the job is created). `REASON_LABELS` + `SCOPE_LABELS` word an export's `coverage.reason` / `coverage.scope`
 (`jobCoverageNote`, stderr). Bundle: until the release the task-6 candidate rebased onto 12.1 (spec sha256 `bde498d7…`, base
 revision `b05ff307`); the released 12.2 bundle replaces it before publishing.
 
@@ -81,8 +83,8 @@ Every plain command — one REST call, printed as a table, a key/value list or J
   `--cursor`, JSONL / CSV rows); the view (list + `columns` → table, object + `columns` → key/value, else JSON); body
   flags from the request schema's scalar / list properties one object deep (`--ciks` → `filters.ciks`); a header
   parameter as a flag (`--idempotency-key`); a download object (`{url, sha256 | bytes}` at the root or one level down
-  → `--save <file>` / `--out <dir>`; one stating `expires_at` is a signed download → URL hidden, `--print-url`, one
-  refetch on a 403). Groups spanning several tags (or sharing one) take `GROUP_DESCRIPTIONS`; a spec alias commander
+  → `--save <file>`; one stating `filename` also `--out <dir>`; one stating `expires_at` is a signed download → URL
+  hidden, `--print-url`, one refetch on a 403). Groups spanning several tags (or sharing one) take `GROUP_DESCRIPTIONS`; a spec alias commander
   owns is dropped only through `DROPPED_ALIASES` (both in `scripts/build-cli-manifest.ts`, proposals D7 / D8 of
   `backend/tasks/data-api-v2/10-cli-v4.md`).
 - Flags are the parameter names, `_` / `.` → `-` (`filed_at.gte` → `--filed-at-gte`), booleans get `--x` / `--no-x`.

@@ -54,7 +54,8 @@ CLI 12.2.0 and plugin 0.26.0 adopt Data API 12.2 (additive, no command removed o
   export's stderr note says why its range was cut (`before_postgres_window`: the earlier data is only in the raw files;
   `capped_window`) and, for N-PORT, that an export covers listed funds whole and unlisted funds as holders only (the
   N-PORT bulk files hold every fund).
-- Every download command takes `--out <dir>` now (it needs a `filename` in the answer; `--save` keeps working).
+- `--out <dir>` is offered by every download whose answer states a `filename` (today the two bulk downloads); the
+  transcript, audio, news and investor-document downloads keep `--save <file>`.
 
 ## Changes in 12.1.0 (Data API 12.1)
 
@@ -564,8 +565,8 @@ fails instead of asking.
 
 ### Files
 
-Commands whose response points to a file take `--save <file>`, or `--out <dir>` to save it under the file name the
-answer states (`--force` replaces an existing file). The download's size and SHA-256 are verified before it lands; a
+Commands whose response points to a file take `--save <file>`; one whose answer states the file's name (the bulk data
+downloads) also takes `--out <dir>` to save it under that name (`--force` replaces an existing file). The download's size and SHA-256 are verified before it lands; a
 mismatch exits 5. A bulk data download (`invd bulk download`, `export-download`) answers a signed URL valid for 15
 minutes: it is hidden in the printed answer (`--print-url` prints it instead of downloading), and an expired one is
 asked for once more.

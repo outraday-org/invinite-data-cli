@@ -53,7 +53,7 @@ export function commentLine(operation: ManifestOperation, siblings: readonly Man
     .filter(param => !param.required && param.name !== operation.positional?.name)
     .map(param => `--${param.flag}`);
   if (operation.body) optional.push(...operation.body.fields.map(field => `--${field.flag}`), '--body', '--body-file');
-  if (operation.download !== undefined) optional.push('--save', '--out');
+  if (operation.download !== undefined) optional.push('--save', ...(operation.downloadNamed ? ['--out'] : []));
   if (operation.signedDownload) optional.push('--print-url');
   if (operation.operationId in JOB_WAITS) optional.push('--wait', '--save', '--out');
   if (operation.list) optional.push('--all');

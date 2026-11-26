@@ -94,6 +94,8 @@ const manifestOperationSchema = z.object({
    * a URL is hidden in the rendered answer (`--print-url` prints it), and a 403 from the file host fetches a new one once.
    */
   signedDownload: z.literal(true).optional(),
+  /** The download object states its `filename`: the command also takes `--out <dir>` (saved under that name). */
+  downloadNamed: z.literal(true).optional(),
 }).strict();
 
 export const manifestSchema = z.object({
