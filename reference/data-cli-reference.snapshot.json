@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "11.5.0",
+    "version": "12.0.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -11,9 +11,9 @@
     },
     "verifiedOn": "2026-11-26",
     "sourceHashes": {
-      "api-contract.json": "8a6e8c3bb942da2f01a7635baa7e9491a771d5b1386a20f2efd3bd88e4bdcdb2",
-      "openapi.json": "f11741b65086e9785078fd2086502ce3820d9af0c9cf24a351e41c1dd32bc82e",
-      "package.json": "b23aeb92b375babe5df732cddd2059547c302d846c7371a322a0ea09d4fb0311",
+      "api-contract.json": "7f73e6784cecef022cd09a2d2df983925c48e89d2dd6d7f80f114ec14bb9eca3",
+      "openapi.json": "14aba1a4a69af15581d884fa982a0319f84adb5d7a4272ee25733f525f7355ed",
+      "package.json": "d5cef55444f8c166093afdbd06f23a8a0f545e5d18b8cf1871d8502f4658d582",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "ed216f689f39e3dbf72c7d6a1c74ee6cb9c22fbaf9982a9b4ddee2873f2d5536",
@@ -34,7 +34,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "366bfeec20197271a5a88453bc643db3d62482763319a37c3ddacd27f4d9acdf",
+      "src/generated/cli-manifest.json": "6e622a902b9f6b2a4a8073fb53de513ae14bfa9b50a0357399b5faf72890d1af",
       "src/hand-written-commands.ts": "a095d5f00a17a9cd643a8a0e6e5dcadbb7050dfd8b14d846ce81f3536a9920b9",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
@@ -50,9 +50,9 @@
       "src/spec-manifest.ts": "e638fd01260664e2c95e05e18e6087e6fd04694f694ec6db8921224217e580b8",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "f11741b65086e9785078fd2086502ce3820d9af0c9cf24a351e41c1dd32bc82e",
-    "revision": "9a6154bac5541c85ad348b730e0c0b2d9de9924a",
-    "fingerprint": "143000a83119fb9a632504855d60938931821b38baee01fcec19b58d13d9c552"
+    "specSha256": "14aba1a4a69af15581d884fa982a0319f84adb5d7a4272ee25733f525f7355ed",
+    "revision": "01f30b8ac571e55dda4d1b4000e0ddd9eb1e7641",
+    "fingerprint": "a0dd5639416f31b28f1d423e707e0a24448dec849b157085840a49dd0725ad64"
   },
   "globalOptions": [
     {
@@ -8031,6 +8031,16 @@
           "required": false
         },
         {
+          "flags": "--is-active <value>",
+          "description": "`true` (default) = listed today, `false` = delisted, `all` = both (default: \"true\"; e.g. true)",
+          "required": false,
+          "choices": [
+            "true",
+            "false",
+            "all"
+          ]
+        },
+        {
           "flags": "--sort <value>",
           "description": "Sort field (`-` = descending); the id tiebreaker is always appended. Default `symbol` (default: \"symbol\"; e.g. symbol)",
           "required": false,
@@ -9142,14 +9152,14 @@
           "required": false
         },
         {
-          "flags": "--is-active",
-          "description": "true = listed today, false = delisted; both when absent (e.g. true) (sends true)",
-          "required": false
-        },
-        {
-          "flags": "--no-is-active",
-          "description": "Sends is_active=false",
-          "required": false
+          "flags": "--is-active <value>",
+          "description": "`true` (default) = listed today, `false` = delisted, `all` = both (default: \"true\"; e.g. true)",
+          "required": false,
+          "choices": [
+            "true",
+            "false",
+            "all"
+          ]
         },
         {
           "flags": "--sort <value>",
@@ -12611,6 +12621,16 @@
             "operator",
             "other"
           ]
+        },
+        {
+          "flags": "--include-operators",
+          "description": "true = also list conference-call operators (hidden by default; `role=operator` lists them anyway) (default: false; e.g. false) (sends true)",
+          "required": false
+        },
+        {
+          "flags": "--no-include-operators",
+          "description": "Sends include_operators=false",
+          "required": false
         },
         {
           "flags": "--q <value>",

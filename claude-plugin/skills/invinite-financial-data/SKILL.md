@@ -12,7 +12,8 @@ routing guide; read a file under `references/` when the question goes deep into 
 ## 1. Pin the subject first
 
 - A ticker or name you are not certain of: `search_instruments` with `symbol=` (one exact ticker, active or delisted)
-  or `q=` (ticker prefix or name). Use the symbol it returns.
+  or `q=` (ticker prefix or name). Use the symbol it returns. Lists (`q=`) show symbols listed today;
+  `is_active=all` adds delisted ones. A delisted stock has no company profile.
 - Each hit has a `type`: `stock`, `etf`, `closed_end_fund` or `etn`, and the data families served for it
   (`datasets`). A stock goes to `get_company`, `get_financials`, `get_metrics`, `list_events`, `get_insider_trades`.
   An ETF or closed-end fund goes to `get_fund`: a fund has no financial statements or insider trades. An ETN has a

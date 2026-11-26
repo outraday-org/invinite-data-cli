@@ -1,7 +1,7 @@
 {
   "name": "invinite-financial-data",
   "description": "Fetch and analyze financial data using the Invinite Data API — US inflation, GDP, labor, Treasury yields, company fundamentals, financial statements, SEC filings, earnings calls (transcripts, guidance, Q&A, live calls), company news, institutional ownership, insider trades, beneficial ownership (13D / 13G), planned insider sales (Form 144), and more.",
-  "version": "0.23.0",
+  "version": "0.24.0",
   "author": {
     "name": "Invinite"
   },

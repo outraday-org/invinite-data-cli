@@ -1,6 +1,6 @@
 {
-  "specVersion": "2026-11-23",
-  "specSha256": "f11741b65086e9785078fd2086502ce3820d9af0c9cf24a351e41c1dd32bc82e",
+  "specVersion": "2026-11-26",
+  "specSha256": "14aba1a4a69af15581d884fa982a0319f84adb5d7a4272ee25733f525f7355ed",
   "groups": [
     {
       "name": "alert-events",
@@ -3316,7 +3316,6 @@
         "currency",
         "cusip",
         "composite_figi",
-        "is_delisted",
         "list_date",
         "employees",
         "market_cap",
@@ -7996,6 +7995,21 @@
           "flag": "exchange"
         },
         {
+          "name": "is_active",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "true",
+            "false",
+            "all"
+          ],
+          "default": "true",
+          "example": "true",
+          "description": "`true` (default) = listed today, `false` = delisted, `all` = both",
+          "flag": "is-active"
+        },
+        {
           "name": "sort",
           "in": "query",
           "required": false,
@@ -9271,9 +9285,15 @@
           "name": "is_active",
           "in": "query",
           "required": false,
-          "type": "boolean",
-          "example": true,
-          "description": "true = listed today, false = delisted; both when absent",
+          "type": "string",
+          "enum": [
+            "true",
+            "false",
+            "all"
+          ],
+          "default": "true",
+          "example": "true",
+          "description": "`true` (default) = listed today, `false` = delisted, `all` = both",
           "flag": "is-active"
         },
         {
@@ -12862,6 +12882,16 @@
           "description": "Role",
           "alias": "r",
           "flag": "role"
+        },
+        {
+          "name": "include_operators",
+          "in": "query",
+          "required": false,
+          "type": "boolean",
+          "default": false,
+          "example": false,
+          "description": "true = also list conference-call operators (hidden by default; `role=operator` lists them anyway)",
+          "flag": "include-operators"
         },
         {
           "name": "q",

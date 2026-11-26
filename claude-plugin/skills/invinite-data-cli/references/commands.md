@@ -369,7 +369,7 @@ invd funds get TQQQ --json
 # List a fund's holdings (optional: --as-of, --sort, --fields, --limit, --cursor, --all)
 invd funds holdings SPY --json
 
-# List funds (optional: --q, --type, --structure, --exchange, --sort, --fields, --limit, --cursor, --all)
+# List funds (optional: --q, --type, --structure, --exchange, --is-active, --sort, --fields, --limit, --cursor, --all)
 invd funds list -q TQQ --json
 
 # List a fund's sector, country and asset-class weights (optional: --dimension, --as-of, --fields, --limit, --cursor, --all)
@@ -582,7 +582,7 @@ Executives and analysts, and who took part in which event
 # Get a person (optional: --fields)
 invd people get per_01JC9A7Y --json
 
-# List people (optional: --event, --role, --q, --sort, --fields, --limit, --cursor, --all)
+# List people (optional: --event, --role, --include-operators, --q, --sort, --fields, --limit, --cursor, --all)
 invd people list AAPL -r analyst --json
 
 # List event participations (optional: --event, --person, --role, --fields, --limit, --cursor, --all)

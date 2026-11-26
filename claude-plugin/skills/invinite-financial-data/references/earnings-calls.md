@@ -61,7 +61,9 @@ transcript only when a claim needs the exact wording.
 - Two versions of a transcript: `call_api path=/v1/events/<event_id>/transcript-diff query={from: <version>, to: <version>}`
   (Pro, 5 credits).
 - The people on a company's calls: `get_company include=["people"]`; one person or all analysts:
-  `call_api path=/v1/people query={company: "NVDA", role: "analyst"}`.
+  `call_api path=/v1/people query={company: "NVDA", role: "analyst"}`. Call operators are left out of `/v1/people`
+  unless `include_operators: true` (or `role: "operator"`); `/v1/participants?event=` still lists them as a call's
+  speakers.
 
 ## Where something was said: `search_transcripts`
 
