@@ -40,20 +40,20 @@
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
       "src/output/render.ts": "320d0a99ebf23c3d81cef46b4e6ed1360579ac980285b0c626b50b844fbd950b",
-      "src/shared/errors.ts": "e70752d8176ed7354eb6d2b781adbc6921326e5dbac7e5d8c3f6fb2382a518e3",
+      "src/shared/errors.ts": "e50070980c9d666c61a29390132ec0605db0d1ecdf00f1a862bdc517e92edadd",
       "src/shared/json-mode.ts": "24d4b4a71475ba6301d0c8fe79d70d9304b058d9bb145203bdc545a51e84a85a",
       "src/shared/options.ts": "6783cfa83b301857903bbde46edc238cd7adf80f05f0f33a7a883136de8a27b8",
       "src/shared/prompt.ts": "7736cb146f84382ff17badbabcdf69add6673c4a3695c38759486601f3c87d99",
       "src/shared/signals.ts": "5c5122b38e35700a9304bf77f06b900a80e3bc42da6241f93313181117b2fa6b",
       "src/shared/spinner.ts": "62e25b34f62faaaa298fbe4664cb0b1eb52fd62b4c82f498718bd14e608d0d87",
-      "src/spec-commands.ts": "434ab5b03f0b98286581b9ea30465f68f282e94efcda3e102fc30327af7eedc1",
+      "src/spec-commands.ts": "ee4e24cdfadabf6682acf90f3824e500c352650fb57042e4d3e910d3b79365eb",
       "src/spec-flags.ts": "314fc089a8fae973ce68b9fc475fb3eca409267fd28265a98a1ff0c3a1ec2b79",
       "src/spec-manifest.ts": "a6ecff23211b8bd82e28611df4e7bebe3569a23f543cadda2a6cc8c55b4a0a5a",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
     "specSha256": "bde498d7f3213823c5e144f01807166ff74dcc600759f97bf379be71c2b8f31b",
-    "revision": "5dc1fb134c4d78a07f3753e84f3c35ada45b5f01",
-    "fingerprint": "c8ff8ca837ae8c8ebbb906bc4c817fd46e1e0648ee06a3768b6f233ec8070222"
+    "revision": "827be140d69614fe3c56c4d61b94af9de4afa3a5",
+    "fingerprint": "dade59116e38cefccdf3dedddb9e199673f0bc4b0026380a12edebacbf4a115a"
   },
   "globalOptions": [
     {
