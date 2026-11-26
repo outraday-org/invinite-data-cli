@@ -50,7 +50,18 @@ transcript only when a claim needs the exact wording.
 - Guidance items carry `direction` versus the prior call's guidance (`raised`, `lowered`, `maintained`, `withdrawn`,
   `new`), the period and the `basis` (`gaap`, `non_gaap`). Items may be machine-extracted and not yet reviewed:
   `call_api path=/v1/guidance query={company: "NVDA", review: "approved"}` keeps reviewed items only, and
-  `query={company: "NVDA", metric: "revenue"}` gives one metric's guidance across calls.
+  `query={company: "NVDA", metric: "revenue"}` gives one metric's guidance across calls. Guidance without a number
+  keeps its statement (`statement_text`, `qualifier`: `directional`, `withdrawn`, `reaffirmed`, `range_unspecified`;
+  `change_vs_prior` null); `qualitative: true` lists only those. `source_url` links the results release an item was
+  read from (null for an item from the call only).
+- Reported non-GAAP figures (Pro): `call_api path=/v1/non-gaap query={company: "NVDA", metric: "eps_adjusted_diluted"}`
+  — each figure as printed in the results release with the GAAP figure it starts from, the adjustment lines and
+  `reconciled` (the arithmetic check; `false` = served as printed although it does not add up). `source` names the
+  release and the table cell.
+- KPI time series (Pro): `call_api path=/v1/kpi-series query={company: "DAL", kpi: "load_factor"}` — one value per
+  KPI, period and segment from the release tables first, then the release text, then the call (`origin`), with
+  `xbrl_check` against the 10-Q / 10-K. A series exists where the company's sector catalog names the KPI:
+  `invinite://catalog/kpis` (or `GET /v1/catalog/kpis?sector=airlines`).
 - `price_attribution` lines up minute returns with what was being said: present it as temporal coincidence, never as
   the cause of a move. Pre-market bars are sparse.
 - Investor documents (CFO commentary, shareholder letters, decks, annual reports) are company-published: quote them

@@ -1,6 +1,6 @@
 {
   "specVersion": "2026-11-26",
-  "specSha256": "14aba1a4a69af15581d884fa982a0319f84adb5d7a4272ee25733f525f7355ed",
+  "specSha256": "55a3697a8cb8096c8e784e80e3dca30bfb181f924f9b56269b3fab88fa7c72ad",
   "groups": [
     {
       "name": "alert-events",
@@ -20,7 +20,7 @@
     },
     {
       "name": "catalog",
-      "description": "Static catalogs: metrics, sections, forms, event types, document kinds, mapping rules, exchanges, sectors"
+      "description": "Static catalogs: metrics, sections, forms, event types, document kinds, mapping rules, exchanges, sectors, KPIs"
     },
     {
       "name": "companies",
@@ -60,7 +60,7 @@
     },
     {
       "name": "guidance",
-      "description": "Guidance items and KPI mentions"
+      "description": "Guidance items, KPI mentions, KPI series and reported non-GAAP figures"
     },
     {
       "name": "holders",
@@ -2907,6 +2907,73 @@
         "form",
         "description",
         "family"
+      ]
+    },
+    {
+      "operationId": "listKpiCatalog",
+      "group": "catalog",
+      "action": "kpis",
+      "method": "get",
+      "path": "/v1/catalog/kpis",
+      "auth": true,
+      "summary": "List KPIs by sector",
+      "credits": 1,
+      "tier": "free",
+      "params": [
+        {
+          "name": "sector",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "airlines",
+          "description": "Catalog sectors, comma list (`airlines`, `banks`, `reits`, …)",
+          "alias": "s",
+          "flag": "sector"
+        },
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "fiscal_year,period_end",
+          "description": "Comma list of root-level fields to keep (R7)",
+          "flag": "fields"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, max 200)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        }
+      ],
+      "list": true,
+      "view": "table",
+      "columns": [
+        "sector",
+        "kpi_key",
+        "label",
+        "unit"
+      ],
+      "fields": [
+        "sector",
+        "kpi_key",
+        "label",
+        "unit",
+        "period_kinds"
       ]
     },
     {
@@ -8065,6 +8132,7 @@
         "name",
         "type",
         "exchange",
+        "is_active",
         "net_assets_usd"
       ],
       "fields": [
@@ -8074,6 +8142,7 @@
         "structure",
         "exchange",
         "fund_key",
+        "is_active",
         "net_assets_usd",
         "logo_url"
       ]
@@ -8172,6 +8241,168 @@
         "weight_pct",
         "positions",
         "basis"
+      ]
+    },
+    {
+      "operationId": "listKpiSeries",
+      "group": "guidance",
+      "action": "kpi-series",
+      "method": "get",
+      "path": "/v1/kpi-series",
+      "auth": true,
+      "summary": "List KPI time series",
+      "credits": 1,
+      "tier": "pro",
+      "params": [
+        {
+          "name": "company",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "example": "AAPL",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required.",
+          "flag": "company"
+        },
+        {
+          "name": "kpi",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "load_factor",
+          "description": "KPI keys of the sector catalog (GET /v1/catalog/kpis), comma list",
+          "alias": "k",
+          "flag": "kpi"
+        },
+        {
+          "name": "period_kind",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "quarter",
+          "description": "Period kinds, comma list: `quarter`, `half`, `nine_months`, `year` (a flow over that period) or `instant` (a value at the period end)",
+          "flag": "period-kind"
+        },
+        {
+          "name": "period_end.gte",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2025-01-01",
+          "description": "Period ending on or after this day",
+          "flag": "period-end-gte"
+        },
+        {
+          "name": "period_end.gt",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2025-01-01",
+          "description": "Period ending after this day",
+          "flag": "period-end-gt"
+        },
+        {
+          "name": "period_end.lte",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2025-01-01",
+          "description": "Period ending on or before this day",
+          "flag": "period-end-lte"
+        },
+        {
+          "name": "period_end.lt",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2025-01-01",
+          "description": "Period ending before this day",
+          "flag": "period-end-lt"
+        },
+        {
+          "name": "segment",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "consolidated",
+          "description": "Segments as reported, comma list; `consolidated` selects the company-wide values. Default: every segment and the company-wide values",
+          "flag": "segment"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "period_end",
+            "-period_end"
+          ],
+          "default": "-period_end",
+          "example": "-period_end",
+          "description": "Sort field (`-` = descending); the id tiebreaker is always appended. Default `-period_end`",
+          "flag": "sort"
+        },
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "fiscal_year,period_end",
+          "description": "Comma list of root-level fields to keep (R7)",
+          "flag": "fields"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, max 200)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        }
+      ],
+      "positional": {
+        "name": "company",
+        "required": true,
+        "variadic": "comma"
+      },
+      "list": true,
+      "view": "table",
+      "columns": [
+        "period_end",
+        "kpi_key",
+        "value",
+        "unit",
+        "yoy_change"
+      ],
+      "fields": [
+        "id",
+        "company",
+        "kpi_key",
+        "label",
+        "sector",
+        "value",
+        "unit",
+        "period_end",
+        "period_kind",
+        "segment",
+        "prior_year_value",
+        "yoy_change",
+        "origin",
+        "xbrl_check",
+        "confidence",
+        "source",
+        "event_id"
       ]
     },
     {
@@ -8365,6 +8596,15 @@
           "flag": "review"
         },
         {
+          "name": "qualitative",
+          "in": "query",
+          "required": false,
+          "type": "boolean",
+          "example": false,
+          "description": "`true` = only guidance without a number (a statement), `false` = only numeric guidance; default both",
+          "flag": "qualitative"
+        },
+        {
           "name": "sort",
           "in": "query",
           "required": false,
@@ -8448,7 +8688,178 @@
         "conference_date",
         "fiscal_year",
         "fiscal_quarter",
-        "change_vs_prior"
+        "change_vs_prior",
+        "statement_text",
+        "qualifier",
+        "source_url",
+        "source_accession"
+      ]
+    },
+    {
+      "operationId": "listNonGaapMetrics",
+      "group": "guidance",
+      "action": "non-gaap",
+      "method": "get",
+      "path": "/v1/non-gaap",
+      "auth": true,
+      "summary": "List reported non-GAAP figures",
+      "credits": 1,
+      "tier": "pro",
+      "params": [
+        {
+          "name": "company",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "AAPL",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
+          "flag": "company"
+        },
+        {
+          "name": "event",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "evt_01JC8M2X",
+          "description": "Event id",
+          "alias": "e",
+          "flag": "event"
+        },
+        {
+          "name": "metric",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eps_adjusted_diluted",
+          "description": "Metric keys, comma list: `eps_adjusted_diluted`, `ebitda_adjusted`, `free_cash_flow`, `ffo_per_share`, … A measure outside the named keys is `other:<label>`",
+          "alias": "m",
+          "flag": "metric"
+        },
+        {
+          "name": "period_kind",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "quarter",
+          "description": "Period kinds, comma list: `quarter`, `half`, `nine_months`, `year` (a flow over that period) or `instant` (a value at the period end)",
+          "flag": "period-kind"
+        },
+        {
+          "name": "period_end.gte",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2025-01-01",
+          "description": "Period ending on or after this day",
+          "flag": "period-end-gte"
+        },
+        {
+          "name": "period_end.gt",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2025-01-01",
+          "description": "Period ending after this day",
+          "flag": "period-end-gt"
+        },
+        {
+          "name": "period_end.lte",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2025-01-01",
+          "description": "Period ending on or before this day",
+          "flag": "period-end-lte"
+        },
+        {
+          "name": "period_end.lt",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2025-01-01",
+          "description": "Period ending before this day",
+          "flag": "period-end-lt"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "period_end",
+            "-period_end"
+          ],
+          "default": "-period_end",
+          "example": "-period_end",
+          "description": "Sort field (`-` = descending); the id tiebreaker is always appended. Default `-period_end`",
+          "flag": "sort"
+        },
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "fiscal_year,period_end",
+          "description": "Comma list of root-level fields to keep (R7)",
+          "flag": "fields"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, max 200)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        }
+      ],
+      "positional": {
+        "name": "company",
+        "required": false,
+        "variadic": "comma"
+      },
+      "exampleParams": [
+        "company"
+      ],
+      "list": true,
+      "view": "table",
+      "columns": [
+        "period_end",
+        "metric",
+        "value",
+        "gaap.value",
+        "reconciled"
+      ],
+      "fields": [
+        "id",
+        "company",
+        "event_id",
+        "conference_date",
+        "metric",
+        "metric_key",
+        "value",
+        "unit",
+        "currency",
+        "period_end",
+        "period_kind",
+        "prior_year_value",
+        "gaap",
+        "adjustments",
+        "reconciled",
+        "reconciliation_gap",
+        "confidence",
+        "source"
       ]
     },
     {

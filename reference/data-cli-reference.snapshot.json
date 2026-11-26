@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "12.0.0",
+    "version": "12.1.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -11,9 +11,9 @@
     },
     "verifiedOn": "2026-11-26",
     "sourceHashes": {
-      "api-contract.json": "7f73e6784cecef022cd09a2d2df983925c48e89d2dd6d7f80f114ec14bb9eca3",
-      "openapi.json": "14aba1a4a69af15581d884fa982a0319f84adb5d7a4272ee25733f525f7355ed",
-      "package.json": "d5cef55444f8c166093afdbd06f23a8a0f545e5d18b8cf1871d8502f4658d582",
+      "api-contract.json": "8e8ce949203da0cd8ddde04769ad2b1032aa62a13ee364c1d9da8c9029a35797",
+      "openapi.json": "55a3697a8cb8096c8e784e80e3dca30bfb181f924f9b56269b3fab88fa7c72ad",
+      "package.json": "2c97e325004f4c9d5e39757b930a8c30653be90cd7fd8c67d3f05c9bc5aa1626",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "ed216f689f39e3dbf72c7d6a1c74ee6cb9c22fbaf9982a9b4ddee2873f2d5536",
@@ -34,7 +34,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "6e622a902b9f6b2a4a8073fb53de513ae14bfa9b50a0357399b5faf72890d1af",
+      "src/generated/cli-manifest.json": "de926955585e770e3ac95d4e66ca8655e09895997d80ab543edaea074ab427dc",
       "src/hand-written-commands.ts": "a095d5f00a17a9cd643a8a0e6e5dcadbb7050dfd8b14d846ce81f3536a9920b9",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
@@ -50,9 +50,9 @@
       "src/spec-manifest.ts": "e638fd01260664e2c95e05e18e6087e6fd04694f694ec6db8921224217e580b8",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "14aba1a4a69af15581d884fa982a0319f84adb5d7a4272ee25733f525f7355ed",
-    "revision": "01f30b8ac571e55dda4d1b4000e0ddd9eb1e7641",
-    "fingerprint": "a0dd5639416f31b28f1d423e707e0a24448dec849b157085840a49dd0725ad64"
+    "specSha256": "55a3697a8cb8096c8e784e80e3dca30bfb181f924f9b56269b3fab88fa7c72ad",
+    "revision": "68c625ae71cd1b7e96c9a04d900247162326e06d",
+    "fingerprint": "e48f3ec541651df6726248f7b8f0a7a77315ec849735e3d6514a839ed3ee6e6f"
   },
   "globalOptions": [
     {
@@ -92,7 +92,7 @@
     },
     {
       "id": "catalog",
-      "description": "Static catalogs: metrics, sections, forms, event types, document kinds, mapping rules, exchanges, sectors"
+      "description": "Static catalogs: metrics, sections, forms, event types, document kinds, mapping rules, exchanges, sectors, KPIs"
     },
     {
       "id": "companies",
@@ -140,7 +140,7 @@
     },
     {
       "id": "guidance",
-      "description": "Guidance items and KPI mentions"
+      "description": "Guidance items, KPI mentions, KPI series and reported non-GAAP figures"
     },
     {
       "id": "holders",
@@ -3114,6 +3114,94 @@
       ],
       "arguments": [],
       "options": [
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "catalog kpis",
+      "group": "catalog",
+      "origin": "spec",
+      "description": "List KPIs by sector",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/catalog/kpis"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-s, --sector <value>",
+          "description": "Catalog sectors, comma list (`airlines`, `banks`, `reits`, …) (e.g. airlines)",
+          "required": false
+        },
         {
           "flags": "-l, --limit <value>",
           "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
@@ -8220,6 +8308,139 @@
       ]
     },
     {
+      "command": "guidance kpi-series",
+      "group": "guidance",
+      "origin": "spec",
+      "description": "List KPI time series",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/kpi-series"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "company",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "-k, --kpi <value>",
+          "description": "KPI keys of the sector catalog (GET /v1/catalog/kpis), comma list (e.g. load_factor)",
+          "required": false
+        },
+        {
+          "flags": "--period-kind <value>",
+          "description": "Period kinds, comma list: `quarter`, `half`, `nine_months`, `year` (a flow over that period) or `instant` (a value at the period end) (e.g. quarter)",
+          "required": false
+        },
+        {
+          "flags": "--period-end-gte <value>",
+          "description": "Period ending on or after this day (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--period-end-gt <value>",
+          "description": "Period ending after this day (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--period-end-lte <value>",
+          "description": "Period ending on or before this day (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--period-end-lt <value>",
+          "description": "Period ending before this day (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--segment <value>",
+          "description": "Segments as reported, comma list; `consolidated` selects the company-wide values. Default: every segment and the company-wide values (e.g. consolidated)",
+          "required": false
+        },
+        {
+          "flags": "--sort <value>",
+          "description": "Sort field (`-` = descending); the id tiebreaker is always appended. Default `-period_end` (default: \"-period_end\"; e.g. -period_end)",
+          "required": false,
+          "choices": [
+            "period_end",
+            "-period_end"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
       "command": "guidance kpis",
       "group": "guidance",
       "origin": "spec",
@@ -8377,12 +8598,155 @@
           ]
         },
         {
+          "flags": "--qualitative",
+          "description": "`true` = only guidance without a number (a statement), `false` = only numeric guidance; default both (e.g. false) (sends true)",
+          "required": false
+        },
+        {
+          "flags": "--no-qualitative",
+          "description": "Sends qualitative=false",
+          "required": false
+        },
+        {
           "flags": "--sort <value>",
           "description": "Sort field (`-` = descending); the id tiebreaker is always appended. Default `-conference_date` (default: \"-conference_date\"; e.g. -conference_date)",
           "required": false,
           "choices": [
             "conference_date",
             "-conference_date"
+          ]
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "guidance non-gaap",
+      "group": "guidance",
+      "origin": "spec",
+      "description": "List reported non-GAAP figures",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/non-gaap"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "company",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required. (one or more; sent as a comma list)",
+          "required": false
+        }
+      ],
+      "options": [
+        {
+          "flags": "-e, --event <value>",
+          "description": "Event id (e.g. evt_01JC8M2X)",
+          "required": false
+        },
+        {
+          "flags": "-m, --metric <value>",
+          "description": "Metric keys, comma list: `eps_adjusted_diluted`, `ebitda_adjusted`, `free_cash_flow`, `ffo_per_share`, … A measure outside the named keys is `other:<label>` (e.g. eps_adjusted_diluted)",
+          "required": false
+        },
+        {
+          "flags": "--period-kind <value>",
+          "description": "Period kinds, comma list: `quarter`, `half`, `nine_months`, `year` (a flow over that period) or `instant` (a value at the period end) (e.g. quarter)",
+          "required": false
+        },
+        {
+          "flags": "--period-end-gte <value>",
+          "description": "Period ending on or after this day (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--period-end-gt <value>",
+          "description": "Period ending after this day (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--period-end-lte <value>",
+          "description": "Period ending on or before this day (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--period-end-lt <value>",
+          "description": "Period ending before this day (e.g. 2025-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--sort <value>",
+          "description": "Sort field (`-` = descending); the id tiebreaker is always appended. Default `-period_end` (default: \"-period_end\"; e.g. -period_end)",
+          "required": false,
+          "choices": [
+            "period_end",
+            "-period_end"
           ]
         },
         {

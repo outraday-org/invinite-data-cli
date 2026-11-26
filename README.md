@@ -34,6 +34,25 @@ API's MCP server serves — the data guide `invinite-financial-data` and nine wo
 `commands/*.md` (`/financial-research`, `/analyze-earnings-call`, …) are gone: the workflows are skills now, and
 `invd plugin install` removes the files earlier versions wrote. See [The plugin](#the-plugin).
 
+## Changes in 12.1.0 (Data API 12.1)
+
+CLI 12.1.0 and plugin 0.25.0 adopt Data API 12.1 (additive, no command removed or renamed):
+
+- `invd guidance non-gaap <company>` (Pro): the adjusted (non-GAAP) figures a company's results releases print, such as
+  adjusted EPS, adjusted EBITDA or free cash flow, each with the GAAP figure it starts from (`gaap`), the adjustment
+  lines and `reconciled` (`false` = the lines do not add up; the figure is shown as printed). `--event` / `-e` reads one
+  release instead of a company, `--metric` / `-m eps_adjusted_diluted`, `--period-kind`, `--period-end-gte` ….
+- `invd guidance kpi-series <company>` (Pro): operating KPIs as series, one value per KPI, period and segment
+  (`--kpi` / `-k load_factor`, `--segment consolidated` for the company-wide values), from the release tables first,
+  then the release text, then the call (`origin`), with `xbrl_check` against the 10-Q / 10-K.
+- `invd catalog kpis` (every plan): the KPI keys of each sector catalog (`--sector airlines`).
+- `invd guidance list` shows guidance without a number with its `statement_text` and `qualifier`; `--qualitative`
+  lists only those (`--no-qualitative` only the numeric items).
+- `invd funds list` shows an `is_active` column (`false` for a delisted fund; tells rows apart under
+  `--is-active all|false`).
+- The vendored `analyze-earnings-call` skill and the `invinite-financial-data` earnings guide name the new commands'
+  routes.
+
 ## Changes in 12.0.0 (Data API 12.0)
 
 CLI 12.0.0 and plugin 0.24.0 adopt Data API 12.0 (BREAKING):
@@ -153,7 +172,7 @@ Commands are noun-verb over the API's groups:
 | `filings` | SEC filings, their numeric and text facts, review chains, dataset releases |
 | `documents` | immutable SEC filing document versions: blocks, pages, sections, figures, fact places |
 | `events` | earnings calls and other corporate events: transcripts, Q&A, slides, audio, call analytics |
-| `guidance` | guidance items and KPI mentions |
+| `guidance` | guidance items (numeric and statements), KPI mentions, KPI series (`guidance kpi-series`) and reported non-GAAP figures with their reconciliation (`guidance non-gaap`) |
 | `people` | executives and analysts, and who took part in which event |
 | `holders` | who holds ONE stock or fund: `--source 13f` (13F managers), `nport` (funds' N-PORT reports), `issuer_file` (ETF issuer files), or without `--source` an overview of all three; `holders changes` = 13F quarter-over-quarter changes |
 | `insider-trades` | Form 4 transactions (trade date, owner CIK, derivative and 10b5-1 flags where the SEC Form 3/4/5 dataset has them) and Form 3/4/5 holdings (`insider-trades holdings`), by company or by insider (`--owner`) |
@@ -162,7 +181,7 @@ Commands are noun-verb over the API's groups:
 | `news` | news from SEC filings and the companies' own newsrooms, with attribution |
 | `search` | full-text search over filings, transcripts, investor documents and news |
 | `ipos`, `offerings`, `market` | offerings from registration to listing; Form D private offerings; US market holidays |
-| `catalog` | static catalogs: metrics, sections, forms, event types, document kinds, mapping rules, exchanges, sectors |
+| `catalog` | static catalogs: metrics, sections, forms, event types, document kinds, mapping rules, exchanges, sectors, sector KPIs (`catalog kpis`) |
 | `me` | your account and usage (free) |
 | `alerts`, `destinations`, `alert-events` | alert rules (filings, news, halts, dividends, earnings calls and results, metrics, countdowns …), the webhook endpoints their events are delivered to, and the event log (pull feed; `invd alert-events tail` follows it) |
 | `scripts`, `script-versions`, `alert-templates` | hosted chartlang scripts for `script` alerts (`invd scripts upload` reads a file) and their versions; the built-in templates of `indicator` alerts |
@@ -211,7 +230,7 @@ view), `metrics`, `guidance list`, `holders list`, `dividends`, `splits`, `news`
 `destinations`, `scripts`, `script-versions`). Standard adds `segments list`, `insider-trades` (incl. `holdings`), `ownership`, `search filings` and
 `search news`. Pro adds the earnings-call content (transcripts, Q&A, stats, audio, slides, comparison, prosody, price
 attribution, transcript diff and versions), `investor-documents`, `search transcripts`, `search investor-documents`,
-the detailed and presentation `financials` views, `segments list-detailed`, `guidance kpis`, holder changes and fact
+the detailed and presentation `financials` views, `segments list-detailed`, `guidance kpis`, `guidance kpi-series`, `guidance non-gaap`, holder changes and fact
 places, `metrics vintages` (and the WebSocket stream); `filings datasets` needs Enterprise. Pay as you go (credits without a plan;
 `invd me show` says `payg`) reaches what Pro reaches except live data; the API's refusal says so. `--help` names each
 command's plan; a refused plan exits 6 and the error names the plan.
@@ -333,6 +352,9 @@ invd events transcript-versions <event_id>
 invd events transcript-diff <event_id> --from 1 --to 2
 invd guidance AAPL --event <event_id>
 invd guidance kpis AAPL --metric subscribers
+invd guidance non-gaap NVDA --metric eps_adjusted_diluted       # adjusted figures with GAAP start and adjustment lines
+invd guidance kpi-series DAL --kpi load_factor --period-kind quarter
+invd catalog kpis --sector airlines
 invd people list AAPL --role analyst
 invd people get <person_id>                          # + image_url (a photo or the company / firm logo; empty = show initials)
 invd people list AAPL --fields name,image_url,image_kind --json

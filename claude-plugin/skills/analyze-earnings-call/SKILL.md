@@ -29,12 +29,24 @@ Take the exact wording only where a claim needs it: `search_transcripts event_id
 an exact figure or term; 10 credits) before the full transcript (`include=["transcript_turns"]`, 5 credits).
 For a check against reported numbers: `get_financials company=AAPL period=quarterly limit=2`.
 
+Adjusted figures and operating KPIs come from the results release itself (Pro, 1 credit each):
+
+- `call_api path=/v1/non-gaap query={event: "<event_id>"}` — adjusted EPS, adjusted EBITDA, free cash flow and the
+  other non-GAAP figures as printed, each with the GAAP figure it starts from and the adjustment lines. A row with
+  `reconciled: false` does not add up and is shown as printed: say so instead of correcting it.
+- `call_api path=/v1/kpi-series query={company: "AAPL", kpi: "<key>"}` — one operating KPI across periods (an airline's
+  load factor, a bank's net interest margin); the keys of a sector are in `invinite://catalog/kpis`. `yoy_change` is
+  points for a percent KPI, percent otherwise.
+
 ## 3. Write the analysis
 
 - **Results vs guidance**: the reported figures against the guidance given on the prior call (one metric's guidance
   across calls: `call_api path=/v1/guidance query={company: "AAPL", metric: "revenue"}`).
 - **Guidance changes**: each item raised, lowered, maintained, new or withdrawn, with its period and GAAP / non-GAAP
-  basis.
+  basis. Guidance without a number (a statement such as "we expect margins to expand") carries `statement_text` and
+  its `qualifier`; quote it, and do not compute a change for it (`change_vs_prior` is null).
+- **Adjusted results** (if fetched): the non-GAAP figures with their reconciliation, and the KPI series against the
+  same quarter a year earlier.
 - **Analyst focus**: the three main themes of the Q&A, who asked (name and firm), and where management did not
   answer directly.
 - **Tone change**: what the comparison shows against the previous call.
