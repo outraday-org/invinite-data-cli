@@ -48,6 +48,19 @@ without the flag), also on `funds list`; `--no-is-active` is gone (no alias: `--
 no new group (the `guidance` and `catalog` descriptions come from the API's tag descriptions). The vendored
 `analyze-earnings-call` skill and `invinite-financial-data/references/earnings-calls.md` name the routes. The bundle is the released API commit `f196ad7` (tag `data-sdk-v12.1.0`, SDK 12.1.0, Fly v195; spec sha256 `55a3697a…`, its base revision field reads `7509d1de`); it also carries the additive `FundListItem.is_active` → an `is_active` column on `funds list`.
 
+12.2.0 adopts Data API 12.2 with plugin 0.26.0 (145 operations, additive over 12.1; backend `tasks/sec-bulk-downloads` task 7): the group
+`bulk` (tag `Bulk data`, its own `GROUP_DESCRIPTIONS` line; Enterprise, 0 credits) — `files`, `download`, `export`,
+`exports`, `export-status`, `export-download`. The builder marks a download object that states `expires_at` as
+`signedDownload` (only `BulkDownload`): its URL is hidden in every rendered format (`withHiddenUrl`,
+`<hidden: valid until …>`), `--print-url` prints it and downloads nothing, and a 403 from the file host asks the
+operation once more (a second download count) before failing. Every download command takes `--out <dir>` (the
+answer's `filename`, reduced by `safeFileName`; refused without one) beside `--save`. `export --wait` is hand-written
+behaviour on the generated command (`src/job-wait.ts` `JOB_WAITS`: the job's read and download operations; 10 s
+backing off to 60 s, three 429 / 5xx reads in a row end it, Ctrl-C prints the resume commands); `--save` / `--out` on
+`export` need `--wait`. `REASON_LABELS` + `SCOPE_LABELS` word an export's `coverage.reason` / `coverage.scope`
+(`jobCoverageNote`, stderr). Bundle: until the release the task-6 candidate rebased onto 12.1 (spec sha256 `bde498d7…`, base
+revision `b05ff307`); the released 12.2 bundle replaces it before publishing.
+
 ## Commands come from the Data API's spec, not from this repo
 
 Every plain command — one REST call, printed as a table, a key/value list or JSON — is GENERATED. The chain:
@@ -68,7 +81,8 @@ Every plain command — one REST call, printed as a table, a key/value list or J
   `--cursor`, JSONL / CSV rows); the view (list + `columns` → table, object + `columns` → key/value, else JSON); body
   flags from the request schema's scalar / list properties one object deep (`--ciks` → `filters.ciks`); a header
   parameter as a flag (`--idempotency-key`); a download object (`{url, sha256 | bytes}` at the root or one level down
-  → `--save <file>`). Groups spanning several tags (or sharing one) take `GROUP_DESCRIPTIONS`; a spec alias commander
+  → `--save <file>` / `--out <dir>`; one stating `expires_at` is a signed download → URL hidden, `--print-url`, one
+  refetch on a 403). Groups spanning several tags (or sharing one) take `GROUP_DESCRIPTIONS`; a spec alias commander
   owns is dropped only through `DROPPED_ALIASES` (both in `scripts/build-cli-manifest.ts`, proposals D7 / D8 of
   `backend/tasks/data-api-v2/10-cli-v4.md`).
 - Flags are the parameter names, `_` / `.` → `-` (`filed_at.gte` → `--filed-at-gte`), booleans get `--x` / `--no-x`.
@@ -119,7 +133,8 @@ that differs from the v2 groups + the roster. There is no WebSocket command in 4
 - Prompts: `confirmOrRefuse` (`--yes` / `--no-input`) and `promptInteractive` (`plugin`, `agent-setup`) refuse with exit
   2 naming the flags that answer them under `--no-input` or without a terminal.
 - Downloads go through `saveVerified` (`src/client/download.ts`): `.part` + rename after the size / SHA-256 / media
-  type checks; files are fetched keyless from their stated public `url`.
+  type checks; files are fetched keyless from their stated `url` (public, or a short-lived signed one; a non-2xx is a
+  `DownloadStatusError` carrying the status).
 
 ## Config and keys
 

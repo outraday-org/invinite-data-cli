@@ -50,6 +50,7 @@ export const GROUP_DESCRIPTIONS: Readonly<Record<string, string>> = {
   'alert-templates': 'The indicator templates an `indicator` alert names (RSI, MACD, EMA cross …), with their inputs',
   'alert-users': 'Create and update your alert end users, inspect their limits and usage, or pause and resume their alerts',
   alerts: 'Alert rules: create, change, pause, batch and test them, and read one alert\'s events',
+  bulk: 'SEC data sets as files (Enterprise): raw SEC release files, parsed period files and company export jobs; downloads go to disk with --out / --save',
   companies: 'Operating companies: list, profile and fiscal periods (a fund is `invd funds`)',
   destinations: 'Webhook endpoints alert events are delivered to: secrets, test deliveries and the delivery log',
   documents: 'Read an immutable SEC filing document, its sections and figures, or locate facts in the document',
@@ -201,6 +202,12 @@ const isDownloadObject = (spec: Spec, schema: JsonSchema): boolean => {
   const properties = propertiesOf(spec, schema);
   return 'url' in properties && ('bytes' in properties || 'sha256' in properties);
 };
+
+/** A download object whose URL expires (`expires_at`): a short-lived signed URL, never a permanent public one. */
+function isSignedDownload(spec: Spec, schema: JsonSchema, path: string): boolean {
+  const target = path === '' ? schema : propertiesOf(spec, schema)[path];
+  return target !== undefined && 'expires_at' in propertiesOf(spec, target);
+}
 
 function downloadPath(spec: Spec, schema: JsonSchema): string | undefined {
   if (isDownloadObject(spec, schema)) return '';
@@ -391,6 +398,7 @@ export function buildManifest(rawSpec: unknown, specText: string): Manifest {
       if (cli.columns) out.columns = cli.columns;
       const download = success && method === 'get' && !list ? downloadPath(spec, success) : undefined;
       if (download !== undefined) out.download = download;
+      if (download !== undefined && success && isSignedDownload(spec, success, download)) out.signedDownload = true;
 
       // One spelling per command; the operations of a multi-operation command differ by their `select`.
       const key = `${commandName(out)} ${JSON.stringify(out.select ?? null)}`;

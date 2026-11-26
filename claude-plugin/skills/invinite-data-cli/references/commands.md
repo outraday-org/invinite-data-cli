@@ -130,6 +130,30 @@ invd auth logout
 ```
 <!-- /invd:hand:auth -->
 
+### bulk
+
+SEC data sets as files (Enterprise): raw SEC release files, parsed period files and company export jobs; downloads go to disk with --out / --save
+
+```bash
+# Get a bulk file download URL (optional: --save, --out, --print-url)
+invd bulk download bf_01JDXQ8M6V3S2T4N5P7R9K0W1Y --json
+
+# Create a company export (optional: --idempotency-key, --dataset, --format, --company, --filer, --date-field, --from, --to, --body, --body-file, --wait, --save, --out)
+invd bulk export --body '{"dataset":"f13","format":"csv_gz","company":["AAPL"],"date_field":"period_of_report","from":"2026-01-01","to":"2026-06-30"}' --json
+
+# Get a company export download URL (optional: --save, --out, --print-url)
+invd bulk export-download bx_01JDXR2A4B6C8D0E2F4G6H8J0K --json
+
+# Get a company export
+invd bulk export-status bx_01JDXR2A4B6C8D0E2F4G6H8J0K --json
+
+# List company exports (optional: --fields, --limit, --cursor, --all)
+invd bulk exports --json
+
+# List SEC bulk files (optional: --fields, --limit, --cursor, --dataset, --kind, --format, --released-at-gte, --released-at-lte, --include-superseded, --all)
+invd bulk files -d f13 -k parsed --json
+```
+
 ### catalog
 
 Static catalogs: metrics, sections, forms, event types, document kinds, mapping rules, exchanges, sectors, KPIs
@@ -261,7 +285,7 @@ invd documents sections dv_01JCA8XK --json
 Earnings calls and other corporate events: transcripts, Q&A, media and call analytics
 
 ```bash
-# Get an event's recording (optional: --save)
+# Get an event's recording (optional: --save, --out)
 invd events audio evt_01JC8M2X --json
 
 # Compare an event with a prior one (optional: --prior)
@@ -294,7 +318,7 @@ invd events slides evt_01JC8M2X --json
 # Get an event's call statistics
 invd events stats evt_01JC8M2X --json
 
-# Get an event's transcript (optional: --version, --layer, --include, --save)
+# Get an event's transcript (optional: --version, --layer, --include, --save, --out)
 invd events transcript evt_01JC8M2X --json
 
 # Diff two transcript versions
@@ -441,7 +465,7 @@ invd instruments list -q TQQ --json
 Company-published documents and their search
 
 ```bash
-# Get an investor document (optional: --expand, --save)
+# Get an investor document (optional: --expand, --save, --out)
 invd investor-documents get doc_01JC7Q2M --json
 
 # List investor documents (optional: --event, --category, --kind, --fiscal-year, --sort, --fields, --limit, --cursor, --all)
@@ -549,7 +573,7 @@ News items, full text, search and announcements
 # List announcements (optional: --topic, --item, --announced-at-gte, --announced-at-gt, --announced-at-lte, --announced-at-lt, --effective-from-gte, --effective-to-lte, --sort, --fields, --limit, --cursor, --all)
 invd news announcements AAPL --json
 
-# Get a news item (optional: --fields, --save)
+# Get a news item (optional: --fields, --save, --out)
 invd news get nws_01JCB4R8 --json
 
 # List news items (optional: --event, --kind, --topic, --published-at-gte, --published-at-gt, --published-at-lte, --published-at-lt, --sort, --fields, --limit, --cursor, --all)

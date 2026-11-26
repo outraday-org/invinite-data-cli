@@ -1,6 +1,6 @@
 {
   "specVersion": "2026-11-26",
-  "specSha256": "55a3697a8cb8096c8e784e80e3dca30bfb181f924f9b56269b3fab88fa7c72ad",
+  "specSha256": "bde498d7f3213823c5e144f01807166ff74dcc600759f97bf379be71c2b8f31b",
   "groups": [
     {
       "name": "alert-events",
@@ -17,6 +17,10 @@
     {
       "name": "alerts",
       "description": "Alert rules: create, change, pause, batch and test them, and read one alert's events"
+    },
+    {
+      "name": "bulk",
+      "description": "SEC data sets as files (Enterprise): raw SEC release files, parsed period files and company export jobs; downloads go to disk with --out / --save"
     },
     {
       "name": "catalog",
@@ -2691,6 +2695,521 @@
         "version",
         "created_at",
         "updated_at"
+      ]
+    },
+    {
+      "operationId": "getBulkFileDownload",
+      "group": "bulk",
+      "action": "download",
+      "method": "get",
+      "path": "/v1/bulk/files/{file_id}/download",
+      "auth": true,
+      "summary": "Get a bulk file download URL",
+      "credits": 0,
+      "tier": "enterprise",
+      "params": [
+        {
+          "name": "file_id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "pattern": "^bf_[0-9A-HJKMNP-TV-Z]{26}$",
+          "example": "bf_01JDXQ8M6V3S2T4N5P7R9K0W1Y",
+          "description": "The bulk file's `file_id`",
+          "flag": "file-id"
+        }
+      ],
+      "positional": {
+        "name": "file_id",
+        "required": true
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "filename",
+        "bytes",
+        "sha256",
+        "expires_at"
+      ],
+      "fields": [
+        "url",
+        "expires_at",
+        "filename",
+        "bytes",
+        "sha256",
+        "content_type"
+      ],
+      "download": "",
+      "signedDownload": true
+    },
+    {
+      "operationId": "createBulkExport",
+      "group": "bulk",
+      "action": "export",
+      "method": "post",
+      "path": "/v1/bulk/exports",
+      "auth": true,
+      "summary": "Create a company export",
+      "credits": 0,
+      "tier": "enterprise",
+      "params": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": false,
+          "type": "string",
+          "example": "6f1c0f3e-7b7a-4a8e-9d63-3c1b2f0e9a11",
+          "description": "Replays the first answer for 24 h (a replay answers 200); 409 while in flight (R13)",
+          "flag": "idempotency-key"
+        }
+      ],
+      "body": {
+        "required": true,
+        "contentType": "application/json",
+        "example": {
+          "dataset": "f13",
+          "format": "csv_gz",
+          "company": [
+            "AAPL"
+          ],
+          "date_field": "period_of_report",
+          "from": "2026-01-01",
+          "to": "2026-06-30"
+        },
+        "fields": [
+          {
+            "path": [
+              "dataset"
+            ],
+            "type": "string",
+            "required": true,
+            "description": "Parsed data set: `f13` 13F holdings, `f345` Forms 3/4/5, `formd` Form D, `nport` Form N-PORT",
+            "alias": "d",
+            "flag": "dataset"
+          },
+          {
+            "path": [
+              "format"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "File format",
+            "flag": "format"
+          },
+          {
+            "path": [
+              "company"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Issuers (0–50): tickers or CIKs. f13 / nport: holdings of these issuers; f345: their insiders' filings; formd: their offerings",
+            "alias": "c",
+            "flag": "company"
+          },
+          {
+            "path": [
+              "filer"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "description": "Filers (0–50), CIKs only. f13: the 13F manager; f345: any reporting owner; nport: the fund registrant; not available for formd",
+            "alias": "f",
+            "flag": "filer"
+          },
+          {
+            "path": [
+              "date_field"
+            ],
+            "type": "string",
+            "required": false,
+            "description": "The date `from` / `to` apply to (default `filed_date`): f13 `filed_date` / `period_of_report`, f345 `filed_date` / `transaction_date`, formd `filed_date` / `first_sale_date`, nport `filed_date` / `report_date`",
+            "flag": "date-field"
+          },
+          {
+            "path": [
+              "from"
+            ],
+            "type": "string",
+            "required": true,
+            "description": "First day of the range, inclusive (YYYY-MM-DD)",
+            "flag": "from"
+          },
+          {
+            "path": [
+              "to"
+            ],
+            "type": "string",
+            "required": true,
+            "description": "Last day of the range, inclusive (YYYY-MM-DD)",
+            "flag": "to"
+          }
+        ]
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "export_id",
+        "status",
+        "dataset",
+        "format",
+        "from",
+        "to",
+        "created_at"
+      ],
+      "fields": [
+        "export_id",
+        "status",
+        "dataset",
+        "format",
+        "company_ciks",
+        "filer_ciks",
+        "date_field",
+        "from",
+        "to",
+        "created_at",
+        "started_at",
+        "finished_at",
+        "expires_at",
+        "filename",
+        "bytes",
+        "sha256",
+        "row_count",
+        "schema_version",
+        "error_code",
+        "coverage"
+      ]
+    },
+    {
+      "operationId": "getBulkExportDownload",
+      "group": "bulk",
+      "action": "export-download",
+      "method": "get",
+      "path": "/v1/bulk/exports/{export_id}/download",
+      "auth": true,
+      "summary": "Get a company export download URL",
+      "credits": 0,
+      "tier": "enterprise",
+      "params": [
+        {
+          "name": "export_id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "pattern": "^bx_[0-9A-HJKMNP-TV-Z]{26}$",
+          "example": "bx_01JDXR2A4B6C8D0E2F4G6H8J0K",
+          "description": "The export's `export_id`",
+          "flag": "export-id"
+        }
+      ],
+      "positional": {
+        "name": "export_id",
+        "required": true
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "filename",
+        "bytes",
+        "sha256",
+        "expires_at"
+      ],
+      "fields": [
+        "url",
+        "expires_at",
+        "filename",
+        "bytes",
+        "sha256",
+        "content_type"
+      ],
+      "download": "",
+      "signedDownload": true
+    },
+    {
+      "operationId": "getBulkExport",
+      "group": "bulk",
+      "action": "export-status",
+      "method": "get",
+      "path": "/v1/bulk/exports/{export_id}",
+      "auth": true,
+      "summary": "Get a company export",
+      "credits": 0,
+      "tier": "enterprise",
+      "params": [
+        {
+          "name": "export_id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "pattern": "^bx_[0-9A-HJKMNP-TV-Z]{26}$",
+          "example": "bx_01JDXR2A4B6C8D0E2F4G6H8J0K",
+          "description": "The export's `export_id`",
+          "flag": "export-id"
+        }
+      ],
+      "positional": {
+        "name": "export_id",
+        "required": true
+      },
+      "list": false,
+      "view": "keyValue",
+      "columns": [
+        "export_id",
+        "status",
+        "row_count",
+        "bytes",
+        "expires_at",
+        "error_code"
+      ],
+      "fields": [
+        "export_id",
+        "status",
+        "dataset",
+        "format",
+        "company_ciks",
+        "filer_ciks",
+        "date_field",
+        "from",
+        "to",
+        "created_at",
+        "started_at",
+        "finished_at",
+        "expires_at",
+        "filename",
+        "bytes",
+        "sha256",
+        "row_count",
+        "schema_version",
+        "error_code",
+        "coverage"
+      ]
+    },
+    {
+      "operationId": "listBulkExports",
+      "group": "bulk",
+      "action": "exports",
+      "method": "get",
+      "path": "/v1/bulk/exports",
+      "auth": true,
+      "summary": "List company exports",
+      "credits": 0,
+      "tier": "enterprise",
+      "params": [
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "fiscal_year,period_end",
+          "description": "Comma list of root-level fields to keep (R7)",
+          "flag": "fields"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, max 200)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        }
+      ],
+      "list": true,
+      "view": "table",
+      "columns": [
+        "export_id",
+        "status",
+        "dataset",
+        "format",
+        "from",
+        "to",
+        "created_at"
+      ],
+      "fields": [
+        "export_id",
+        "status",
+        "dataset",
+        "format",
+        "company_ciks",
+        "filer_ciks",
+        "date_field",
+        "from",
+        "to",
+        "created_at",
+        "started_at",
+        "finished_at",
+        "expires_at",
+        "filename",
+        "bytes",
+        "sha256",
+        "row_count",
+        "schema_version",
+        "error_code",
+        "coverage"
+      ]
+    },
+    {
+      "operationId": "listBulkFiles",
+      "group": "bulk",
+      "action": "files",
+      "method": "get",
+      "path": "/v1/bulk/files",
+      "auth": true,
+      "summary": "List SEC bulk files",
+      "credits": 0,
+      "tier": "enterprise",
+      "params": [
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "fiscal_year,period_end",
+          "description": "Comma list of root-level fields to keep (R7)",
+          "flag": "fields"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer",
+          "default": 25,
+          "example": 25,
+          "description": "Rows per page (default 25, max 200)",
+          "alias": "l",
+          "flag": "limit"
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "eyJ2IjoyfQ",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "flag": "cursor"
+        },
+        {
+          "name": "dataset",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "f13",
+            "f345",
+            "formd",
+            "fsn",
+            "icsc",
+            "ncen",
+            "nport",
+            "rr"
+          ],
+          "example": "f13",
+          "description": "Only files of this SEC data set",
+          "alias": "d",
+          "flag": "dataset"
+        },
+        {
+          "name": "kind",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "raw",
+            "parsed"
+          ],
+          "example": "parsed",
+          "description": "Only raw SEC release files or parsed period files",
+          "alias": "k",
+          "flag": "kind"
+        },
+        {
+          "name": "format",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "zip",
+            "csv",
+            "csv_gz",
+            "parquet"
+          ],
+          "example": "csv_gz",
+          "description": "Only files of this format",
+          "alias": "f",
+          "flag": "format"
+        },
+        {
+          "name": "released_at.gte",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-01-01",
+          "description": "`released_at` on or after this day",
+          "flag": "released-at-gte"
+        },
+        {
+          "name": "released_at.lte",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "2026-11-26",
+          "description": "`released_at` on or before this day",
+          "flag": "released-at-lte"
+        },
+        {
+          "name": "include_superseded",
+          "in": "query",
+          "required": false,
+          "type": "boolean",
+          "default": false,
+          "example": false,
+          "description": "true = also list the files a newer file of the same release replaced",
+          "flag": "include-superseded"
+        }
+      ],
+      "exampleParams": [
+        "dataset",
+        "kind"
+      ],
+      "list": true,
+      "view": "table",
+      "columns": [
+        "file_id",
+        "dataset",
+        "kind",
+        "format",
+        "period_key",
+        "released_at",
+        "bytes"
+      ],
+      "fields": [
+        "file_id",
+        "dataset",
+        "kind",
+        "format",
+        "period_key",
+        "coverage_start",
+        "coverage_end",
+        "released_at",
+        "filename",
+        "content_type",
+        "bytes",
+        "sha256",
+        "row_count",
+        "schema_version",
+        "superseded_by"
       ]
     },
     {

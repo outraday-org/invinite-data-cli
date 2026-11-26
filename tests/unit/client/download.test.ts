@@ -8,7 +8,8 @@ vi.mock('../../../src/shared/spinner.js', () => ({
   stopSpinners: vi.fn(),
 }));
 
-import { downloadToFile, extensionFor, writeTextFile } from '../../../src/client/download.js';
+import { createHash } from 'node:crypto';
+import { DownloadStatusError, downloadToFile, extensionFor, saveVerified, writeTextFile } from '../../../src/client/download.js';
 import { installSignalExit } from '../../../src/shared/signals.js';
 
 function streamOf(chunks: string[], failAfter?: number): ReadableStream<Uint8Array> {
@@ -111,6 +112,32 @@ describe('downloadToFile', () => {
     expect(await readdir(dir)).toEqual([]);
     expect(process.listenerCount(signal)).toBe(listeners);
     exit.mockRestore();
+  });
+});
+
+describe('saveVerified', () => {
+  let dir: string;
+
+  beforeEach(async () => {
+    dir = await mkdtemp(join(tmpdir(), 'invd-verified-'));
+  });
+
+  afterEach(async () => {
+    await rm(dir, { recursive: true, force: true });
+  });
+
+  it('saves bytes whose size and SHA-256 match', async () => {
+    const sha256 = createHash('sha256').update('PAR1data').digest('hex');
+    const saved = await saveVerified(async () => new Response('PAR1data', { status: 200 }), join(dir, 'f.parquet'), { expected: { sha256, bytes: 8 } });
+    expect(saved).toMatchObject({ bytes: 8, sha256, skipped: false });
+    expect(await readFile(join(dir, 'f.parquet'), 'utf8')).toBe('PAR1data');
+  });
+
+  it('a refused URL (403, an expired signature) throws DownloadStatusError with the status and saves nothing', async () => {
+    const error = await saveVerified(async () => new Response('denied', { status: 403 }), join(dir, 'f.parquet')).catch((caught: unknown) => caught);
+    expect(error).toBeInstanceOf(DownloadStatusError);
+    expect(error).toMatchObject({ status: 403, message: 'Download failed with status 403' });
+    expect(await readdir(dir)).toEqual([]);
   });
 });
 
