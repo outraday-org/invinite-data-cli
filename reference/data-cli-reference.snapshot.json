@@ -11,8 +11,8 @@
     },
     "verifiedOn": "2026-11-26",
     "sourceHashes": {
-      "api-contract.json": "139cc7c011b96af2e57c47fff7b13ac39ff51187d4a4661bdacedfa5c72e1ff2",
-      "openapi.json": "bde498d7f3213823c5e144f01807166ff74dcc600759f97bf379be71c2b8f31b",
+      "api-contract.json": "b413be5afe4a58e9e6c277eec6ca1cd0568208b73be39cedb34aeba66741cca7",
+      "openapi.json": "ed91cd905ac88c8f89ab1bd96a9b28f21a7801708ea4f0c7914b1ced3b527de8",
       "package.json": "c777e44eda074ad7cb0f6b91e9b812fe120d0f81c643d0a1be719e8de4fff891",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
@@ -34,7 +34,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "976e8c9815c62350ebd012327aab02d4f1c568da3692379728fa74e193070207",
+      "src/generated/cli-manifest.json": "51e3effbf87963c912892cc72066212f263692ba78696fbc5452c06cb2bcfd23",
       "src/hand-written-commands.ts": "a095d5f00a17a9cd643a8a0e6e5dcadbb7050dfd8b14d846ce81f3536a9920b9",
       "src/job-wait.ts": "3341ed6f5356bcf2aa5c3b22513ce88f01a638a779a03a278eb39af40d86f737",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
@@ -51,9 +51,9 @@
       "src/spec-manifest.ts": "a6ecff23211b8bd82e28611df4e7bebe3569a23f543cadda2a6cc8c55b4a0a5a",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "bde498d7f3213823c5e144f01807166ff74dcc600759f97bf379be71c2b8f31b",
-    "revision": "827be140d69614fe3c56c4d61b94af9de4afa3a5",
-    "fingerprint": "dade59116e38cefccdf3dedddb9e199673f0bc4b0026380a12edebacbf4a115a"
+    "specSha256": "ed91cd905ac88c8f89ab1bd96a9b28f21a7801708ea4f0c7914b1ced3b527de8",
+    "revision": "99b9e87df59fb2d4da323d628571bdcd1d2594d9",
+    "fingerprint": "4ce2d799ccb5168e3e9a59fcc6009c160452b21171d106a9689bbd0c4c6b5ab5"
   },
   "globalOptions": [
     {
@@ -8960,7 +8960,7 @@
         },
         {
           "flags": "--period-kind <value>",
-          "description": "Period kinds, comma list: `quarter`, `half`, `nine_months`, `year` (a flow over that period) or `instant` (a value at the period end) (e.g. quarter)",
+          "description": "Period kinds, comma list: `quarter`, `half`, `nine_months`, `year` (a flow over that period) or `instant` (a value at the period end). Any other value is a 400 (e.g. quarter)",
           "required": false
         },
         {
@@ -9338,12 +9338,12 @@
         },
         {
           "flags": "-m, --metric <value>",
-          "description": "Metric keys, comma list: `eps_adjusted_diluted`, `ebitda_adjusted`, `free_cash_flow`, `ffo_per_share`, … A measure outside the named keys is `other:<label>` (e.g. eps_adjusted_diluted)",
+          "description": "Metric keys, comma list: `eps_adjusted_diluted`, `ebitda_adjusted`, `free_cash_flow`, `ffo_per_share`, … A measure outside the named keys is `other:<slug of the printed label>` (e.g. eps_adjusted_diluted)",
           "required": false
         },
         {
           "flags": "--period-kind <value>",
-          "description": "Period kinds, comma list: `quarter`, `half`, `nine_months`, `year` (a flow over that period) or `instant` (a value at the period end) (e.g. quarter)",
+          "description": "Period kinds, comma list: `quarter`, `half`, `nine_months`, `year` (a flow over that period) or `instant` (a value at the period end). Any other value is a 400 (e.g. quarter)",
           "required": false
         },
         {
