@@ -551,7 +551,7 @@ describe('manifest coverage', () => {
   it('every operation with a download object takes --save; no list does', () => {
     const operations = loadManifest().operations;
     expect(operations.filter(operation => operation.download !== undefined).map(operation => operation.operationId).sort())
-      .toEqual(['getAudio', 'getInvestorDocument', 'getNewsItem', 'getTranscript']);
+      .toEqual(['getAudio', 'getBulkExportDownload', 'getBulkFileDownload', 'getInvestorDocument', 'getNewsItem', 'getTranscript']);
     expect(operations.some(operation => operation.list && operation.download !== undefined)).toBe(false);
   });
 });

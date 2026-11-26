@@ -1,11 +1,13 @@
-import { readFile } from 'node:fs/promises';
+import { access, readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import chalk from 'chalk';
 import { Command, Option } from 'commander';
 import { apiCall, buildUrl, type HttpMethod, type QueryValue, type RequestOptions } from './client/api-client.js';
-import { saveVerified } from './client/download.js';
+import { DownloadStatusError, safeFileName, saveVerified } from './client/download.js';
 import { nextCursorOf, rowsOf, walkPages } from './client/pagination.js';
 import { getSetting } from './config/config-manager.js';
 import { exampleLines } from './examples.js';
+import { JOB_WAITS, waitForJob } from './job-wait.js';
 import { pick } from './formatters/flatten.js';
 import { runJq } from './output/jq.js';
 import { addOutputOptions, resolveOutput, type OutputFlags } from './output/options.js';
@@ -21,10 +23,10 @@ import {
   type OutputSettings,
   type ShapeInfo,
 } from './output/render.js';
-import { PartialResultError, UsageError, withErrorHandling } from './shared/errors.js';
+import { JobEndedError, PartialResultError, UsageError, withErrorHandling } from './shared/errors.js';
 import { splitList } from './shared/options.js';
 import { confirmOrRefuse, readStdin } from './shared/prompt.js';
-import { resumeOnInterrupt } from './shared/signals.js';
+import { onInterrupt, resumeOnInterrupt } from './shared/signals.js';
 import { GLOBAL_PARAM_FLAGS } from './spec-flags.js';
 import {
   commandName,
@@ -42,25 +44,40 @@ import {
  */
 export function registerSpecCommands(program: Command, manifest: Manifest): void {
   const listEvents = manifest.operations.find(operation => operation.operationId === 'listEvents');
+  const byId = new Map(manifest.operations.map(operation => [operation.operationId, operation]));
+  const waits = new Map<string, JobWaitPlan>();
+  for (const [operationId, wait] of Object.entries(JOB_WAITS)) {
+    const status = byId.get(wait.status);
+    const download = byId.get(wait.download);
+    if (byId.has(operationId) && status && download) waits.set(operationId, { status, download, id: wait.id });
+  }
   for (const group of manifest.groups) {
     const operations = manifest.operations.filter(operation => operation.group === group.name);
     const groupCommand = program.command(group.name).description(group.description);
     const multi = operations.filter(operation => operation.action === '');
     if (multi.length > 0) {
-      defineSelectorCommand(groupCommand, multi, { listEvents });
+      defineSelectorCommand(groupCommand, multi, { listEvents, waits });
       continue;
     }
     for (const operation of operations) {
       const command = groupCommand
         .command(operation.action, operation.action === 'list' ? { isDefault: true } : {})
         .description(operation.summary);
-      defineOperationCommand(command, operation, { listEvents });
+      defineOperationCommand(command, operation, { listEvents, waits });
     }
   }
 }
 
+/** `--wait` on an operation that starts a job (`JOB_WAITS`): the job's read and download operations. */
+interface JobWaitPlan {
+  status: ManifestOperation;
+  download: ManifestOperation;
+  id: string;
+}
+
 interface Context {
   listEvents?: ManifestOperation;
+  waits?: ReadonlyMap<string, JobWaitPlan>;
 }
 
 type Opts = Record<string, unknown> & OutputFlags;
@@ -199,15 +216,26 @@ function addParamOptions(command: Command, operation: ManifestOperation, params:
   }
 }
 
-function addCommandOptions(command: Command, operation: ManifestOperation): void {
+function addCommandOptions(command: Command, operation: ManifestOperation, context: Context): void {
   if (operation.body) {
     for (const field of operation.body.fields) for (const option of bodyOptions(field)) command.addOption(option);
     command.option('--body <json>', 'The whole JSON request body (flags above override its fields)');
     command.option('--body-file <path>', 'Read the JSON request body from a file (- = stdin)');
   }
-  if (operation.download !== undefined) {
-    command.option('--save <file>', 'Save the file this response points to (size and SHA-256 verified)');
-    command.option('--force', 'With --save: replace an existing file');
+  const wait = context.waits?.get(operation.operationId);
+  if (wait) {
+    command.option('--wait', 'Check the job every 10 s (backing off to 60 s) until it is ready, failed or expired (Ctrl-C stops waiting, the job keeps running)');
+  }
+  if (operation.download !== undefined || wait) {
+    const when = wait ? 'With --wait: save the finished job\'s file' : 'Save the file this response points to';
+    command.option('--save <file>', `${when} (size and SHA-256 verified)`);
+    if (operation.downloadNamed || wait?.download.downloadNamed) {
+      command.option('--out <dir>', `${when} into this directory under the answer's file name`);
+    }
+    command.option('--force', `With --save${operation.downloadNamed || wait ? ' / --out' : ''}: replace an existing file`);
+  }
+  if (operation.signedDownload) {
+    command.option('--print-url', 'Print the short-lived download URL and download nothing (never store or share it)');
   }
   addOutputOptions(command, { list: operation.list, fieldsParam: operation.params.some(param => param.name === 'fields') });
 }
@@ -215,7 +243,7 @@ function addCommandOptions(command: Command, operation: ManifestOperation): void
 function defineOperationCommand(command: Command, operation: ManifestOperation, context: Context): void {
   addPositionals(command, operation);
   addParamOptions(command, operation, operation.params);
-  addCommandOptions(command, operation);
+  addCommandOptions(command, operation, context);
   command.addHelpText('before', helpExamples(exampleLines(operation)));
   command.addHelpText('after', helpFooter([operation]));
   command.action(withErrorHandling(async (...args: unknown[]) => {
@@ -239,7 +267,7 @@ function defineSelectorCommand(command: Command, operations: ManifestOperation[]
     command.addOption(new Option(`--${key} <${key}>`, `Which ${key}`).choices(choices(key)).default(defaultChoice(key, choices(key))));
   }
   addParamOptions(command, primary, [...params.values()]);
-  addCommandOptions(command, primary);
+  addCommandOptions(command, primary, context);
   const [first] = exampleLines(primary, { implied: impliedFor(primary) });
   const detailed = operations.find(operation => operation.select?.view === 'detailed' && operation.select?.basis === primary.select?.basis);
   const [, second] = exampleLines(detailed ?? primary, { implied: impliedFor(primary), extra: detailed ? ['--view detailed'] : [] });
@@ -451,7 +479,30 @@ export const REASON_LABELS: Readonly<Record<string, string>> = {
   no_etf_holders: 'no ETF issuer file holds it',
   fund_cusip_unknown: 'the fund\'s own CUSIP is not known yet, so its holders cannot be told apart from its trust\'s other funds',
   etn_cusip_unknown: 'the note\'s own CUSIP is not known yet',
+  // A company export's `coverage.reason` (`invd bulk export-status`, Data API 12.2).
+  before_postgres_window: 'the earlier part of the range is only in the raw SEC bulk files (invd bulk files --kind raw)',
+  capped_window: 'a period date range read releases filed up to one year after its end',
 };
+
+/** A company export's `coverage.scope` (N-PORT exports read the served scope, the N-PORT bulk files hold every fund). */
+export const SCOPE_LABELS: Readonly<Record<string, string>> = {
+  listed_funds_full_unlisted_funds_holders_only:
+    'N-PORT: listed funds with every holding, unlisted funds as holders only (the nport bulk files hold every fund)',
+};
+
+/**
+ * The stderr line of a single answer whose `coverage` object states why it was cut (`reason`) or what it spans
+ * (`scope`): a company export (`invd bulk export-status`, `export --wait`). `undefined` for a complete one.
+ */
+export function jobCoverageNote(body: unknown): string | undefined {
+  const coverage = isRecord(body) ? body.coverage : undefined;
+  if (!isRecord(coverage)) return undefined;
+  const parts = [
+    ...(typeof coverage.reason === 'string' ? [REASON_LABELS[coverage.reason] ?? coverage.reason] : []),
+    ...(typeof coverage.scope === 'string' ? [SCOPE_LABELS[coverage.scope] ?? coverage.scope] : []),
+  ];
+  return parts.length > 0 ? `coverage: ${parts.join(' · ')}` : undefined;
+}
 
 /**
  * The header line of an answer that states where its rows come from (`meta.source` + `meta.as_of`, e.g. an ETF's
@@ -480,15 +531,73 @@ async function resolveLookup(plan: Plan): Promise<Plan> {
   return { request: { ...plan.request, path: plan.request.path.replace('{event_id}', encodeURIComponent(eventId)) } };
 }
 
-async function saveDownload(operation: ManifestOperation, body: unknown, file: string, force: boolean): Promise<void> {
-  const target = operation.download === '' ? body : pick(body, operation.download ?? '');
-  const url = isRecord(target) ? target.url : undefined;
+const exists = async (path: string): Promise<boolean> => {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+/** Where `--save` / `--out` put the file. */
+interface SaveTarget {
+  file?: string;
+  dir?: string;
+  force: boolean;
+}
+
+/** The answer's download object (`operation.download`: `""` = the answer itself). */
+const downloadTarget = (operation: ManifestOperation, body: unknown): unknown =>
+  (operation.download === '' ? body : pick(body, operation.download ?? ''));
+
+/** What the rendered answer shows in place of a signed download URL. */
+export const hiddenUrl = (expiresAt: unknown): string =>
+  `<hidden: valid until ${typeof expiresAt === 'string' && expiresAt !== '' ? expiresAt : 'it expires'}; use --save, --out or --print-url>`;
+
+/**
+ * The answer as it is rendered: a signed download URL (`operation.signedDownload`, the bulk data downloads) replaced
+ * by `hiddenUrl`, in every output format, so a terminal log or a captured `--json` never holds the credential. A
+ * permanent public URL (transcript PDF, audio, news PDF, investor document) is printed as before.
+ */
+export function withHiddenUrl(operation: ManifestOperation, body: unknown): unknown {
+  if (!operation.signedDownload) return body;
+  const target = downloadTarget(operation, body);
+  if (!isRecord(target) || typeof target.url !== 'string') return body;
+  const hidden = { ...target, url: hiddenUrl(target.expires_at) };
+  if (operation.download === '' || operation.download === undefined || !isRecord(body)) return hidden;
+  return { ...body, [operation.download]: hidden };
+}
+
+/** `--save` / `--out` / `--print-url` of one command line, refused when they contradict each other (exit 2). */
+function saveTargetOf(opts: Opts, all: boolean): SaveTarget | undefined {
+  const file = typeof opts.save === 'string' ? opts.save : undefined;
+  const dir = typeof opts.out === 'string' ? opts.out : undefined;
+  if (file !== undefined && dir !== undefined) throw new UsageError('Pass --save <file> or --out <dir>, not both');
+  if (opts.printUrl === true && (file !== undefined || dir !== undefined)) {
+    throw new UsageError('--print-url downloads nothing; it cannot be combined with --save or --out');
+  }
+  if (all && (file !== undefined || dir !== undefined)) {
+    throw new UsageError(`${file !== undefined ? '--save' : '--out'} saves one response; it cannot be combined with --all`);
+  }
+  return file !== undefined || dir !== undefined ? { file, dir, force: opts.force === true } : undefined;
+}
+
+async function saveOnce(operation: ManifestOperation, body: unknown, target: SaveTarget): Promise<void> {
+  const found = downloadTarget(operation, body);
+  const url = isRecord(found) ? found.url : undefined;
   if (typeof url !== 'string' || url === '') {
     throw new Error(`Nothing to save: ${operation.download ? `${operation.download}.url` : 'url'} is empty in this response`);
   }
-  const record = target as Record<string, unknown>;
+  const record = found as Record<string, unknown>;
+  let file = target.file;
+  if (file === undefined) {
+    const name = typeof record.filename === 'string' ? safeFileName(record.filename, '') : '';
+    if (name === '') throw new Error('This response names no file name for --out; save it with --save <file>');
+    file = join(target.dir ?? '.', name);
+  }
   const saved = await saveVerified(signal => fetch(url, { signal }), file, {
-    force,
+    force: target.force,
     expected: {
       ...(typeof record.sha256 === 'string' ? { sha256: record.sha256 } : {}),
       ...(typeof record.bytes === 'number' ? { bytes: record.bytes } : {}),
@@ -496,6 +605,44 @@ async function saveDownload(operation: ManifestOperation, body: unknown, file: s
     },
   });
   console.error(chalk.green(`${saved.skipped ? 'Already saved' : 'Saved'} ${saved.path} (${saved.bytes} bytes, sha256 ${saved.sha256})`));
+}
+
+/**
+ * Saves the file a response points to and returns the response that was saved from. A signed URL the file host
+ * refuses with 403 (it expired) is asked for once more through `refetch` (the API counts that as another download);
+ * a second 403 fails with a sentence. Any other failure is thrown as it is.
+ */
+async function saveDownload(
+  operation: ManifestOperation,
+  body: unknown,
+  target: SaveTarget,
+  refetch: () => Promise<unknown>,
+): Promise<unknown> {
+  try {
+    await saveOnce(operation, body, target);
+    return body;
+  } catch (error) {
+    if (!(operation.signedDownload && error instanceof DownloadStatusError && error.status === 403)) throw error;
+  }
+  console.error(chalk.yellow('The download URL was refused (it expired); asking for a new one, which counts as another download'));
+  const fresh = await refetch();
+  try {
+    await saveOnce(operation, fresh, target);
+    return fresh;
+  } catch (error) {
+    if (error instanceof DownloadStatusError && error.status === 403) {
+      throw new Error('The file host refused the new download URL as well; nothing was saved. Run the command again later.');
+    }
+    throw error;
+  }
+}
+
+/** `--print-url`: the signed URL alone on stdout, nothing downloaded. */
+function printUrl(operation: ManifestOperation, body: unknown): void {
+  const found = downloadTarget(operation, body);
+  const url = isRecord(found) ? found.url : undefined;
+  if (typeof url !== 'string' || url === '') throw new Error('Nothing to print: this response holds no download URL');
+  emit(url);
 }
 
 /**
@@ -547,7 +694,15 @@ async function runOperation(operation: ManifestOperation, positionals: unknown[]
   const fieldsParam = operation.params.some(param => param.name === 'fields');
   const settings = resolveOutput(opts, { knownFields: operation.fields, fieldsParam, list: operation.list });
   const all = opts.all === true;
-  if (opts.save !== undefined && all) throw new UsageError('--save saves one response; it cannot be combined with --all');
+  const target = saveTargetOf(opts, all);
+  const wait = context.waits?.get(operation.operationId);
+  if (wait && target && opts.wait !== true) {
+    throw new UsageError(`${target.file !== undefined ? '--save' : '--out'} saves the finished job's file: add --wait`);
+  }
+  // Refused before the job is created, not after minutes of waiting.
+  if (wait && target?.file !== undefined && !target.force && await exists(target.file)) {
+    throw new UsageError(`${target.file} already exists (use --force to overwrite)`);
+  }
   let plan = await planRequest(operation, positionals, opts, context);
   if (opts.dryRun) {
     printPlan(operation, plan, opts, all);
@@ -578,11 +733,81 @@ async function runOperation(operation: ManifestOperation, positionals: unknown[]
     if (settings.format === 'table' || settings.format === 'plain') console.error(chalk.green('Done.'));
     return;
   }
-  if (typeof opts.save === 'string') await saveDownload(operation, first.body, opts.save, opts.force === true);
+  if (wait && opts.wait === true) {
+    await finishJob(operation, wait, first.body, target, settings);
+    return;
+  }
+  if (opts.printUrl === true) {
+    printUrl(operation, first.body);
+    return;
+  }
   const human = !settings.jq && (settings.format === 'table' || settings.format === 'plain');
-  emit(renderBody(first.body, shape, settings), { human });
+  let body: unknown = first.body;
+  if (target) body = await saveDownload(operation, body, target, async () => (await apiCall(plan.request)).body);
+  const coverage = operation.list ? undefined : jobCoverageNote(body);
+  if (coverage && human) console.error(chalk.yellow(coverage));
+  emit(renderBody(withHiddenUrl(operation, body), shape, settings), { human });
   const cursor = operation.list ? nextCursorOf(first.body) : undefined;
   if (cursor && human) {
     console.error(chalk.dim(`More rows: --all for every page, or --cursor ${cursor} (same flags) for the next one.`));
   }
+}
+
+/**
+ * `--wait` (`JOB_WAITS`): reads the job until it is ready, failed or expired, prints it in its read operation's view,
+ * then downloads a ready job's file with `--save` / `--out`. A failed or expired job exits 1 after it is printed.
+ */
+async function finishJob(
+  operation: ManifestOperation,
+  wait: JobWaitPlan,
+  created: unknown,
+  target: SaveTarget | undefined,
+  settings: OutputSettings,
+): Promise<void> {
+  const id = isRecord(created) ? created[wait.id] : undefined;
+  if (typeof id !== 'string' || id === '') throw new Error(`The response names no ${wait.id}; nothing to wait for`);
+  const read = (step: ManifestOperation) => async () => (await apiCall({
+    path: step.path.replace(`{${wait.id}}`, encodeURIComponent(id)),
+    method: 'GET',
+    auth: step.auth,
+    silent: true,
+  })).body;
+  const follow = `invd ${commandName(wait.status)} ${id}`;
+  const fetchFile = `invd ${commandName(wait.download)} ${id} ${wait.download.downloadNamed ? '--out <dir>' : '--save <file>'}`;
+  const resumeHint = (status: string) => `${id} is ${status} and keeps running; follow it with ${follow}, then ${fetchFile}`;
+  // On stderr in every format (the spinner is silent under --json and without a terminal): the handle on the job.
+  console.error(chalk.dim(`${commandName(operation)}: ${id} created; waiting (Ctrl-C stops waiting, the job keeps running)`));
+  let job: unknown;
+  try {
+    job = await waitForJob(created, { id, read: read(wait.status), resumeHint: status => `Stopped waiting; ${resumeHint(status)}` });
+  } catch (error) {
+    console.error(chalk.yellow(`Stopped waiting; ${resumeHint('not finished yet')}`));
+    throw error;
+  }
+  const status = isRecord(job) && typeof job.status === 'string' ? job.status : 'unknown';
+  const human = !settings.jq && (settings.format === 'table' || settings.format === 'plain');
+  const coverage = jobCoverageNote(job);
+  if (coverage && human) console.error(chalk.yellow(coverage));
+  const shape: ShapeInfo = { list: false, view: wait.status.view, ...(wait.status.columns ? { columns: wait.status.columns } : {}) };
+  emit(renderBody(job, shape, settings), { human });
+  if (status === 'ready' && target) {
+    const retry = `${id} is ready; download it with ${fetchFile}`;
+    const unregister = onInterrupt(() => console.error(retry));
+    try {
+      await saveDownload(wait.download, await read(wait.download)(), target, read(wait.download));
+    } catch (error) {
+      console.error(chalk.yellow(retry));
+      throw error;
+    } finally {
+      unregister();
+    }
+  }
+  if (status === 'failed') {
+    const code = isRecord(job) && typeof job.error_code === 'string' ? ` (${job.error_code})` : '';
+    throw new JobEndedError(`${id} failed${code}; nothing to download (create a new one with invd ${commandName(operation)})`, status);
+  }
+  if (status === 'expired') {
+    throw new JobEndedError(`${id} expired and its file was deleted (create a new one with invd ${commandName(operation)})`, status);
+  }
+  if (status !== 'ready') throw new JobEndedError(`${id} answered the unknown status ${status}; follow it with ${follow}`, status);
 }

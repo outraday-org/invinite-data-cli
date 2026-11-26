@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "12.1.0",
+    "version": "12.2.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -11,15 +11,15 @@
     },
     "verifiedOn": "2026-11-26",
     "sourceHashes": {
-      "api-contract.json": "8e8ce949203da0cd8ddde04769ad2b1032aa62a13ee364c1d9da8c9029a35797",
-      "openapi.json": "55a3697a8cb8096c8e784e80e3dca30bfb181f924f9b56269b3fab88fa7c72ad",
-      "package.json": "2c97e325004f4c9d5e39757b930a8c30653be90cd7fd8c67d3f05c9bc5aa1626",
+      "api-contract.json": "b413be5afe4a58e9e6c277eec6ca1cd0568208b73be39cedb34aeba66741cca7",
+      "openapi.json": "ed91cd905ac88c8f89ab1bd96a9b28f21a7801708ea4f0c7914b1ced3b527de8",
+      "package.json": "c777e44eda074ad7cb0f6b91e9b812fe120d0f81c643d0a1be719e8de4fff891",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "ed216f689f39e3dbf72c7d6a1c74ee6cb9c22fbaf9982a9b4ddee2873f2d5536",
       "src/cli.ts": "c2bf7d89535b84de12afe399455d6f85e9f722529598e545acdae54ca63b0dda",
       "src/client/api-client.ts": "17d0817be6964b04fd03ccbc5ff91492551d13260664190510d5211a4c6e883e",
-      "src/client/download.ts": "7e7ff500f176d859a0d94788b02b364218580eee9834a8394262d22cb2b0dda4",
+      "src/client/download.ts": "cb688bc2483961882ed2776c9f21b517705ad4f580abe94ac6225b6a37cc38e5",
       "src/client/pagination.ts": "2b759864d496f021ed8b01147a6fce1576315f0b0e789fb3022b2b8857534efe",
       "src/commands/agent-setup.ts": "6e717a116341eeecc1060d0c0cd4a359cac983e1a853eff70ce8fcb3b413e073",
       "src/commands/alert-events.ts": "4cf28e95f53f18bd5e75dec9968529f68ee6ec1838da57f225aa995be951a29c",
@@ -34,25 +34,26 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "de926955585e770e3ac95d4e66ca8655e09895997d80ab543edaea074ab427dc",
+      "src/generated/cli-manifest.json": "51e3effbf87963c912892cc72066212f263692ba78696fbc5452c06cb2bcfd23",
       "src/hand-written-commands.ts": "a095d5f00a17a9cd643a8a0e6e5dcadbb7050dfd8b14d846ce81f3536a9920b9",
+      "src/job-wait.ts": "3341ed6f5356bcf2aa5c3b22513ce88f01a638a779a03a278eb39af40d86f737",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
       "src/output/render.ts": "320d0a99ebf23c3d81cef46b4e6ed1360579ac980285b0c626b50b844fbd950b",
-      "src/shared/errors.ts": "e70752d8176ed7354eb6d2b781adbc6921326e5dbac7e5d8c3f6fb2382a518e3",
+      "src/shared/errors.ts": "e50070980c9d666c61a29390132ec0605db0d1ecdf00f1a862bdc517e92edadd",
       "src/shared/json-mode.ts": "24d4b4a71475ba6301d0c8fe79d70d9304b058d9bb145203bdc545a51e84a85a",
       "src/shared/options.ts": "6783cfa83b301857903bbde46edc238cd7adf80f05f0f33a7a883136de8a27b8",
       "src/shared/prompt.ts": "7736cb146f84382ff17badbabcdf69add6673c4a3695c38759486601f3c87d99",
       "src/shared/signals.ts": "5c5122b38e35700a9304bf77f06b900a80e3bc42da6241f93313181117b2fa6b",
       "src/shared/spinner.ts": "62e25b34f62faaaa298fbe4664cb0b1eb52fd62b4c82f498718bd14e608d0d87",
-      "src/spec-commands.ts": "2e04f9e99b8448d6496048a967829a9eb68b9012c5fe288c1ccceb494a6aa084",
-      "src/spec-flags.ts": "2a19ffd30dbbcd8e85164c7ddde6d7e63650eed5c77dc369161876f42729bfbb",
-      "src/spec-manifest.ts": "e638fd01260664e2c95e05e18e6087e6fd04694f694ec6db8921224217e580b8",
+      "src/spec-commands.ts": "ee4e24cdfadabf6682acf90f3824e500c352650fb57042e4d3e910d3b79365eb",
+      "src/spec-flags.ts": "314fc089a8fae973ce68b9fc475fb3eca409267fd28265a98a1ff0c3a1ec2b79",
+      "src/spec-manifest.ts": "a6ecff23211b8bd82e28611df4e7bebe3569a23f543cadda2a6cc8c55b4a0a5a",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "55a3697a8cb8096c8e784e80e3dca30bfb181f924f9b56269b3fab88fa7c72ad",
-    "revision": "68c625ae71cd1b7e96c9a04d900247162326e06d",
-    "fingerprint": "e48f3ec541651df6726248f7b8f0a7a77315ec849735e3d6514a839ed3ee6e6f"
+    "specSha256": "ed91cd905ac88c8f89ab1bd96a9b28f21a7801708ea4f0c7914b1ced3b527de8",
+    "revision": "99b9e87df59fb2d4da323d628571bdcd1d2594d9",
+    "fingerprint": "4ce2d799ccb5168e3e9a59fcc6009c160452b21171d106a9689bbd0c4c6b5ab5"
   },
   "globalOptions": [
     {
@@ -89,6 +90,10 @@
     {
       "id": "auth",
       "description": "Sign in, inspect and remove the API key invd uses"
+    },
+    {
+      "id": "bulk",
+      "description": "SEC data sets as files (Enterprise): raw SEC release files, parsed period files and company export jobs; downloads go to disk with --out / --save"
     },
     {
       "id": "catalog",
@@ -2850,6 +2855,627 @@
       "operations": [],
       "arguments": [],
       "options": []
+    },
+    {
+      "command": "bulk download",
+      "group": "bulk",
+      "origin": "spec",
+      "description": "Get a bulk file download URL",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/bulk/files/{file_id}/download"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "file_id",
+          "description": "The bulk file's `file_id`",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "--save <file>",
+          "description": "Save the file this response points to (size and SHA-256 verified)",
+          "required": false
+        },
+        {
+          "flags": "--out <dir>",
+          "description": "Save the file this response points to into this directory under the answer's file name",
+          "required": false
+        },
+        {
+          "flags": "--force",
+          "description": "With --save / --out: replace an existing file",
+          "required": false
+        },
+        {
+          "flags": "--print-url",
+          "description": "Print the short-lived download URL and download nothing (never store or share it)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "bulk export",
+      "group": "bulk",
+      "origin": "spec",
+      "description": "Create a company export",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "POST",
+          "path": "/v1/bulk/exports"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "--idempotency-key <value>",
+          "description": "Replays the first answer for 24 h (a replay answers 200); 409 while in flight (R13) (e.g. 6f1c0f3e-7b7a-4a8e-9d63-3c1b2f0e9a11)",
+          "required": false
+        },
+        {
+          "flags": "-d, --dataset <value>",
+          "description": "Parsed data set: `f13` 13F holdings, `f345` Forms 3/4/5, `formd` Form D, `nport` Form N-PORT (body dataset)",
+          "required": false
+        },
+        {
+          "flags": "--format <value>",
+          "description": "File format (body format)",
+          "required": false
+        },
+        {
+          "flags": "-c, --company <list>",
+          "description": "Issuers (0–50): tickers or CIKs. f13 / nport: holdings of these issuers; f345: their insiders' filings; formd: their offerings (body company)",
+          "required": false
+        },
+        {
+          "flags": "-f, --filer <list>",
+          "description": "Filers (0–50), CIKs only. f13: the 13F manager; f345: any reporting owner; nport: the fund registrant; not available for formd (body filer)",
+          "required": false
+        },
+        {
+          "flags": "--date-field <value>",
+          "description": "The date `from` / `to` apply to (default `filed_date`): f13 `filed_date` / `period_of_report`, f345 `filed_date` / `transaction_date`, formd `filed_date` / `first_sale_date`, nport `filed_date` / `report_date` (body date_field)",
+          "required": false
+        },
+        {
+          "flags": "--from <value>",
+          "description": "First day of the range, inclusive (YYYY-MM-DD) (body from)",
+          "required": false
+        },
+        {
+          "flags": "--to <value>",
+          "description": "Last day of the range, inclusive (YYYY-MM-DD) (body to)",
+          "required": false
+        },
+        {
+          "flags": "--body <json>",
+          "description": "The whole JSON request body (flags above override its fields)",
+          "required": false
+        },
+        {
+          "flags": "--body-file <path>",
+          "description": "Read the JSON request body from a file (- = stdin)",
+          "required": false
+        },
+        {
+          "flags": "--wait",
+          "description": "Check the job every 10 s (backing off to 60 s) until it is ready, failed or expired (Ctrl-C stops waiting, the job keeps running)",
+          "required": false
+        },
+        {
+          "flags": "--save <file>",
+          "description": "With --wait: save the finished job's file (size and SHA-256 verified)",
+          "required": false
+        },
+        {
+          "flags": "--out <dir>",
+          "description": "With --wait: save the finished job's file into this directory under the answer's file name",
+          "required": false
+        },
+        {
+          "flags": "--force",
+          "description": "With --save / --out: replace an existing file",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "bulk export-download",
+      "group": "bulk",
+      "origin": "spec",
+      "description": "Get a company export download URL",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/bulk/exports/{export_id}/download"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "export_id",
+          "description": "The export's `export_id`",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "--save <file>",
+          "description": "Save the file this response points to (size and SHA-256 verified)",
+          "required": false
+        },
+        {
+          "flags": "--out <dir>",
+          "description": "Save the file this response points to into this directory under the answer's file name",
+          "required": false
+        },
+        {
+          "flags": "--force",
+          "description": "With --save / --out: replace an existing file",
+          "required": false
+        },
+        {
+          "flags": "--print-url",
+          "description": "Print the short-lived download URL and download nothing (never store or share it)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "bulk export-status",
+      "group": "bulk",
+      "origin": "spec",
+      "description": "Get a company export",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/bulk/exports/{export_id}"
+        }
+      ],
+      "arguments": [
+        {
+          "name": "export_id",
+          "description": "The export's `export_id`",
+          "required": true
+        }
+      ],
+      "options": [
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these fields of each row (pruned locally)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "bulk exports",
+      "group": "bulk",
+      "origin": "spec",
+      "description": "List company exports",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/bulk/exports"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "bulk files",
+      "group": "bulk",
+      "origin": "spec",
+      "description": "List SEC bulk files",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/bulk/files"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "-d, --dataset <value>",
+          "description": "Only files of this SEC data set (e.g. f13)",
+          "required": false,
+          "choices": [
+            "f13",
+            "f345",
+            "formd",
+            "fsn",
+            "icsc",
+            "ncen",
+            "nport",
+            "rr"
+          ]
+        },
+        {
+          "flags": "-k, --kind <value>",
+          "description": "Only raw SEC release files or parsed period files (e.g. parsed)",
+          "required": false,
+          "choices": [
+            "raw",
+            "parsed"
+          ]
+        },
+        {
+          "flags": "-f, --format <value>",
+          "description": "Only files of this format (e.g. csv_gz)",
+          "required": false,
+          "choices": [
+            "zip",
+            "csv",
+            "csv_gz",
+            "parquet"
+          ]
+        },
+        {
+          "flags": "--released-at-gte <value>",
+          "description": "`released_at` on or after this day (e.g. 2026-01-01)",
+          "required": false
+        },
+        {
+          "flags": "--released-at-lte <value>",
+          "description": "`released_at` on or before this day (e.g. 2026-11-26)",
+          "required": false
+        },
+        {
+          "flags": "--include-superseded",
+          "description": "true = also list the files a newer file of the same release replaced (default: false; e.g. false) (sends true)",
+          "required": false
+        },
+        {
+          "flags": "--no-include-superseded",
+          "description": "Sends include_superseded=false",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
     },
     {
       "command": "catalog document-kinds",
@@ -8334,7 +8960,7 @@
         },
         {
           "flags": "--period-kind <value>",
-          "description": "Period kinds, comma list: `quarter`, `half`, `nine_months`, `year` (a flow over that period) or `instant` (a value at the period end) (e.g. quarter)",
+          "description": "Period kinds, comma list: `quarter`, `half`, `nine_months`, `year` (a flow over that period) or `instant` (a value at the period end). Any other value is a 400 (e.g. quarter)",
           "required": false
         },
         {
@@ -8712,12 +9338,12 @@
         },
         {
           "flags": "-m, --metric <value>",
-          "description": "Metric keys, comma list: `eps_adjusted_diluted`, `ebitda_adjusted`, `free_cash_flow`, `ffo_per_share`, … A measure outside the named keys is `other:<label>` (e.g. eps_adjusted_diluted)",
+          "description": "Metric keys, comma list: `eps_adjusted_diluted`, `ebitda_adjusted`, `free_cash_flow`, `ffo_per_share`, … A measure outside the named keys is `other:<slug of the printed label>` (e.g. eps_adjusted_diluted)",
           "required": false
         },
         {
           "flags": "--period-kind <value>",
-          "description": "Period kinds, comma list: `quarter`, `half`, `nine_months`, `year` (a flow over that period) or `instant` (a value at the period end) (e.g. quarter)",
+          "description": "Period kinds, comma list: `quarter`, `half`, `nine_months`, `year` (a flow over that period) or `instant` (a value at the period end). Any other value is a 400 (e.g. quarter)",
           "required": false
         },
         {

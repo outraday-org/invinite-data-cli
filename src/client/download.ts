@@ -10,6 +10,14 @@ import { IntegrityError, PartialDownloadError } from '../shared/errors.js';
 import { onInterrupt } from '../shared/signals.js';
 import { createSpinner } from '../shared/spinner.js';
 
+/** The file host answered a non-2xx status (a signed URL past its life answers 403); nothing was saved. */
+export class DownloadStatusError extends Error {
+  constructor(public status: number) {
+    super(`Download failed with status ${status}`);
+    this.name = 'DownloadStatusError';
+  }
+}
+
 export interface SaveOptions {
   /** Replace an existing file. */
   force?: boolean;
@@ -141,7 +149,7 @@ export async function saveVerified(
   try {
     await writeViaPart(path, async (part, signal) => {
       const response = await open(signal);
-      if (!response.ok || !response.body) throw new Error(`Download failed with status ${response.status}`);
+      if (!response.ok || !response.body) throw new DownloadStatusError(response.status);
       const type = mediaType(response.headers?.get('Content-Type'));
       if (expected.contentTypes && !expected.contentTypes.includes(type)) {
         throw new IntegrityError(`Expected ${expected.contentTypes.join(' or ')}, the server sent ${type || 'no media type'}; nothing was saved`);

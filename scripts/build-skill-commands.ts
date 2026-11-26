@@ -20,6 +20,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { HAND_WRITTEN_COMMANDS } from '../src/hand-written-commands.js';
 import { exampleLines, shellWord } from '../src/examples.js';
+import { JOB_WAITS } from '../src/job-wait.js';
 import { commandName, parseManifest, type Manifest, type ManifestOperation } from '../src/spec-manifest.js';
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -52,7 +53,9 @@ export function commentLine(operation: ManifestOperation, siblings: readonly Man
     .filter(param => !param.required && param.name !== operation.positional?.name)
     .map(param => `--${param.flag}`);
   if (operation.body) optional.push(...operation.body.fields.map(field => `--${field.flag}`), '--body', '--body-file');
-  if (operation.download !== undefined) optional.push('--save');
+  if (operation.download !== undefined) optional.push('--save', ...(operation.downloadNamed ? ['--out'] : []));
+  if (operation.signedDownload) optional.push('--print-url');
+  if (operation.operationId in JOB_WAITS) optional.push('--wait', '--save', '--out');
   if (operation.list) optional.push('--all');
   const selectors = siblings.length > 1
     ? ` [${[...new Set(siblings.flatMap(sibling => Object.entries(sibling.select ?? {}).map(([key]) => key)))].map(key => `--${key} ${[...new Set(siblings.map(sibling => sibling.select?.[key]))].join('|')}`).join(', ')}]`

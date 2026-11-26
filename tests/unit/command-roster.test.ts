@@ -54,7 +54,7 @@ describe('the hand-written roster', () => {
   it('the tree is the v2 groups plus the hand-written roster, no command twice', () => {
     const top = createProgram().commands.map(command => command.name()).sort();
     expect(top).toEqual([
-      'agent-setup', 'alert-events', 'alert-templates', 'alert-users', 'alerts', 'api', 'auth', 'catalog', 'companies',
+      'agent-setup', 'alert-events', 'alert-templates', 'alert-users', 'alerts', 'api', 'auth', 'bulk', 'catalog', 'companies',
       'completion', 'config', 'destinations', 'dividends', 'documents', 'events', 'filers', 'filings', 'financials',
       'funds', 'guidance', 'holders', 'insider-trades', 'instruments', 'investor-documents', 'ipos', 'macro', 'market', 'me',
       'metrics', 'news', 'offerings', 'ownership', 'people', 'plugin', 'script-versions', 'scripts', 'search', 'segments', 'splits',

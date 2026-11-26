@@ -50,6 +50,7 @@ export const GROUP_DESCRIPTIONS: Readonly<Record<string, string>> = {
   'alert-templates': 'The indicator templates an `indicator` alert names (RSI, MACD, EMA cross …), with their inputs',
   'alert-users': 'Create and update your alert end users, inspect their limits and usage, or pause and resume their alerts',
   alerts: 'Alert rules: create, change, pause, batch and test them, and read one alert\'s events',
+  bulk: 'SEC data sets as files (Enterprise): raw SEC release files, parsed period files and company export jobs; downloads go to disk with --out / --save',
   companies: 'Operating companies: list, profile and fiscal periods (a fund is `invd funds`)',
   destinations: 'Webhook endpoints alert events are delivered to: secrets, test deliveries and the delivery log',
   documents: 'Read an immutable SEC filing document, its sections and figures, or locate facts in the document',
@@ -200,6 +201,12 @@ function successSchema(spec: Spec, operation: z.infer<typeof operationSchema>): 
 const isDownloadObject = (spec: Spec, schema: JsonSchema): boolean => {
   const properties = propertiesOf(spec, schema);
   return 'url' in properties && ('bytes' in properties || 'sha256' in properties);
+};
+
+/** The download object's properties (`path` `""` = the answer itself). */
+const downloadProperties = (spec: Spec, schema: JsonSchema, path: string): Record<string, JsonSchema> => {
+  const target = path === '' ? schema : propertiesOf(spec, schema)[path];
+  return target === undefined ? {} : propertiesOf(spec, target);
 };
 
 function downloadPath(spec: Spec, schema: JsonSchema): string | undefined {
@@ -391,6 +398,12 @@ export function buildManifest(rawSpec: unknown, specText: string): Manifest {
       if (cli.columns) out.columns = cli.columns;
       const download = success && method === 'get' && !list ? downloadPath(spec, success) : undefined;
       if (download !== undefined) out.download = download;
+      if (download !== undefined && success) {
+        const properties = downloadProperties(spec, success, download);
+        // A URL that expires is a short-lived signed one, never a permanent public URL.
+        if ('expires_at' in properties) out.signedDownload = true;
+        if ('filename' in properties) out.downloadNamed = true;
+      }
 
       // One spelling per command; the operations of a multi-operation command differ by their `select`.
       const key = `${commandName(out)} ${JSON.stringify(out.select ?? null)}`;

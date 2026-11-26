@@ -89,6 +89,13 @@ const manifestOperationSchema = z.object({
    * root, else a dotted path (`pdf`, `deck`). Present = the command takes `--save <file>`.
    */
   download: z.string().optional(),
+  /**
+   * The download object states `expires_at`: its URL is a short-lived signed credential (the bulk data downloads). Such
+   * a URL is hidden in the rendered answer (`--print-url` prints it), and a 403 from the file host fetches a new one once.
+   */
+  signedDownload: z.literal(true).optional(),
+  /** The download object states its `filename`: the command also takes `--out <dir>` (saved under that name). */
+  downloadNamed: z.literal(true).optional(),
 }).strict();
 
 export const manifestSchema = z.object({

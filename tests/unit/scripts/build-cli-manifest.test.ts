@@ -139,6 +139,7 @@ describe('buildManifest', () => {
   it('a member: path positional (never variadic), key/value only with columns, the download object', () => {
     const get = op(build(), 'getThing');
     expect(get).toMatchObject({ list: false, view: 'json', download: 'pdf', fields: ['id', 'pdf'] });
+    expect(get?.signedDownload).toBeUndefined();
     expect(get?.positional).toEqual({ name: 'id', required: true });
   });
 
@@ -165,6 +166,15 @@ describe('buildManifest', () => {
       ['filters.ciks', 'filters-ciks'],
       ['scope.ciks', 'scope-ciks'],
     ]);
+  });
+
+  it('a download object stating expires_at is a signed download (its URL is a short-lived credential)', () => {
+    const signed = fixture();
+    signed.components.schemas.ThingDoc.properties.pdf.properties = {
+      ...signed.components.schemas.ThingDoc.properties.pdf.properties,
+      expires_at: { type: 'string' },
+    } as typeof signed.components.schemas.ThingDoc.properties.pdf.properties;
+    expect(op(build(signed), 'getThing')).toMatchObject({ download: 'pdf', signedDownload: true });
   });
 
   it('x-cli.command: one command (action "") over several operations told apart by select', () => {

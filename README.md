@@ -34,6 +34,30 @@ API's MCP server serves — the data guide `invinite-financial-data` and nine wo
 `commands/*.md` (`/financial-research`, `/analyze-earnings-call`, …) are gone: the workflows are skills now, and
 `invd plugin install` removes the files earlier versions wrote. See [The plugin](#the-plugin).
 
+## Changes in 12.2.0 (Data API 12.2)
+
+CLI 12.2.0 and plugin 0.26.0 adopt Data API 12.2 (additive, no command removed or renamed): the new group `bulk`
+(Enterprise, 0 credits, daily download and export limits per account) saves the SEC data sets as files.
+
+- `invd bulk files`: the downloadable files — the SEC's own release files as archived (`--kind raw`) and parsed
+  period files of 13F, Forms 3/4/5, Form D and N-PORT (`--kind parsed`, `--format csv_gz|parquet`); `--dataset`,
+  `--released-at-gte` / `--released-at-lte`, `--include-superseded`.
+- `invd bulk download <file_id> --out <dir>` (or `--save <file>`): saves the file under its own name, size and SHA-256
+  verified (`--force` replaces an existing file). The download URL is valid for 15 minutes: the printed answer shows
+  `<hidden: valid until …>` in its place, `--print-url` prints it and downloads nothing, and a URL that expired before
+  the download started is asked for once more (that counts as a second download).
+- `invd bulk export --dataset f13 --company AAPL,MSFT --date-field period_of_report --from 2025-01-01 --to 2026-09-30
+  --wait --out .`: a company export (one parsed data set filtered by companies and / or `--filer` CIKs over a date
+  range). `--wait` checks the job every 10 s (backing off to 60 s) until it is ready, failed or expired, then downloads
+  it with `--out` / `--save`; Ctrl-C stops waiting (the job keeps running) and prints how to resume. A job that ends
+  `failed` exits 1, one that ends `expired` exits 3 (check invd's own `$?`, not a pipe's).
+- `invd bulk exports`, `invd bulk export-status <export_id>`, `invd bulk export-download <export_id> --out <dir>`. An
+  export's stderr note says why its range was cut (`before_postgres_window`: the earlier data is only in the raw files;
+  `capped_window`) and, for N-PORT, that an export covers listed funds whole and unlisted funds as holders only (the
+  N-PORT bulk files hold every fund).
+- `--out <dir>` is offered by every download whose answer states a `filename` (today the two bulk downloads); the
+  transcript, audio, news and investor-document downloads keep `--save <file>`.
+
 ## Changes in 12.1.0 (Data API 12.1)
 
 CLI 12.1.0 and plugin 0.25.0 adopt Data API 12.1 (additive, no command removed or renamed):
@@ -170,6 +194,7 @@ Commands are noun-verb over the API's groups:
 | `metrics` | ratios, growth, CAGR, the explanation of one standardized fact, and every filed value of one fact (`metrics vintages`) |
 | `segments` | segment values (revenue by product, geography …) |
 | `filings` | SEC filings, their numeric and text facts, review chains, dataset releases |
+| `bulk` | the SEC data sets as files (Enterprise): raw SEC release files, parsed period files (`csv_gz`, `parquet`) and company export jobs, saved with `--out` / `--save` |
 | `documents` | immutable SEC filing document versions: blocks, pages, sections, figures, fact places |
 | `events` | earnings calls and other corporate events: transcripts, Q&A, slides, audio, call analytics |
 | `guidance` | guidance items (numeric and statements), KPI mentions, KPI series (`guidance kpi-series`) and reported non-GAAP figures with their reconciliation (`guidance non-gaap`) |
@@ -231,7 +256,7 @@ view), `metrics`, `guidance list`, `holders list`, `dividends`, `splits`, `news`
 `search news`. Pro adds the earnings-call content (transcripts, Q&A, stats, audio, slides, comparison, prosody, price
 attribution, transcript diff and versions), `investor-documents`, `search transcripts`, `search investor-documents`,
 the detailed and presentation `financials` views, `segments list-detailed`, `guidance kpis`, `guidance kpi-series`, `guidance non-gaap`, holder changes and fact
-places, `metrics vintages` (and the WebSocket stream); `filings datasets` needs Enterprise. Pay as you go (credits without a plan;
+places, `metrics vintages` (and the WebSocket stream); `filings datasets` and `bulk` need Enterprise. Pay as you go (credits without a plan;
 `invd me show` says `payg`) reaches what Pro reaches except live data; the API's refusal says so. `--help` names each
 command's plan; a refused plan exits 6 and the error names the plan.
 
@@ -329,6 +354,21 @@ invd documents get <version_id> --pages 1-3
 invd documents figure <version_id> --block-id b57
 invd search filings "supply chain risk" --symbol AAPL --form 10-K --item 1A
 ```
+
+### SEC bulk data (Enterprise)
+
+```bash
+invd bulk files --dataset f13 --kind parsed --format parquet
+invd bulk download bf_01JDXQ8M6V3S2T4N5P7R9K0W1Y --out .
+invd bulk download bf_01JDXQ8M6V3S2T4N5P7R9K0W1Y --print-url
+invd bulk export --dataset f13 --company AAPL,MSFT --date-field period_of_report --from 2025-01-01 --to 2026-09-30 --format parquet --wait --out .
+invd bulk exports
+invd bulk export-status bx_01JDXR2A4B6C8D0E2F4G6H8J0K
+invd bulk export-download bx_01JDXR2A4B6C8D0E2F4G6H8J0K --out downloads
+```
+
+A download URL is valid for 15 minutes and is printed as `<hidden: valid until …>`; `--print-url` shows it (never
+store or share it). Downloads and new exports count against daily limits per account (429 when reached).
 
 A filing's `documents` carry the `version_id` of each immutable document version; cite a passage by `version_id` and
 `block_id` (and the printed page label when present). `search filings` costs 100 credits a page.
@@ -526,14 +566,18 @@ fails instead of asking.
 
 ### Files
 
-Commands whose response points to a file take `--save <file>` (`--force` replaces an existing file). The download's
-size and SHA-256 are verified before it lands; a mismatch exits 5.
+Commands whose response points to a file take `--save <file>`; one whose answer states the file's name (the bulk data
+downloads) also takes `--out <dir>` to save it under that name (`--force` replaces an existing file). The download's size and SHA-256 are verified before it lands; a
+mismatch exits 5. A bulk data download (`invd bulk download`, `export-download`) answers a signed URL valid for 15
+minutes: it is hidden in the printed answer (`--print-url` prints it instead of downloading), and an expired one is
+asked for once more.
 
 ```bash
 invd events transcript AAPL 2026Q3 --save aapl-q3.pdf
 invd events audio AAPL 2026Q3 --save aapl-q3.m4a
 invd news get <id> --save item.pdf
 invd investor-documents get <document_id> --save report.pdf
+invd bulk download <file_id> --out downloads
 ```
 
 ## `invd api`: any API path
