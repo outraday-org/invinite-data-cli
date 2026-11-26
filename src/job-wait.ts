@@ -39,7 +39,8 @@ export const MAX_FAILED_READS = 3;
 
 const transient = (error: unknown): boolean =>
   (error instanceof ApiError && (error.statusCode === 429 || error.statusCode >= 500))
-  || (error instanceof TypeError && !(error instanceof ApiError));
+  // `fetch` rejects a network failure with a TypeError.
+  || error instanceof TypeError;
 
 const statusOf = (job: unknown): string | undefined => {
   if (typeof job !== 'object' || job === null) return undefined;

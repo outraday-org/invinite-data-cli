@@ -19,7 +19,7 @@
       "scripts/snapshot-data-cli-reference.ts": "ed216f689f39e3dbf72c7d6a1c74ee6cb9c22fbaf9982a9b4ddee2873f2d5536",
       "src/cli.ts": "c2bf7d89535b84de12afe399455d6f85e9f722529598e545acdae54ca63b0dda",
       "src/client/api-client.ts": "17d0817be6964b04fd03ccbc5ff91492551d13260664190510d5211a4c6e883e",
-      "src/client/download.ts": "cb688bc2483961882ed2776c9f21b517705ad4f580abe94ac6225b6a37cc38e5",
+      "src/client/download.ts": "1e58359b0dd6b171b04f5722404c69622e5903ca24fde9a0c0b96535f5a6e2ab",
       "src/client/pagination.ts": "2b759864d496f021ed8b01147a6fce1576315f0b0e789fb3022b2b8857534efe",
       "src/commands/agent-setup.ts": "6e717a116341eeecc1060d0c0cd4a359cac983e1a853eff70ce8fcb3b413e073",
       "src/commands/alert-events.ts": "4cf28e95f53f18bd5e75dec9968529f68ee6ec1838da57f225aa995be951a29c",
@@ -36,7 +36,7 @@
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
       "src/generated/cli-manifest.json": "51e3effbf87963c912892cc72066212f263692ba78696fbc5452c06cb2bcfd23",
       "src/hand-written-commands.ts": "a095d5f00a17a9cd643a8a0e6e5dcadbb7050dfd8b14d846ce81f3536a9920b9",
-      "src/job-wait.ts": "3341ed6f5356bcf2aa5c3b22513ce88f01a638a779a03a278eb39af40d86f737",
+      "src/job-wait.ts": "296be47b6b13ebf2d2639fc6ae36ca4dc8409709905bb7cb85a04619c7d81821",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
       "src/output/render.ts": "320d0a99ebf23c3d81cef46b4e6ed1360579ac980285b0c626b50b844fbd950b",
@@ -46,14 +46,14 @@
       "src/shared/prompt.ts": "7736cb146f84382ff17badbabcdf69add6673c4a3695c38759486601f3c87d99",
       "src/shared/signals.ts": "5c5122b38e35700a9304bf77f06b900a80e3bc42da6241f93313181117b2fa6b",
       "src/shared/spinner.ts": "62e25b34f62faaaa298fbe4664cb0b1eb52fd62b4c82f498718bd14e608d0d87",
-      "src/spec-commands.ts": "ee4e24cdfadabf6682acf90f3824e500c352650fb57042e4d3e910d3b79365eb",
+      "src/spec-commands.ts": "08efce3b533b994af112d00ccb60e48d89fb3171330b8cadb5edd0404754aeb8",
       "src/spec-flags.ts": "314fc089a8fae973ce68b9fc475fb3eca409267fd28265a98a1ff0c3a1ec2b79",
       "src/spec-manifest.ts": "a6ecff23211b8bd82e28611df4e7bebe3569a23f543cadda2a6cc8c55b4a0a5a",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
     "specSha256": "ed91cd905ac88c8f89ab1bd96a9b28f21a7801708ea4f0c7914b1ced3b527de8",
-    "revision": "99b9e87df59fb2d4da323d628571bdcd1d2594d9",
-    "fingerprint": "4ce2d799ccb5168e3e9a59fcc6009c160452b21171d106a9689bbd0c4c6b5ab5"
+    "revision": "8c47be387fe2064edc819600608797e2b60c1d04",
+    "fingerprint": "098e774a54e36a20b9cdcc8592bf58a26d781ad7bbe7b4ba6af0dfc21f6b7df3"
   },
   "globalOptions": [
     {

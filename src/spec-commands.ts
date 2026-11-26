@@ -1,9 +1,9 @@
-import { access, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import chalk from 'chalk';
 import { Command, Option } from 'commander';
 import { apiCall, buildUrl, type HttpMethod, type QueryValue, type RequestOptions } from './client/api-client.js';
-import { DownloadStatusError, safeFileName, saveVerified } from './client/download.js';
+import { DownloadStatusError, exists, safeFileName, saveVerified } from './client/download.js';
 import { nextCursorOf, rowsOf, walkPages } from './client/pagination.js';
 import { getSetting } from './config/config-manager.js';
 import { exampleLines } from './examples.js';
@@ -530,15 +530,6 @@ async function resolveLookup(plan: Plan): Promise<Plan> {
   console.error(chalk.dim(`resolved ${plan.lookup.company} ${plan.lookup.period} → event ${eventId} (GET /v1/events, ${plan.lookup.credits} credit)`));
   return { request: { ...plan.request, path: plan.request.path.replace('{event_id}', encodeURIComponent(eventId)) } };
 }
-
-const exists = async (path: string): Promise<boolean> => {
-  try {
-    await access(path);
-    return true;
-  } catch {
-    return false;
-  }
-};
 
 /** Where `--save` / `--out` put the file. */
 interface SaveTarget {
