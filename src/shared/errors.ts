@@ -76,6 +76,20 @@ export class PartialDownloadError extends Error {
   }
 }
 
+/**
+ * A background job (`invd bulk export --wait`) that ended without a file: `failed` exits 1 (refused / failed), `expired`
+ * exits 3 (not found — the API answers an expired export's download with 404 `not_found`), an unknown status exits 1.
+ */
+export class JobEndedError extends Error {
+  readonly exitCode: number;
+
+  constructor(message: string, public status: string) {
+    super(message);
+    this.name = 'JobEndedError';
+    this.exitCode = status === 'expired' ? EXIT.notFound : EXIT.failure;
+  }
+}
+
 /** Saved bytes that do not match the size / SHA-256 / media type the API stated: nothing was saved. Exit 5. */
 export class IntegrityError extends Error {
   readonly exitCode = EXIT.integrity;

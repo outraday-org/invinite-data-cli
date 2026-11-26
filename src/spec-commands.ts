@@ -23,7 +23,7 @@ import {
   type OutputSettings,
   type ShapeInfo,
 } from './output/render.js';
-import { PartialResultError, UsageError, withErrorHandling } from './shared/errors.js';
+import { JobEndedError, PartialResultError, UsageError, withErrorHandling } from './shared/errors.js';
 import { splitList } from './shared/options.js';
 import { confirmOrRefuse, readStdin } from './shared/prompt.js';
 import { onInterrupt, resumeOnInterrupt } from './shared/signals.js';
@@ -804,8 +804,10 @@ async function finishJob(
   }
   if (status === 'failed') {
     const code = isRecord(job) && typeof job.error_code === 'string' ? ` (${job.error_code})` : '';
-    throw new Error(`${id} failed${code}; nothing to download (create a new one with invd ${commandName(operation)})`);
+    throw new JobEndedError(`${id} failed${code}; nothing to download (create a new one with invd ${commandName(operation)})`, status);
   }
-  if (status === 'expired') throw new Error(`${id} expired and its file was deleted (create a new one with invd ${commandName(operation)})`);
-  if (status !== 'ready') throw new Error(`${id} answered the unknown status ${status}; follow it with ${follow}`);
+  if (status === 'expired') {
+    throw new JobEndedError(`${id} expired and its file was deleted (create a new one with invd ${commandName(operation)})`, status);
+  }
+  if (status !== 'ready') throw new JobEndedError(`${id} answered the unknown status ${status}; follow it with ${follow}`, status);
 }

@@ -59,7 +59,9 @@ without a usable one is refused) beside `--save`. `export --wait` is hand-writte
 behaviour on the generated command (`src/job-wait.ts` `JOB_WAITS`: the job's read and download operations; 10 s
 backing off to 60 s, any status but `queued` / `running` ends it, three 429 / 5xx / network failures in a row end it;
 the job id goes to stderr first, and Ctrl-C or a failure prints the resume commands); `--save` / `--out` on `export`
-need `--wait` (an existing `--save` target is refused before the job is created). `REASON_LABELS` + `SCOPE_LABELS` word an export's `coverage.reason` / `coverage.scope`
+need `--wait` (an existing `--save` target is refused before the job is created). A job that ends without a file
+throws `JobEndedError` (`failed` / unknown → exit 1, `expired` → 3 like the API's 404 for an expired download;
+`tests/unit/commands/bulk-exit-codes.test.ts` checks the real process). `REASON_LABELS` + `SCOPE_LABELS` word an export's `coverage.reason` / `coverage.scope`
 (`jobCoverageNote`, stderr). Bundle: until the release the task-6 candidate rebased onto 12.1 (spec sha256 `bde498d7…`, base
 revision `b05ff307`); the released 12.2 bundle replaces it before publishing.
 

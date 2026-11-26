@@ -220,11 +220,11 @@ describe('invd bulk export --wait', () => {
     expect(out.join('\n')).toContain('ready');
   });
 
-  it.each(['failed', 'expired'])('stops on %s: prints the job, downloads nothing, exit 1', async (status) => {
+  it.each([['failed', 1], ['expired', 3]])('stops on %s: prints the job, downloads nothing, exit %s', async (status, exit) => {
     vi.mocked(fetch)
       .mockResolvedValueOnce(json(job('queued'), 202))
       .mockResolvedValueOnce(json(job(status, status === 'failed' ? { error_code: 'build_failed' } : {})));
-    expect(await exitOf(...create, '--wait', '--out', dir)).toBe(1);
+    expect(await exitOf(...create, '--wait', '--out', dir)).toBe(exit);
     expect(calls()).toHaveLength(2);
     expect(out.join('\n')).toContain(status);
     expect(err.join('\n')).toContain(status === 'failed' ? 'failed (build_failed)' : 'expired');

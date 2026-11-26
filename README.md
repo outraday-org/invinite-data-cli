@@ -49,7 +49,8 @@ CLI 12.2.0 and plugin 0.26.0 adopt Data API 12.2 (additive, no command removed o
 - `invd bulk export --dataset f13 --company AAPL,MSFT --date-field period_of_report --from 2025-01-01 --to 2026-09-30
   --wait --out .`: a company export (one parsed data set filtered by companies and / or `--filer` CIKs over a date
   range). `--wait` checks the job every 10 s (backing off to 60 s) until it is ready, failed or expired, then downloads
-  it with `--out` / `--save`; Ctrl-C stops waiting (the job keeps running) and prints how to resume.
+  it with `--out` / `--save`; Ctrl-C stops waiting (the job keeps running) and prints how to resume. A job that ends
+  `failed` exits 1, one that ends `expired` exits 3 (check invd's own `$?`, not a pipe's).
 - `invd bulk exports`, `invd bulk export-status <export_id>`, `invd bulk export-download <export_id> --out <dir>`. An
   export's stderr note says why its range was cut (`before_postgres_window`: the earlier data is only in the raw files;
   `capped_window`) and, for N-PORT, that an export covers listed funds whole and unlisted funds as holders only (the
