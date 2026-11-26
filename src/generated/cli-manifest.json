@@ -1,6 +1,6 @@
 {
   "specVersion": "2026-11-26",
-  "specSha256": "bde498d7f3213823c5e144f01807166ff74dcc600759f97bf379be71c2b8f31b",
+  "specSha256": "ed91cd905ac88c8f89ab1bd96a9b28f21a7801708ea4f0c7914b1ced3b527de8",
   "groups": [
     {
       "name": "alert-events",
@@ -8800,7 +8800,7 @@
           "required": false,
           "type": "string",
           "example": "quarter",
-          "description": "Period kinds, comma list: `quarter`, `half`, `nine_months`, `year` (a flow over that period) or `instant` (a value at the period end)",
+          "description": "Period kinds, comma list: `quarter`, `half`, `nine_months`, `year` (a flow over that period) or `instant` (a value at the period end). Any other value is a 400",
           "flag": "period-kind"
         },
         {
@@ -9252,7 +9252,7 @@
           "required": false,
           "type": "string",
           "example": "eps_adjusted_diluted",
-          "description": "Metric keys, comma list: `eps_adjusted_diluted`, `ebitda_adjusted`, `free_cash_flow`, `ffo_per_share`, … A measure outside the named keys is `other:<label>`",
+          "description": "Metric keys, comma list: `eps_adjusted_diluted`, `ebitda_adjusted`, `free_cash_flow`, `ffo_per_share`, … A measure outside the named keys is `other:<slug of the printed label>`",
           "alias": "m",
           "flag": "metric"
         },
@@ -9262,7 +9262,7 @@
           "required": false,
           "type": "string",
           "example": "quarter",
-          "description": "Period kinds, comma list: `quarter`, `half`, `nine_months`, `year` (a flow over that period) or `instant` (a value at the period end)",
+          "description": "Period kinds, comma list: `quarter`, `half`, `nine_months`, `year` (a flow over that period) or `instant` (a value at the period end). Any other value is a 400",
           "flag": "period-kind"
         },
         {

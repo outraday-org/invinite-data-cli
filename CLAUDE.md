@@ -62,8 +62,9 @@ the job id goes to stderr first, and Ctrl-C or a failure prints the resume comma
 need `--wait` (an existing `--save` target is refused before the job is created). A job that ends without a file
 throws `JobEndedError` (`failed` / unknown → exit 1, `expired` → 3 like the API's 404 for an expired download;
 `tests/unit/commands/bulk-exit-codes.test.ts` checks the real process). `REASON_LABELS` + `SCOPE_LABELS` word an export's `coverage.reason` / `coverage.scope`
-(`jobCoverageNote`, stderr). Bundle: until the release the task-6 candidate rebased onto 12.1 (spec sha256 `bde498d7…`, base
-revision `b05ff307`); the released 12.2 bundle replaces it before publishing.
+(`jobCoverageNote`, stderr). The bundle is the released API commit `7a9eca9` (tag `data-sdk-v12.2.0`, SDK 12.2.0, Fly v198;
+spec sha256 `ed91cd90…`, its base revision field reads `6b73f048`); it also carries 12.1's patch #69 (`period_kind`
+validated on `guidance non-gaap` / `kpi-series`, description fixes; no flag change).
 
 ## Commands come from the Data API's spec, not from this repo
 
