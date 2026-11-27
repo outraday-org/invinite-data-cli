@@ -34,6 +34,31 @@ API's MCP server serves — the data guide `invinite-financial-data` and nine wo
 `commands/*.md` (`/financial-research`, `/analyze-earnings-call`, …) are gone: the workflows are skills now, and
 `invd plugin install` removes the files earlier versions wrote. See [The plugin](#the-plugin).
 
+## Changes in 13.0.0 (Data API 13.0)
+
+CLI 13.0.0 and plugin 0.29.0 adopt typed alerts from the released Data API 13.0 contract.
+`invd alerts create --help` lists all 18 types; `invd alerts create --help --type fundamental_metric` shows that type's
+Condition, Trigger and Delivery flags with its schema example. Flags from another type are refused before a write.
+Structured inputs use JSON (`--rules`, `--template`, `--nodes`, `--metadata`, `--active-window`).
+`--condition-mode` and `--trigger-mode` keep distinct meanings across every type.
+
+```bash
+invd alerts create --type price_move --symbol AAPL --pct 5 --direction up --baseline prior_close
+invd alerts create --type halt
+invd alerts update alt_01JD2Q4X7Y8Z9A0B1C2D3E4F5G --type news --symbols AAPL
+invd catalog alert-types
+invd catalog news-kinds
+invd catalog halt-reasons
+invd catalog dividend-types
+```
+
+For condition flags, `alerts update` infers a missing `--type` by reading the alert first (one extra request).
+Settings-only updates need no lookup and omit `type`. An inferred condition update under `--dry-run` asks for an
+explicit `--type` so the preview stays offline. Inline `--body`, `--body-file` and stdin (`--body-file -`) retain
+server validation; flags override their matching fields and validate against the effective type after merging.
+`alert-events tail --type` follows the six feed types from the contract, including `alert_user.fire_cap_reached`.
+`alert-events get` displays a fired event's `alert_type` and reason details; JSON selectors keep their existing syntax.
+
 ## Changes in 12.4.0 (Data API 12.4)
 
 CLI 12.4.0 and plugin 0.28.0 support market-wide news and transcript search by company list. Run `invd news list` for every company’s latest news in a seven-day New York window.

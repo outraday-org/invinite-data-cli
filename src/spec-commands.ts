@@ -1,4 +1,3 @@
-import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import chalk from 'chalk';
 import { Command, Option } from 'commander';
@@ -25,9 +24,10 @@ import {
 } from './output/render.js';
 import { JobEndedError, PartialResultError, UsageError, withErrorHandling } from './shared/errors.js';
 import { splitList } from './shared/options.js';
-import { confirmOrRefuse, readStdin } from './shared/prompt.js';
+import { confirmOrRefuse } from './shared/prompt.js';
 import { onInterrupt, resumeOnInterrupt } from './shared/signals.js';
-import { GLOBAL_PARAM_FLAGS } from './spec-flags.js';
+import { requestBody, variantHelp } from './spec-body.js';
+import { attributeName, GLOBAL_PARAM_FLAGS } from './spec-flags.js';
 import {
   commandName,
   exampleValue,
@@ -89,9 +89,6 @@ const HTTP_METHOD: Record<ManifestOperation['method'], HttpMethod> = {
   get: 'GET', post: 'POST', put: 'PUT', patch: 'PATCH', delete: 'DELETE',
 };
 
-/** Commander's attribute name of a long flag (`filed-at-gte` → `filedAtGte`). */
-const attributeName = (flag: string) => flag.replace(/-([a-z0-9])/g, (_match, char: string) => char.toUpperCase());
-
 /** Parameters the CLI fills when the flag is absent (spec proposal D10: `period` default on the financials). */
 const IMPLIED: Record<string, (values: Map<string, QueryValue>) => string> = {
   period: values => (['1', '2', '3'].includes(String(values.get('fiscal_quarter'))) ? 'quarterly' : 'annual'),
@@ -129,7 +126,8 @@ function bodyOptions(field: ManifestBodyField): Option[] {
   if (field.type === 'boolean') {
     return [new Option(`${short}--${field.flag}`, `${description}: true`), new Option(`--no-${field.flag}`, `${description}: false`)];
   }
-  return [new Option(`${short}--${field.flag} <${field.type === 'array' ? 'list' : 'value'}>`, description)];
+  const valueName = ({ json: 'json', array: 'list' } as Record<string, string>)[field.type] ?? 'value';
+  return [new Option(`${short}--${field.flag} <${valueName}>`, description)];
 }
 
 function expectation(param: Pick<ManifestParam, 'type' | 'items' | 'enum' | 'pattern'>): string {
@@ -240,11 +238,32 @@ function addCommandOptions(command: Command, operation: ManifestOperation, conte
   addOutputOptions(command, { list: operation.list, fieldsParam: operation.params.some(param => param.name === 'fields') });
 }
 
+function addBodyHelp(command: Command, operation: ManifestOperation): void {
+  const body = operation.body;
+  if (!body?.variants) {
+    command.addHelpText('before', helpExamples(exampleLines(operation)));
+    return;
+  }
+  command.addHelpText('after', () => variantHelp(operation, command.opts().type));
+  command.configureHelp({
+    visibleOptions: cmd => {
+      const variant = body.variants?.find(item => item.type === cmd.opts().type);
+      const bodyFlags = new Set(body.fields.map(field => field.flag));
+      return cmd.options.filter(option => {
+        const flag = option.long?.replace(/^--(?:no-)?/, '') ?? '';
+        if (!bodyFlags.has(flag)) return true;
+        if (!variant) return flag === 'type';
+        return variant.fields.some(field => field.flag === flag);
+      });
+    },
+  });
+}
+
 function defineOperationCommand(command: Command, operation: ManifestOperation, context: Context): void {
   addPositionals(command, operation);
   addParamOptions(command, operation, operation.params);
   addCommandOptions(command, operation, context);
-  command.addHelpText('before', helpExamples(exampleLines(operation)));
+  addBodyHelp(command, operation);
   command.addHelpText('after', helpFooter([operation]));
   command.action(withErrorHandling(async (...args: unknown[]) => {
     const invoked = args[args.length - 1] as Command;
@@ -361,7 +380,11 @@ async function planRequest(operation: ManifestOperation, positionals: unknown[],
     if (typeof value !== 'string' || value === '') throw new UsageError(`Missing ${name}`);
     return encodeURIComponent(value);
   });
-  const body = operation.body ? await requestBody(operation, opts) : undefined;
+  const body = operation.body ? await requestBody(operation, opts, async () => {
+    const found = (await apiCall({ path, method: 'GET', auth: operation.auth })).body;
+    if (!isRecord(found) || typeof found.type !== 'string') throw new UsageError('Alert lookup returned no type; no PATCH was sent');
+    return found.type;
+  }) : undefined;
   return {
     request: {
       path,
@@ -373,49 +396,6 @@ async function planRequest(operation: ManifestOperation, positionals: unknown[],
     },
     ...(lookup ? { lookup } : {}),
   };
-}
-
-function setPath(target: Record<string, unknown>, path: readonly string[], value: unknown): void {
-  const [head, ...rest] = path;
-  if (head === undefined) return;
-  if (rest.length === 0) {
-    target[head] = value;
-    return;
-  }
-  const child = isRecord(target[head]) ? target[head] : {};
-  target[head] = child;
-  setPath(child, rest, value);
-}
-
-/** `--body` / `--body-file` (JSON), then each body flag over it; `undefined` when nothing was given. */
-async function requestBody(operation: ManifestOperation, opts: Opts): Promise<unknown> {
-  const inline = typeof opts.body === 'string' ? opts.body : undefined;
-  const file = typeof opts.bodyFile === 'string' ? opts.bodyFile : undefined;
-  if (inline !== undefined && file !== undefined) throw new UsageError('Pass --body or --body-file, not both');
-  let body: unknown;
-  if (inline !== undefined || file !== undefined) {
-    const [flag, text] = inline !== undefined
-      ? ['--body', inline]
-      : [`--body-file ${file}`, file === '-' ? await readStdin() : await readFile(file ?? '', 'utf8')];
-    try {
-      body = JSON.parse(text);
-    } catch (error) {
-      throw new UsageError(`${flag} is not valid JSON: ${error instanceof Error ? error.message : String(error)}`);
-    }
-  }
-  for (const field of operation.body?.fields ?? []) {
-    const raw = opts[attributeName(field.flag)];
-    if (raw === undefined) continue;
-    if (body !== undefined && !isRecord(body)) throw new UsageError('--body must be a JSON object to combine with field flags');
-    body ??= {};
-    const value = field.type === 'array' ? splitList(String(raw)) : field.type === 'integer' || field.type === 'number' ? Number(raw) : raw;
-    setPath(body as Record<string, unknown>, field.path, value);
-  }
-  if (body === undefined && operation.body?.required) {
-    const flags = operation.body.fields.map(field => `--${field.flag}`);
-    throw new UsageError(`This command needs a request body: ${flags.length ? `${flags.join(', ')}, or ` : ''}--body / --body-file`);
-  }
-  return body;
 }
 
 const describeRequest = (request: RequestOptions) =>
@@ -737,6 +717,11 @@ async function runOperation(operation: ManifestOperation, positionals: unknown[]
   if (target) body = await saveDownload(operation, body, target, async () => (await apiCall(plan.request)).body);
   const coverage = operation.list ? undefined : jobCoverageNote(body);
   if (coverage && human) console.error(chalk.yellow(coverage));
+  if (operation.operationId === 'getAlertEvent' && pick(body, 'type') === 'alert.fired') {
+    const details = pick(body, 'payload.reason.details');
+    shape.columns = [...(shape.columns ?? operation.fields), 'payload.alert_type', ...(isRecord(details) ? Object.keys(details).map(key => `payload.reason.details.${key}`) : [])];
+    shape.view = 'keyValue';
+  }
   emit(renderBody(withHiddenUrl(operation, body), shape, settings), { human });
   const cursor = operation.list ? nextCursorOf(first.body) : undefined;
   if (cursor && human) {

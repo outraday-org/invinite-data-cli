@@ -26,3 +26,6 @@ export const SELECT_FLAGS: readonly string[] = ['basis', 'view'];
 
 /** Short flags commander owns (`-V`, `-h`). */
 export const RESERVED_ALIASES: readonly string[] = ['V', 'h'];
+
+/** Commander's attribute for a long flag (`filed-at-gte` → `filedAtGte`). */
+export const attributeName = (flag: string): string => flag.replace(/-([a-z0-9])/g, (_match, char: string) => char.toUpperCase());

@@ -120,4 +120,16 @@ the account.
   the confirmation rule above. A feed cursor naming an erased event is refused: restart from the last event you hold.
 - Many end users at once is a REST batch call, not a tool.
 
+
+## Typed conditions and edits (13.0)
+
+Each alert type has its own condition and trigger schema. For example, PriceMoveAlertConditionInput requires
+symbol, direction, pct and baseline; FilingAlertConditionInput takes SEC form filters and company lists.
+CreatePriceMoveAlertRequest and CreateFilingAlertRequest contain complete request examples in the published spec.
+The generated Alert response is a union selected by type, so narrowing that field also narrows condition and trigger.
+
+When an update sends condition, also send the stored type. A different type is refused: create a new alert instead.
+Settings-only updates may omit type. A trigger-only update is checked against the stored type; rearm and
+rearm_distance_pct apply to price, price_move and volume_spike, and cooldown_bars only to script and indicator.
+
 Without a connected Invinite Data MCP server, load the `invinite-data-cli` skill: it maps every tool named here to an `invd` command.

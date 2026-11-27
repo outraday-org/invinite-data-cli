@@ -78,6 +78,22 @@ skill and `invinite-financial-data` `SKILL.md` / `references/filings.md` follow.
 `ac46ec5` (tag `data-sdk-v12.3.0`, SDK 12.3.0, Fly v199; spec sha256 `9e56b323…`, its base revision field reads
 `0b012bff`).
 
+## Changes in 13.0.0
+
+CLI 13.0.0 / plugin 0.29.0 adopt the exact API `data-sdk-v13.0.0` reference bundle at
+`96c33cb7432fca54c81e838e2545150e5a59006f` (spec sha256 `c1ce8fa33639c84752524dd5c190ce1f7a6b4d8b1c814e5f1b2ef4ac99b861d6`).
+The bundle includes 12.4 news/search behavior. The manifest builder resolves the 18 create branches and PATCH's
+18 typed branches plus settings, stores per-type fields/required paths/examples and computes condition/trigger
+name collisions across all branches. Structured objects and arrays of objects are JSON flags; nested required paths
+include array items. Response union fields are the intersection of branch properties; discriminator values supply
+`alert-events tail`'s six feed filters. The four alert catalogs are generated `x-cli` commands.
+
+`src/spec-body.ts` owns body construction and typed help. Raw-only JSON reaches server validation unchanged.
+Mixed flags retain all raw fields, override their named paths and validate against the effective type. A condition
+edit without a type first GETs the stored alert; explicit types and settings-only writes need no lookup.
+Dry-run never performs this lookup and asks for explicit `--type`. All 18 spec examples round-trip through actual
+registered flags in `tests/unit/spec-alerts.test.ts`; preserve that check when extending alert schemas.
+
 ## Commands come from the Data API's spec, not from this repo
 
 Every plain command — one REST call, printed as a table, a key/value list or JSON — is GENERATED. The chain:

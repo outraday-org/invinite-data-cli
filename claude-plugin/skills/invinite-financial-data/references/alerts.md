@@ -43,3 +43,15 @@ Read this before you read or change the user's alerts. To set one up end to end,
   After a rotation the old secret keeps signing for 24 hours.
 - Bulk writes (many alerts or end users at once) and uploading a chartlang script are REST operations, not tools:
   tell the user to use the API or the dashboard for them.
+
+
+## Typed conditions and edits (13.0)
+
+Each alert type has its own condition and trigger schema. For example, PriceMoveAlertConditionInput requires
+symbol, direction, pct and baseline; FilingAlertConditionInput takes SEC form filters and company lists.
+CreatePriceMoveAlertRequest and CreateFilingAlertRequest contain complete request examples in the published spec.
+The generated Alert response is a union selected by type, so narrowing that field also narrows condition and trigger.
+
+When an update sends condition, also send the stored type. A different type is refused: create a new alert instead.
+Settings-only updates may omit type. A trigger-only update is checked against the stored type; rearm and
+rearm_distance_pct apply to price, price_move and volume_spike, and cooldown_bars only to script and indicator.

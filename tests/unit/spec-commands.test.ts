@@ -158,7 +158,7 @@ describe('requests', () => {
 
   it('a required body without one is a usage error naming its flags', async () => {
     expect(await exitOf('alerts', 'create')).toBe(2);
-    expect(err.join('\n')).toContain('needs a request body: --type, --ciks');
+    expect(err.join('\n')).toContain('Pass --type <type>');
     expect(fetch).not.toHaveBeenCalled();
   });
 

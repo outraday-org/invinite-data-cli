@@ -24,6 +24,7 @@ import {
   parseManifest,
   type Manifest,
   type ManifestBodyField,
+  type ManifestBodyVariant,
   type ManifestOperation,
   type ManifestParam,
 } from '../src/spec-manifest.js';
@@ -180,12 +181,18 @@ function resolveSchema(spec: Spec, raw: unknown, depth = 0): JsonSchema {
   if (Array.isArray(raw.allOf)) {
     const parts = raw.allOf.map(part => resolveSchema(spec, part, depth + 1));
     const properties = Object.assign({}, ...parts.map(part => (isRecord(part.properties) ? part.properties : {})));
-    return { ...raw, type: 'object', properties };
+    const required = [...new Set(parts.flatMap(part => Array.isArray(part.required) ? part.required.map(String) : []))];
+    return { ...raw, type: 'object', properties, ...(required.length ? { required } : {}) };
   }
   return raw;
 }
 
 const propertiesOf = (spec: Spec, schema: JsonSchema): Record<string, JsonSchema> => {
+  if (Array.isArray(schema.oneOf)) {
+    const branches = schema.oneOf.map(branch => propertiesOf(spec, resolveSchema(spec, branch)));
+    const first = branches[0] ?? {};
+    return Object.fromEntries(Object.entries(first).filter(([key]) => branches.every(branch => key in branch)));
+  }
   const properties = isRecord(schema.properties) ? schema.properties : {};
   return Object.fromEntries(Object.entries(properties).map(([key, value]) => [key, resolveSchema(spec, value)]));
 };
@@ -260,6 +267,22 @@ function manifestParam(
   return param;
 }
 
+function manifestBodyField(path: string[], property: JsonSchema, required: boolean, flag: string, alias: string | undefined, structured: boolean): ManifestBodyField | undefined {
+  const items = isRecord(property.items) ? property.items.type : undefined;
+  const json = structured && (property.type === 'object' || (property.type === 'array' && !isItemType(items)));
+  let type: ManifestBodyField['type'];
+  if (json) type = 'json';
+  else if (isParamType(property.type) && (property.type !== 'array' || isItemType(items))) type = property.type;
+  else return undefined;
+  const field: ManifestBodyField = { path, type, required, flag };
+  if (!json && property.type === 'array' && isItemType(items)) field.items = items;
+  const values = property.type === 'array' && isRecord(property.items) ? property.items.enum : property.enum;
+  if (Array.isArray(values)) field.enum = values.map(String);
+  if (typeof property.description === 'string') field.description = property.description;
+  if (alias !== undefined) field.alias = alias;
+  return field;
+}
+
 /**
  * Flags for a JSON body's scalar and list properties, one object level deep (`filters.ciks` → `--ciks`). A nested name
  * that two parent objects share (`condition.mode` and `trigger.mode` since Data API 6.1) is prefixed with its parent on
@@ -271,6 +294,8 @@ function bodyFields(
   aliases: Record<string, string>,
   taken: Set<string>,
   where: string,
+  collisions?: ReadonlySet<string>,
+  structured = false,
 ): ManifestBodyField[] {
   const required = new Set(Array.isArray(schema.required) ? schema.required.map(String) : []);
   const fields: ManifestBodyField[] = [];
@@ -282,33 +307,69 @@ function bodyFields(
     }
   }
   const add = (path: string[], property: JsonSchema, isRequired: boolean) => {
-    if (!isParamType(property.type)) return;
-    const items = isRecord(property.items) ? property.items.type : undefined;
-    if (property.type === 'array' && !isItemType(items)) return;
     const name = path[path.length - 1] ?? '';
-    const shared = path.length > 1 && (nestedParents.get(name) ?? 0) > 1;
+    const shared = path.length > 1 && (collisions ? collisions.has(name) : (nestedParents.get(name) ?? 0) > 1);
     const flag = flagName(shared ? path.join('_') : name);
+    const field = manifestBodyField(path, property, isRequired, flag, aliases[name], structured);
+    if (!field) return;
     if (taken.has(flag) || RESERVED_FLAGS.includes(flag) || COMMAND_FLAGS.includes(flag)) {
       throw new Error(`${where} body property "${path.join('.')}": --${flag} collides with another flag`);
     }
     taken.add(flag);
-    const field: ManifestBodyField = { path, type: property.type, required: isRequired, flag };
-    if (property.type === 'array' && isItemType(items)) field.items = items;
-    if (typeof property.description === 'string') field.description = property.description;
-    const alias = aliases[name];
-    if (alias !== undefined) field.alias = alias;
     fields.push(field);
   };
   for (const [key, property] of Object.entries(propertiesOf(spec, schema))) {
-    if (property.type === 'object') {
+    if (property.type === 'object' && (!structured || key === 'condition' || key === 'trigger')) {
       for (const [inner, innerProperty] of Object.entries(propertiesOf(spec, property))) {
-        add([key, inner], innerProperty, false);
+        add([key, inner], innerProperty, structured && Array.isArray(property.required) && property.required.includes(inner));
       }
     } else {
       add([key], property, required.has(key));
     }
   }
   return fields;
+}
+
+/** Required paths include structured flag contents; `*` marks each array item. Optional parents are checked only when present. */
+function requiredPaths(spec: Spec, schema: JsonSchema, path: string[] = [], depth = 0): string[][] {
+  if (depth > 20) return [];
+  if (schema.type === 'array') return requiredPaths(spec, resolveSchema(spec, schema.items), [...path, '*'], depth + 1);
+  const properties = propertiesOf(spec, schema);
+  const own = Array.isArray(schema.required) ? schema.required.map(name => [...path, String(name)]) : [];
+  return [...own, ...Object.entries(properties).flatMap(([name, property]) => requiredPaths(spec, property, [...path, name], depth + 1))];
+}
+
+/** Resolve create's mapped variants and PATCH's typed branches, retaining a settings-only branch as common fields. */
+function bodyVariants(spec: Spec, schema: JsonSchema, aliases: Record<string, string>, taken: Set<string>, where: string): ManifestBodyVariant[] | undefined {
+  if (!Array.isArray(schema.oneOf)) return undefined;
+  const branches = schema.oneOf.map(branch => resolveSchema(spec, branch));
+  const parents = new Map<string, Set<string>>();
+  for (const branch of branches) {
+    for (const [parent, property] of Object.entries(propertiesOf(spec, branch))) {
+      if (property.type !== 'object' || !['condition', 'trigger'].includes(parent)) continue;
+      for (const name of Object.keys(propertiesOf(spec, property))) {
+        const owners = parents.get(name) ?? new Set<string>();
+        owners.add(parent);
+        parents.set(name, owners);
+      }
+    }
+  }
+  const collisions = new Set([...parents].filter(([, owners]) => owners.size > 1).map(([name]) => name));
+  return branches.flatMap(branch => {
+    const props = propertiesOf(spec, branch);
+    const type = Array.isArray(props.type?.enum) ? props.type.enum[0] : undefined;
+    if (typeof type !== 'string') return [];
+    const fields = bodyFields(spec, branch, aliases, new Set(taken), where, collisions, true);
+    const required = requiredPaths(spec, branch);
+    return [{
+      type,
+      description: typeof branch.description === 'string' ? branch.description : type,
+      notes: ['condition', 'trigger'].flatMap(key => typeof props[key]?.description === 'string' ? [props[key].description] : []),
+      fields,
+      required,
+      ...(branch.example !== undefined ? { example: branch.example } : {}),
+    }];
+  });
 }
 
 /** The pure transform; `specText` is hashed so a stale manifest is visible on its face. */
@@ -364,6 +425,8 @@ export function buildManifest(rawSpec: unknown, specText: string): Manifest {
         fields,
       };
 
+      if (isRecord(row.discriminator) && isRecord(row.discriminator.mapping)) out.discriminatorValues = Object.keys(row.discriminator.mapping);
+
       if (cli.positional !== undefined) {
         const param = params.find(candidate => candidate.name === cli.positional);
         if (!param) throw new Error(`${where}: x-cli.positional names no parameter: ${cli.positional}`);
@@ -388,10 +451,13 @@ export function buildManifest(rawSpec: unknown, specText: string): Manifest {
         const media = operation.requestBody.content['application/json'];
         const schema = isRecord(media) ? resolveSchema(spec, media.schema) : {};
         const taken = new Set(params.map(param => param.flag));
+        const variants = bodyVariants(spec, schema, cli.flags ?? {}, taken, where);
+        const unionFields = variants ? [...new Map(variants.flatMap(variant => variant.fields).map(field => [field.flag, field])).values()] : undefined;
         out.body = {
           required: operation.requestBody.required === true,
           contentType: 'application/json',
-          fields: bodyFields(spec, schema, cli.flags ?? {}, taken, where),
+          fields: unionFields ?? bodyFields(spec, schema, cli.flags ?? {}, taken, where),
+          ...(variants ? { variants } : {}),
         };
         if (isRecord(media) && 'example' in media) out.body.example = media.example;
       }
