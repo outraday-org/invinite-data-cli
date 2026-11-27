@@ -397,6 +397,15 @@ describe('output', () => {
     expect(err.join('\n')).toContain('coverage: partial through 2026-11-09');
   });
 
+  it('a known document without an outline explains its complete empty answer on stderr', async () => {
+    const coverage = { state: 'complete', reason: 'no_legacy_outline' };
+    expect(coverageNote({ meta: { coverage } })).toBe(`coverage: complete — ${REASON_LABELS.no_legacy_outline}`);
+    vi.mocked(fetch).mockResolvedValueOnce(page([], null, { coverage }));
+    await run('documents', 'sections', '8be0b759-1a9d-5f89-8308-bd86185f5e1f', '--json');
+    expect(err.join('\n')).toContain('this known document has no available item outline');
+    expect(err.join('\n')).not.toContain('not in the SEC registry');
+  });
+
   it('invd funds holdings SPY: the table header names source + as-of; the held security is a column', async () => {
     expect(sourceNote({ meta: { source: 'nport', as_of: '2026-09-30', reason: null } })).toBe('source: SEC N-PORT report · as of 2026-09-30');
     expect(sourceNote({ meta: { source: 'issuer_daily', as_of: '2026-11-13', reason: 'single_asset_trust' } })).toContain('holds one asset');

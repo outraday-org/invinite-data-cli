@@ -429,10 +429,13 @@ function printPlan(operation: ManifestOperation, plan: Plan, opts: Opts, all: bo
   emit(lines.join('\n'));
 }
 
-/** The yellow stderr line of a `meta.coverage` that is not complete (v2 readiness: a 200 with `state`). */
+/** The stderr coverage note, including a known document's deliberately empty item outline. */
 export function coverageNote(body: unknown): string | undefined {
   const coverage = pick(body, 'meta.coverage');
-  if (!isRecord(coverage) || typeof coverage.state !== 'string' || coverage.state === 'complete') return undefined;
+  if (!isRecord(coverage) || typeof coverage.state !== 'string') return undefined;
+  if (coverage.state === 'complete') {
+    return coverage.reason === 'no_legacy_outline' ? `coverage: complete — ${REASON_LABELS.no_legacy_outline}` : undefined;
+  }
   const through = typeof coverage.through === 'string' ? ` through ${coverage.through}` : '';
   const retry = typeof coverage.retry_after_s === 'number' ? `; retry in ${coverage.retry_after_s}s` : '';
   const meaning = coverage.state === 'pending' ? 'not available yet — no rows is not "nothing exists"' : 'the answer is incomplete';
@@ -451,6 +454,7 @@ const SOURCE_LABELS: Readonly<Record<string, string>> = {
  * holder lists' store reasons (`invd holders`, a free string in the contract).
  */
 export const REASON_LABELS: Readonly<Record<string, string>> = {
+  no_legacy_outline: 'this known document has no available item outline',
   single_asset_trust: 'the fund holds one asset; there is no holdings list',
   source_stale: 'the issuer file is more than 5 trading days old',
   issuer_source_unavailable: 'the issuer file is unavailable; answered from the fund\'s N-PORT report',

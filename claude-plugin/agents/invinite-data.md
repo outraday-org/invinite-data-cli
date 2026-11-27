@@ -41,9 +41,17 @@ the `invd` CLI (version 11.3 or later for macro data) and return it in a clean, 
 - Earnings calls: find the call with `invd events <TICKER> --sort -scheduled_at --limit 4 --json`, then pass its
   `event_id` to every per-event command — or give the company and fiscal period in its place
   (`invd events transcript NVDA 2026Q3`). Keep `start_ms` values so the caller can cite `[m:ss]` timestamps.
+- Segments: select a catalog category with `--segment-id`, not `--metric`. The twelve categories include
+  business-only operating income, D&A, assets, goodwill and capex; assets/goodwill are period-end, never TTM/YTD.
+  `invd segments list AMZN -p annual --segment-id seg_operating_income_business_segment --json` carries currency
+  on Standard; `list-detailed` needs Pro for roles, reconciliation and link evidence. `--follow-links` adds proved
+  rename/merge history, never splits. Keep each followed `source_row_id` plus target dimensions distinct; that ID
+  names a derived segment row, not a raw SEC fact. Evidence proves its listed overlaps, not every historical value.
 - Keep each news item's `attribution` (publisher, `source_url`, `published_at`, form + accession of a filing) so the
   caller can cite it.
 - If `meta.coverage` is `pending` or `partial` (a note on stderr), report the data as incomplete, never as "none".
+- A complete empty section answer with reason `no_legacy_outline` means the known document has no available item
+  outline; it does not mean the filing is absent from the registry.
 - Use `--limit` deliberately; use `--all` only when the whole set is needed, and estimate it first with `--dry-run`.
   `invd search filings` costs 100 credits a page.
 - Exit 4 = no or invalid key: report it and tell the caller to run `invd auth login` (or set `INVD_API_KEY`).
