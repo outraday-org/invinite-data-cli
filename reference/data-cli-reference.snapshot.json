@@ -34,7 +34,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "2184c436f21fc7f27fc91ec459825f9782c92f8a716bac73380c47a0a941ec30",
+      "src/generated/cli-manifest.json": "ded319d8aa9610eef335508441e74ff17c102bdc1b9eb788c11c764719e0b85a",
       "src/hand-written-commands.ts": "a095d5f00a17a9cd643a8a0e6e5dcadbb7050dfd8b14d846ce81f3536a9920b9",
       "src/job-wait.ts": "296be47b6b13ebf2d2639fc6ae36ca4dc8409709905bb7cb85a04619c7d81821",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
@@ -46,15 +46,15 @@
       "src/shared/prompt.ts": "7736cb146f84382ff17badbabcdf69add6673c4a3695c38759486601f3c87d99",
       "src/shared/signals.ts": "5c5122b38e35700a9304bf77f06b900a80e3bc42da6241f93313181117b2fa6b",
       "src/shared/spinner.ts": "62e25b34f62faaaa298fbe4664cb0b1eb52fd62b4c82f498718bd14e608d0d87",
-      "src/spec-body.ts": "0f760da3a0c8917d2b4ddc900a9cee28e1e62cf54dd00ae6a562055231c4a2b5",
+      "src/spec-body.ts": "b0f97cd4be8cedd2f4a730d363727f95d468d2b422ffe16ea1f85c0e86e230c5",
       "src/spec-commands.ts": "64b260cf241fd6cf164f53ed6c24fa1f0f4ddedfa3d722d4a654ef314dad158a",
       "src/spec-flags.ts": "0fa10d6d64534de9c10ba418ad8622edd7a4b504f1a7218b96016ebc3366e9cb",
       "src/spec-manifest.ts": "fc3c4193823d7d308875b60765625607eb93bc62baf4a7ab532e70247f0584a6",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
     "specSha256": "c1ce8fa33639c84752524dd5c190ce1f7a6b4d8b1c814e5f1b2ef4ac99b861d6",
-    "revision": "fc8f9bf70afc9e64826d874ec3458a9d9ba2585f",
-    "fingerprint": "727fbd83fc4e7f29ca64da8cacc5dfd6062298fc3fa1c5afcd736923aea48c57"
+    "revision": "723f9ccec8b8c4b335a0081fe3b1306a36a69c16",
+    "fingerprint": "00843f89ebb0148da4cc2b302b9336e365f3bff22f51a452db9825eb32101236"
   },
   "globalOptions": [
     {
