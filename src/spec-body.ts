@@ -22,6 +22,12 @@ function setPath(target: Record<string, unknown>, path: readonly string[], value
   setPath(child, rest, value);
 }
 
+function checkEnum(field: ManifestBodyField, value: unknown): void {
+  if (field.enum && (Array.isArray(value) ? value : [value]).some(item => !field.enum?.includes(String(item)))) {
+    throw new UsageError(`--${field.flag} expects one of ${field.enum.join(', ')}`);
+  }
+}
+
 function fieldValue(field: ManifestBodyField, raw: unknown): unknown {
   if (field.type === 'json') {
     try {
@@ -43,9 +49,7 @@ function fieldValue(field: ManifestBodyField, raw: unknown): unknown {
   if (Array.isArray(value) && value.some(invalidNumber)) {
     throw new UsageError(`--${field.flag} expects a list of ${field.items} values`);
   }
-  if (field.enum && (Array.isArray(value) ? value : [value]).some(item => !field.enum?.includes(String(item)))) {
-    throw new UsageError(`--${field.flag} expects one of ${field.enum.join(', ')}`);
-  }
+  checkEnum(field, value);
   return value;
 }
 
@@ -98,6 +102,10 @@ function checkVariant(operation: ManifestOperation, body: Record<string, unknown
         throw new UsageError(`${parent}.${name} is not a ${variant.type} field`);
       }
     }
+  }
+  for (const field of variant.fields) {
+    const value = pick(body, field.path.join('.'));
+    if (value !== undefined) checkEnum(field, value);
   }
   const needsCondition = operation.operationId === 'createAlert' || body.condition !== undefined;
   if (operation.operationId === 'createAlert') body.condition ??= {};

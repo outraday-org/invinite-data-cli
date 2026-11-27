@@ -182,7 +182,7 @@ function resolveSchema(spec: Spec, raw: unknown, depth = 0): JsonSchema {
     const parts = raw.allOf.map(part => resolveSchema(spec, part, depth + 1));
     const properties = Object.assign({}, ...parts.map(part => (isRecord(part.properties) ? part.properties : {})));
     const required = [...new Set(parts.flatMap(part => Array.isArray(part.required) ? part.required.map(String) : []))];
-    return { ...raw, type: 'object', properties, ...(required.length ? { required } : {}) };
+    return { ...Object.assign({}, ...parts), ...raw, ...(Object.keys(properties).length ? { properties } : {}), ...(required.length ? { required } : {}) };
   }
   return raw;
 }

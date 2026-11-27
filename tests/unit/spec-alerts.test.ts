@@ -61,10 +61,14 @@ describe('typed alert manifest and request dispatch', () => {
 
   it('keeps every flag path stable across variants and create/update', () => {
     const paths = new Map<string, string>();
+    const types = new Map<string, string>();
     for (const variant of [...variants, ...update.body!.variants!]) for (const field of variant.fields) {
       const previous = paths.get(field.flag);
       if (previous) expect(field.path.join('.')).toBe(previous);
       paths.set(field.flag, field.path.join('.'));
+      const previousType = types.get(field.flag);
+      if (previousType) expect(field.type).toBe(previousType);
+      types.set(field.flag, field.type);
     }
     expect(paths.get('condition-mode')).toBe('condition.mode');
     expect(paths.get('trigger-mode')).toBe('trigger.mode');
@@ -129,6 +133,28 @@ describe('typed alert manifest and request dispatch', () => {
     await expect(run('alerts', 'create', '--body', '{"type":"halt","condition":{"pct":5}}', '--metadata', '{}')).rejects.toThrow('exited');
     expect(errors.join('\n')).toContain('condition.pct is not a halt field');
     expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('validates merged raw enums against the effective type while raw-only keeps server authority', async () => {
+    await expect(run('alerts', 'create', '--body', '{"type":"news","condition":{"kinds":["guidance"]}}', '--type', 'dividend')).rejects.toThrow('exited');
+    expect(errors.join('\n')).toContain('--kinds expects one of');
+    await expect(run('alerts', 'create', '--body', '{"type":"halt","condition":{"reason_codes":["TYPO"]}}', '--metadata', '{}')).rejects.toThrow('exited');
+    expect(errors.join('\n')).toContain('--reason-codes expects one of');
+    expect(fetch).not.toHaveBeenCalled();
+    vi.mocked(fetch).mockResolvedValueOnce(json({ id: 'alt_test' }));
+    await run('alerts', 'create', '--body', '{"type":"halt","condition":{"reason_codes":["TYPO"]}}');
+    expect(bodyAt(0)).toEqual({ type: 'halt', condition: { reason_codes: ['TYPO'] } });
+  });
+
+  it('preserves update reference string flags and null clears', async () => {
+    vi.mocked(fetch).mockImplementation(async () => json({ id: 'alt_test' }));
+    await run('alerts', 'update', 'alt_test', '--client-reference-id', 'my-reference', '--external-user-id', 'user-1');
+    expect(bodyAt(0)).toEqual({ client_reference_id: 'my-reference', external_user_id: 'user-1' });
+    await run('alerts', 'update', 'alt_test', '--body', '{"client_reference_id":null,"external_user_id":null}');
+    expect(bodyAt(1)).toEqual({ client_reference_id: null, external_user_id: null });
+    await run('alerts', 'update', 'alt_test', '--body', '{"client_reference_id":null,"external_user_id":null}', '--metadata', '{}');
+    expect(bodyAt(2)).toEqual({ client_reference_id: null, external_user_id: null, metadata: {} });
+    expect(calls().every(([, init]) => init?.method === 'PATCH')).toBe(true);
   });
 
   it('validates type-specific enums and rejects non-finite or fractional integer arguments', async () => {

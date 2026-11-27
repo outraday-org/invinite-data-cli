@@ -7613,16 +7613,18 @@
             "path": [
               "client_reference_id"
             ],
-            "type": "json",
+            "type": "string",
             "required": false,
+            "description": "Your id; a second create with it returns the live alert",
             "flag": "client-reference-id"
           },
           {
             "path": [
               "external_user_id"
             ],
-            "type": "json",
+            "type": "string",
             "required": false,
+            "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
             "flag": "external-user-id"
           },
           {
@@ -8686,16 +8688,18 @@
                 "path": [
                   "client_reference_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your id; a second create with it returns the live alert",
                 "flag": "client-reference-id"
               },
               {
                 "path": [
                   "external_user_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
                 "flag": "external-user-id"
               },
               {
@@ -8919,16 +8923,18 @@
                 "path": [
                   "client_reference_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your id; a second create with it returns the live alert",
                 "flag": "client-reference-id"
               },
               {
                 "path": [
                   "external_user_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
                 "flag": "external-user-id"
               },
               {
@@ -9151,16 +9157,18 @@
                 "path": [
                   "client_reference_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your id; a second create with it returns the live alert",
                 "flag": "client-reference-id"
               },
               {
                 "path": [
                   "external_user_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
                 "flag": "external-user-id"
               },
               {
@@ -9392,16 +9400,18 @@
                 "path": [
                   "client_reference_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your id; a second create with it returns the live alert",
                 "flag": "client-reference-id"
               },
               {
                 "path": [
                   "external_user_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
                 "flag": "external-user-id"
               },
               {
@@ -9608,16 +9618,18 @@
                 "path": [
                   "client_reference_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your id; a second create with it returns the live alert",
                 "flag": "client-reference-id"
               },
               {
                 "path": [
                   "external_user_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
                 "flag": "external-user-id"
               },
               {
@@ -9868,16 +9880,18 @@
                 "path": [
                   "client_reference_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your id; a second create with it returns the live alert",
                 "flag": "client-reference-id"
               },
               {
                 "path": [
                   "external_user_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
                 "flag": "external-user-id"
               },
               {
@@ -10116,16 +10130,18 @@
                 "path": [
                   "client_reference_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your id; a second create with it returns the live alert",
                 "flag": "client-reference-id"
               },
               {
                 "path": [
                   "external_user_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
                 "flag": "external-user-id"
               },
               {
@@ -10384,16 +10400,18 @@
                 "path": [
                   "client_reference_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your id; a second create with it returns the live alert",
                 "flag": "client-reference-id"
               },
               {
                 "path": [
                   "external_user_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
                 "flag": "external-user-id"
               },
               {
@@ -10573,16 +10591,18 @@
                 "path": [
                   "client_reference_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your id; a second create with it returns the live alert",
                 "flag": "client-reference-id"
               },
               {
                 "path": [
                   "external_user_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
                 "flag": "external-user-id"
               },
               {
@@ -10805,16 +10825,18 @@
                 "path": [
                   "client_reference_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your id; a second create with it returns the live alert",
                 "flag": "client-reference-id"
               },
               {
                 "path": [
                   "external_user_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
                 "flag": "external-user-id"
               },
               {
@@ -11082,16 +11104,18 @@
                 "path": [
                   "client_reference_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your id; a second create with it returns the live alert",
                 "flag": "client-reference-id"
               },
               {
                 "path": [
                   "external_user_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
                 "flag": "external-user-id"
               },
               {
@@ -11325,16 +11349,18 @@
                 "path": [
                   "client_reference_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your id; a second create with it returns the live alert",
                 "flag": "client-reference-id"
               },
               {
                 "path": [
                   "external_user_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
                 "flag": "external-user-id"
               },
               {
@@ -11597,16 +11623,18 @@
                 "path": [
                   "client_reference_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your id; a second create with it returns the live alert",
                 "flag": "client-reference-id"
               },
               {
                 "path": [
                   "external_user_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
                 "flag": "external-user-id"
               },
               {
@@ -11916,16 +11944,18 @@
                 "path": [
                   "client_reference_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your id; a second create with it returns the live alert",
                 "flag": "client-reference-id"
               },
               {
                 "path": [
                   "external_user_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
                 "flag": "external-user-id"
               },
               {
@@ -12175,16 +12205,18 @@
                 "path": [
                   "client_reference_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your id; a second create with it returns the live alert",
                 "flag": "client-reference-id"
               },
               {
                 "path": [
                   "external_user_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
                 "flag": "external-user-id"
               },
               {
@@ -12454,16 +12486,18 @@
                 "path": [
                   "client_reference_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your id; a second create with it returns the live alert",
                 "flag": "client-reference-id"
               },
               {
                 "path": [
                   "external_user_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
                 "flag": "external-user-id"
               },
               {
@@ -12920,16 +12954,18 @@
                 "path": [
                   "client_reference_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your id; a second create with it returns the live alert",
                 "flag": "client-reference-id"
               },
               {
                 "path": [
                   "external_user_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
                 "flag": "external-user-id"
               },
               {
@@ -13227,16 +13263,18 @@
                 "path": [
                   "client_reference_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your id; a second create with it returns the live alert",
                 "flag": "client-reference-id"
               },
               {
                 "path": [
                   "external_user_id"
                 ],
-                "type": "json",
+                "type": "string",
                 "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
                 "flag": "external-user-id"
               },
               {
