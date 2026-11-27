@@ -78,7 +78,10 @@ function missingPath(value: unknown, path: readonly string[]): boolean {
   const [head, ...rest] = path;
   if (head === undefined) return value === undefined;
   if (value === undefined || value === null) return false;
-  if (head === '*') return Array.isArray(value) && value.some(item => missingPath(item, rest));
+  if (head === '*') {
+    const entries = isRecord(value) ? Object.values(value) : value;
+    return Array.isArray(entries) && entries.some(item => missingPath(item, rest));
+  }
   return isRecord(value) && (rest.length === 0 ? value[head] === undefined : missingPath(value[head], rest));
 }
 

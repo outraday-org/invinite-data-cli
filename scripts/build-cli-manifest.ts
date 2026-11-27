@@ -336,7 +336,8 @@ function requiredPaths(spec: Spec, schema: JsonSchema, path: string[] = [], dept
   if (schema.type === 'array') return requiredPaths(spec, resolveSchema(spec, schema.items), [...path, '*'], depth + 1);
   const properties = propertiesOf(spec, schema);
   const own = Array.isArray(schema.required) ? schema.required.map(name => [...path, String(name)]) : [];
-  return [...own, ...Object.entries(properties).flatMap(([name, property]) => requiredPaths(spec, property, [...path, name], depth + 1))];
+  const mapped = isRecord(schema.additionalProperties) ? requiredPaths(spec, resolveSchema(spec, schema.additionalProperties), [...path, '*'], depth + 1) : [];
+  return [...own, ...mapped, ...Object.entries(properties).flatMap(([name, property]) => requiredPaths(spec, property, [...path, name], depth + 1))];
 }
 
 /** Resolve create's mapped variants and PATCH's typed branches, retaining a settings-only branch as common fields. */

@@ -6460,6 +6460,12 @@
               ],
               [
                 "condition",
+                "series_inputs",
+                "*",
+                "kind"
+              ],
+              [
+                "condition",
                 "nodes",
                 "*",
                 "node_key"
@@ -6469,6 +6475,14 @@
                 "nodes",
                 "*",
                 "script_version_id"
+              ],
+              [
+                "condition",
+                "nodes",
+                "*",
+                "series_inputs",
+                "*",
+                "kind"
               ],
               [
                 "condition",
@@ -13005,6 +13019,12 @@
               ],
               [
                 "condition",
+                "series_inputs",
+                "*",
+                "kind"
+              ],
+              [
+                "condition",
                 "nodes",
                 "*",
                 "node_key"
@@ -13014,6 +13034,14 @@
                 "nodes",
                 "*",
                 "script_version_id"
+              ],
+              [
+                "condition",
+                "nodes",
+                "*",
+                "series_inputs",
+                "*",
+                "kind"
               ],
               [
                 "condition",

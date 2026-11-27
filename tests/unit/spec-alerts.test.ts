@@ -172,6 +172,22 @@ describe('typed alert manifest and request dispatch', () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
+  it('enforces required map entries in script bindings and nested nodes, allowing absent or empty maps', async () => {
+    const script = variants.find(variant => variant.type === 'script')!;
+    const flags = flagsFor(script);
+    await expect(run('alerts', 'create', ...flags, '--series-inputs', '{"rsi":{}}')).rejects.toThrow('exited');
+    expect(errors.join('\n')).toContain('condition.series_inputs.*.kind');
+    const nodes = [{ node_key: 'producer', script_version_id: 'scv_01JQAA00000000000000000000', series_inputs: { rsi: {} } }];
+    await expect(run('alerts', 'create', ...flags, '--nodes', JSON.stringify(nodes))).rejects.toThrow('exited');
+    expect(errors.join('\n')).toContain('condition.nodes.*.series_inputs.*.kind');
+    expect(fetch).not.toHaveBeenCalled();
+    vi.mocked(fetch).mockImplementation(async () => json({ id: 'alt_test' }));
+    await run('alerts', 'create', ...flags, '--series-inputs', '{}');
+    expect(bodyAt(0)).toEqual({ ...(script.example as Record<string, unknown>), condition: { ...(pick(script.example, 'condition') as Record<string, unknown>), series_inputs: {} } });
+    await run('alerts', 'create', ...flags);
+    expect(bodyAt(1)).toEqual(script.example);
+  });
+
   it('infers update type before PATCH; explicit type and settings-only writes need no GET', async () => {
     vi.mocked(fetch).mockResolvedValueOnce(json({ type: 'news' })).mockResolvedValueOnce(json({ id: 'alt_test' }));
     await run('alerts', 'update', 'alt_test', '--symbols', 'MSFT');
