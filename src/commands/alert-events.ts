@@ -1,3 +1,4 @@
+import { type Manifest } from '../spec-manifest.js';
 import { Command } from 'commander';
 import { apiCall, type RequestOptions } from '../client/api-client.js';
 import { PAGE_RETRY, pageRetryDelayMs, rowsOf } from '../client/pagination.js';
@@ -7,7 +8,6 @@ import { onInterrupt } from '../shared/signals.js';
 /** The largest page the feed serves: a backlog is read in as few requests as possible. */
 const PAGE_LIMIT = '200';
 export const DEFAULT_INTERVAL_SECONDS = 2;
-const EVENT_TYPES = ['alert.fired', 'alert.status_changed', 'destination.disabled', 'destination.test', 'account.fire_cap_reached'] as const;
 
 export interface TailOptions {
   /** Continue after this event id (printed); without it the backlog is skipped unless `fromStart`. */
@@ -52,7 +52,9 @@ interface TailFlags {
  * Not one call plus one view: it polls the pull feed until interrupted and prints NDJSON. Registered above the loop:
  * `pnpm reference:export` reads the command's API path (the `path:` literal) from the code after this registration.
  */
-export function registerAlertEventsTailCommand(program: Command): void {
+export function registerAlertEventsTailCommand(program: Command, manifest: Manifest): void {
+  const EVENT_TYPES = manifest.operations.find(operation => operation.operationId === 'getAlertEvent')?.discriminatorValues ?? [];
+  if (!EVENT_TYPES.length) throw new Error('Alert event types are missing from the manifest');
   const group = program.commands.find(command => command.name() === 'alert-events');
   if (!group) throw new Error('invd alert-events tail needs the alert-events group of the manifest');
   group

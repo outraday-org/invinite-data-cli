@@ -36,12 +36,22 @@ const manifestParamSchema = z.object({
 const bodyFieldSchema = z.object({
   /** The property's path in the JSON body (`["filters", "ciks"]`). */
   path: z.array(z.string().min(1)).min(1),
-  type: z.enum(MANIFEST_PARAM_TYPES),
+  type: z.enum([...MANIFEST_PARAM_TYPES, 'json']),
+  enum: z.array(z.string()).optional(),
   items: z.enum(MANIFEST_ITEM_TYPES).optional(),
   required: z.boolean(),
   description: z.string().optional(),
   alias: z.string().length(1).optional(),
   flag: z.string().min(1),
+}).strict();
+
+const bodyVariantSchema = z.object({
+  type: z.string(),
+  description: z.string(),
+  notes: z.array(z.string()),
+  fields: z.array(bodyFieldSchema),
+  required: z.array(z.array(z.string())),
+  example: z.unknown().optional(),
 }).strict();
 
 const manifestOperationSchema = z.object({
@@ -77,6 +87,7 @@ const manifestOperationSchema = z.object({
     example: z.unknown().optional(),
     /** Flags for the body's scalar / list properties (`--url`, `--events a,b`, `--ciks` → `filters.ciks`). */
     fields: z.array(bodyFieldSchema),
+    variants: z.array(bodyVariantSchema).optional(),
   }).strict().optional(),
   /** A cursor-paginated list (`{data, has_more, next_cursor, meta}`): `--all`, `--cursor`, JSONL / CSV rows. */
   list: z.boolean(),
@@ -84,6 +95,7 @@ const manifestOperationSchema = z.object({
   columns: z.array(z.string()).optional(),
   /** The JSON fields of one row (a list's `data[]` item, else the object): `--json a,b` and `--help`. */
   fields: z.array(z.string()),
+  discriminatorValues: z.array(z.string()).optional(),
   /**
    * Where the response carries a downloadable file (`{url, sha256?, bytes?, content_type?}`): `""` = the response
    * root, else a dotted path (`pdf`, `deck`). Present = the command takes `--save <file>`.
@@ -106,6 +118,7 @@ export const manifestSchema = z.object({
 }).strict();
 
 export type ManifestParam = z.infer<typeof manifestParamSchema>;
+export type ManifestBodyVariant = z.infer<typeof bodyVariantSchema>;
 export type ManifestBodyField = z.infer<typeof bodyFieldSchema>;
 export type ManifestOperation = z.infer<typeof manifestOperationSchema>;
 export type Manifest = z.infer<typeof manifestSchema>;

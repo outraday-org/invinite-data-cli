@@ -78,10 +78,10 @@ Alert rules: create, change, pause, batch and test them, and read one alert's ev
 
 ```bash
 # Change alerts in bulk (optional: --body, --body-file)
-invd alerts batch --body '{"items":[{"op":"upsert","client_reference_id":"watchlist-msft-div","type":"dividend","condition":{"symbols":["MSFT"],"kinds":["declared"]}},{"op":"pause","client_reference_id":"watchlist-aapl-8k"}]}' --json
+invd alerts batch --body '{"items":[{"op":"upsert","client_reference_id":"watchlist-msft-div","type":"dividend","condition":{"symbols":["AAPL"],"kinds":["declared"]}},{"op":"pause","client_reference_id":"watchlist-aapl-8k"}]}' --json
 
-# Create an alert (optional: --validate-only, --idempotency-key, --type, --ciks, --symbols, --cik, --symbol, --form-types, --form-categories, --include-amendments, --stage, --keywords, --match, --scope, --sources, --kinds, --earnings-only, --events, --speaker-roles, --min-mentions, --dividend-types, --statuses, --reason-codes, --report-kinds, --event, --days-before, --offsets-days, --minutes-before, --time-of-day-minutes, --timezone, --notify-on-date-change, --asset-class, --operator, --level, --direction, --pct, --baseline, --window-minutes, --condition-mode, --interval, --multiple, --threshold, --lookback-bars, --baseline-mode, --price-direction, --frequency, --at, --weekday, --days, --script-version-id, --alert-ids, --macro-events, --macro-families, --macro-series-ids, --trigger-mode, --cooldown-seconds, --cooldown-bars, --max-fires, --expires-at, --delete-on-expiry, --activate-at, --pause-until, --rearm, --rearm-distance-pct, --destination-ids, --client-reference-id, --external-user-id, --body, --body-file)
-invd alerts create --body '{"type":"filing","condition":{"symbols":["AAPL"],"form_types":["8-K"],"stage":"detected"},"trigger":{"mode":"every_time"},"destination_ids":["dst_01JD2Q4X7Y8Z9A0B1C2D3E4F5G"],"client_reference_id":"watchlist-aapl-8k","external_user_id":"user_8812","metadata":{"list":"tech"}}' --json
+# Create an alert (optional: --validate-only, --idempotency-key, --type, --ciks, --symbols, --form-types, --form-categories, --include-amendments, --stage, --trigger-mode, --cooldown-seconds, --max-fires, --expires-at, --delete-on-expiry, --activate-at, --pause-until, --active-window, --destination-ids, --client-reference-id, --external-user-id, --metadata, --keywords, --match, --scope, --sources, --kinds, --earnings-only, --events, --speaker-roles, --min-mentions, --mention-delta-rule, --amount-change, --dividend-types, --yield-rule, --statuses, --reason-codes, --cik, --symbol, --rules, --report-kinds, --yoy-rules, --event, --days-before, --offsets-days, --minutes-before, --time-of-day-minutes, --timezone, --notify-on-date-change, --asset-class, --operator, --level, --rearm, --rearm-distance-pct, --direction, --pct, --baseline, --window-minutes, --condition-mode, --interval, --multiple, --threshold, --lookback-bars, --baseline-mode, --price-direction, --frequency, --at, --weekday, --days, --template, --condition, --filters, --evaluation, --cooldown-bars, --script-version-id, --inputs, --series-inputs, --nodes, --alert-ids, --macro-events, --macro-families, --macro-series-ids, --macro-threshold, --body, --body-file)
+invd alerts create --body '{"type":"filing","condition":{"symbols":["AAPL"],"form_types":["8-K"],"stage":"detected"},"client_reference_id":"watchlist-aapl-8k"}' --json
 
 # Delete an alert
 invd alerts delete alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X --json
@@ -104,8 +104,8 @@ invd alerts resume alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X --json
 # Send a test event
 invd alerts test alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X --json
 
-# Update an alert (optional: --version, --ciks, --symbols, --cik, --symbol, --form-types, --form-categories, --include-amendments, --stage, --keywords, --match, --scope, --sources, --kinds, --earnings-only, --events, --speaker-roles, --min-mentions, --dividend-types, --statuses, --reason-codes, --report-kinds, --event, --days-before, --offsets-days, --minutes-before, --time-of-day-minutes, --timezone, --notify-on-date-change, --asset-class, --operator, --level, --direction, --pct, --baseline, --window-minutes, --condition-mode, --interval, --multiple, --threshold, --lookback-bars, --baseline-mode, --price-direction, --frequency, --at, --weekday, --days, --script-version-id, --alert-ids, --macro-events, --macro-families, --macro-series-ids, --trigger-mode, --cooldown-seconds, --cooldown-bars, --max-fires, --expires-at, --delete-on-expiry, --activate-at, --pause-until, --rearm, --rearm-distance-pct, --destination-ids, --client-reference-id, --external-user-id, --body, --body-file)
-invd alerts update alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X --body '{"version":1,"condition":{"symbols":["AAPL","MSFT"],"form_types":["8-K"]}}' --json
+# Update an alert (optional: --type, --ciks, --symbols, --form-types, --form-categories, --include-amendments, --stage, --trigger-mode, --cooldown-seconds, --max-fires, --expires-at, --delete-on-expiry, --activate-at, --pause-until, --active-window, --destination-ids, --client-reference-id, --external-user-id, --metadata, --version, --keywords, --match, --scope, --sources, --kinds, --earnings-only, --events, --speaker-roles, --min-mentions, --mention-delta-rule, --amount-change, --dividend-types, --yield-rule, --statuses, --reason-codes, --cik, --symbol, --rules, --report-kinds, --yoy-rules, --event, --days-before, --offsets-days, --minutes-before, --time-of-day-minutes, --timezone, --notify-on-date-change, --asset-class, --operator, --level, --rearm, --rearm-distance-pct, --direction, --pct, --baseline, --window-minutes, --condition-mode, --interval, --multiple, --threshold, --lookback-bars, --baseline-mode, --price-direction, --frequency, --at, --weekday, --days, --template, --condition, --filters, --evaluation, --cooldown-bars, --script-version-id, --inputs, --series-inputs, --nodes, --alert-ids, --macro-events, --macro-families, --macro-series-ids, --macro-threshold, --body, --body-file)
+invd alerts update alt_01JD2Q5Z8K3M7N9P4R6T1V0W2X --body '{"type":"filing","condition":{"symbols":["AAPL"],"form_types":["8-K"],"stage":"detected"},"version":1}' --json
 ```
 
 ### api
@@ -159,6 +159,12 @@ invd bulk files -d f13 -k parsed --json
 Static catalogs: metrics, sections, forms, event types, document kinds, mapping rules, exchanges, sectors, KPIs
 
 ```bash
+# List alert types (optional: --fields, --limit, --cursor, --all)
+invd catalog alert-types --json
+
+# List dividend types (optional: --fields, --limit, --cursor, --all)
+invd catalog dividend-types --json
+
 # List investor-document kinds (optional: --fields, --limit, --cursor, --all)
 invd catalog document-kinds --json
 
@@ -171,6 +177,9 @@ invd catalog exchanges --json
 # List SEC forms (optional: --fields, --limit, --cursor, --all)
 invd catalog forms --json
 
+# List halt reasons (optional: --fields, --limit, --cursor, --all)
+invd catalog halt-reasons --json
+
 # List KPIs by sector (optional: --sector, --fields, --limit, --cursor, --all)
 invd catalog kpis --json
 
@@ -179,6 +188,9 @@ invd catalog mapping-rules --json
 
 # List standardized metrics (optional: --statement, --fields, --limit, --cursor, --all)
 invd catalog metrics --json
+
+# List news kinds and topics (optional: --group, --fields, --limit, --cursor, --all)
+invd catalog news-kinds --json
 
 # List filing section ids (optional: --form, --fields, --limit, --cursor, --all)
 invd catalog sections --json

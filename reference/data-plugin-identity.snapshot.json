@@ -3,11 +3,11 @@
   "download": {
     "owner": "outraday-org",
     "repository": "invinite-data-cli",
-    "revision": "6ee507176d73bac1048bcbd341821746793aac04"
+    "revision": "360287c57fc2eaa5d24d2c7be86d4defc62e9ba8"
   },
   "manifest": {
     "name": "invinite-financial-data",
-    "version": "0.28.0"
+    "version": "0.29.0"
   },
   "connector": {
     "key": "invinite-financial-data",
@@ -37,19 +37,19 @@
     "skills/what-changed-since-last-report/SKILL.md"
   ],
   "sourceHashes": {
-    "claude-plugin/.claude-plugin/plugin.json": "6d23149648c9ddc0568f9f3b35508ac8f78c08032a6a075db7044da024028be9",
+    "claude-plugin/.claude-plugin/plugin.json": "5ad76f6ffc1094724f5ba1896b4dd1fa4727efc6fecd75eb74885d580ecd4356",
     "claude-plugin/.mcp.json": "a473ef1b56c55c29434aa2864d3bc0b250b4954890af437308ff9d66bc85d0d5",
     "claude-plugin/agents/invinite-data.md": "e5fd7aeeff96f775017058378183f3cb3bd599610e9346277a04b73a00d6e316",
-    "claude-plugin/skills/alert-setup/SKILL.md": "c7976ef71631d906324e29697a15152d6fe89a94b070f39edca82dbf3d377a84",
+    "claude-plugin/skills/alert-setup/SKILL.md": "ec7d6c0b245050911dbff259d90df64fcfbd33b029d9a3f17be7f68e54600320",
     "claude-plugin/skills/analyze-earnings-call/SKILL.md": "2c45b50b9b8838cddfe64ca5ea02a93d11cf84eb3e72d718e2d1c07aba105169",
     "claude-plugin/skills/analyze-filing/SKILL.md": "1b8f6ce20cd300ce01c92e75746f7faaf347fdb1ae0d2ea88b78b48dc82bde43",
     "claude-plugin/skills/compare-companies/SKILL.md": "8e62236c54402f1d9e3defaaf2691afc85e77c47c1a56f40734f8724ec908c27",
     "claude-plugin/skills/earnings-preview/SKILL.md": "b61ac74eb95916923334c0b6f9b63551c0edce78883e1319df482ba11e23b950",
     "claude-plugin/skills/financial-research/SKILL.md": "0e643549a6fb96c559db40c09f317537963afefff232351997c46600fa536de9",
     "claude-plugin/skills/invinite-data-cli/SKILL.md": "f9e6c7d62627cb6f072af5cc2b5b9cf206dc0f73cb517cc2582d67c081553c68",
-    "claude-plugin/skills/invinite-data-cli/references/commands.md": "44c09efb9dd0c19dee678cf10baddad69fd89796e2eedb2b0e85f7bb7caf0a68",
+    "claude-plugin/skills/invinite-data-cli/references/commands.md": "d249bc325e4aed00959b39dbec1d0f254a29766ac47dbd355396ccf73ceaa077",
     "claude-plugin/skills/invinite-financial-data/SKILL.md": "acd61e8143b9251cb8e41ee86549a440815ff66a1a0be62cd7d545801950a342",
-    "claude-plugin/skills/invinite-financial-data/references/alerts.md": "118c3054ab7fb3606e4335e1f3cbe1a3d1c8a2738084496d6ada5729b8cb3362",
+    "claude-plugin/skills/invinite-financial-data/references/alerts.md": "7abffb0cb3bef134ba41d104b851fcf7540c566c0488d7bae8aff8c1e262e5b9",
     "claude-plugin/skills/invinite-financial-data/references/earnings-calls.md": "2834994ed0ef79d7a6d6c3a19793cf1feb608a7ad75cc2910c10b72c29e09f33",
     "claude-plugin/skills/invinite-financial-data/references/filings.md": "36f0278e3fcca6042cc693c5eae830110825af010afb058ed0c185f778ca06e6",
     "claude-plugin/skills/invinite-financial-data/references/financials.md": "57a19d115a3ccab56c8c6fdc782fb49be5f0355b7f9af68683740e9a3b8400f3",
@@ -62,22 +62,22 @@
   },
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "12.4.0",
-    "specSha256": "2685f116beca7523af3b06fcf6c38080102060d1299db7925aa591cd6c129f58",
+    "version": "13.0.0",
+    "specSha256": "c1ce8fa33639c84752524dd5c190ce1f7a6b4d8b1c814e5f1b2ef4ac99b861d6",
     "sourceHashes": {
-      "claude-plugin/.claude-plugin/plugin.json": "6d23149648c9ddc0568f9f3b35508ac8f78c08032a6a075db7044da024028be9",
+      "claude-plugin/.claude-plugin/plugin.json": "5ad76f6ffc1094724f5ba1896b4dd1fa4727efc6fecd75eb74885d580ecd4356",
       "claude-plugin/.mcp.json": "a473ef1b56c55c29434aa2864d3bc0b250b4954890af437308ff9d66bc85d0d5",
       "claude-plugin/agents/invinite-data.md": "e5fd7aeeff96f775017058378183f3cb3bd599610e9346277a04b73a00d6e316",
-      "claude-plugin/skills/alert-setup/SKILL.md": "c7976ef71631d906324e29697a15152d6fe89a94b070f39edca82dbf3d377a84",
+      "claude-plugin/skills/alert-setup/SKILL.md": "ec7d6c0b245050911dbff259d90df64fcfbd33b029d9a3f17be7f68e54600320",
       "claude-plugin/skills/analyze-earnings-call/SKILL.md": "2c45b50b9b8838cddfe64ca5ea02a93d11cf84eb3e72d718e2d1c07aba105169",
       "claude-plugin/skills/analyze-filing/SKILL.md": "1b8f6ce20cd300ce01c92e75746f7faaf347fdb1ae0d2ea88b78b48dc82bde43",
       "claude-plugin/skills/compare-companies/SKILL.md": "8e62236c54402f1d9e3defaaf2691afc85e77c47c1a56f40734f8724ec908c27",
       "claude-plugin/skills/earnings-preview/SKILL.md": "b61ac74eb95916923334c0b6f9b63551c0edce78883e1319df482ba11e23b950",
       "claude-plugin/skills/financial-research/SKILL.md": "0e643549a6fb96c559db40c09f317537963afefff232351997c46600fa536de9",
       "claude-plugin/skills/invinite-data-cli/SKILL.md": "f9e6c7d62627cb6f072af5cc2b5b9cf206dc0f73cb517cc2582d67c081553c68",
-      "claude-plugin/skills/invinite-data-cli/references/commands.md": "44c09efb9dd0c19dee678cf10baddad69fd89796e2eedb2b0e85f7bb7caf0a68",
+      "claude-plugin/skills/invinite-data-cli/references/commands.md": "d249bc325e4aed00959b39dbec1d0f254a29766ac47dbd355396ccf73ceaa077",
       "claude-plugin/skills/invinite-financial-data/SKILL.md": "acd61e8143b9251cb8e41ee86549a440815ff66a1a0be62cd7d545801950a342",
-      "claude-plugin/skills/invinite-financial-data/references/alerts.md": "118c3054ab7fb3606e4335e1f3cbe1a3d1c8a2738084496d6ada5729b8cb3362",
+      "claude-plugin/skills/invinite-financial-data/references/alerts.md": "7abffb0cb3bef134ba41d104b851fcf7540c566c0488d7bae8aff8c1e262e5b9",
       "claude-plugin/skills/invinite-financial-data/references/earnings-calls.md": "2834994ed0ef79d7a6d6c3a19793cf1feb608a7ad75cc2910c10b72c29e09f33",
       "claude-plugin/skills/invinite-financial-data/references/filings.md": "36f0278e3fcca6042cc693c5eae830110825af010afb058ed0c185f778ca06e6",
       "claude-plugin/skills/invinite-financial-data/references/financials.md": "57a19d115a3ccab56c8c6fdc782fb49be5f0355b7f9af68683740e9a3b8400f3",
@@ -86,13 +86,13 @@
       "claude-plugin/skills/ownership-review/SKILL.md": "a461d9539bf5c5b74f0c71a096a2adc1cd29c1512ca9c9467876ab9f71f5464b",
       "claude-plugin/skills/restatement-history/SKILL.md": "42687d9dfac83d3cd3adf5c5554bb45a757ca03f52becf8687eff8afb01b7032",
       "claude-plugin/skills/what-changed-since-last-report/SKILL.md": "5496bd47ad4b470f2b20af3e9beee1b22b2185bbe04e1fd85856e74400e98362",
-      "package.json": "72d5c7b70cf7d74c330c309b6ad00f3d0519fcf12f145d46a6ea78032ccf345e",
-      "reference/data-skills.pin.json": "e1878b8468bf77f960b7d95290fb1258d6dab650ba8cba9a3b8e9d6f1da6ea36",
+      "package.json": "de931b91924e58b2492d0a0c924e29e1a099a613658dc1be6dd4976635263b42",
+      "reference/data-skills.pin.json": "b89a293f7ad2bfb306a031a81ea25ac8351f90efdd710464cde39b26e956b3a0",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-plugin-packaging.ts": "cbaf84c1ce55050652105f485a5915e92e16ece42870ad6d55d10a7d76bc0cf6",
       "src/commands/plugin.ts": "b007ebc20b353034cd287273391aa6d83f6c11867090f73231f3f995bce62f11"
     },
-    "revision": "6ee507176d73bac1048bcbd341821746793aac04",
-    "fingerprint": "cdbb901e6b0548f4a54b8ff8ba1e3d5f1f5dd787c54ff28306f5862f38821a50"
+    "revision": "360287c57fc2eaa5d24d2c7be86d4defc62e9ba8",
+    "fingerprint": "9996c5e41b4ec249faefd3297290bb59c2d90d5034ddd2a949913630a5a26173"
   }
 }

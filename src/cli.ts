@@ -120,7 +120,7 @@ export function createProgram(): Command {
   registerApiCommand(program);
   registerCompletionCommand(program, () => [...new Set(loadManifest().operations.map(operation => operation.path))].sort());
   registerSpecCommands(program, loadManifest());
-  registerAlertEventsTailCommand(program);
+  registerAlertEventsTailCommand(program, loadManifest());
   registerScriptsUploadCommand(program);
 
   return program;
