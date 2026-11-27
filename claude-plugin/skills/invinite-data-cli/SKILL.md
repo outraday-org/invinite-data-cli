@@ -45,7 +45,7 @@ serves the earlier roster; use whatever tools it lists, or the CLI.
 | Earnings-call calendar and history | `list_events` | `invd events list` |
 | One event: transcript, Q&A, stats, comparison, press release, slides … | `get_event` | `invd events get\|transcript\|transcript-text\|qa\|stats\|comparison\|press-release\|slides\|price-attribution` |
 | Search transcripts and investor documents | `search_transcripts` | `invd search transcripts`, `invd search investor-documents` |
-| News items, text, announcements, news search | `get_news` | `invd news list\|get\|text\|announcements`, `invd search news` |
+| News items, text, announcements, news search | `get_news` | `invd news list` (omit company for the seven-day market window), `invd news get\|text\|announcements`, `invd search news` |
 | Account and usage | `get_account` | `invd me show\|usage` |
 | Alerts, their event log | `manage_alerts` | `invd alerts …`, `invd alert-events list\|get\|tail` |
 | Alert destinations (webhook endpoints) | `manage_destinations` | `invd destinations …` |
@@ -230,6 +230,18 @@ invd filings get 0000320193-26-000026 --expand documents --json
 invd documents sections <version_id> --json
 invd documents get <version_id> --blocks b12-b40 --json
 ```
+
+### Search across companies
+
+```bash
+invd news list
+invd search news buyback
+invd search news buyback --company AAPL,MSFT
+invd search transcripts "gross margin"
+invd search transcripts "gross margin" --company AAPL,MSFT
+```
+
+Search one company, a comma list of up to 50, or omit `--company` to search every company. News search defaults to 365 days and allows up to 731. Transcript search without a company or event defaults to 365 days. Both return one page of up to eight hits. For common keywords, news ranks the newest 5,000 matching passages. Transcript search ranks the newest 1,000 when searching every company or more than ten companies without an event. Narrow the search for more specific hits. A disabled search returns 503 until it is enabled. For a temporary search failure, retry once after the `Retry-After` delay.
 
 ### What a company announced
 

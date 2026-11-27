@@ -66,6 +66,8 @@ throws `JobEndedError` (`failed` / unknown → exit 1, `expired` → 3 like the 
 spec sha256 `ed91cd90…`, its base revision field reads `6b73f048`); it also carries 12.1's patch #69 (`period_kind`
 validated on `guidance non-gaap` / `kpi-series`, description fixes; no flag change).
 
+12.4.0 adopts Data API 12.4 (tag `data-sdk-v12.4.0`, reference `c960c8a`, Fly v202) with plugin 0.28.0. The 145 operations retain their CLI grammar. `invd news list` without a scope returns the seven-day market window. News and transcript search accept a company list, and each returns a single ranked page of up to eight passages. The 12.4 bundle and exported CLI reference supersede the earlier pins for new installs.
+
 12.3.0 adopts Data API 12.3 with plugin 0.27.0 (145 operations, additive over 12.2; invinite-data-api
 `tasks/market-wide-filings-list` task 5): `invd filings list [symbol...]` takes no symbol (`required: false` from the
 parameter, no CLI code: the newest filings of every filer, the last 7 days by default, `--filed-at-gte` /

@@ -13,12 +13,16 @@ Invinite's wording of the publication.
 
 | Mode | Arguments | Plan, credits |
 |---|---|---|
-| A company's (or a call's) items, newest first | `company` (comma list) and / or `event_id`; `kind`, `topic`, `from` / `to` (published date) | Lite, 1 |
-| Search headlines, ledes and summaries | `q` (+ `company`, `from` / `to`) | Standard, 10 |
+| News items, newest first | `company` (comma list) and / or `event_id`; omit both for every company over the last 7 New York days (`from` / `to` move this window, at most 7 days); `kind`, `topic`, `from` / `to` (published date) | Lite, 1 |
+| Search headlines, ledes and summaries | `q` with one `company`, a comma list of up to 50, or none for every company. The last 365 days by default, at most 731 (`from` / `to`). | Standard, 10 |
 | One item | `item_id` | Lite, 2 |
 | One item's summary text | `item_id` + `text=true` | Lite, 2 |
 | Developments read from the items | `announcements=true` (+ `company`, `topic`, `from` / `to`, announced date) | Lite, 2 |
 
+- Search returns one page of at most 8 hits by relevance. For a common word, it ranks the newest matching passages.
+  Narrow by company or date. Use `call_api` for a case-sensitive exact match (newest first) or a field filter.
+  Retry “Search is temporarily unavailable” once after the retry delay. A disabled search requires enablement.
+  Neither failure is billed.
 - `kind` of an item: `earnings_results`, `results_date`, `call_announcement`, `event_announcement`, `guidance`,
   `m_and_a`, `material_agreement`, `management_change`, `dividend`, `capital_markets`, `other`.
 - Announcement `topic`: `product_launch`, `product_update`, `availability`, `partnership`, `customer_contract`,

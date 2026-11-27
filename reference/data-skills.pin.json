@@ -1,6 +1,6 @@
 {
   "repository": "https://github.com/outraday-org/invinite-data-api",
-  "revision": "ac46ec5aeef608e2b91da405cc85fe56ff60bd8e",
+  "revision": "c960c8a58deb67b9d31641b82e8b6a0eb000d359",
   "path": "src/skills",
   "footer": "Without a connected Invinite Data MCP server, load the `invinite-data-cli` skill: it maps every tool named here to an `invd` command.",
   "skills": [
@@ -49,8 +49,8 @@
       "written": "118c3054ab7fb3606e4335e1f3cbe1a3d1c8a2738084496d6ada5729b8cb3362"
     },
     "invinite-financial-data/references/earnings-calls.md": {
-      "source": "be3868463a0e682ab2e8509b3d99e751b4c4fedb7e0fd322ee194fb48cf0f487",
-      "written": "be3868463a0e682ab2e8509b3d99e751b4c4fedb7e0fd322ee194fb48cf0f487"
+      "source": "2834994ed0ef79d7a6d6c3a19793cf1feb608a7ad75cc2910c10b72c29e09f33",
+      "written": "2834994ed0ef79d7a6d6c3a19793cf1feb608a7ad75cc2910c10b72c29e09f33"
     },
     "invinite-financial-data/references/filings.md": {
       "source": "36f0278e3fcca6042cc693c5eae830110825af010afb058ed0c185f778ca06e6",
@@ -61,8 +61,8 @@
       "written": "57a19d115a3ccab56c8c6fdc782fb49be5f0355b7f9af68683740e9a3b8400f3"
     },
     "invinite-financial-data/references/news.md": {
-      "source": "de3fed4ddeb1ff0e6f656cc0c8c6fe49a2221a9d61a2368cdc68a4ff60feb69e",
-      "written": "de3fed4ddeb1ff0e6f656cc0c8c6fe49a2221a9d61a2368cdc68a4ff60feb69e"
+      "source": "6f34aab4f68de433aff124ce0f9ca0af75b3da1f9b4998c7191defde87116aea",
+      "written": "6f34aab4f68de433aff124ce0f9ca0af75b3da1f9b4998c7191defde87116aea"
     },
     "invinite-financial-data/references/ownership.md": {
       "source": "f1695b3d84126410b9b9223cb99e90485cbf63277c269723dfc169de02a9c071",
