@@ -1,6 +1,6 @@
 {
   "repository": "https://github.com/outraday-org/invinite-data-api",
-  "revision": "f196ad704099f1d77cb0b888b2ffeec182ba6ac8",
+  "revision": "ac46ec5aeef608e2b91da405cc85fe56ff60bd8e",
   "path": "src/skills",
   "footer": "Without a connected Invinite Data MCP server, load the `invinite-data-cli` skill: it maps every tool named here to an `invd` command.",
   "skills": [
@@ -25,8 +25,8 @@
       "written": "2c45b50b9b8838cddfe64ca5ea02a93d11cf84eb3e72d718e2d1c07aba105169"
     },
     "analyze-filing/SKILL.md": {
-      "source": "e8160e90bcf9b815075127c3d3ee7b91c41473177bf0a75116d10b3b9dd3e535",
-      "written": "36a2e35d30eba11874ecc51e5ff28316a9401e7d1a8b2f91709c270c4a9a5c06"
+      "source": "b59837f1bbab41c7f26b7e72e8f7051df499295ba2ab84a6c11efa99a95c2c6a",
+      "written": "1b8f6ce20cd300ce01c92e75746f7faaf347fdb1ae0d2ea88b78b48dc82bde43"
     },
     "compare-companies/SKILL.md": {
       "source": "620165dc76bb3b7d6c72f281cdf88a7244f277acb0c3108604b98ebf6fb7817a",
@@ -41,8 +41,8 @@
       "written": "0e643549a6fb96c559db40c09f317537963afefff232351997c46600fa536de9"
     },
     "invinite-financial-data/SKILL.md": {
-      "source": "ca628357836f187cec4f46b582ae84f264d42f886b4b01aad8ef551a0fea4de5",
-      "written": "a4b8c5bf4a2c2c6f022a1c3f64a6fc717396f0d6284b07dc406915a939b43c36"
+      "source": "62052472ba7d321aa27c592de9716532ca5caa43fa89af97e2080b5877eceb20",
+      "written": "acd61e8143b9251cb8e41ee86549a440815ff66a1a0be62cd7d545801950a342"
     },
     "invinite-financial-data/references/alerts.md": {
       "source": "118c3054ab7fb3606e4335e1f3cbe1a3d1c8a2738084496d6ada5729b8cb3362",
@@ -53,8 +53,8 @@
       "written": "be3868463a0e682ab2e8509b3d99e751b4c4fedb7e0fd322ee194fb48cf0f487"
     },
     "invinite-financial-data/references/filings.md": {
-      "source": "34086a2a6aa7078c1884c50f26afaa72441db494d9a592ce79bc011d13ec5ad8",
-      "written": "34086a2a6aa7078c1884c50f26afaa72441db494d9a592ce79bc011d13ec5ad8"
+      "source": "36f0278e3fcca6042cc693c5eae830110825af010afb058ed0c185f778ca06e6",
+      "written": "36f0278e3fcca6042cc693c5eae830110825af010afb058ed0c185f778ca06e6"
     },
     "invinite-financial-data/references/financials.md": {
       "source": "57a19d115a3ccab56c8c6fdc782fb49be5f0355b7f9af68683740e9a3b8400f3",

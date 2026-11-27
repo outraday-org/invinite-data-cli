@@ -1,6 +1,6 @@
 {
   "specVersion": "2026-11-26",
-  "specSha256": "ed91cd905ac88c8f89ab1bd96a9b28f21a7801708ea4f0c7914b1ced3b527de8",
+  "specSha256": "9e56b3235a21354580aaf64ef7bbc5164b66e1b0773e6c71a7bb9e12d13900e4",
   "groups": [
     {
       "name": "alert-events",
@@ -6718,10 +6718,10 @@
         {
           "name": "symbol",
           "in": "query",
-          "required": true,
+          "required": false,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker of any instrument (a stock, a fund, an ETN), a fund key (`S000024908`, `cik:884394`) or a company CIK (its primary listing); a comma list of 1–50. A bare ticker is a US listing (`TICKER.<MIC>` is refused with a 400). Required.",
+          "description": "Ticker of any instrument (a stock, a fund, an ETN), a fund key (`S000024908`, `cik:884394`), the CIK of any SEC filer or the proposed ticker of an open IPO registration; a comma list of 1–50. A bare ticker is a US listing (`TICKER.<MIC>` is refused with a 400). Omit it to list every filer's filings of a short filed window (default the last 7 days; `filed_at.gte` / `filed_at.lte` move it, at most 7 days).",
           "flag": "symbol"
         },
         {
@@ -6825,7 +6825,7 @@
       ],
       "positional": {
         "name": "symbol",
-        "required": true,
+        "required": false,
         "variadic": "comma"
       },
       "list": true,
@@ -6834,6 +6834,7 @@
         "filing_date",
         "form",
         "accession",
+        "filer.name",
         "report_date",
         "primary_document"
       ],
@@ -6842,6 +6843,7 @@
         "symbol",
         "company",
         "fund",
+        "filer",
         "form",
         "filing_date",
         "report_date",
@@ -10608,9 +10610,9 @@
           "in": "query",
           "required": false,
           "type": "string",
-          "pattern": "^(registered|price_range|exchange_approved|effective|priced|trading|withdrawn|announced|postponed)(,(registered|price_range|exchange_approved|effective|priced|trading|withdrawn|announced|postponed))*$",
+          "pattern": "^(registered|price_range|exchange_approved|effective|priced|trading|withdrawn|announced|postponed|dormant)(,(registered|price_range|exchange_approved|effective|priced|trading|withdrawn|announced|postponed|dormant))*$",
           "example": "priced",
-          "description": "Stages — any of `registered`, `price_range`, `exchange_approved`, `effective`, `priced`, `trading`, `withdrawn`, `announced`, `postponed`, comma-separated",
+          "description": "Stages — any of `registered`, `price_range`, `exchange_approved`, `effective`, `priced`, `trading`, `withdrawn`, `announced`, `postponed`, `dormant`, comma-separated",
           "alias": "s",
           "flag": "stage"
         },
@@ -14386,7 +14388,7 @@
           "required": false,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker of any instrument (a stock, a fund, an ETN), a fund key (`S000024908`, `cik:884394`) or a company CIK (its primary listing); a comma list of 1–50. A bare ticker is a US listing (`TICKER.<MIC>` is refused with a 400). A series of a multi-series trust (TQQQ) is searched alone.",
+          "description": "Ticker of any instrument (a stock, a fund, an ETN), a fund key (`S000024908`, `cik:884394`), a company CIK (its primary listing), the CIK of any other SEC filer or the proposed ticker of an open IPO registration; a comma list of 1–50. A bare ticker is a US listing (`TICKER.<MIC>` is refused with a 400). A series of a multi-series trust (TQQQ) is searched alone.",
           "alias": "s",
           "flag": "symbol"
         },

@@ -7,7 +7,9 @@ description: Use when the user wants an SEC filing read and explained — a 10-K
 
 1. **Find the filing.** Resolve the company (`search_instruments`; `scope=filers` for a filer without a listing),
    then `list_filings symbol=AAPL form=10-K limit=2` for the newest and the prior one (8-K: add `items=2.02` or the
-   item the question is about). Keep the accession numbers.
+   item the question is about). A filer without a listing (a pre-IPO S-1) takes its CIK or its proposed ticker as
+   `symbol`; a filing filed in the last few days with no known filer: `list_filings form=S-1` without `symbol`. Keep
+   the accession numbers.
 2. **Open its outline.** `read_filing accession=<newest>` returns the documents, the section outline and the
    `version_id`. Read `invinite://catalog/sections` when you need the section ids of a form.
 3. **Read only the sections the question needs** (normally risk factors `1A`, MD&A `7`, business `1`, the financial

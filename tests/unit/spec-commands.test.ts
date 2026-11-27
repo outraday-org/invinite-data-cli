@@ -231,6 +231,26 @@ describe('--dry-run, confirmation, delete', () => {
     expect(url.searchParams.has('include_operators')).toBe(false);
   });
 
+  it('invd filings list without a symbol plans the market-wide GET /v1/filings (Data API 12.3); AAPL unchanged', async () => {
+    expect(loadManifest().operations.find(o => o.operationId === 'listFilings')?.positional)
+      .toEqual({ name: 'symbol', required: false, variadic: 'comma' });
+    await run('filings', 'list', '--dry-run', '--output', 'table');
+    expect(fetch).not.toHaveBeenCalled();
+    const planned = out.join('\n');
+    expect(planned).toContain('GET https://api.example.com/v1/filings');
+    expect(planned).not.toContain('symbol=');
+
+    out = [];
+    await run('filings', 'list', 'AAPL', '--dry-run', '--output', 'table');
+    expect(out.join('\n')).toContain('GET https://api.example.com/v1/filings?symbol=AAPL');
+
+    const row = { accession: '0001234567-26-000001', symbol: null, company: null, fund: null, filer: { cik: '0001234567', name: 'Newco Inc', role: 'filer' }, form: 'S-1' };
+    vi.mocked(fetch).mockResolvedValueOnce(page([row]));
+    await run('filings', 'list', '--json');
+    expect(new URL(calls()[0]?.url ?? '').searchParams.has('symbol')).toBe(false);
+    expect(JSON.parse(out.at(-1) ?? '{}').data[0]).toMatchObject({ symbol: null, filer: { name: 'Newco Inc' } });
+  });
+
   it('a dry run of a resolved event shows the lookup and the sum', async () => {
     await run('events', 'transcript', 'NVDA', '2026Q3', '--dry-run', '--json');
     const plan = JSON.parse(out.join('\n'));

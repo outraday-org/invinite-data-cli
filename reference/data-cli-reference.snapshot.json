@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "12.2.0",
+    "version": "12.3.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -9,11 +9,11 @@
     "engines": {
       "node": ">=20"
     },
-    "verifiedOn": "2026-11-26",
+    "verifiedOn": "2026-11-27",
     "sourceHashes": {
-      "api-contract.json": "b413be5afe4a58e9e6c277eec6ca1cd0568208b73be39cedb34aeba66741cca7",
-      "openapi.json": "ed91cd905ac88c8f89ab1bd96a9b28f21a7801708ea4f0c7914b1ced3b527de8",
-      "package.json": "c777e44eda074ad7cb0f6b91e9b812fe120d0f81c643d0a1be719e8de4fff891",
+      "api-contract.json": "871afd96807ecb9607c02c44436295f2df868abc0231f3d4b9b475c1a87af46c",
+      "openapi.json": "9e56b3235a21354580aaf64ef7bbc5164b66e1b0773e6c71a7bb9e12d13900e4",
+      "package.json": "cc2ab5bff908451fd34a621d3fbf5182a584eafb35086fba32cfe93c4c334311",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "ed216f689f39e3dbf72c7d6a1c74ee6cb9c22fbaf9982a9b4ddee2873f2d5536",
@@ -34,7 +34,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "51e3effbf87963c912892cc72066212f263692ba78696fbc5452c06cb2bcfd23",
+      "src/generated/cli-manifest.json": "44c7d4ab013731b508c42fdd96b58ad179c98adab27a130a08eacac8d6ddcba2",
       "src/hand-written-commands.ts": "a095d5f00a17a9cd643a8a0e6e5dcadbb7050dfd8b14d846ce81f3536a9920b9",
       "src/job-wait.ts": "296be47b6b13ebf2d2639fc6ae36ca4dc8409709905bb7cb85a04619c7d81821",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
@@ -51,9 +51,9 @@
       "src/spec-manifest.ts": "a6ecff23211b8bd82e28611df4e7bebe3569a23f543cadda2a6cc8c55b4a0a5a",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "ed91cd905ac88c8f89ab1bd96a9b28f21a7801708ea4f0c7914b1ced3b527de8",
-    "revision": "8c47be387fe2064edc819600608797e2b60c1d04",
-    "fingerprint": "098e774a54e36a20b9cdcc8592bf58a26d781ad7bbe7b4ba6af0dfc21f6b7df3"
+    "specSha256": "9e56b3235a21354580aaf64ef7bbc5164b66e1b0773e6c71a7bb9e12d13900e4",
+    "revision": "45c212e8f4ab6c967ec34827223478f25b1dba2a",
+    "fingerprint": "2dc740798b85ed5ee0d2c33601300ae807965bfe2a3500fb64ba02722c4c213f"
   },
   "globalOptions": [
     {
@@ -8024,8 +8024,8 @@
       "arguments": [
         {
           "name": "symbol",
-          "description": "Ticker of any instrument (a stock, a fund, an ETN), a fund key (`S000024908`, `cik:884394`) or a company CIK (its primary listing); a comma list of 1–50. A bare ticker is a US listing (`TICKER.<MIC>` is refused with a 400). Required. (one or more; sent as a comma list)",
-          "required": true
+          "description": "Ticker of any instrument (a stock, a fund, an ETN), a fund key (`S000024908`, `cik:884394`), the CIK of any SEC filer or the proposed ticker of an open IPO registration; a comma list of 1–50. A bare ticker is a US listing (`TICKER.<MIC>` is refused with a 400). Omit it to list every filer's filings of a short filed window (default the last 7 days; `filed_at.gte` / `filed_at.lte` move it, at most 7 days). (one or more; sent as a comma list)",
+          "required": false
         }
       ],
       "options": [
@@ -10530,7 +10530,7 @@
       "options": [
         {
           "flags": "-s, --stage <value>",
-          "description": "Stages — any of `registered`, `price_range`, `exchange_approved`, `effective`, `priced`, `trading`, `withdrawn`, `announced`, `postponed`, comma-separated (e.g. priced)",
+          "description": "Stages — any of `registered`, `price_range`, `exchange_approved`, `effective`, `priced`, `trading`, `withdrawn`, `announced`, `postponed`, `dormant`, comma-separated (e.g. priced)",
           "required": false
         },
         {
@@ -14502,7 +14502,7 @@
         },
         {
           "flags": "-s, --symbol <value>",
-          "description": "Ticker of any instrument (a stock, a fund, an ETN), a fund key (`S000024908`, `cik:884394`) or a company CIK (its primary listing); a comma list of 1–50. A bare ticker is a US listing (`TICKER.<MIC>` is refused with a 400). A series of a multi-series trust (TQQQ) is searched alone. (e.g. AAPL)",
+          "description": "Ticker of any instrument (a stock, a fund, an ETN), a fund key (`S000024908`, `cik:884394`), a company CIK (its primary listing), the CIK of any other SEC filer or the proposed ticker of an open IPO registration; a comma list of 1–50. A bare ticker is a US listing (`TICKER.<MIC>` is refused with a 400). A series of a multi-series trust (TQQQ) is searched alone. (e.g. AAPL)",
           "required": false
         },
         {
