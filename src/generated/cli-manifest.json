@@ -1,6 +1,6 @@
 {
   "specVersion": "2026-11-26",
-  "specSha256": "9e56b3235a21354580aaf64ef7bbc5164b66e1b0773e6c71a7bb9e12d13900e4",
+  "specSha256": "2685f116beca7523af3b06fcf6c38080102060d1299db7925aa591cd6c129f58",
   "groups": [
     {
       "name": "alert-events",
@@ -12908,7 +12908,7 @@
           "required": false,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Omit `company` and `event` to list every company's news of a short published window (default the last 7 days; `published_at.*` move it, at most 7 days).",
           "flag": "company"
         },
         {
@@ -14636,7 +14636,7 @@
           "required": false,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Omit it to search every company. A listed company without coverage is skipped.",
           "alias": "c",
           "flag": "company"
         },
@@ -14713,7 +14713,7 @@
           "type": "integer",
           "default": 25,
           "example": 25,
-          "description": "Rows per page (default 25, max 200)",
+          "description": "At most 8 hits are returned whatever the value (schema kept for compatibility).",
           "alias": "l",
           "flag": "limit"
         },
@@ -14723,7 +14723,7 @@
           "required": false,
           "type": "string",
           "example": "eyJ2IjoyfQ",
-          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "description": "Never needed: the answer is one page (`has_more` false).",
           "flag": "cursor"
         }
       ],
@@ -14779,7 +14779,7 @@
           "required": false,
           "type": "string",
           "example": "AAPL",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. One of the scope filters of this list is required.",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Omit it to search every company. A listed company without coverage is skipped.",
           "alias": "c",
           "flag": "company"
         },
@@ -14859,7 +14859,7 @@
           "type": "integer",
           "default": 25,
           "example": 25,
-          "description": "Rows per page (default 25, max 200)",
+          "description": "At most 8 hits are returned whatever the value (schema kept for compatibility).",
           "alias": "l",
           "flag": "limit"
         },
@@ -14869,7 +14869,7 @@
           "required": false,
           "type": "string",
           "example": "eyJ2IjoyfQ",
-          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch)",
+          "description": "Never needed: the answer is one page (`has_more` false).",
           "flag": "cursor"
         }
       ],

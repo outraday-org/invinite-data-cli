@@ -78,10 +78,12 @@ transcript only when a claim needs the exact wording.
 
 ## Where something was said: `search_transcripts`
 
-- One call searches every transcript (`scope=transcripts`, default) or investor document and slide
-  (`scope=documents`, `kind=` from `invinite://catalog/document-kinds`). Each hit names its call (`event_id`, date),
-  the speaker and the offsets, so no `list_events` call is needed first; omit dates to search every call.
-- Narrow with `company`, `event_id`, `type` (`transcript`, `prepared`, `qa`, `presentation`), `from` / `to` (call
-  date).
-  `mode=literal` matches an exact figure, term or quote.
+- Use `scope=transcripts` (the default) for spoken passages and slides, or `scope=documents` for investor documents.
+  For transcripts, give one `company`, a comma list of up to 50, or omit it for every company. Without a company or
+  `event_id`, the default is the last 365 days. With a scope, dates are optional and every matching call is included.
+- One page holds at most 8 hits, ordered by relevance or newest first for `mode=literal` (case-sensitive exact text).
+  Across every company or more than 10 companies without an event, keyword search ranks the newest matching passages. Narrow with `company`, `event_id`, `from` / `to` or
+  `type` (transcript, prepared, qa, presentation). Each hit includes its call and passage.
+- Retry “Search is temporarily unavailable” once after the retry delay. A disabled search requires enablement.
+  Neither failure is billed.
 - Pro, 10 credits per call. A `Coverage: pending` note means no hits is not proof the topic was never mentioned.

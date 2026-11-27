@@ -34,6 +34,12 @@ API's MCP server serves — the data guide `invinite-financial-data` and nine wo
 `commands/*.md` (`/financial-research`, `/analyze-earnings-call`, …) are gone: the workflows are skills now, and
 `invd plugin install` removes the files earlier versions wrote. See [The plugin](#the-plugin).
 
+## Changes in 12.4.0 (Data API 12.4)
+
+CLI 12.4.0 and plugin 0.28.0 support market-wide news and transcript search by company list. Run `invd news list` for every company’s latest news in a seven-day New York window.
+
+Search one company, a comma list of up to 50, or omit `--company` to search every company. News search defaults to 365 days and allows up to 731. Transcript search without a company or event defaults to 365 days. Both return one page of up to eight hits. For common keywords, news ranks the newest 5,000 matching passages. Transcript search ranks the newest 1,000 when searching every company or more than ten companies without an event. Narrow the search for more specific hits. A disabled search returns 503 until it is enabled. For a temporary search failure, retry once after the `Retry-After` delay.
+
 ## Changes in 12.3.0 (Data API 12.3)
 
 CLI 12.3.0 and plugin 0.27.0 adopt Data API 12.3 (additive, no command removed or renamed):
@@ -412,6 +418,8 @@ invd catalog kpis --sector airlines
 invd people list AAPL --role analyst
 invd people get <person_id>                          # + image_url (a photo or the company / firm logo; empty = show initials)
 invd people list AAPL --fields name,image_url,image_kind --json
+invd search transcripts "gross margin"
+invd search transcripts "gross margin" --company AAPL,MSFT
 invd search transcripts "gross margin" --company AAPL --type qa
 ```
 
@@ -446,11 +454,14 @@ invd ownership sale-notices --owner 0001214156                   # one seller's 
 ### News, investor documents, IPOs, market
 
 ```bash
+invd news list
 invd news AAPL --published-at-gte 2026-11-01
 invd news get <id>
 invd news text <id>
 invd news announcements AAPL --topic product_launch
+invd search news buyback
 invd search news buyback --company AAPL
+invd search news buyback --company AAPL,MSFT
 invd investor-documents AAPL --kind investor_presentation
 invd search investor-documents "capital allocation" --company AAPL
 invd ipos list --stage priced

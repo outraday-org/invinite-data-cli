@@ -170,6 +170,24 @@ describe('requests', () => {
 });
 
 describe('--dry-run, confirmation, delete', () => {
+  it.each([
+    { args: ['news', 'list'], path: '/v1/news', query: {} },
+    { args: ['news', 'list', 'AAPL'], path: '/v1/news', query: { company: 'AAPL' } },
+    { args: ['news', 'list', '--published-at-gte', '2026-11-25T05:00:00Z'], path: '/v1/news', query: { 'published_at.gte': '2026-11-25T05:00:00Z' } },
+    { args: ['search', 'news', 'buyback'], path: '/v1/search/news', query: { q: 'buyback' } },
+    { args: ['search', 'news', 'buyback', '--company', 'AAPL,MSFT'], path: '/v1/search/news', query: { q: 'buyback', company: 'AAPL,MSFT' } },
+    { args: ['search', 'transcripts', 'gross margin'], path: '/v1/search/transcripts', query: { q: 'gross margin' } },
+    { args: ['search', 'transcripts', 'gross margin', '--company', 'AAPL,MSFT'], path: '/v1/search/transcripts', query: { q: 'gross margin', company: 'AAPL,MSFT' } },
+  ])('plans $args with exactly the requested scope', async ({ args, path, query }) => {
+    await run(...args, '--dry-run', '--output', 'table');
+    expect(fetch).not.toHaveBeenCalled();
+    const match = /GET (https?:\/\/[^\s]+)/.exec(out.join('\n'));
+    expect(match).not.toBeNull();
+    const url = new URL(match![1]!);
+    expect(url.pathname).toBe(path);
+    expect(Object.fromEntries(url.searchParams)).toEqual(query);
+  });
+
   it('invd holders AAPL --source 13f --all --dry-run prints a credit estimate and makes no request', async () => {
     await run('holders', 'AAPL', '--source', '13f', '--all', '--dry-run', '--output', 'table');
     expect(fetch).not.toHaveBeenCalled();
