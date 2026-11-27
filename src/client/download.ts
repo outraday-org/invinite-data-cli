@@ -23,7 +23,8 @@ export interface SaveOptions {
   force?: boolean;
 }
 
-async function exists(path: string): Promise<boolean> {
+/** Whether a file (or directory) exists at `path`. */
+export async function exists(path: string): Promise<boolean> {
   try {
     await access(path);
     return true;
