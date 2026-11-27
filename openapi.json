@@ -4725,6 +4725,7 @@
           "symbol",
           "company",
           "fund",
+          "filer",
           "form",
           "filing_date",
           "report_date",
@@ -4742,8 +4743,9 @@
           },
           "symbol": {
             "type": "string",
-            "description": "The instrument's ticker",
-            "example": "AAPL"
+            "description": "The instrument's ticker; null for a filer without an instrument",
+            "example": "AAPL",
+            "nullable": true
           },
           "company": {
             "allOf": [
@@ -4751,7 +4753,7 @@
                 "$ref": "#/components/schemas/CompanyRef"
               }
             ],
-            "description": "For a stock: its company; null for a fund or an ETN",
+            "description": "For a stock: its company; null for a fund or an ETN; `{cik, ticker: null}` for a filer without a listing",
             "nullable": true
           },
           "fund": {
@@ -4761,6 +4763,15 @@
               }
             ],
             "description": "For a fund (ETF, closed-end fund): the fund; null for a stock or an ETN",
+            "nullable": true
+          },
+          "filer": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/FilingFiler"
+              }
+            ],
+            "description": "The filer this row is listed under: on a symbol-scoped list the resolved registrant, on the market-wide list the filing's lead party. Null when the filing names no party",
             "nullable": true
           },
           "form": {
@@ -4810,6 +4821,71 @@
           }
         },
         "title": "Filing"
+      },
+      "FilingFiler": {
+        "type": "object",
+        "description": "The filer a filing row is listed under",
+        "required": [
+          "cik",
+          "name",
+          "role"
+        ],
+        "properties": {
+          "cik": {
+            "type": "string",
+            "description": "SEC CIK, 10 digits",
+            "example": "0000320193"
+          },
+          "name": {
+            "type": "string",
+            "description": "The filer's EDGAR name",
+            "example": "Apple Inc.",
+            "nullable": true
+          },
+          "role": {
+            "type": "string",
+            "description": "The filer's role on the filing (the first of filer, issuer, subject company, filed by, reporting owner, listed)",
+            "enum": [
+              "filer",
+              "issuer",
+              "subject_company",
+              "filed_by",
+              "reporting_owner",
+              "listed"
+            ]
+          }
+        },
+        "title": "FilingFiler"
+      },
+      "FilingSymbolResolution": {
+        "type": "object",
+        "description": "A `symbol` value read as an SEC filer rather than an instrument",
+        "required": [
+          "symbol",
+          "cik",
+          "via"
+        ],
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "description": "The value as requested",
+            "example": "0002166480"
+          },
+          "cik": {
+            "type": "string",
+            "description": "SEC CIK, 10 digits",
+            "example": "0002166480"
+          },
+          "via": {
+            "type": "string",
+            "description": "`filer` = the CIK of an SEC filer without a listed instrument; `proposed_ticker` = the proposed ticker of an open IPO registration",
+            "enum": [
+              "filer",
+              "proposed_ticker"
+            ]
+          }
+        },
+        "title": "FilingSymbolResolution"
       },
       "FilingDetail": {
         "type": "object",
@@ -7775,7 +7851,7 @@
           },
           "stage": {
             "type": "string",
-            "description": "One vocabulary for registration stages and the calendar status",
+            "description": "One vocabulary for registration stages and the calendar status; `dormant` = a calendar announcement over a year old with no registration and no listing",
             "enum": [
               "registered",
               "price_range",
@@ -7785,7 +7861,8 @@
               "trading",
               "withdrawn",
               "announced",
-              "postponed"
+              "postponed",
+              "dormant"
             ]
           },
           "is_spac": {
@@ -38928,7 +39005,7 @@
         "tags": [
           "Filings"
         ],
-        "description": "List an instrument's SEC filings by filing date.\n\nUse `symbol` for a stock or fund and narrow by form, filing date or reported `items`. With several symbols, results follow the requested symbol order, newest filings first within each symbol. A fund series lists the trust filings that name that series.\n\n`meta.form_facet` counts forms for the filers read on the page. Filtering on `items` can produce a short page while `has_more` is true. Continue with `next_cursor`.",
+        "description": "List SEC filings by filing date, for named instruments and filers or for every filer.\n\nUse `symbol` for a stock, a fund, any SEC filer CIK or the proposed ticker of an open IPO registration, and narrow by form, filing date or reported `items`. With several symbols, results follow the requested symbol order, newest filings first within each symbol. A fund series lists the trust filings that name that series.\n\nWithout `symbol` the list covers every EDGAR filer, listed or not, newest first by filing date then acceptance time, in a filed window of at most 7 days that defaults to the last 7 days. A filer without an instrument has `symbol: null` and `company.ticker: null`, a fund that is its own registrant carries `fund`, and a trust's filings are listed under the trust.\n\n`meta.form_facet` counts forms on a symbol-scoped page and `meta.resolved` names symbols read as a filer CIK or a proposed ticker. Filtering on `items` can produce a short page while `has_more` is true. Continue with `next_cursor`.",
         "parameters": [
           {
             "schema": {
@@ -38937,8 +39014,8 @@
             },
             "in": "query",
             "name": "symbol",
-            "required": true,
-            "description": "Ticker of any instrument (a stock, a fund, an ETN), a fund key (`S000024908`, `cik:884394`) or a company CIK (its primary listing); a comma list of 1–50. A bare ticker is a US listing (`TICKER.<MIC>` is refused with a 400). Required.",
+            "required": false,
+            "description": "Ticker of any instrument (a stock, a fund, an ETN), a fund key (`S000024908`, `cik:884394`), the CIK of any SEC filer or the proposed ticker of an open IPO registration; a comma list of 1–50. A bare ticker is a US listing (`TICKER.<MIC>` is refused with a 400). Omit it to list every filer's filings of a short filed window (default the last 7 days; `filed_at.gte` / `filed_at.lte` move it, at most 7 days).",
             "example": "AAPL"
           },
           {
@@ -39143,7 +39220,7 @@
                         },
                         "form_facet": {
                           "type": "array",
-                          "description": "Forms of the company's filings with counts",
+                          "description": "Forms of the filers' filings with counts; symbol-scoped lists only",
                           "items": {
                             "type": "object",
                             "description": "One form",
@@ -39169,6 +39246,13 @@
                               }
                             }
                           }
+                        },
+                        "resolved": {
+                          "type": "array",
+                          "description": "The `symbol` values read as an SEC filer CIK or a proposed ticker; present only when one was",
+                          "items": {
+                            "$ref": "#/components/schemas/FilingSymbolResolution"
+                          }
                         }
                       }
                     }
@@ -39183,6 +39267,11 @@
                       "fund": {
                         "fund_key": "cik:884394",
                         "symbol": "SPY"
+                      },
+                      "filer": {
+                        "cik": "0000884394",
+                        "name": "SPDR S&P 500 ETF TRUST",
+                        "role": "listed"
                       },
                       "form": "NPORT-P",
                       "filing_date": "2026-08-28",
@@ -39266,6 +39355,7 @@
             "filing_date",
             "form",
             "accession",
+            "filer.name",
             "report_date",
             "primary_document"
           ]
@@ -40109,7 +40199,7 @@
             "in": "query",
             "name": "symbol",
             "required": false,
-            "description": "Ticker of any instrument (a stock, a fund, an ETN), a fund key (`S000024908`, `cik:884394`) or a company CIK (its primary listing); a comma list of 1–50. A bare ticker is a US listing (`TICKER.<MIC>` is refused with a 400). A series of a multi-series trust (TQQQ) is searched alone.",
+            "description": "Ticker of any instrument (a stock, a fund, an ETN), a fund key (`S000024908`, `cik:884394`), a company CIK (its primary listing), the CIK of any other SEC filer or the proposed ticker of an open IPO registration; a comma list of 1–50. A bare ticker is a US listing (`TICKER.<MIC>` is refused with a 400). A series of a multi-series trust (TQQQ) is searched alone.",
             "example": "AAPL"
           },
           {
@@ -40301,6 +40391,13 @@
                         },
                         "index": {
                           "$ref": "#/components/schemas/FilingSearchCoverage"
+                        },
+                        "resolved": {
+                          "type": "array",
+                          "description": "The `symbol` values read as an SEC filer CIK or a proposed ticker; present only when one was",
+                          "items": {
+                            "$ref": "#/components/schemas/FilingSymbolResolution"
+                          }
                         }
                       }
                     }
@@ -45894,17 +45991,17 @@
         "tags": [
           "Offerings"
         ],
-        "description": "List initial public offerings from registration to listing.\n\nUse `stage` to follow a phase of the offering, or `is_spac` to narrow the list to SPACs or other issuers. The default order is newest listing date first. Sort on `first_public_at` to follow registrations instead.",
+        "description": "List initial public offerings from registration to listing.\n\nUse `stage` to follow a phase of the offering, or `is_spac` to narrow the list to SPACs or other issuers. A calendar announcement over a year old without a registration or a listing reads `dormant`. The default order is newest listing date first. Sort on `first_public_at` to follow registrations instead.",
         "parameters": [
           {
             "schema": {
               "type": "string",
-              "pattern": "^(registered|price_range|exchange_approved|effective|priced|trading|withdrawn|announced|postponed)(,(registered|price_range|exchange_approved|effective|priced|trading|withdrawn|announced|postponed))*$"
+              "pattern": "^(registered|price_range|exchange_approved|effective|priced|trading|withdrawn|announced|postponed|dormant)(,(registered|price_range|exchange_approved|effective|priced|trading|withdrawn|announced|postponed|dormant))*$"
             },
             "in": "query",
             "name": "stage",
             "required": false,
-            "description": "Stages — any of `registered`, `price_range`, `exchange_approved`, `effective`, `priced`, `trading`, `withdrawn`, `announced`, `postponed`, comma-separated",
+            "description": "Stages — any of `registered`, `price_range`, `exchange_approved`, `effective`, `priced`, `trading`, `withdrawn`, `announced`, `postponed`, `dormant`, comma-separated",
             "example": "priced"
           },
           {

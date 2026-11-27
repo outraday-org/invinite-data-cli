@@ -66,6 +66,16 @@ throws `JobEndedError` (`failed` / unknown → exit 1, `expired` → 3 like the 
 spec sha256 `ed91cd90…`, its base revision field reads `6b73f048`); it also carries 12.1's patch #69 (`period_kind`
 validated on `guidance non-gaap` / `kpi-series`, description fixes; no flag change).
 
+12.3.0 adopts Data API 12.3 with plugin 0.27.0 (145 operations, additive over 12.2; invinite-data-api
+`tasks/market-wide-filings-list` task 5): `invd filings list [symbol...]` takes no symbol (`required: false` from the
+parameter, no CLI code: the newest filings of every filer, the last 7 days by default, `--filed-at-gte` /
+`--filed-at-lte` move the window, at most 7 days); its table gains the contract column `filer.name` (a null filer or
+name prints `—`, an empty cell in `--plain`); `symbol` on `filings list` / `filings search` also takes any filer's CIK
+and an open IPO registration's proposed ticker; `ipos list --stage` takes `dormant`. The vendored `analyze-filing`
+skill and `invinite-financial-data` `SKILL.md` / `references/filings.md` follow. The bundle is the released API commit
+`ac46ec5` (tag `data-sdk-v12.3.0`, SDK 12.3.0, Fly v199; spec sha256 `9e56b323…`, its base revision field reads
+`0b012bff`).
+
 ## Commands come from the Data API's spec, not from this repo
 
 Every plain command — one REST call, printed as a table, a key/value list or JSON — is GENERATED. The chain:

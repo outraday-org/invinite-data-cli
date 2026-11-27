@@ -31,7 +31,7 @@ routing guide; read a file under `references/` when the question goes deep into 
 | Statements (income, balance sheet, cash flow), several companies in one snapshot | `get_financials` |
 | Ratios, growth, CAGR, segments | `get_metrics` |
 | Where one number comes from | `explain_fact` |
-| A company's or fund's SEC filings / one filing's text | `list_filings`, then `read_filing` |
+| A company's, fund's or any filer's SEC filings, or every filer's newest ones / one filing's text | `list_filings` (no `symbol` = every filer, last 7 days), then `read_filing` |
 | Which filings mention a topic | `search_filings` (100 credits: narrow it) |
 | Profile, fiscal calendar, dividends, splits, people | `get_company` (`include=`) |
 | A fund's profile, holdings, sector / country weights | `get_fund` |

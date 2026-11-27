@@ -61,6 +61,35 @@ describe('companies get: a US ETF profile (Data API 6.2, O2)', () => {
   });
 });
 
+describe('filings list: the filer.name column (Data API 12.3)', () => {
+  const level = chalk.level;
+  afterEach(() => { chalk.level = level; });
+
+  const manifest = JSON.parse(readFileSync(new URL('../../../src/generated/cli-manifest.json', import.meta.url), 'utf8'));
+  const operations: { operationId: string; list: boolean; view: ShapeInfo['view']; columns?: string[] }[] =
+    Array.isArray(manifest.operations) ? manifest.operations : Object.values(manifest.operations ?? manifest);
+  const listFilings = operations.find(operation => operation.operationId === 'listFilings');
+  const shape: ShapeInfo = { list: true, view: listFilings?.view ?? 'json', columns: listFilings?.columns };
+  const filing = { filing_date: '2026-11-26', form: 'S-1', accession: 'a1', report_date: null, primary_document: 'd.htm' };
+  const body = {
+    data: [{ ...filing, filer: null }, { ...filing, accession: 'a2', filer: { cik: '0001234567', name: null, role: 'filer' } }],
+    has_more: false, next_cursor: null, meta: {},
+  };
+
+  it('a null filer or filer name prints — in the table and an empty cell in plain, never null / undefined', () => {
+    chalk.level = 0;
+    expect(listFilings?.columns).toContain('filer.name');
+    const table = renderBody(body, shape, { format: 'table' });
+    expect(table).toContain('filer.name');
+    expect(table).not.toMatch(/null|undefined/);
+    expect(table.split('\n').slice(2).every(line => line.split(/\s{2,}/)[3] === '—')).toBe(true);
+    const plain = renderBody(body, shape, { format: 'plain' }).split('\n');
+    expect(plain[0]?.split('\t')[3]).toBe('filer.name');
+    expect(plain.slice(1).map(line => line.split('\t')[3])).toEqual(['', '']);
+    expect(plain.join('\n')).not.toMatch(/null|undefined/);
+  });
+});
+
 describe('resolveOutput', () => {
   it('--json alone = json, --json a,b selects (checked), --all streams JSONL, --output wins, contradictions refused', () => {
     expect(resolveOutput({ json: true }).format).toBe('json');
