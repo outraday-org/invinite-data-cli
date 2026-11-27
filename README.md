@@ -34,6 +34,20 @@ API's MCP server serves — the data guide `invinite-financial-data` and nine wo
 `commands/*.md` (`/financial-research`, `/analyze-earnings-call`, …) are gone: the workflows are skills now, and
 `invd plugin install` removes the files earlier versions wrote. See [The plugin](#the-plugin).
 
+## Changes in 12.3.0 (Data API 12.3)
+
+CLI 12.3.0 and plugin 0.27.0 adopt Data API 12.3 (additive, no command removed or renamed):
+
+- `invd filings list` without a symbol lists the newest filings of every SEC filer, newest first: the last 7 days by
+  default; `--filed-at-gte` / `--filed-at-lte` move the window, which spans at most 7 days (a longer one is refused).
+  The table gains a `filer.name` column, and `symbol` is null for a filer without an instrument (a pre-IPO issuer, a
+  13F manager, a Form 4 owner).
+- `invd filings list <symbol>` and `invd search filings --symbol` also take any SEC filer's CIK and the proposed ticker
+  of an open IPO registration (these answered "not covered" before); the answer's `meta.resolved` says how each value
+  was read.
+- `invd ipos list --stage dormant`: calendar announcements over a year old that are still announced or postponed and
+  have neither a registration nor a listing.
+
 ## Changes in 12.2.0 (Data API 12.2)
 
 CLI 12.2.0 and plugin 0.26.0 adopt Data API 12.2 (additive, no command removed or renamed): the new group `bulk`
