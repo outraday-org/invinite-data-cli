@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "12.4.0",
+    "version": "13.0.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -11,18 +11,18 @@
     },
     "verifiedOn": "2026-11-27",
     "sourceHashes": {
-      "api-contract.json": "6bd91861dcb119f3ec6cef91fdbb0b42d872b89734e37589792589fd9fea6e5a",
-      "openapi.json": "2685f116beca7523af3b06fcf6c38080102060d1299db7925aa591cd6c129f58",
-      "package.json": "72d5c7b70cf7d74c330c309b6ad00f3d0519fcf12f145d46a6ea78032ccf345e",
+      "api-contract.json": "73c66e34beb8c7fba00836b5c4350d8c867300a460affd31b426ce0e5e5faa40",
+      "openapi.json": "c1ce8fa33639c84752524dd5c190ce1f7a6b4d8b1c814e5f1b2ef4ac99b861d6",
+      "package.json": "de931b91924e58b2492d0a0c924e29e1a099a613658dc1be6dd4976635263b42",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "ed216f689f39e3dbf72c7d6a1c74ee6cb9c22fbaf9982a9b4ddee2873f2d5536",
-      "src/cli.ts": "c2bf7d89535b84de12afe399455d6f85e9f722529598e545acdae54ca63b0dda",
+      "src/cli.ts": "402e1b47b249af3901c26433cab3823becedcbb4479187000c958fe7b8314765",
       "src/client/api-client.ts": "17d0817be6964b04fd03ccbc5ff91492551d13260664190510d5211a4c6e883e",
       "src/client/download.ts": "1e58359b0dd6b171b04f5722404c69622e5903ca24fde9a0c0b96535f5a6e2ab",
       "src/client/pagination.ts": "2b759864d496f021ed8b01147a6fce1576315f0b0e789fb3022b2b8857534efe",
       "src/commands/agent-setup.ts": "6e717a116341eeecc1060d0c0cd4a359cac983e1a853eff70ce8fcb3b413e073",
-      "src/commands/alert-events.ts": "4cf28e95f53f18bd5e75dec9968529f68ee6ec1838da57f225aa995be951a29c",
+      "src/commands/alert-events.ts": "46f2a2fc07db9c5e92fb449b79d38a066cdf1c9861b0260e37a44e4ee87386fc",
       "src/commands/api.ts": "90133127a64a46f1e6fa2a93e2546eafedd7e48cc96aceba9add49bb83b63616",
       "src/commands/auth.ts": "6e7a26fd6007a61ac033847542a33182c1eb486f0234095119d4b1f7ebf4b30f",
       "src/commands/completion.ts": "d7aeaa835ac1fe16b3c9a0165a1a5e8a85cb31262f498499d829bcb7a5f88d73",
@@ -34,7 +34,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "55516016da357d95c78523de32fc2468195344efda426640981197a7e84d2479",
+      "src/generated/cli-manifest.json": "cb536527fd8cc76aa395f07948191b5118d876e88260f762d32ea47bd5fe65d8",
       "src/hand-written-commands.ts": "a095d5f00a17a9cd643a8a0e6e5dcadbb7050dfd8b14d846ce81f3536a9920b9",
       "src/job-wait.ts": "296be47b6b13ebf2d2639fc6ae36ca4dc8409709905bb7cb85a04619c7d81821",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
@@ -46,14 +46,15 @@
       "src/shared/prompt.ts": "7736cb146f84382ff17badbabcdf69add6673c4a3695c38759486601f3c87d99",
       "src/shared/signals.ts": "5c5122b38e35700a9304bf77f06b900a80e3bc42da6241f93313181117b2fa6b",
       "src/shared/spinner.ts": "62e25b34f62faaaa298fbe4664cb0b1eb52fd62b4c82f498718bd14e608d0d87",
-      "src/spec-commands.ts": "08efce3b533b994af112d00ccb60e48d89fb3171330b8cadb5edd0404754aeb8",
-      "src/spec-flags.ts": "314fc089a8fae973ce68b9fc475fb3eca409267fd28265a98a1ff0c3a1ec2b79",
-      "src/spec-manifest.ts": "a6ecff23211b8bd82e28611df4e7bebe3569a23f543cadda2a6cc8c55b4a0a5a",
+      "src/spec-body.ts": "b62117578e4bb8f07b0719fb479b30f6d674117c564793c0d1ec1ddad93342b4",
+      "src/spec-commands.ts": "64b260cf241fd6cf164f53ed6c24fa1f0f4ddedfa3d722d4a654ef314dad158a",
+      "src/spec-flags.ts": "0fa10d6d64534de9c10ba418ad8622edd7a4b504f1a7218b96016ebc3366e9cb",
+      "src/spec-manifest.ts": "fc3c4193823d7d308875b60765625607eb93bc62baf4a7ab532e70247f0584a6",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "2685f116beca7523af3b06fcf6c38080102060d1299db7925aa591cd6c129f58",
-    "revision": "6ee507176d73bac1048bcbd341821746793aac04",
-    "fingerprint": "97a0c286ab531ef9c2a266acafb531c89e1a5105cfcdc39776a3586e650faf4d"
+    "specSha256": "c1ce8fa33639c84752524dd5c190ce1f7a6b4d8b1c814e5f1b2ef4ac99b861d6",
+    "revision": "360287c57fc2eaa5d24d2c7be86d4defc62e9ba8",
+    "fingerprint": "69b99f4c54d8a65d1ff37c22d7f38c4dfb4feb21eb150fe36734201f3b16dfc3"
   },
   "globalOptions": [
     {
@@ -487,7 +488,7 @@
         },
         {
           "flags": "--type <type>",
-          "description": "Only events of this type (alert.fired, alert.status_changed, destination.disabled, destination.test, account.fire_cap_reached)",
+          "description": "Only events of this type (alert.fired, alert.status_changed, destination.disabled, destination.test, account.fire_cap_reached, alert_user.fire_cap_reached)",
           "required": false
         },
         {
@@ -1270,262 +1271,402 @@
         },
         {
           "flags": "-t, --type <value>",
-          "description": "The alert type (body type)",
+          "description": "(body type)",
           "required": false
         },
         {
           "flags": "--ciks <list>",
-          "description": "Companies by CIK. filing, filing_keyword, news, news_keyword, earnings_call, earnings_call_keyword, dividend, halt (body condition.ciks)",
+          "description": "Companies by CIK. (body condition.ciks)",
           "required": false
         },
         {
           "flags": "--symbols <list>",
-          "description": "Companies by ticker. Same types as `ciks`; a US ETF ticker for the types that take ETFs (body condition.symbols)",
-          "required": false
-        },
-        {
-          "flags": "--cik <value>",
-          "description": "The company by CIK. fundamental_metric, earnings_results, event_countdown (1–10 digits) (body condition.cik)",
-          "required": false
-        },
-        {
-          "flags": "--symbol <value>",
-          "description": "The company (or, for the types that take ETFs, the US ETF) by ticker. Same types as `cik`; price types, script and indicator: the instrument (a US stock / ETF ticker, a crypto slug / ticker, or a commodity `XAUUSD` / `XAGUSD`) (body condition.symbol)",
+          "description": "Companies by ticker; a US ETF ticker for the types that take ETFs. (body condition.symbols)",
           "required": false
         },
         {
           "flags": "--form-types <list>",
-          "description": "Raw SEC form types (`8-K`, `S-1`). filing, filing_keyword (body condition.form_types)",
+          "description": "Raw SEC form types (`8-K`, `S-1`). (body condition.form_types)",
           "required": false
         },
         {
           "flags": "--form-categories <list>",
-          "description": "Form categories. filing (body condition.form_categories)",
+          "description": "Form categories. (body condition.form_categories)",
           "required": false
         },
         {
           "flags": "--include-amendments",
-          "description": "Also amendments (`/A`). filing (body condition.include_amendments): true",
+          "description": "Also amendments (`/A`). (body condition.include_amendments): true",
           "required": false
         },
         {
           "flags": "--no-include-amendments",
-          "description": "Also amendments (`/A`). filing (body condition.include_amendments): false",
+          "description": "Also amendments (`/A`). (body condition.include_amendments): false",
           "required": false
         },
         {
           "flags": "--stage <value>",
-          "description": "`detected` = the moment the SEC publishes it (every filer); `processed` = after our processing. filing (body condition.stage)",
+          "description": "`detected` = the moment the SEC publishes it (every filer); `processed` = after our processing. (body condition.stage)",
+          "required": false
+        },
+        {
+          "flags": "--trigger-mode <value>",
+          "description": "Repeat mode; once becomes triggered after the first fire (default every_time). (body trigger.mode)",
+          "required": false
+        },
+        {
+          "flags": "--cooldown-seconds <value>",
+          "description": "Minimum seconds between fires (at most 366 days) (body trigger.cooldown_seconds)",
+          "required": false
+        },
+        {
+          "flags": "--max-fires <value>",
+          "description": "The alert becomes `triggered` after this many fires (body trigger.max_fires)",
+          "required": false
+        },
+        {
+          "flags": "--expires-at <value>",
+          "description": "The alert becomes `expired` then (body trigger.expires_at)",
+          "required": false
+        },
+        {
+          "flags": "--delete-on-expiry",
+          "description": "Delete instead of `expired` (needs expires_at) (body trigger.delete_on_expiry): true",
+          "required": false
+        },
+        {
+          "flags": "--no-delete-on-expiry",
+          "description": "Delete instead of `expired` (needs expires_at) (body trigger.delete_on_expiry): false",
+          "required": false
+        },
+        {
+          "flags": "--activate-at <value>",
+          "description": "The alert is `scheduled` until then (body trigger.activate_at)",
+          "required": false
+        },
+        {
+          "flags": "--pause-until <value>",
+          "description": "No fires until then (body trigger.pause_until)",
+          "required": false
+        },
+        {
+          "flags": "--active-window <json>",
+          "description": "Fires only inside this window: `weekly` (days + from / to in a time zone) or `every` (an anchor, an interval and an active duration) Weekly windows require timezone, days, from and to. Every windows require anchor_at, interval, unit and active_duration_seconds. (body trigger.active_window)",
+          "required": false
+        },
+        {
+          "flags": "--destination-ids <list>",
+          "description": "Destination ids (≤ 10) (body destination_ids)",
+          "required": false
+        },
+        {
+          "flags": "--client-reference-id <value>",
+          "description": "Your id; a second create with it returns the live alert (body client_reference_id)",
+          "required": false
+        },
+        {
+          "flags": "--external-user-id <value>",
+          "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name) (body external_user_id)",
+          "required": false
+        },
+        {
+          "flags": "--metadata <json>",
+          "description": "Your own key / value pairs (≤ 50 keys, ≤ 8 KB), echoed in every event (body metadata)",
           "required": false
         },
         {
           "flags": "--keywords <list>",
-          "description": "Whole-word, case-insensitive keywords (2–50 characters). filing_keyword, news_keyword, earnings_call (keyword_hit), earnings_call_keyword (body condition.keywords)",
+          "description": "Whole-word, case-insensitive keywords (2–50 characters). (body condition.keywords)",
           "required": false
         },
         {
           "flags": "--match <value>",
-          "description": "Any or all keywords. Keyword types (default any) (body condition.match)",
+          "description": "Any or all keywords (default any). (body condition.match)",
           "required": false
         },
         {
           "flags": "--scope <value>",
-          "description": "Where keywords are searched: filing_keyword full / risk_factors / mdna / legal_proceedings; news_keyword headline / headline_and_description; earnings_call_keyword full / prepared / qna (body condition.scope)",
+          "description": "Where keywords are searched. (body condition.scope)",
           "required": false
         },
         {
           "flags": "--sources <list>",
-          "description": "News sources. news, news_keyword (body condition.sources)",
+          "description": "News sources. (body condition.sources)",
           "required": false
         },
         {
           "flags": "--kinds <list>",
-          "description": "news: news kinds; dividend: declared / ex_date / payment (body condition.kinds)",
+          "description": "Dividend events: declaration, ex-date or payment. (body condition.kinds)",
           "required": false
         },
         {
           "flags": "--earnings-only",
-          "description": "Only earnings news. news, news_keyword (body condition.earnings_only): true",
+          "description": "Only earnings news. (body condition.earnings_only): true",
           "required": false
         },
         {
           "flags": "--no-earnings-only",
-          "description": "Only earnings news. news, news_keyword (body condition.earnings_only): false",
+          "description": "Only earnings news. (body condition.earnings_only): false",
           "required": false
         },
         {
           "flags": "--events <list>",
-          "description": "Call lifecycle events. earnings_call (transcript_provisional, transcript_corrected, documents_updated, guidance_flash, keyword_hit need PRO) (body condition.events)",
+          "description": "Call lifecycle events. (body condition.events)",
           "required": false
         },
         {
           "flags": "--speaker-roles <list>",
-          "description": "Only these speakers. earnings_call_keyword (body condition.speaker_roles)",
+          "description": "Only these speakers. (body condition.speaker_roles)",
           "required": false
         },
         {
           "flags": "--min-mentions <value>",
-          "description": "Fire at this many mentions. earnings_call_keyword (body condition.min_mentions)",
+          "description": "Fire at this many mentions. (body condition.min_mentions)",
+          "required": false
+        },
+        {
+          "flags": "--mention-delta-rule <json>",
+          "description": "Mentions moved against the previous call. (body condition.mention_delta_rule)",
+          "required": false
+        },
+        {
+          "flags": "--amount-change <json>",
+          "description": "Only a dividend whose amount moved by at least `min_pct` percent. (body condition.amount_change)",
           "required": false
         },
         {
           "flags": "--dividend-types <list>",
-          "description": "Only these dividend types. dividend (body condition.dividend_types)",
+          "description": "Codes of GET /v1/catalog/dividend-types. (body condition.dividend_types)",
+          "required": false
+        },
+        {
+          "flags": "--yield-rule <json>",
+          "description": "Only when the yield (percent) is above / below. (body condition.yield_rule)",
           "required": false
         },
         {
           "flags": "--statuses <list>",
-          "description": "Halt or resumption (empty = both). halt (body condition.statuses)",
+          "description": "Halt or resumption (empty = both). (body condition.statuses)",
           "required": false
         },
         {
           "flags": "--reason-codes <list>",
-          "description": "Only these halt reason codes. halt (body condition.reason_codes)",
+          "description": "Codes of GET /v1/catalog/halt-reasons. (body condition.reason_codes)",
+          "required": false
+        },
+        {
+          "flags": "--cik <value>",
+          "description": "The company by CIK. (body condition.cik)",
+          "required": false
+        },
+        {
+          "flags": "--symbol <value>",
+          "description": "Instrument: a US stock or ETF ticker, crypto slug or ticker, or commodity XAUUSD / XAGUSD. (body condition.symbol)",
+          "required": false
+        },
+        {
+          "flags": "--rules <json>",
+          "description": "AND-combined metric thresholds. (body condition.rules)",
           "required": false
         },
         {
           "flags": "--report-kinds <list>",
-          "description": "Results reports to fire on. earnings_results (body condition.report_kinds)",
+          "description": "Results reports to fire on. (body condition.report_kinds)",
+          "required": false
+        },
+        {
+          "flags": "--yoy-rules <json>",
+          "description": "Year-over-year growth gates (signed percent). (body condition.yoy_rules)",
           "required": false
         },
         {
           "flags": "--event <value>",
-          "description": "The event counted down to. event_countdown (body condition.event)",
+          "description": "The event counted down to. (body condition.event)",
           "required": false
         },
         {
           "flags": "--days-before <value>",
-          "description": "Days before (0 = on the day). event_countdown (body condition.days_before)",
+          "description": "Days before (0 = on the day). (body condition.days_before)",
           "required": false
         },
         {
           "flags": "--offsets-days <list>",
-          "description": "A ladder of days before. event_countdown (body condition.offsets_days)",
+          "description": "A ladder of days before. (body condition.offsets_days)",
           "required": false
         },
         {
           "flags": "--minutes-before <value>",
-          "description": "Minutes before the call starts (event earnings_call only). event_countdown (body condition.minutes_before)",
+          "description": "Minutes before the call starts (event earnings_call only). (body condition.minutes_before)",
           "required": false
         },
         {
           "flags": "--time-of-day-minutes <value>",
-          "description": "Local minute of the day the reminder fires (event_countdown: default 540 = 09:00). event_countdown, price_reminder (body condition.time_of_day_minutes)",
+          "description": "Local minute of the day the reminder fires. (body condition.time_of_day_minutes)",
           "required": false
         },
         {
           "flags": "--timezone <value>",
-          "description": "IANA time zone (default America/New_York). event_countdown, price_reminder (body condition.timezone)",
+          "description": "IANA time zone (default America/New_York). Must name an IANA time zone known to the runtime. (body condition.timezone)",
           "required": false
         },
         {
           "flags": "--notify-on-date-change",
-          "description": "Tell when the event date moves (default true). event_countdown (body condition.notify_on_date_change): true",
+          "description": "Tell when the event date moves (default true). (body condition.notify_on_date_change): true",
           "required": false
         },
         {
           "flags": "--no-notify-on-date-change",
-          "description": "Tell when the event date moves (default true). event_countdown (body condition.notify_on_date_change): false",
+          "description": "Tell when the event date moves (default true). (body condition.notify_on_date_change): false",
           "required": false
         },
         {
           "flags": "--asset-class <value>",
-          "description": "The instrument's market: `us_stock` (US stocks and ETFs), `crypto` (coins by CoinGecko slug or ticker) or `commodity` (`XAUUSD` / `XAGUSD`, only when named). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder, script, indicator (body condition.asset_class)",
+          "description": "The instrument's market: `us_stock` (US stocks and ETFs), `crypto` (coins by CoinGecko slug or ticker) or `commodity` (`XAUUSD` / `XAGUSD`, only when named). Absent at create = a stock first, then a coin; stored resolved. (body condition.asset_class)",
           "required": false
         },
         {
           "flags": "--operator <value>",
-          "description": "`crosses_*` fire when the price crosses `level`; `above` / `below` also fire at once when the price is already on that side. price (body condition.operator)",
+          "description": "`crosses_*` fire when the price crosses `level`; `above` / `below` also fire at once when the price is already on that side. (body condition.operator)",
           "required": false
         },
         {
           "flags": "--level <value>",
-          "description": "The price level (> 0). price (body condition.level)",
+          "description": "The price level (> 0). (body condition.level)",
+          "required": false
+        },
+        {
+          "flags": "--rearm <value>",
+          "description": "When a crossed level arms again. (body trigger.rearm)",
+          "required": false
+        },
+        {
+          "flags": "--rearm-distance-pct <value>",
+          "description": "Hysteresis in percent. (body trigger.rearm_distance_pct)",
           "required": false
         },
         {
           "flags": "--direction <value>",
-          "description": "Which move fires. price_move (body condition.direction)",
+          "description": "Which move fires. (body condition.direction)",
           "required": false
         },
         {
           "flags": "--pct <value>",
-          "description": "The move in percent of the baseline. price_move (body condition.pct)",
+          "description": "The move in percent of the baseline. (body condition.pct)",
           "required": false
         },
         {
           "flags": "--baseline <value>",
-          "description": "What the move is measured from (ignored with window_minutes); gap_open = the session open against the prior close, once per session. price_move (body condition.baseline)",
+          "description": "What the move is measured from (ignored with window_minutes); gap_open = the session open against the prior close, once per session. (body condition.baseline)",
           "required": false
         },
         {
           "flags": "--window-minutes <value>",
-          "description": "Measure the move against the price this many minutes ago instead of the baseline. price_move (body condition.window_minutes)",
+          "description": "Measure the move against the price this many minutes ago instead of the baseline. (body condition.window_minutes)",
           "required": false
         },
         {
           "flags": "--condition-mode <value>",
-          "description": "`relative` = a closed bar's volume ≥ multiple × its baseline; `absolute` = ≥ threshold; `session` = today's cumulative volume ≥ multiple × the 20-session average daily volume (US stocks). volume_spike (body condition.mode)",
+          "description": "`relative` = a closed bar's volume ≥ multiple × its baseline; `absolute` = ≥ threshold; `session` = today's cumulative volume ≥ multiple × the 20-session average daily volume (US stocks). (body condition.mode)",
           "required": false
         },
         {
           "flags": "--interval <value>",
-          "description": "The bar evaluated at its close. volume_spike (1m, 5m, 15m, 30m, 1h, 1d, 1w, 1mo; every closed bar); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w, 1mo; the plan's shortest: LITE 1h, STANDARD 5m, PRO 1m) (body condition.interval)",
+          "description": "The bar interval evaluated at its close (the plan's shortest: LITE 1h, STANDARD 5m, PRO 1m). (body condition.interval)",
           "required": false
         },
         {
           "flags": "--multiple <value>",
-          "description": "Volume multiple of the baseline (relative / session). volume_spike (body condition.multiple)",
+          "description": "Volume multiple of the baseline (relative / session). (body condition.multiple)",
           "required": false
         },
         {
           "flags": "--threshold <value>",
-          "description": "Bar volume threshold, > 0 (absolute). volume_spike (body condition.threshold)",
+          "description": "Bar volume threshold, > 0 (absolute). (body condition.threshold)",
           "required": false
         },
         {
           "flags": "--lookback-bars <value>",
-          "description": "Bars in the baseline, 5–200 (rvol_slot: sessions, 2–20). volume_spike (body condition.lookback_bars)",
+          "description": "Bars in the baseline, 5–200 (rvol_slot: sessions, 2–20). (body condition.lookback_bars)",
           "required": false
         },
         {
           "flags": "--baseline-mode <value>",
-          "description": "The volume baseline: the mean or the median of the previous bars, or `rvol_slot` = the mean of the same time-of-day bar of earlier sessions (default flat_mean). volume_spike (body condition.baseline_mode)",
+          "description": "The volume baseline: the mean or the median of the previous bars, or `rvol_slot` = the mean of the same time-of-day bar of earlier sessions (default flat_mean). (body condition.baseline_mode)",
           "required": false
         },
         {
           "flags": "--price-direction <value>",
-          "description": "Only bars that closed up / down (default any). volume_spike (body condition.price_direction)",
+          "description": "Only bars that closed up / down (default any). (body condition.price_direction)",
           "required": false
         },
         {
           "flags": "--frequency <value>",
-          "description": "price_reminder: when the reminder fires — once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. script: when the script's alerts deliver — `once_per_bar_close` (default) at most once per alert id and closed bar, `once_per_bar` the same, `every_time` every evaluation, `once` the first evaluation only. indicator: the same (`once` = this alert's first fire only). With `evaluation` pre_close: one delivery per alert id and session (`every_time`: every signal of the pass; `once`: the first only). price_reminder, script, indicator (body condition.frequency)",
+          "description": "When signals deliver; once, once per bar or close, or every evaluation. Pre-close evaluates once per session. (body condition.frequency)",
           "required": false
         },
         {
           "flags": "--at <value>",
-          "description": "The instant of a `once` reminder (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z). price_reminder (body condition.at)",
+          "description": "The instant of a `once` reminder (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z). (body condition.at)",
           "required": false
         },
         {
           "flags": "--weekday <value>",
-          "description": "Day of a weekly reminder, 0 = Sunday. price_reminder (body condition.weekday)",
+          "description": "Day of a weekly reminder, 0 = Sunday. (body condition.weekday)",
           "required": false
         },
         {
           "flags": "--days <list>",
-          "description": "Several weekdays (0 = Sunday) of a daily / weekly reminder. price_reminder (body condition.days)",
+          "description": "Several weekdays (0 = Sunday) of a daily / weekly reminder. (body condition.days)",
+          "required": false
+        },
+        {
+          "flags": "--template <json>",
+          "description": "A built-in template and its inputs. (body condition.template)",
+          "required": false
+        },
+        {
+          "flags": "--condition <json>",
+          "description": "A structured trigger comparison. (body condition.condition)",
+          "required": false
+        },
+        {
+          "flags": "--filters <json>",
+          "description": "State comparisons that must hold when the trigger fires. (body condition.filters)",
+          "required": false
+        },
+        {
+          "flags": "--evaluation <json>",
+          "description": "Evaluate at bar close or before the session close. (body condition.evaluation)",
+          "required": false
+        },
+        {
+          "flags": "--cooldown-bars <value>",
+          "description": "Minimum bars between fires, counted like chartlang: the bar of a fire must start at least cooldown_bars × the interval after the bar of the last fire, so a night or a weekend counts as time (half a bar of slack: a calendar `1mo` / `1w` / `1d` bar shorter than the nominal interval still counts as a whole bar). (body trigger.cooldown_bars)",
           "required": false
         },
         {
           "flags": "--script-version-id <value>",
-          "description": "The script version evaluated (`scv_…`, status ok, of a script of this account). script (body condition.script_version_id)",
+          "description": "The script version evaluated (`scv_…`, status ok, of a script of this account). (body condition.script_version_id)",
+          "required": false
+        },
+        {
+          "flags": "--inputs <json>",
+          "description": "Values for the script's declared inputs (checked against its manifest; absent = the defaults). At most 100 inputs. (body condition.inputs)",
+          "required": false
+        },
+        {
+          "flags": "--series-inputs <json>",
+          "description": "A script chain: what feeds each of the script's `input.externalSeries` inputs, by its input key (every such input must be bound; ≤ 4 `builtin_indicator`, ≤ 16 in the plan). At most 100 external series bindings. (body condition.series_inputs)",
+          "required": false
+        },
+        {
+          "flags": "--nodes <json>",
+          "description": "The producer scripts `script_output` series inputs read, producers before the nodes that read them (≤ 8 dependencies, ≤ 16,384 bytes with series_inputs). (body condition.nodes)",
           "required": false
         },
         {
           "flags": "--alert-ids <list>",
-          "description": "Only these of the script's alerts (its version's `alert_ids`); empty = all. script (body condition.alert_ids)",
+          "description": "Only these of the script's alerts (its version's `alert_ids`); empty = all. (body condition.alert_ids)",
           "required": false
         },
         {
@@ -1544,73 +1685,8 @@
           "required": false
         },
         {
-          "flags": "--trigger-mode <value>",
-          "description": "`once` = the alert becomes `triggered` after its first fire (default every_time) (body trigger.mode)",
-          "required": false
-        },
-        {
-          "flags": "--cooldown-seconds <value>",
-          "description": "Minimum seconds between fires (at most 366 days) (body trigger.cooldown_seconds)",
-          "required": false
-        },
-        {
-          "flags": "--cooldown-bars <value>",
-          "description": "Minimum bars between fires (script / indicator types), counted like chartlang: the bar of a fire must start at least cooldown_bars × the interval after the bar of the last fire, so a night or a weekend counts as time (half a bar of slack: a calendar `1mo` / `1w` / `1d` bar shorter than the nominal interval, a February or a DST day, still counts as a whole bar) (body trigger.cooldown_bars)",
-          "required": false
-        },
-        {
-          "flags": "--max-fires <value>",
-          "description": "The alert becomes `triggered` after this many fires (body trigger.max_fires)",
-          "required": false
-        },
-        {
-          "flags": "--expires-at <value>",
-          "description": "The alert becomes `expired` then (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z) (body trigger.expires_at)",
-          "required": false
-        },
-        {
-          "flags": "--delete-on-expiry",
-          "description": "Delete instead of `expired` (needs expires_at) (body trigger.delete_on_expiry): true",
-          "required": false
-        },
-        {
-          "flags": "--no-delete-on-expiry",
-          "description": "Delete instead of `expired` (needs expires_at) (body trigger.delete_on_expiry): false",
-          "required": false
-        },
-        {
-          "flags": "--activate-at <value>",
-          "description": "The alert is `scheduled` until then (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z) (body trigger.activate_at)",
-          "required": false
-        },
-        {
-          "flags": "--pause-until <value>",
-          "description": "No fires until then (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z) (body trigger.pause_until)",
-          "required": false
-        },
-        {
-          "flags": "--rearm <value>",
-          "description": "Price types: when a crossed level arms again (body trigger.rearm)",
-          "required": false
-        },
-        {
-          "flags": "--rearm-distance-pct <value>",
-          "description": "Price types: hysteresis in percent (body trigger.rearm_distance_pct)",
-          "required": false
-        },
-        {
-          "flags": "--destination-ids <list>",
-          "description": "Destination ids (≤ 10) (body destination_ids)",
-          "required": false
-        },
-        {
-          "flags": "--client-reference-id <value>",
-          "description": "Your id; a second create with it returns the live alert (body client_reference_id)",
-          "required": false
-        },
-        {
-          "flags": "--external-user-id <value>",
-          "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name) (body external_user_id)",
+          "flags": "--macro-threshold <json>",
+          "description": "Numeric comparison on one published economic series and period. (body condition.macro_threshold)",
           "required": false
         },
         {
@@ -2311,263 +2387,408 @@
       ],
       "options": [
         {
+          "flags": "--type <value>",
+          "description": "(body type)",
+          "required": false
+        },
+        {
+          "flags": "--ciks <list>",
+          "description": "Companies by CIK. (body condition.ciks)",
+          "required": false
+        },
+        {
+          "flags": "--symbols <list>",
+          "description": "Companies by ticker; a US ETF ticker for the types that take ETFs. (body condition.symbols)",
+          "required": false
+        },
+        {
+          "flags": "--form-types <list>",
+          "description": "Raw SEC form types (`8-K`, `S-1`). (body condition.form_types)",
+          "required": false
+        },
+        {
+          "flags": "--form-categories <list>",
+          "description": "Form categories. (body condition.form_categories)",
+          "required": false
+        },
+        {
+          "flags": "--include-amendments",
+          "description": "Also amendments (`/A`). (body condition.include_amendments): true",
+          "required": false
+        },
+        {
+          "flags": "--no-include-amendments",
+          "description": "Also amendments (`/A`). (body condition.include_amendments): false",
+          "required": false
+        },
+        {
+          "flags": "--stage <value>",
+          "description": "`detected` = the moment the SEC publishes it (every filer); `processed` = after our processing. (body condition.stage)",
+          "required": false
+        },
+        {
+          "flags": "--trigger-mode <value>",
+          "description": "Repeat mode; once becomes triggered after the first fire (default every_time). (body trigger.mode)",
+          "required": false
+        },
+        {
+          "flags": "--cooldown-seconds <value>",
+          "description": "Minimum seconds between fires (at most 366 days) (body trigger.cooldown_seconds)",
+          "required": false
+        },
+        {
+          "flags": "--max-fires <value>",
+          "description": "The alert becomes `triggered` after this many fires (body trigger.max_fires)",
+          "required": false
+        },
+        {
+          "flags": "--expires-at <value>",
+          "description": "The alert becomes `expired` then (body trigger.expires_at)",
+          "required": false
+        },
+        {
+          "flags": "--delete-on-expiry",
+          "description": "Delete instead of `expired` (needs expires_at) (body trigger.delete_on_expiry): true",
+          "required": false
+        },
+        {
+          "flags": "--no-delete-on-expiry",
+          "description": "Delete instead of `expired` (needs expires_at) (body trigger.delete_on_expiry): false",
+          "required": false
+        },
+        {
+          "flags": "--activate-at <value>",
+          "description": "The alert is `scheduled` until then (body trigger.activate_at)",
+          "required": false
+        },
+        {
+          "flags": "--pause-until <value>",
+          "description": "No fires until then (body trigger.pause_until)",
+          "required": false
+        },
+        {
+          "flags": "--active-window <json>",
+          "description": "Fires only inside this window: `weekly` (days + from / to in a time zone) or `every` (an anchor, an interval and an active duration) Weekly windows require timezone, days, from and to. Every windows require anchor_at, interval, unit and active_duration_seconds. (body trigger.active_window)",
+          "required": false
+        },
+        {
+          "flags": "--destination-ids <list>",
+          "description": "Destination ids (≤ 10) (body destination_ids)",
+          "required": false
+        },
+        {
+          "flags": "--client-reference-id <json>",
+          "description": "(body client_reference_id)",
+          "required": false
+        },
+        {
+          "flags": "--external-user-id <json>",
+          "description": "(body external_user_id)",
+          "required": false
+        },
+        {
+          "flags": "--metadata <json>",
+          "description": "Your own key / value pairs (≤ 50 keys, ≤ 8 KB), echoed in every event (body metadata)",
+          "required": false
+        },
+        {
           "flags": "--version <value>",
           "description": "Apply only to this version (409 conflict otherwise) (body version)",
           "required": false
         },
         {
-          "flags": "--ciks <list>",
-          "description": "Companies by CIK. filing, filing_keyword, news, news_keyword, earnings_call, earnings_call_keyword, dividend, halt (body condition.ciks)",
-          "required": false
-        },
-        {
-          "flags": "--symbols <list>",
-          "description": "Companies by ticker. Same types as `ciks`; a US ETF ticker for the types that take ETFs (body condition.symbols)",
-          "required": false
-        },
-        {
-          "flags": "--cik <value>",
-          "description": "The company by CIK. fundamental_metric, earnings_results, event_countdown (1–10 digits) (body condition.cik)",
-          "required": false
-        },
-        {
-          "flags": "--symbol <value>",
-          "description": "The company (or, for the types that take ETFs, the US ETF) by ticker. Same types as `cik`; price types, script and indicator: the instrument (a US stock / ETF ticker, a crypto slug / ticker, or a commodity `XAUUSD` / `XAGUSD`) (body condition.symbol)",
-          "required": false
-        },
-        {
-          "flags": "--form-types <list>",
-          "description": "Raw SEC form types (`8-K`, `S-1`). filing, filing_keyword (body condition.form_types)",
-          "required": false
-        },
-        {
-          "flags": "--form-categories <list>",
-          "description": "Form categories. filing (body condition.form_categories)",
-          "required": false
-        },
-        {
-          "flags": "--include-amendments",
-          "description": "Also amendments (`/A`). filing (body condition.include_amendments): true",
-          "required": false
-        },
-        {
-          "flags": "--no-include-amendments",
-          "description": "Also amendments (`/A`). filing (body condition.include_amendments): false",
-          "required": false
-        },
-        {
-          "flags": "--stage <value>",
-          "description": "`detected` = the moment the SEC publishes it (every filer); `processed` = after our processing. filing (body condition.stage)",
-          "required": false
-        },
-        {
           "flags": "--keywords <list>",
-          "description": "Whole-word, case-insensitive keywords (2–50 characters). filing_keyword, news_keyword, earnings_call (keyword_hit), earnings_call_keyword (body condition.keywords)",
+          "description": "Whole-word, case-insensitive keywords (2–50 characters). (body condition.keywords)",
           "required": false
         },
         {
           "flags": "--match <value>",
-          "description": "Any or all keywords. Keyword types (default any) (body condition.match)",
+          "description": "Any or all keywords (default any). (body condition.match)",
           "required": false
         },
         {
           "flags": "--scope <value>",
-          "description": "Where keywords are searched: filing_keyword full / risk_factors / mdna / legal_proceedings; news_keyword headline / headline_and_description; earnings_call_keyword full / prepared / qna (body condition.scope)",
+          "description": "Where keywords are searched. (body condition.scope)",
           "required": false
         },
         {
           "flags": "--sources <list>",
-          "description": "News sources. news, news_keyword (body condition.sources)",
+          "description": "News sources. (body condition.sources)",
           "required": false
         },
         {
           "flags": "--kinds <list>",
-          "description": "news: news kinds; dividend: declared / ex_date / payment (body condition.kinds)",
+          "description": "Dividend events: declaration, ex-date or payment. (body condition.kinds)",
           "required": false
         },
         {
           "flags": "--earnings-only",
-          "description": "Only earnings news. news, news_keyword (body condition.earnings_only): true",
+          "description": "Only earnings news. (body condition.earnings_only): true",
           "required": false
         },
         {
           "flags": "--no-earnings-only",
-          "description": "Only earnings news. news, news_keyword (body condition.earnings_only): false",
+          "description": "Only earnings news. (body condition.earnings_only): false",
           "required": false
         },
         {
           "flags": "--events <list>",
-          "description": "Call lifecycle events. earnings_call (transcript_provisional, transcript_corrected, documents_updated, guidance_flash, keyword_hit need PRO) (body condition.events)",
+          "description": "Call lifecycle events. (body condition.events)",
           "required": false
         },
         {
           "flags": "--speaker-roles <list>",
-          "description": "Only these speakers. earnings_call_keyword (body condition.speaker_roles)",
+          "description": "Only these speakers. (body condition.speaker_roles)",
           "required": false
         },
         {
           "flags": "--min-mentions <value>",
-          "description": "Fire at this many mentions. earnings_call_keyword (body condition.min_mentions)",
+          "description": "Fire at this many mentions. (body condition.min_mentions)",
+          "required": false
+        },
+        {
+          "flags": "--mention-delta-rule <json>",
+          "description": "Mentions moved against the previous call. (body condition.mention_delta_rule)",
+          "required": false
+        },
+        {
+          "flags": "--amount-change <json>",
+          "description": "Only a dividend whose amount moved by at least `min_pct` percent. (body condition.amount_change)",
           "required": false
         },
         {
           "flags": "--dividend-types <list>",
-          "description": "Only these dividend types. dividend (body condition.dividend_types)",
+          "description": "Codes of GET /v1/catalog/dividend-types. (body condition.dividend_types)",
+          "required": false
+        },
+        {
+          "flags": "--yield-rule <json>",
+          "description": "Only when the yield (percent) is above / below. (body condition.yield_rule)",
           "required": false
         },
         {
           "flags": "--statuses <list>",
-          "description": "Halt or resumption (empty = both). halt (body condition.statuses)",
+          "description": "Halt or resumption (empty = both). (body condition.statuses)",
           "required": false
         },
         {
           "flags": "--reason-codes <list>",
-          "description": "Only these halt reason codes. halt (body condition.reason_codes)",
+          "description": "Codes of GET /v1/catalog/halt-reasons. (body condition.reason_codes)",
+          "required": false
+        },
+        {
+          "flags": "--cik <value>",
+          "description": "The company by CIK. (body condition.cik)",
+          "required": false
+        },
+        {
+          "flags": "--symbol <value>",
+          "description": "Instrument: a US stock or ETF ticker, crypto slug or ticker, or commodity XAUUSD / XAGUSD. (body condition.symbol)",
+          "required": false
+        },
+        {
+          "flags": "--rules <json>",
+          "description": "AND-combined metric thresholds. (body condition.rules)",
           "required": false
         },
         {
           "flags": "--report-kinds <list>",
-          "description": "Results reports to fire on. earnings_results (body condition.report_kinds)",
+          "description": "Results reports to fire on. (body condition.report_kinds)",
+          "required": false
+        },
+        {
+          "flags": "--yoy-rules <json>",
+          "description": "Year-over-year growth gates (signed percent). (body condition.yoy_rules)",
           "required": false
         },
         {
           "flags": "--event <value>",
-          "description": "The event counted down to. event_countdown (body condition.event)",
+          "description": "The event counted down to. (body condition.event)",
           "required": false
         },
         {
           "flags": "--days-before <value>",
-          "description": "Days before (0 = on the day). event_countdown (body condition.days_before)",
+          "description": "Days before (0 = on the day). (body condition.days_before)",
           "required": false
         },
         {
           "flags": "--offsets-days <list>",
-          "description": "A ladder of days before. event_countdown (body condition.offsets_days)",
+          "description": "A ladder of days before. (body condition.offsets_days)",
           "required": false
         },
         {
           "flags": "--minutes-before <value>",
-          "description": "Minutes before the call starts (event earnings_call only). event_countdown (body condition.minutes_before)",
+          "description": "Minutes before the call starts (event earnings_call only). (body condition.minutes_before)",
           "required": false
         },
         {
           "flags": "--time-of-day-minutes <value>",
-          "description": "Local minute of the day the reminder fires (event_countdown: default 540 = 09:00). event_countdown, price_reminder (body condition.time_of_day_minutes)",
+          "description": "Local minute of the day the reminder fires. (body condition.time_of_day_minutes)",
           "required": false
         },
         {
           "flags": "--timezone <value>",
-          "description": "IANA time zone (default America/New_York). event_countdown, price_reminder (body condition.timezone)",
+          "description": "IANA time zone (default America/New_York). Must name an IANA time zone known to the runtime. (body condition.timezone)",
           "required": false
         },
         {
           "flags": "--notify-on-date-change",
-          "description": "Tell when the event date moves (default true). event_countdown (body condition.notify_on_date_change): true",
+          "description": "Tell when the event date moves (default true). (body condition.notify_on_date_change): true",
           "required": false
         },
         {
           "flags": "--no-notify-on-date-change",
-          "description": "Tell when the event date moves (default true). event_countdown (body condition.notify_on_date_change): false",
+          "description": "Tell when the event date moves (default true). (body condition.notify_on_date_change): false",
           "required": false
         },
         {
           "flags": "--asset-class <value>",
-          "description": "The instrument's market: `us_stock` (US stocks and ETFs), `crypto` (coins by CoinGecko slug or ticker) or `commodity` (`XAUUSD` / `XAGUSD`, only when named). Absent at create = a stock first, then a coin; stored resolved. price, price_move, volume_spike, price_reminder, script, indicator (body condition.asset_class)",
+          "description": "The instrument's market: `us_stock` (US stocks and ETFs), `crypto` (coins by CoinGecko slug or ticker) or `commodity` (`XAUUSD` / `XAGUSD`, only when named). Absent at create = a stock first, then a coin; stored resolved. (body condition.asset_class)",
           "required": false
         },
         {
           "flags": "--operator <value>",
-          "description": "`crosses_*` fire when the price crosses `level`; `above` / `below` also fire at once when the price is already on that side. price (body condition.operator)",
+          "description": "`crosses_*` fire when the price crosses `level`; `above` / `below` also fire at once when the price is already on that side. (body condition.operator)",
           "required": false
         },
         {
           "flags": "--level <value>",
-          "description": "The price level (> 0). price (body condition.level)",
+          "description": "The price level (> 0). (body condition.level)",
+          "required": false
+        },
+        {
+          "flags": "--rearm <value>",
+          "description": "When a crossed level arms again. (body trigger.rearm)",
+          "required": false
+        },
+        {
+          "flags": "--rearm-distance-pct <value>",
+          "description": "Hysteresis in percent. (body trigger.rearm_distance_pct)",
           "required": false
         },
         {
           "flags": "--direction <value>",
-          "description": "Which move fires. price_move (body condition.direction)",
+          "description": "Which move fires. (body condition.direction)",
           "required": false
         },
         {
           "flags": "--pct <value>",
-          "description": "The move in percent of the baseline. price_move (body condition.pct)",
+          "description": "The move in percent of the baseline. (body condition.pct)",
           "required": false
         },
         {
           "flags": "--baseline <value>",
-          "description": "What the move is measured from (ignored with window_minutes); gap_open = the session open against the prior close, once per session. price_move (body condition.baseline)",
+          "description": "What the move is measured from (ignored with window_minutes); gap_open = the session open against the prior close, once per session. (body condition.baseline)",
           "required": false
         },
         {
           "flags": "--window-minutes <value>",
-          "description": "Measure the move against the price this many minutes ago instead of the baseline. price_move (body condition.window_minutes)",
+          "description": "Measure the move against the price this many minutes ago instead of the baseline. (body condition.window_minutes)",
           "required": false
         },
         {
           "flags": "--condition-mode <value>",
-          "description": "`relative` = a closed bar's volume ≥ multiple × its baseline; `absolute` = ≥ threshold; `session` = today's cumulative volume ≥ multiple × the 20-session average daily volume (US stocks). volume_spike (body condition.mode)",
+          "description": "`relative` = a closed bar's volume ≥ multiple × its baseline; `absolute` = ≥ threshold; `session` = today's cumulative volume ≥ multiple × the 20-session average daily volume (US stocks). (body condition.mode)",
           "required": false
         },
         {
           "flags": "--interval <value>",
-          "description": "The bar evaluated at its close. volume_spike (1m, 5m, 15m, 30m, 1h, 1d, 1w, 1mo; every closed bar); script and indicator (1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w, 1mo; the plan's shortest: LITE 1h, STANDARD 5m, PRO 1m) (body condition.interval)",
+          "description": "The bar interval evaluated at its close (the plan's shortest: LITE 1h, STANDARD 5m, PRO 1m). (body condition.interval)",
           "required": false
         },
         {
           "flags": "--multiple <value>",
-          "description": "Volume multiple of the baseline (relative / session). volume_spike (body condition.multiple)",
+          "description": "Volume multiple of the baseline (relative / session). (body condition.multiple)",
           "required": false
         },
         {
           "flags": "--threshold <value>",
-          "description": "Bar volume threshold, > 0 (absolute). volume_spike (body condition.threshold)",
+          "description": "Bar volume threshold, > 0 (absolute). (body condition.threshold)",
           "required": false
         },
         {
           "flags": "--lookback-bars <value>",
-          "description": "Bars in the baseline, 5–200 (rvol_slot: sessions, 2–20). volume_spike (body condition.lookback_bars)",
+          "description": "Bars in the baseline, 5–200 (rvol_slot: sessions, 2–20). (body condition.lookback_bars)",
           "required": false
         },
         {
           "flags": "--baseline-mode <value>",
-          "description": "The volume baseline: the mean or the median of the previous bars, or `rvol_slot` = the mean of the same time-of-day bar of earlier sessions (default flat_mean). volume_spike (body condition.baseline_mode)",
+          "description": "The volume baseline: the mean or the median of the previous bars, or `rvol_slot` = the mean of the same time-of-day bar of earlier sessions (default flat_mean). (body condition.baseline_mode)",
           "required": false
         },
         {
           "flags": "--price-direction <value>",
-          "description": "Only bars that closed up / down (default any). volume_spike (body condition.price_direction)",
+          "description": "Only bars that closed up / down (default any). (body condition.price_direction)",
           "required": false
         },
         {
           "flags": "--frequency <value>",
-          "description": "price_reminder: when the reminder fires — once at `at`, on the hour, daily or weekly at `time_of_day_minutes`. script: when the script's alerts deliver — `once_per_bar_close` (default) at most once per alert id and closed bar, `once_per_bar` the same, `every_time` every evaluation, `once` the first evaluation only. indicator: the same (`once` = this alert's first fire only). With `evaluation` pre_close: one delivery per alert id and session (`every_time`: every signal of the pass; `once`: the first only). price_reminder, script, indicator (body condition.frequency)",
+          "description": "When signals deliver; once, once per bar or close, or every evaluation. Pre-close evaluates once per session. (body condition.frequency)",
           "required": false
         },
         {
           "flags": "--at <value>",
-          "description": "The instant of a `once` reminder (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z). price_reminder (body condition.at)",
+          "description": "The instant of a `once` reminder (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z). (body condition.at)",
           "required": false
         },
         {
           "flags": "--weekday <value>",
-          "description": "Day of a weekly reminder, 0 = Sunday. price_reminder (body condition.weekday)",
+          "description": "Day of a weekly reminder, 0 = Sunday. (body condition.weekday)",
           "required": false
         },
         {
           "flags": "--days <list>",
-          "description": "Several weekdays (0 = Sunday) of a daily / weekly reminder. price_reminder (body condition.days)",
+          "description": "Several weekdays (0 = Sunday) of a daily / weekly reminder. (body condition.days)",
+          "required": false
+        },
+        {
+          "flags": "--template <json>",
+          "description": "A built-in template and its inputs. (body condition.template)",
+          "required": false
+        },
+        {
+          "flags": "--condition <json>",
+          "description": "A structured trigger comparison. (body condition.condition)",
+          "required": false
+        },
+        {
+          "flags": "--filters <json>",
+          "description": "State comparisons that must hold when the trigger fires. (body condition.filters)",
+          "required": false
+        },
+        {
+          "flags": "--evaluation <json>",
+          "description": "Evaluate at bar close or before the session close. (body condition.evaluation)",
+          "required": false
+        },
+        {
+          "flags": "--cooldown-bars <value>",
+          "description": "Minimum bars between fires, counted like chartlang: the bar of a fire must start at least cooldown_bars × the interval after the bar of the last fire, so a night or a weekend counts as time (half a bar of slack: a calendar `1mo` / `1w` / `1d` bar shorter than the nominal interval still counts as a whole bar). (body trigger.cooldown_bars)",
           "required": false
         },
         {
           "flags": "--script-version-id <value>",
-          "description": "The script version evaluated (`scv_…`, status ok, of a script of this account). script (body condition.script_version_id)",
+          "description": "The script version evaluated (`scv_…`, status ok, of a script of this account). (body condition.script_version_id)",
+          "required": false
+        },
+        {
+          "flags": "--inputs <json>",
+          "description": "Values for the script's declared inputs (checked against its manifest; absent = the defaults). At most 100 inputs. (body condition.inputs)",
+          "required": false
+        },
+        {
+          "flags": "--series-inputs <json>",
+          "description": "A script chain: what feeds each of the script's `input.externalSeries` inputs, by its input key (every such input must be bound; ≤ 4 `builtin_indicator`, ≤ 16 in the plan). At most 100 external series bindings. (body condition.series_inputs)",
+          "required": false
+        },
+        {
+          "flags": "--nodes <json>",
+          "description": "The producer scripts `script_output` series inputs read, producers before the nodes that read them (≤ 8 dependencies, ≤ 16,384 bytes with series_inputs). (body condition.nodes)",
           "required": false
         },
         {
           "flags": "--alert-ids <list>",
-          "description": "Only these of the script's alerts (its version's `alert_ids`); empty = all. script (body condition.alert_ids)",
+          "description": "Only these of the script's alerts (its version's `alert_ids`); empty = all. (body condition.alert_ids)",
           "required": false
         },
         {
@@ -2586,73 +2807,8 @@
           "required": false
         },
         {
-          "flags": "--trigger-mode <value>",
-          "description": "`once` = the alert becomes `triggered` after its first fire (default every_time) (body trigger.mode)",
-          "required": false
-        },
-        {
-          "flags": "--cooldown-seconds <value>",
-          "description": "Minimum seconds between fires (at most 366 days) (body trigger.cooldown_seconds)",
-          "required": false
-        },
-        {
-          "flags": "--cooldown-bars <value>",
-          "description": "Minimum bars between fires (script / indicator types), counted like chartlang: the bar of a fire must start at least cooldown_bars × the interval after the bar of the last fire, so a night or a weekend counts as time (half a bar of slack: a calendar `1mo` / `1w` / `1d` bar shorter than the nominal interval, a February or a DST day, still counts as a whole bar) (body trigger.cooldown_bars)",
-          "required": false
-        },
-        {
-          "flags": "--max-fires <value>",
-          "description": "The alert becomes `triggered` after this many fires (body trigger.max_fires)",
-          "required": false
-        },
-        {
-          "flags": "--expires-at <value>",
-          "description": "The alert becomes `expired` then (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z) (body trigger.expires_at)",
-          "required": false
-        },
-        {
-          "flags": "--delete-on-expiry",
-          "description": "Delete instead of `expired` (needs expires_at) (body trigger.delete_on_expiry): true",
-          "required": false
-        },
-        {
-          "flags": "--no-delete-on-expiry",
-          "description": "Delete instead of `expired` (needs expires_at) (body trigger.delete_on_expiry): false",
-          "required": false
-        },
-        {
-          "flags": "--activate-at <value>",
-          "description": "The alert is `scheduled` until then (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z) (body trigger.activate_at)",
-          "required": false
-        },
-        {
-          "flags": "--pause-until <value>",
-          "description": "No fires until then (ISO 8601 date-time with offset, e.g. 2026-12-01T14:30:00Z) (body trigger.pause_until)",
-          "required": false
-        },
-        {
-          "flags": "--rearm <value>",
-          "description": "Price types: when a crossed level arms again (body trigger.rearm)",
-          "required": false
-        },
-        {
-          "flags": "--rearm-distance-pct <value>",
-          "description": "Price types: hysteresis in percent (body trigger.rearm_distance_pct)",
-          "required": false
-        },
-        {
-          "flags": "--destination-ids <list>",
-          "description": "Destination ids (≤ 10) (body destination_ids)",
-          "required": false
-        },
-        {
-          "flags": "--client-reference-id <value>",
-          "description": "Your id; a second create with it returns the live alert (body client_reference_id)",
-          "required": false
-        },
-        {
-          "flags": "--external-user-id <value>",
-          "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name) (body external_user_id)",
+          "flags": "--macro-threshold <json>",
+          "description": "Numeric comparison on one published economic series and period. (body condition.macro_threshold)",
           "required": false
         },
         {
@@ -3478,6 +3634,172 @@
       ]
     },
     {
+      "command": "catalog alert-types",
+      "group": "catalog",
+      "origin": "spec",
+      "description": "List alert types",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/catalog/alert-types"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "catalog dividend-types",
+      "group": "catalog",
+      "origin": "spec",
+      "description": "List dividend types",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/catalog/dividend-types"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
       "command": "catalog document-kinds",
       "group": "catalog",
       "origin": "spec",
@@ -3810,6 +4132,89 @@
       ]
     },
     {
+      "command": "catalog halt-reasons",
+      "group": "catalog",
+      "origin": "spec",
+      "description": "List halt reasons",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/catalog/halt-reasons"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
       "command": "catalog kpis",
       "group": "catalog",
       "origin": "spec",
@@ -4008,6 +4413,99 @@
           "flags": "--statement <value>",
           "description": "Statement — any of `income-statement`, `balance-sheet`, `cash-flow`, comma-separated (e.g. income-statement)",
           "required": false
+        },
+        {
+          "flags": "-l, --limit <value>",
+          "description": "Rows per page (default 25, max 200) (default: 25; e.g. 25)",
+          "required": false
+        },
+        {
+          "flags": "--cursor <value>",
+          "description": "Opaque `next_cursor` of the previous page; reuse it with the SAME filters (changed filters → 400 cursor_mismatch) (e.g. eyJ2IjoyfQ)",
+          "required": false
+        },
+        {
+          "flags": "--json [fields]",
+          "description": "Print JSON; with a comma list, only those fields of each row (see Fields below)",
+          "required": false
+        },
+        {
+          "flags": "--output <format>",
+          "description": "Output format",
+          "required": false,
+          "choices": [
+            "table",
+            "plain",
+            "json",
+            "jsonl",
+            "csv"
+          ]
+        },
+        {
+          "flags": "--jq <expr>",
+          "description": "Filter the JSON with a jq expression (strings print raw)",
+          "required": false
+        },
+        {
+          "flags": "--plain",
+          "description": "Tab-separated rows without colour or decoration (the default when piped)",
+          "required": false
+        },
+        {
+          "flags": "--fields <list>",
+          "description": "Only these root fields (sent as fields=, pruned by the API)",
+          "required": false
+        },
+        {
+          "flags": "--all",
+          "description": "Fetch every page (streams JSONL, or CSV with --output csv)",
+          "required": false
+        },
+        {
+          "flags": "--dry-run",
+          "description": "Print the request plan and its credit estimate; send nothing",
+          "required": false
+        },
+        {
+          "flags": "--yes",
+          "description": "Do not ask before a costly --all walk or a delete",
+          "required": false
+        },
+        {
+          "flags": "--no-input",
+          "description": "Never prompt (a confirmation that is needed fails instead)",
+          "required": false
+        },
+        {
+          "flags": "--show-cost",
+          "description": "Print the credits this command cost to stderr (or set INVD_SHOW_COST=1)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "command": "catalog news-kinds",
+      "group": "catalog",
+      "origin": "spec",
+      "description": "List news kinds and topics",
+      "source": "src/generated/cli-manifest.json",
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/v1/catalog/news-kinds"
+        }
+      ],
+      "arguments": [],
+      "options": [
+        {
+          "flags": "-g, --group <value>",
+          "description": "The news vocabulary to read. (e.g. kind)",
+          "required": false,
+          "choices": [
+            "kind",
+            "topic",
+            "development_topic"
+          ]
         },
         {
           "flags": "-l, --limit <value>",
