@@ -14324,6 +14324,21 @@
           },
           {
             "$ref": "#/components/schemas/MacroAlert"
+          },
+          {
+            "$ref": "#/components/schemas/InsiderTradeAlert"
+          },
+          {
+            "$ref": "#/components/schemas/HolderChangeAlert"
+          },
+          {
+            "$ref": "#/components/schemas/IpoStageAlert"
+          },
+          {
+            "$ref": "#/components/schemas/BeneficialOwnershipAlert"
+          },
+          {
+            "$ref": "#/components/schemas/InsiderSaleNoticeAlert"
           }
         ],
         "discriminator": {
@@ -14346,7 +14361,12 @@
             "price_reminder": "#/components/schemas/PriceReminderAlert",
             "indicator": "#/components/schemas/IndicatorAlert",
             "script": "#/components/schemas/ScriptAlert",
-            "macro": "#/components/schemas/MacroAlert"
+            "macro": "#/components/schemas/MacroAlert",
+            "insider_trade": "#/components/schemas/InsiderTradeAlert",
+            "holder_change": "#/components/schemas/HolderChangeAlert",
+            "ipo_stage": "#/components/schemas/IpoStageAlert",
+            "beneficial_ownership": "#/components/schemas/BeneficialOwnershipAlert",
+            "insider_sale_notice": "#/components/schemas/InsiderSaleNoticeAlert"
           }
         }
       },
@@ -20662,6 +20682,1489 @@
         },
         "additionalProperties": false
       },
+      "InsiderTradeAlert": {
+        "type": "object",
+        "title": "Alert",
+        "required": [
+          "id",
+          "type",
+          "status",
+          "disabled_reason",
+          "condition",
+          "trigger",
+          "destination_ids",
+          "client_reference_id",
+          "external_user_id",
+          "metadata",
+          "symbol",
+          "cik",
+          "fire_count",
+          "last_fired_at",
+          "version",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Alert id (`alt_…`)"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "insider_trade"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "paused",
+              "scheduled",
+              "triggered",
+              "expired",
+              "disabled"
+            ]
+          },
+          "disabled_reason": {
+            "type": "string",
+            "nullable": true,
+            "description": "Why the platform disabled the alert (`script_error`: its script aborted on 3 bars in a row); null otherwise"
+          },
+          "condition": {
+            "$ref": "#/components/schemas/InsiderTradeAlertCondition"
+          },
+          "trigger": {
+            "$ref": "#/components/schemas/InsiderTradeAlertTrigger"
+          },
+          "destination_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Destinations the fires are delivered to (empty = pull feed and WebSocket only)"
+          },
+          "client_reference_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "Your id of the alert (unique per account)"
+          },
+          "external_user_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "Your end user's id"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Your own key / value pairs (≤ 50 keys, ≤ 8 KB), echoed in every event"
+          },
+          "symbol": {
+            "type": "string",
+            "nullable": true,
+            "description": "The one company's ticker; null for several companies"
+          },
+          "cik": {
+            "type": "string",
+            "nullable": true,
+            "description": "The one company's CIK (10 digits); null for several companies"
+          },
+          "fire_count": {
+            "type": "integer",
+            "description": "Fires so far"
+          },
+          "last_fired_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "version": {
+            "type": "integer",
+            "description": "Bumped by every change (optimistic updates)"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "InsiderTradeAlertCondition": {
+        "title": "InsiderTradeAlertCondition",
+        "description": "The insider_trade alert condition.",
+        "type": "object",
+        "properties": {
+          "ciks": {
+            "description": "Companies by CIK.",
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "description": "Company CIK, 1–10 digits.",
+              "type": "string",
+              "pattern": "^\\d{1,10}$"
+            }
+          },
+          "symbols": {
+            "description": "Companies by ticker; a US ETF ticker for the types that take ETFs.",
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "description": "Company ticker symbol.",
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9.\\-/]{0,11}$"
+            }
+          },
+          "sides": {
+            "minItems": 1,
+            "maxItems": 2,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "buy",
+                "sell"
+              ]
+            }
+          },
+          "codes": {
+            "minItems": 1,
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Z]$"
+            }
+          },
+          "roles": {
+            "minItems": 1,
+            "maxItems": 3,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "director",
+                "officer",
+                "ten_percent_owner"
+              ]
+            }
+          },
+          "min_value_usd": {
+            "type": "number",
+            "minimum": 0
+          },
+          "include_derivatives": {
+            "description": "Include derivative transactions (default false).",
+            "default": false,
+            "type": "boolean"
+          },
+          "owners": {
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "description": "Company CIK, 1–10 digits.",
+              "type": "string",
+              "pattern": "^\\d{1,10}$"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "InsiderTradeAlertTrigger": {
+        "title": "InsiderTradeAlertTrigger",
+        "description": "max_fires and cooldown_seconds require mode every_time. delete_on_expiry requires expires_at.",
+        "type": "object",
+        "properties": {
+          "mode": {
+            "description": "Repeat mode; once becomes triggered after the first fire (default every_time).",
+            "default": "every_time",
+            "type": "string",
+            "enum": [
+              "once",
+              "every_time"
+            ]
+          },
+          "cooldown_seconds": {
+            "description": "Minimum seconds between fires (at most 366 days)",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 31622400
+          },
+          "max_fires": {
+            "description": "The alert becomes `triggered` after this many fires",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "expires_at": {
+            "description": "The alert becomes `expired` then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "delete_on_expiry": {
+            "description": "Delete instead of `expired` (needs expires_at)",
+            "type": "boolean"
+          },
+          "activate_at": {
+            "description": "The alert is `scheduled` until then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "pause_until": {
+            "description": "No fires until then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "active_window": {
+            "description": "Fires only inside this window: `weekly` (days + from / to in a time zone) or `every` (an anchor, an interval and an active duration) Weekly windows require timezone, days, from and to. Every windows require anchor_at, interval, unit and active_duration_seconds.",
+            "type": "object",
+            "properties": {
+              "type": {
+                "description": "Weekly hours or a recurring window.",
+                "type": "string",
+                "enum": [
+                  "weekly",
+                  "every"
+                ]
+              },
+              "timezone": {
+                "description": "IANA time zone (default America/New_York). Must name an IANA time zone known to the runtime.",
+                "type": "string"
+              },
+              "days": {
+                "description": "Weekdays of a weekly window.",
+                "minItems": 1,
+                "maxItems": 7,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "mo",
+                    "tu",
+                    "we",
+                    "th",
+                    "fr",
+                    "sa",
+                    "su"
+                  ]
+                }
+              },
+              "from": {
+                "description": "HH:MM (weekly) (HH:MM, 24 h)",
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              "to": {
+                "description": "HH:MM (weekly) (HH:MM, 24 h)",
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              "anchor_at": {
+                "description": "Start of the first window (every)",
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              },
+              "interval": {
+                "description": "Number of units between recurring windows.",
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              },
+              "unit": {
+                "description": "Unit of the schedule interval.",
+                "type": "string",
+                "enum": [
+                  "hours",
+                  "days",
+                  "weeks"
+                ]
+              },
+              "active_duration_seconds": {
+                "description": "Window length (every)",
+                "type": "integer",
+                "minimum": 60,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "HolderChangeAlert": {
+        "type": "object",
+        "title": "Alert",
+        "required": [
+          "id",
+          "type",
+          "status",
+          "disabled_reason",
+          "condition",
+          "trigger",
+          "destination_ids",
+          "client_reference_id",
+          "external_user_id",
+          "metadata",
+          "symbol",
+          "cik",
+          "fire_count",
+          "last_fired_at",
+          "version",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Alert id (`alt_…`)"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "holder_change"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "paused",
+              "scheduled",
+              "triggered",
+              "expired",
+              "disabled"
+            ]
+          },
+          "disabled_reason": {
+            "type": "string",
+            "nullable": true,
+            "description": "Why the platform disabled the alert (`script_error`: its script aborted on 3 bars in a row); null otherwise"
+          },
+          "condition": {
+            "$ref": "#/components/schemas/HolderChangeAlertCondition"
+          },
+          "trigger": {
+            "$ref": "#/components/schemas/HolderChangeAlertTrigger"
+          },
+          "destination_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Destinations the fires are delivered to (empty = pull feed and WebSocket only)"
+          },
+          "client_reference_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "Your id of the alert (unique per account)"
+          },
+          "external_user_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "Your end user's id"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Your own key / value pairs (≤ 50 keys, ≤ 8 KB), echoed in every event"
+          },
+          "symbol": {
+            "type": "string",
+            "nullable": true,
+            "description": "The one company's ticker; null for several companies"
+          },
+          "cik": {
+            "type": "string",
+            "nullable": true,
+            "description": "The one company's CIK (10 digits); null for several companies"
+          },
+          "fire_count": {
+            "type": "integer",
+            "description": "Fires so far"
+          },
+          "last_fired_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "version": {
+            "type": "integer",
+            "description": "Bumped by every change (optimistic updates)"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "HolderChangeAlertCondition": {
+        "title": "HolderChangeAlertCondition",
+        "description": "The holder_change alert condition.",
+        "type": "object",
+        "properties": {
+          "ciks": {
+            "description": "Companies by CIK.",
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "description": "Company CIK, 1–10 digits.",
+              "type": "string",
+              "pattern": "^\\d{1,10}$"
+            }
+          },
+          "symbols": {
+            "description": "Companies by ticker; a US ETF ticker for the types that take ETFs.",
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "description": "Company ticker symbol.",
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9.\\-/]{0,11}$"
+            }
+          },
+          "managers": {
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "description": "Company CIK, 1–10 digits.",
+              "type": "string",
+              "pattern": "^\\d{1,10}$"
+            }
+          },
+          "kinds": {
+            "minItems": 1,
+            "maxItems": 4,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "new",
+                "increased",
+                "decreased",
+                "sold_out"
+              ]
+            }
+          },
+          "min_value_usd": {
+            "type": "number",
+            "minimum": 0
+          },
+          "min_change_pct": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": false
+      },
+      "HolderChangeAlertTrigger": {
+        "title": "HolderChangeAlertTrigger",
+        "description": "max_fires and cooldown_seconds require mode every_time. delete_on_expiry requires expires_at.",
+        "type": "object",
+        "properties": {
+          "mode": {
+            "description": "Repeat mode; once becomes triggered after the first fire (default every_time).",
+            "default": "every_time",
+            "type": "string",
+            "enum": [
+              "once",
+              "every_time"
+            ]
+          },
+          "cooldown_seconds": {
+            "description": "Minimum seconds between fires (at most 366 days)",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 31622400
+          },
+          "max_fires": {
+            "description": "The alert becomes `triggered` after this many fires",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "expires_at": {
+            "description": "The alert becomes `expired` then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "delete_on_expiry": {
+            "description": "Delete instead of `expired` (needs expires_at)",
+            "type": "boolean"
+          },
+          "activate_at": {
+            "description": "The alert is `scheduled` until then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "pause_until": {
+            "description": "No fires until then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "active_window": {
+            "description": "Fires only inside this window: `weekly` (days + from / to in a time zone) or `every` (an anchor, an interval and an active duration) Weekly windows require timezone, days, from and to. Every windows require anchor_at, interval, unit and active_duration_seconds.",
+            "type": "object",
+            "properties": {
+              "type": {
+                "description": "Weekly hours or a recurring window.",
+                "type": "string",
+                "enum": [
+                  "weekly",
+                  "every"
+                ]
+              },
+              "timezone": {
+                "description": "IANA time zone (default America/New_York). Must name an IANA time zone known to the runtime.",
+                "type": "string"
+              },
+              "days": {
+                "description": "Weekdays of a weekly window.",
+                "minItems": 1,
+                "maxItems": 7,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "mo",
+                    "tu",
+                    "we",
+                    "th",
+                    "fr",
+                    "sa",
+                    "su"
+                  ]
+                }
+              },
+              "from": {
+                "description": "HH:MM (weekly) (HH:MM, 24 h)",
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              "to": {
+                "description": "HH:MM (weekly) (HH:MM, 24 h)",
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              "anchor_at": {
+                "description": "Start of the first window (every)",
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              },
+              "interval": {
+                "description": "Number of units between recurring windows.",
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              },
+              "unit": {
+                "description": "Unit of the schedule interval.",
+                "type": "string",
+                "enum": [
+                  "hours",
+                  "days",
+                  "weeks"
+                ]
+              },
+              "active_duration_seconds": {
+                "description": "Window length (every)",
+                "type": "integer",
+                "minimum": 60,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "IpoStageAlert": {
+        "type": "object",
+        "title": "Alert",
+        "required": [
+          "id",
+          "type",
+          "status",
+          "disabled_reason",
+          "condition",
+          "trigger",
+          "destination_ids",
+          "client_reference_id",
+          "external_user_id",
+          "metadata",
+          "symbol",
+          "cik",
+          "fire_count",
+          "last_fired_at",
+          "version",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Alert id (`alt_…`)"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "ipo_stage"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "paused",
+              "scheduled",
+              "triggered",
+              "expired",
+              "disabled"
+            ]
+          },
+          "disabled_reason": {
+            "type": "string",
+            "nullable": true,
+            "description": "Why the platform disabled the alert (`script_error`: its script aborted on 3 bars in a row); null otherwise"
+          },
+          "condition": {
+            "$ref": "#/components/schemas/IpoStageAlertCondition"
+          },
+          "trigger": {
+            "$ref": "#/components/schemas/IpoStageAlertTrigger"
+          },
+          "destination_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Destinations the fires are delivered to (empty = pull feed and WebSocket only)"
+          },
+          "client_reference_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "Your id of the alert (unique per account)"
+          },
+          "external_user_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "Your end user's id"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Your own key / value pairs (≤ 50 keys, ≤ 8 KB), echoed in every event"
+          },
+          "symbol": {
+            "type": "string",
+            "nullable": true,
+            "description": "The one company's ticker; null for several companies"
+          },
+          "cik": {
+            "type": "string",
+            "nullable": true,
+            "description": "The one company's CIK (10 digits); null for several companies"
+          },
+          "fire_count": {
+            "type": "integer",
+            "description": "Fires so far"
+          },
+          "last_fired_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "version": {
+            "type": "integer",
+            "description": "Bumped by every change (optimistic updates)"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "IpoStageAlertCondition": {
+        "title": "IpoStageAlertCondition",
+        "description": "The ipo_stage alert condition.",
+        "type": "object",
+        "properties": {
+          "ciks": {
+            "description": "Companies by CIK.",
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "description": "Company CIK, 1–10 digits.",
+              "type": "string",
+              "pattern": "^\\d{1,10}$"
+            }
+          },
+          "symbols": {
+            "description": "Companies by ticker; a US ETF ticker for the types that take ETFs.",
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "description": "Company ticker symbol.",
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9.\\-/]{0,11}$"
+            }
+          },
+          "stages": {
+            "minItems": 1,
+            "maxItems": 7,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "registered",
+                "price_range",
+                "exchange_approved",
+                "effective",
+                "priced",
+                "withdrawn"
+              ]
+            }
+          },
+          "is_spac": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "IpoStageAlertTrigger": {
+        "title": "IpoStageAlertTrigger",
+        "description": "max_fires and cooldown_seconds require mode every_time. delete_on_expiry requires expires_at.",
+        "type": "object",
+        "properties": {
+          "mode": {
+            "description": "Repeat mode; once becomes triggered after the first fire (default every_time).",
+            "default": "every_time",
+            "type": "string",
+            "enum": [
+              "once",
+              "every_time"
+            ]
+          },
+          "cooldown_seconds": {
+            "description": "Minimum seconds between fires (at most 366 days)",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 31622400
+          },
+          "max_fires": {
+            "description": "The alert becomes `triggered` after this many fires",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "expires_at": {
+            "description": "The alert becomes `expired` then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "delete_on_expiry": {
+            "description": "Delete instead of `expired` (needs expires_at)",
+            "type": "boolean"
+          },
+          "activate_at": {
+            "description": "The alert is `scheduled` until then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "pause_until": {
+            "description": "No fires until then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "active_window": {
+            "description": "Fires only inside this window: `weekly` (days + from / to in a time zone) or `every` (an anchor, an interval and an active duration) Weekly windows require timezone, days, from and to. Every windows require anchor_at, interval, unit and active_duration_seconds.",
+            "type": "object",
+            "properties": {
+              "type": {
+                "description": "Weekly hours or a recurring window.",
+                "type": "string",
+                "enum": [
+                  "weekly",
+                  "every"
+                ]
+              },
+              "timezone": {
+                "description": "IANA time zone (default America/New_York). Must name an IANA time zone known to the runtime.",
+                "type": "string"
+              },
+              "days": {
+                "description": "Weekdays of a weekly window.",
+                "minItems": 1,
+                "maxItems": 7,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "mo",
+                    "tu",
+                    "we",
+                    "th",
+                    "fr",
+                    "sa",
+                    "su"
+                  ]
+                }
+              },
+              "from": {
+                "description": "HH:MM (weekly) (HH:MM, 24 h)",
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              "to": {
+                "description": "HH:MM (weekly) (HH:MM, 24 h)",
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              "anchor_at": {
+                "description": "Start of the first window (every)",
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              },
+              "interval": {
+                "description": "Number of units between recurring windows.",
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              },
+              "unit": {
+                "description": "Unit of the schedule interval.",
+                "type": "string",
+                "enum": [
+                  "hours",
+                  "days",
+                  "weeks"
+                ]
+              },
+              "active_duration_seconds": {
+                "description": "Window length (every)",
+                "type": "integer",
+                "minimum": 60,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "BeneficialOwnershipAlert": {
+        "type": "object",
+        "title": "Alert",
+        "required": [
+          "id",
+          "type",
+          "status",
+          "disabled_reason",
+          "condition",
+          "trigger",
+          "destination_ids",
+          "client_reference_id",
+          "external_user_id",
+          "metadata",
+          "symbol",
+          "cik",
+          "fire_count",
+          "last_fired_at",
+          "version",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Alert id (`alt_…`)"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "beneficial_ownership"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "paused",
+              "scheduled",
+              "triggered",
+              "expired",
+              "disabled"
+            ]
+          },
+          "disabled_reason": {
+            "type": "string",
+            "nullable": true,
+            "description": "Why the platform disabled the alert (`script_error`: its script aborted on 3 bars in a row); null otherwise"
+          },
+          "condition": {
+            "$ref": "#/components/schemas/BeneficialOwnershipAlertCondition"
+          },
+          "trigger": {
+            "$ref": "#/components/schemas/BeneficialOwnershipAlertTrigger"
+          },
+          "destination_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Destinations the fires are delivered to (empty = pull feed and WebSocket only)"
+          },
+          "client_reference_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "Your id of the alert (unique per account)"
+          },
+          "external_user_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "Your end user's id"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Your own key / value pairs (≤ 50 keys, ≤ 8 KB), echoed in every event"
+          },
+          "symbol": {
+            "type": "string",
+            "nullable": true,
+            "description": "The one company's ticker; null for several companies"
+          },
+          "cik": {
+            "type": "string",
+            "nullable": true,
+            "description": "The one company's CIK (10 digits); null for several companies"
+          },
+          "fire_count": {
+            "type": "integer",
+            "description": "Fires so far"
+          },
+          "last_fired_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "version": {
+            "type": "integer",
+            "description": "Bumped by every change (optimistic updates)"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "BeneficialOwnershipAlertCondition": {
+        "title": "BeneficialOwnershipAlertCondition",
+        "description": "The beneficial_ownership alert condition.",
+        "type": "object",
+        "properties": {
+          "ciks": {
+            "description": "Companies by CIK.",
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "description": "Company CIK, 1–10 digits.",
+              "type": "string",
+              "pattern": "^\\d{1,10}$"
+            }
+          },
+          "symbols": {
+            "description": "Companies by ticker; a US ETF ticker for the types that take ETFs.",
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "description": "Company ticker symbol.",
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9.\\-/]{0,11}$"
+            }
+          },
+          "schedule": {
+            "type": "string",
+            "enum": [
+              "13D",
+              "13G"
+            ]
+          },
+          "include_amendments": {
+            "description": "Include amendments (default true).",
+            "default": true,
+            "type": "boolean"
+          },
+          "min_percent_of_class": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "crossing": {
+            "type": "string",
+            "enum": [
+              "up",
+              "down"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "BeneficialOwnershipAlertTrigger": {
+        "title": "BeneficialOwnershipAlertTrigger",
+        "description": "max_fires and cooldown_seconds require mode every_time. delete_on_expiry requires expires_at.",
+        "type": "object",
+        "properties": {
+          "mode": {
+            "description": "Repeat mode; once becomes triggered after the first fire (default every_time).",
+            "default": "every_time",
+            "type": "string",
+            "enum": [
+              "once",
+              "every_time"
+            ]
+          },
+          "cooldown_seconds": {
+            "description": "Minimum seconds between fires (at most 366 days)",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 31622400
+          },
+          "max_fires": {
+            "description": "The alert becomes `triggered` after this many fires",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "expires_at": {
+            "description": "The alert becomes `expired` then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "delete_on_expiry": {
+            "description": "Delete instead of `expired` (needs expires_at)",
+            "type": "boolean"
+          },
+          "activate_at": {
+            "description": "The alert is `scheduled` until then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "pause_until": {
+            "description": "No fires until then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "active_window": {
+            "description": "Fires only inside this window: `weekly` (days + from / to in a time zone) or `every` (an anchor, an interval and an active duration) Weekly windows require timezone, days, from and to. Every windows require anchor_at, interval, unit and active_duration_seconds.",
+            "type": "object",
+            "properties": {
+              "type": {
+                "description": "Weekly hours or a recurring window.",
+                "type": "string",
+                "enum": [
+                  "weekly",
+                  "every"
+                ]
+              },
+              "timezone": {
+                "description": "IANA time zone (default America/New_York). Must name an IANA time zone known to the runtime.",
+                "type": "string"
+              },
+              "days": {
+                "description": "Weekdays of a weekly window.",
+                "minItems": 1,
+                "maxItems": 7,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "mo",
+                    "tu",
+                    "we",
+                    "th",
+                    "fr",
+                    "sa",
+                    "su"
+                  ]
+                }
+              },
+              "from": {
+                "description": "HH:MM (weekly) (HH:MM, 24 h)",
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              "to": {
+                "description": "HH:MM (weekly) (HH:MM, 24 h)",
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              "anchor_at": {
+                "description": "Start of the first window (every)",
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              },
+              "interval": {
+                "description": "Number of units between recurring windows.",
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              },
+              "unit": {
+                "description": "Unit of the schedule interval.",
+                "type": "string",
+                "enum": [
+                  "hours",
+                  "days",
+                  "weeks"
+                ]
+              },
+              "active_duration_seconds": {
+                "description": "Window length (every)",
+                "type": "integer",
+                "minimum": 60,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "InsiderSaleNoticeAlert": {
+        "type": "object",
+        "title": "Alert",
+        "required": [
+          "id",
+          "type",
+          "status",
+          "disabled_reason",
+          "condition",
+          "trigger",
+          "destination_ids",
+          "client_reference_id",
+          "external_user_id",
+          "metadata",
+          "symbol",
+          "cik",
+          "fire_count",
+          "last_fired_at",
+          "version",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Alert id (`alt_…`)"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "insider_sale_notice"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "paused",
+              "scheduled",
+              "triggered",
+              "expired",
+              "disabled"
+            ]
+          },
+          "disabled_reason": {
+            "type": "string",
+            "nullable": true,
+            "description": "Why the platform disabled the alert (`script_error`: its script aborted on 3 bars in a row); null otherwise"
+          },
+          "condition": {
+            "$ref": "#/components/schemas/InsiderSaleNoticeAlertCondition"
+          },
+          "trigger": {
+            "$ref": "#/components/schemas/InsiderSaleNoticeAlertTrigger"
+          },
+          "destination_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Destinations the fires are delivered to (empty = pull feed and WebSocket only)"
+          },
+          "client_reference_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "Your id of the alert (unique per account)"
+          },
+          "external_user_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "Your end user's id"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Your own key / value pairs (≤ 50 keys, ≤ 8 KB), echoed in every event"
+          },
+          "symbol": {
+            "type": "string",
+            "nullable": true,
+            "description": "The one company's ticker; null for several companies"
+          },
+          "cik": {
+            "type": "string",
+            "nullable": true,
+            "description": "The one company's CIK (10 digits); null for several companies"
+          },
+          "fire_count": {
+            "type": "integer",
+            "description": "Fires so far"
+          },
+          "last_fired_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "version": {
+            "type": "integer",
+            "description": "Bumped by every change (optimistic updates)"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "InsiderSaleNoticeAlertCondition": {
+        "title": "InsiderSaleNoticeAlertCondition",
+        "description": "The insider_sale_notice alert condition.",
+        "type": "object",
+        "properties": {
+          "ciks": {
+            "description": "Companies by CIK.",
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "description": "Company CIK, 1–10 digits.",
+              "type": "string",
+              "pattern": "^\\d{1,10}$"
+            }
+          },
+          "symbols": {
+            "description": "Companies by ticker; a US ETF ticker for the types that take ETFs.",
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "description": "Company ticker symbol.",
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9.\\-/]{0,11}$"
+            }
+          },
+          "min_market_value_usd": {
+            "type": "number",
+            "minimum": 0
+          },
+          "relationships": {
+            "minItems": 1,
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "InsiderSaleNoticeAlertTrigger": {
+        "title": "InsiderSaleNoticeAlertTrigger",
+        "description": "max_fires and cooldown_seconds require mode every_time. delete_on_expiry requires expires_at.",
+        "type": "object",
+        "properties": {
+          "mode": {
+            "description": "Repeat mode; once becomes triggered after the first fire (default every_time).",
+            "default": "every_time",
+            "type": "string",
+            "enum": [
+              "once",
+              "every_time"
+            ]
+          },
+          "cooldown_seconds": {
+            "description": "Minimum seconds between fires (at most 366 days)",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 31622400
+          },
+          "max_fires": {
+            "description": "The alert becomes `triggered` after this many fires",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "expires_at": {
+            "description": "The alert becomes `expired` then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "delete_on_expiry": {
+            "description": "Delete instead of `expired` (needs expires_at)",
+            "type": "boolean"
+          },
+          "activate_at": {
+            "description": "The alert is `scheduled` until then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "pause_until": {
+            "description": "No fires until then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "active_window": {
+            "description": "Fires only inside this window: `weekly` (days + from / to in a time zone) or `every` (an anchor, an interval and an active duration) Weekly windows require timezone, days, from and to. Every windows require anchor_at, interval, unit and active_duration_seconds.",
+            "type": "object",
+            "properties": {
+              "type": {
+                "description": "Weekly hours or a recurring window.",
+                "type": "string",
+                "enum": [
+                  "weekly",
+                  "every"
+                ]
+              },
+              "timezone": {
+                "description": "IANA time zone (default America/New_York). Must name an IANA time zone known to the runtime.",
+                "type": "string"
+              },
+              "days": {
+                "description": "Weekdays of a weekly window.",
+                "minItems": 1,
+                "maxItems": 7,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "mo",
+                    "tu",
+                    "we",
+                    "th",
+                    "fr",
+                    "sa",
+                    "su"
+                  ]
+                }
+              },
+              "from": {
+                "description": "HH:MM (weekly) (HH:MM, 24 h)",
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              "to": {
+                "description": "HH:MM (weekly) (HH:MM, 24 h)",
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              "anchor_at": {
+                "description": "Start of the first window (every)",
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              },
+              "interval": {
+                "description": "Number of units between recurring windows.",
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              },
+              "unit": {
+                "description": "Unit of the schedule interval.",
+                "type": "string",
+                "enum": [
+                  "hours",
+                  "days",
+                  "weeks"
+                ]
+              },
+              "active_duration_seconds": {
+                "description": "Window length (every)",
+                "type": "integer",
+                "minimum": 60,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
       "AlertQuotaUsage": {
         "type": "object",
         "title": "AlertQuotaUsage",
@@ -25809,6 +27312,1250 @@
         },
         "additionalProperties": false
       },
+      "CreateInsiderTradeAlertRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "insider_trade"
+            ]
+          },
+          "condition": {
+            "$ref": "#/components/schemas/InsiderTradeAlertConditionInput"
+          },
+          "trigger": {
+            "$ref": "#/components/schemas/InsiderTradeAlertTriggerInput"
+          },
+          "destination_ids": {
+            "$ref": "#/components/schemas/AlertDestinationIds"
+          },
+          "client_reference_id": {
+            "$ref": "#/components/schemas/AlertClientReferenceId"
+          },
+          "external_user_id": {
+            "$ref": "#/components/schemas/AlertExternalUserId"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/AlertMetadata"
+          }
+        },
+        "required": [
+          "type",
+          "condition"
+        ],
+        "description": "insider_trade: see InsiderTradeAlertConditionInput for the condition and cross-field rules. US ETF subjects are refused; use a company subject.",
+        "example": {
+          "type": "insider_trade",
+          "condition": {
+            "ciks": [
+              "320193"
+            ],
+            "sides": [
+              "buy"
+            ],
+            "include_derivatives": false,
+            "min_value_usd": 1000
+          }
+        }
+      },
+      "InsiderTradeAlertConditionInput": {
+        "title": "InsiderTradeAlertConditionInput",
+        "description": "The insider_trade alert condition.",
+        "type": "object",
+        "properties": {
+          "ciks": {
+            "description": "Companies by CIK.",
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "description": "Company CIK, 1–10 digits.",
+              "type": "string",
+              "pattern": "^\\d{1,10}$"
+            }
+          },
+          "symbols": {
+            "description": "Companies by ticker; a US ETF ticker for the types that take ETFs.",
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "description": "Company ticker symbol.",
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9.\\-/]{0,11}$"
+            }
+          },
+          "sides": {
+            "minItems": 1,
+            "maxItems": 2,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "buy",
+                "sell"
+              ]
+            }
+          },
+          "codes": {
+            "minItems": 1,
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Z]$"
+            }
+          },
+          "roles": {
+            "minItems": 1,
+            "maxItems": 3,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "director",
+                "officer",
+                "ten_percent_owner"
+              ]
+            }
+          },
+          "min_value_usd": {
+            "type": "number",
+            "minimum": 0
+          },
+          "include_derivatives": {
+            "description": "Include derivative transactions (default false).",
+            "default": false,
+            "type": "boolean"
+          },
+          "owners": {
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "description": "Company CIK, 1–10 digits.",
+              "type": "string",
+              "pattern": "^\\d{1,10}$"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "InsiderTradeAlertTriggerInput": {
+        "title": "InsiderTradeAlertTriggerInput",
+        "description": "max_fires and cooldown_seconds require mode every_time. delete_on_expiry requires expires_at.",
+        "type": "object",
+        "properties": {
+          "mode": {
+            "description": "Repeat mode; once becomes triggered after the first fire (default every_time).",
+            "default": "every_time",
+            "type": "string",
+            "enum": [
+              "once",
+              "every_time"
+            ]
+          },
+          "cooldown_seconds": {
+            "description": "Minimum seconds between fires (at most 366 days)",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 31622400
+          },
+          "max_fires": {
+            "description": "The alert becomes `triggered` after this many fires",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "expires_at": {
+            "description": "The alert becomes `expired` then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "delete_on_expiry": {
+            "description": "Delete instead of `expired` (needs expires_at)",
+            "type": "boolean"
+          },
+          "activate_at": {
+            "description": "The alert is `scheduled` until then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "pause_until": {
+            "description": "No fires until then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "active_window": {
+            "description": "Fires only inside this window: `weekly` (days + from / to in a time zone) or `every` (an anchor, an interval and an active duration) Weekly windows require timezone, days, from and to. Every windows require anchor_at, interval, unit and active_duration_seconds.",
+            "type": "object",
+            "properties": {
+              "type": {
+                "description": "Weekly hours or a recurring window.",
+                "type": "string",
+                "enum": [
+                  "weekly",
+                  "every"
+                ]
+              },
+              "timezone": {
+                "description": "IANA time zone (default America/New_York). Must name an IANA time zone known to the runtime.",
+                "type": "string"
+              },
+              "days": {
+                "description": "Weekdays of a weekly window.",
+                "minItems": 1,
+                "maxItems": 7,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "mo",
+                    "tu",
+                    "we",
+                    "th",
+                    "fr",
+                    "sa",
+                    "su"
+                  ]
+                }
+              },
+              "from": {
+                "description": "HH:MM (weekly) (HH:MM, 24 h)",
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              "to": {
+                "description": "HH:MM (weekly) (HH:MM, 24 h)",
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              "anchor_at": {
+                "description": "Start of the first window (every)",
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              },
+              "interval": {
+                "description": "Number of units between recurring windows.",
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              },
+              "unit": {
+                "description": "Unit of the schedule interval.",
+                "type": "string",
+                "enum": [
+                  "hours",
+                  "days",
+                  "weeks"
+                ]
+              },
+              "active_duration_seconds": {
+                "description": "Window length (every)",
+                "type": "integer",
+                "minimum": 60,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateHolderChangeAlertRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "holder_change"
+            ]
+          },
+          "condition": {
+            "$ref": "#/components/schemas/HolderChangeAlertConditionInput"
+          },
+          "trigger": {
+            "$ref": "#/components/schemas/HolderChangeAlertTriggerInput"
+          },
+          "destination_ids": {
+            "$ref": "#/components/schemas/AlertDestinationIds"
+          },
+          "client_reference_id": {
+            "$ref": "#/components/schemas/AlertClientReferenceId"
+          },
+          "external_user_id": {
+            "$ref": "#/components/schemas/AlertExternalUserId"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/AlertMetadata"
+          }
+        },
+        "required": [
+          "type",
+          "condition"
+        ],
+        "description": "holder_change: see HolderChangeAlertConditionInput for the condition and cross-field rules. US ETF subjects are refused; use a company subject.",
+        "example": {
+          "type": "holder_change",
+          "condition": {
+            "ciks": [
+              "320193"
+            ],
+            "kinds": [
+              "increased"
+            ],
+            "min_change_pct": 10
+          }
+        }
+      },
+      "HolderChangeAlertConditionInput": {
+        "title": "HolderChangeAlertConditionInput",
+        "description": "The holder_change alert condition.",
+        "type": "object",
+        "properties": {
+          "ciks": {
+            "description": "Companies by CIK.",
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "description": "Company CIK, 1–10 digits.",
+              "type": "string",
+              "pattern": "^\\d{1,10}$"
+            }
+          },
+          "symbols": {
+            "description": "Companies by ticker; a US ETF ticker for the types that take ETFs.",
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "description": "Company ticker symbol.",
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9.\\-/]{0,11}$"
+            }
+          },
+          "managers": {
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "description": "Company CIK, 1–10 digits.",
+              "type": "string",
+              "pattern": "^\\d{1,10}$"
+            }
+          },
+          "kinds": {
+            "minItems": 1,
+            "maxItems": 4,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "new",
+                "increased",
+                "decreased",
+                "sold_out"
+              ]
+            }
+          },
+          "min_value_usd": {
+            "type": "number",
+            "minimum": 0
+          },
+          "min_change_pct": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "x-field-dependency": true,
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "ciks": {
+                    "description": "Companies by CIK.",
+                    "minItems": 1,
+                    "maxItems": 100,
+                    "type": "array",
+                    "items": {
+                      "description": "Company CIK, 1–10 digits.",
+                      "type": "string",
+                      "pattern": "^\\d{1,10}$"
+                    }
+                  }
+                },
+                "required": [
+                  "ciks"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "symbols": {
+                    "description": "Companies by ticker; a US ETF ticker for the types that take ETFs.",
+                    "minItems": 1,
+                    "maxItems": 100,
+                    "type": "array",
+                    "items": {
+                      "description": "Company ticker symbol.",
+                      "type": "string",
+                      "pattern": "^[A-Za-z][A-Za-z0-9.\\-/]{0,11}$"
+                    }
+                  }
+                },
+                "required": [
+                  "symbols"
+                ]
+              }
+            ]
+          }
+        ],
+        "x-field-dependencies": {
+          "requiredAny": [
+            "ciks",
+            "symbols"
+          ]
+        }
+      },
+      "HolderChangeAlertTriggerInput": {
+        "title": "HolderChangeAlertTriggerInput",
+        "description": "max_fires and cooldown_seconds require mode every_time. delete_on_expiry requires expires_at.",
+        "type": "object",
+        "properties": {
+          "mode": {
+            "description": "Repeat mode; once becomes triggered after the first fire (default every_time).",
+            "default": "every_time",
+            "type": "string",
+            "enum": [
+              "once",
+              "every_time"
+            ]
+          },
+          "cooldown_seconds": {
+            "description": "Minimum seconds between fires (at most 366 days)",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 31622400
+          },
+          "max_fires": {
+            "description": "The alert becomes `triggered` after this many fires",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "expires_at": {
+            "description": "The alert becomes `expired` then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "delete_on_expiry": {
+            "description": "Delete instead of `expired` (needs expires_at)",
+            "type": "boolean"
+          },
+          "activate_at": {
+            "description": "The alert is `scheduled` until then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "pause_until": {
+            "description": "No fires until then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "active_window": {
+            "description": "Fires only inside this window: `weekly` (days + from / to in a time zone) or `every` (an anchor, an interval and an active duration) Weekly windows require timezone, days, from and to. Every windows require anchor_at, interval, unit and active_duration_seconds.",
+            "type": "object",
+            "properties": {
+              "type": {
+                "description": "Weekly hours or a recurring window.",
+                "type": "string",
+                "enum": [
+                  "weekly",
+                  "every"
+                ]
+              },
+              "timezone": {
+                "description": "IANA time zone (default America/New_York). Must name an IANA time zone known to the runtime.",
+                "type": "string"
+              },
+              "days": {
+                "description": "Weekdays of a weekly window.",
+                "minItems": 1,
+                "maxItems": 7,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "mo",
+                    "tu",
+                    "we",
+                    "th",
+                    "fr",
+                    "sa",
+                    "su"
+                  ]
+                }
+              },
+              "from": {
+                "description": "HH:MM (weekly) (HH:MM, 24 h)",
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              "to": {
+                "description": "HH:MM (weekly) (HH:MM, 24 h)",
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              "anchor_at": {
+                "description": "Start of the first window (every)",
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              },
+              "interval": {
+                "description": "Number of units between recurring windows.",
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              },
+              "unit": {
+                "description": "Unit of the schedule interval.",
+                "type": "string",
+                "enum": [
+                  "hours",
+                  "days",
+                  "weeks"
+                ]
+              },
+              "active_duration_seconds": {
+                "description": "Window length (every)",
+                "type": "integer",
+                "minimum": 60,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateIpoStageAlertRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "ipo_stage"
+            ]
+          },
+          "condition": {
+            "$ref": "#/components/schemas/IpoStageAlertConditionInput"
+          },
+          "trigger": {
+            "$ref": "#/components/schemas/IpoStageAlertTriggerInput"
+          },
+          "destination_ids": {
+            "$ref": "#/components/schemas/AlertDestinationIds"
+          },
+          "client_reference_id": {
+            "$ref": "#/components/schemas/AlertClientReferenceId"
+          },
+          "external_user_id": {
+            "$ref": "#/components/schemas/AlertExternalUserId"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/AlertMetadata"
+          }
+        },
+        "required": [
+          "type",
+          "condition"
+        ],
+        "description": "ipo_stage: see IpoStageAlertConditionInput for the condition and cross-field rules. US ETF subjects are refused; use a company subject.",
+        "example": {
+          "type": "ipo_stage",
+          "condition": {
+            "stages": [
+              "registered"
+            ]
+          }
+        }
+      },
+      "IpoStageAlertConditionInput": {
+        "title": "IpoStageAlertConditionInput",
+        "description": "The ipo_stage alert condition.",
+        "type": "object",
+        "properties": {
+          "ciks": {
+            "description": "Companies by CIK.",
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "description": "Company CIK, 1–10 digits.",
+              "type": "string",
+              "pattern": "^\\d{1,10}$"
+            }
+          },
+          "symbols": {
+            "description": "Companies by ticker; a US ETF ticker for the types that take ETFs.",
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "description": "Company ticker symbol.",
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9.\\-/]{0,11}$"
+            }
+          },
+          "stages": {
+            "minItems": 1,
+            "maxItems": 7,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "registered",
+                "price_range",
+                "exchange_approved",
+                "effective",
+                "priced",
+                "withdrawn"
+              ]
+            }
+          },
+          "is_spac": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "IpoStageAlertTriggerInput": {
+        "title": "IpoStageAlertTriggerInput",
+        "description": "max_fires and cooldown_seconds require mode every_time. delete_on_expiry requires expires_at.",
+        "type": "object",
+        "properties": {
+          "mode": {
+            "description": "Repeat mode; once becomes triggered after the first fire (default every_time).",
+            "default": "every_time",
+            "type": "string",
+            "enum": [
+              "once",
+              "every_time"
+            ]
+          },
+          "cooldown_seconds": {
+            "description": "Minimum seconds between fires (at most 366 days)",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 31622400
+          },
+          "max_fires": {
+            "description": "The alert becomes `triggered` after this many fires",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "expires_at": {
+            "description": "The alert becomes `expired` then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "delete_on_expiry": {
+            "description": "Delete instead of `expired` (needs expires_at)",
+            "type": "boolean"
+          },
+          "activate_at": {
+            "description": "The alert is `scheduled` until then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "pause_until": {
+            "description": "No fires until then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "active_window": {
+            "description": "Fires only inside this window: `weekly` (days + from / to in a time zone) or `every` (an anchor, an interval and an active duration) Weekly windows require timezone, days, from and to. Every windows require anchor_at, interval, unit and active_duration_seconds.",
+            "type": "object",
+            "properties": {
+              "type": {
+                "description": "Weekly hours or a recurring window.",
+                "type": "string",
+                "enum": [
+                  "weekly",
+                  "every"
+                ]
+              },
+              "timezone": {
+                "description": "IANA time zone (default America/New_York). Must name an IANA time zone known to the runtime.",
+                "type": "string"
+              },
+              "days": {
+                "description": "Weekdays of a weekly window.",
+                "minItems": 1,
+                "maxItems": 7,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "mo",
+                    "tu",
+                    "we",
+                    "th",
+                    "fr",
+                    "sa",
+                    "su"
+                  ]
+                }
+              },
+              "from": {
+                "description": "HH:MM (weekly) (HH:MM, 24 h)",
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              "to": {
+                "description": "HH:MM (weekly) (HH:MM, 24 h)",
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              "anchor_at": {
+                "description": "Start of the first window (every)",
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              },
+              "interval": {
+                "description": "Number of units between recurring windows.",
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              },
+              "unit": {
+                "description": "Unit of the schedule interval.",
+                "type": "string",
+                "enum": [
+                  "hours",
+                  "days",
+                  "weeks"
+                ]
+              },
+              "active_duration_seconds": {
+                "description": "Window length (every)",
+                "type": "integer",
+                "minimum": 60,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateBeneficialOwnershipAlertRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "beneficial_ownership"
+            ]
+          },
+          "condition": {
+            "$ref": "#/components/schemas/BeneficialOwnershipAlertConditionInput"
+          },
+          "trigger": {
+            "$ref": "#/components/schemas/BeneficialOwnershipAlertTriggerInput"
+          },
+          "destination_ids": {
+            "$ref": "#/components/schemas/AlertDestinationIds"
+          },
+          "client_reference_id": {
+            "$ref": "#/components/schemas/AlertClientReferenceId"
+          },
+          "external_user_id": {
+            "$ref": "#/components/schemas/AlertExternalUserId"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/AlertMetadata"
+          }
+        },
+        "required": [
+          "type",
+          "condition"
+        ],
+        "description": "beneficial_ownership: see BeneficialOwnershipAlertConditionInput for the condition and cross-field rules. US ETF subjects are refused; use a company subject.",
+        "example": {
+          "type": "beneficial_ownership",
+          "condition": {
+            "ciks": [
+              "320193"
+            ],
+            "include_amendments": true,
+            "min_percent_of_class": 5
+          }
+        }
+      },
+      "BeneficialOwnershipAlertConditionInput": {
+        "title": "BeneficialOwnershipAlertConditionInput",
+        "description": "The beneficial_ownership alert condition.",
+        "type": "object",
+        "properties": {
+          "ciks": {
+            "description": "Companies by CIK.",
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "description": "Company CIK, 1–10 digits.",
+              "type": "string",
+              "pattern": "^\\d{1,10}$"
+            }
+          },
+          "symbols": {
+            "description": "Companies by ticker; a US ETF ticker for the types that take ETFs.",
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "description": "Company ticker symbol.",
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9.\\-/]{0,11}$"
+            }
+          },
+          "schedule": {
+            "type": "string",
+            "enum": [
+              "13D",
+              "13G"
+            ]
+          },
+          "include_amendments": {
+            "description": "Include amendments (default true).",
+            "default": true,
+            "type": "boolean"
+          },
+          "min_percent_of_class": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "crossing": {
+            "type": "string",
+            "enum": [
+              "up",
+              "down"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "x-field-dependency": true,
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "crossing": {
+                    "not": {}
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "min_percent_of_class": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                  }
+                },
+                "required": [
+                  "min_percent_of_class"
+                ]
+              }
+            ]
+          }
+        ],
+        "x-field-dependencies": {
+          "requiredWith": {
+            "crossing": "min_percent_of_class"
+          }
+        }
+      },
+      "BeneficialOwnershipAlertTriggerInput": {
+        "title": "BeneficialOwnershipAlertTriggerInput",
+        "description": "max_fires and cooldown_seconds require mode every_time. delete_on_expiry requires expires_at.",
+        "type": "object",
+        "properties": {
+          "mode": {
+            "description": "Repeat mode; once becomes triggered after the first fire (default every_time).",
+            "default": "every_time",
+            "type": "string",
+            "enum": [
+              "once",
+              "every_time"
+            ]
+          },
+          "cooldown_seconds": {
+            "description": "Minimum seconds between fires (at most 366 days)",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 31622400
+          },
+          "max_fires": {
+            "description": "The alert becomes `triggered` after this many fires",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "expires_at": {
+            "description": "The alert becomes `expired` then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "delete_on_expiry": {
+            "description": "Delete instead of `expired` (needs expires_at)",
+            "type": "boolean"
+          },
+          "activate_at": {
+            "description": "The alert is `scheduled` until then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "pause_until": {
+            "description": "No fires until then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "active_window": {
+            "description": "Fires only inside this window: `weekly` (days + from / to in a time zone) or `every` (an anchor, an interval and an active duration) Weekly windows require timezone, days, from and to. Every windows require anchor_at, interval, unit and active_duration_seconds.",
+            "type": "object",
+            "properties": {
+              "type": {
+                "description": "Weekly hours or a recurring window.",
+                "type": "string",
+                "enum": [
+                  "weekly",
+                  "every"
+                ]
+              },
+              "timezone": {
+                "description": "IANA time zone (default America/New_York). Must name an IANA time zone known to the runtime.",
+                "type": "string"
+              },
+              "days": {
+                "description": "Weekdays of a weekly window.",
+                "minItems": 1,
+                "maxItems": 7,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "mo",
+                    "tu",
+                    "we",
+                    "th",
+                    "fr",
+                    "sa",
+                    "su"
+                  ]
+                }
+              },
+              "from": {
+                "description": "HH:MM (weekly) (HH:MM, 24 h)",
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              "to": {
+                "description": "HH:MM (weekly) (HH:MM, 24 h)",
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              "anchor_at": {
+                "description": "Start of the first window (every)",
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              },
+              "interval": {
+                "description": "Number of units between recurring windows.",
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              },
+              "unit": {
+                "description": "Unit of the schedule interval.",
+                "type": "string",
+                "enum": [
+                  "hours",
+                  "days",
+                  "weeks"
+                ]
+              },
+              "active_duration_seconds": {
+                "description": "Window length (every)",
+                "type": "integer",
+                "minimum": 60,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateInsiderSaleNoticeAlertRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "insider_sale_notice"
+            ]
+          },
+          "condition": {
+            "$ref": "#/components/schemas/InsiderSaleNoticeAlertConditionInput"
+          },
+          "trigger": {
+            "$ref": "#/components/schemas/InsiderSaleNoticeAlertTriggerInput"
+          },
+          "destination_ids": {
+            "$ref": "#/components/schemas/AlertDestinationIds"
+          },
+          "client_reference_id": {
+            "$ref": "#/components/schemas/AlertClientReferenceId"
+          },
+          "external_user_id": {
+            "$ref": "#/components/schemas/AlertExternalUserId"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/AlertMetadata"
+          }
+        },
+        "required": [
+          "type",
+          "condition"
+        ],
+        "description": "insider_sale_notice: see InsiderSaleNoticeAlertConditionInput for the condition and cross-field rules. US ETF subjects are refused; use a company subject.",
+        "example": {
+          "type": "insider_sale_notice",
+          "condition": {
+            "ciks": [
+              "320193"
+            ],
+            "min_market_value_usd": 1000
+          }
+        }
+      },
+      "InsiderSaleNoticeAlertConditionInput": {
+        "title": "InsiderSaleNoticeAlertConditionInput",
+        "description": "The insider_sale_notice alert condition.",
+        "type": "object",
+        "properties": {
+          "ciks": {
+            "description": "Companies by CIK.",
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "description": "Company CIK, 1–10 digits.",
+              "type": "string",
+              "pattern": "^\\d{1,10}$"
+            }
+          },
+          "symbols": {
+            "description": "Companies by ticker; a US ETF ticker for the types that take ETFs.",
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "description": "Company ticker symbol.",
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9.\\-/]{0,11}$"
+            }
+          },
+          "min_market_value_usd": {
+            "type": "number",
+            "minimum": 0
+          },
+          "relationships": {
+            "minItems": 1,
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "InsiderSaleNoticeAlertTriggerInput": {
+        "title": "InsiderSaleNoticeAlertTriggerInput",
+        "description": "max_fires and cooldown_seconds require mode every_time. delete_on_expiry requires expires_at.",
+        "type": "object",
+        "properties": {
+          "mode": {
+            "description": "Repeat mode; once becomes triggered after the first fire (default every_time).",
+            "default": "every_time",
+            "type": "string",
+            "enum": [
+              "once",
+              "every_time"
+            ]
+          },
+          "cooldown_seconds": {
+            "description": "Minimum seconds between fires (at most 366 days)",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 31622400
+          },
+          "max_fires": {
+            "description": "The alert becomes `triggered` after this many fires",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "expires_at": {
+            "description": "The alert becomes `expired` then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "delete_on_expiry": {
+            "description": "Delete instead of `expired` (needs expires_at)",
+            "type": "boolean"
+          },
+          "activate_at": {
+            "description": "The alert is `scheduled` until then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "pause_until": {
+            "description": "No fires until then",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "active_window": {
+            "description": "Fires only inside this window: `weekly` (days + from / to in a time zone) or `every` (an anchor, an interval and an active duration) Weekly windows require timezone, days, from and to. Every windows require anchor_at, interval, unit and active_duration_seconds.",
+            "type": "object",
+            "properties": {
+              "type": {
+                "description": "Weekly hours or a recurring window.",
+                "type": "string",
+                "enum": [
+                  "weekly",
+                  "every"
+                ]
+              },
+              "timezone": {
+                "description": "IANA time zone (default America/New_York). Must name an IANA time zone known to the runtime.",
+                "type": "string"
+              },
+              "days": {
+                "description": "Weekdays of a weekly window.",
+                "minItems": 1,
+                "maxItems": 7,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "mo",
+                    "tu",
+                    "we",
+                    "th",
+                    "fr",
+                    "sa",
+                    "su"
+                  ]
+                }
+              },
+              "from": {
+                "description": "HH:MM (weekly) (HH:MM, 24 h)",
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              "to": {
+                "description": "HH:MM (weekly) (HH:MM, 24 h)",
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              "anchor_at": {
+                "description": "Start of the first window (every)",
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              },
+              "interval": {
+                "description": "Number of units between recurring windows.",
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              },
+              "unit": {
+                "description": "Unit of the schedule interval.",
+                "type": "string",
+                "enum": [
+                  "hours",
+                  "days",
+                  "weeks"
+                ]
+              },
+              "active_duration_seconds": {
+                "description": "Window length (every)",
+                "type": "integer",
+                "minimum": 60,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
       "UpdateFilingAlertRequest": {
         "type": "object",
         "additionalProperties": false,
@@ -26673,6 +29420,246 @@
           "type"
         ]
       },
+      "UpdateInsiderTradeAlertRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "insider_trade"
+            ]
+          },
+          "condition": {
+            "$ref": "#/components/schemas/InsiderTradeAlertConditionInput"
+          },
+          "trigger": {
+            "$ref": "#/components/schemas/InsiderTradeAlertTriggerInput"
+          },
+          "destination_ids": {
+            "$ref": "#/components/schemas/AlertDestinationIds"
+          },
+          "client_reference_id": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AlertClientReferenceId"
+              }
+            ],
+            "nullable": true
+          },
+          "external_user_id": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AlertExternalUserId"
+              }
+            ],
+            "nullable": true
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/AlertMetadata"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Apply only to this version (409 conflict otherwise)"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "UpdateHolderChangeAlertRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "holder_change"
+            ]
+          },
+          "condition": {
+            "$ref": "#/components/schemas/HolderChangeAlertConditionInput"
+          },
+          "trigger": {
+            "$ref": "#/components/schemas/HolderChangeAlertTriggerInput"
+          },
+          "destination_ids": {
+            "$ref": "#/components/schemas/AlertDestinationIds"
+          },
+          "client_reference_id": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AlertClientReferenceId"
+              }
+            ],
+            "nullable": true
+          },
+          "external_user_id": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AlertExternalUserId"
+              }
+            ],
+            "nullable": true
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/AlertMetadata"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Apply only to this version (409 conflict otherwise)"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "UpdateIpoStageAlertRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "ipo_stage"
+            ]
+          },
+          "condition": {
+            "$ref": "#/components/schemas/IpoStageAlertConditionInput"
+          },
+          "trigger": {
+            "$ref": "#/components/schemas/IpoStageAlertTriggerInput"
+          },
+          "destination_ids": {
+            "$ref": "#/components/schemas/AlertDestinationIds"
+          },
+          "client_reference_id": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AlertClientReferenceId"
+              }
+            ],
+            "nullable": true
+          },
+          "external_user_id": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AlertExternalUserId"
+              }
+            ],
+            "nullable": true
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/AlertMetadata"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Apply only to this version (409 conflict otherwise)"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "UpdateBeneficialOwnershipAlertRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "beneficial_ownership"
+            ]
+          },
+          "condition": {
+            "$ref": "#/components/schemas/BeneficialOwnershipAlertConditionInput"
+          },
+          "trigger": {
+            "$ref": "#/components/schemas/BeneficialOwnershipAlertTriggerInput"
+          },
+          "destination_ids": {
+            "$ref": "#/components/schemas/AlertDestinationIds"
+          },
+          "client_reference_id": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AlertClientReferenceId"
+              }
+            ],
+            "nullable": true
+          },
+          "external_user_id": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AlertExternalUserId"
+              }
+            ],
+            "nullable": true
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/AlertMetadata"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Apply only to this version (409 conflict otherwise)"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "UpdateInsiderSaleNoticeAlertRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "insider_sale_notice"
+            ]
+          },
+          "condition": {
+            "$ref": "#/components/schemas/InsiderSaleNoticeAlertConditionInput"
+          },
+          "trigger": {
+            "$ref": "#/components/schemas/InsiderSaleNoticeAlertTriggerInput"
+          },
+          "destination_ids": {
+            "$ref": "#/components/schemas/AlertDestinationIds"
+          },
+          "client_reference_id": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AlertClientReferenceId"
+              }
+            ],
+            "nullable": true
+          },
+          "external_user_id": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AlertExternalUserId"
+              }
+            ],
+            "nullable": true
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/AlertMetadata"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Apply only to this version (409 conflict otherwise)"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
       "AlertSettingsUpdateRequest": {
         "type": "object",
         "additionalProperties": false,
@@ -27004,6 +29991,21 @@
           },
           {
             "$ref": "#/components/schemas/MacroAlertBatchWriteItem"
+          },
+          {
+            "$ref": "#/components/schemas/InsiderTradeAlertBatchWriteItem"
+          },
+          {
+            "$ref": "#/components/schemas/HolderChangeAlertBatchWriteItem"
+          },
+          {
+            "$ref": "#/components/schemas/IpoStageAlertBatchWriteItem"
+          },
+          {
+            "$ref": "#/components/schemas/BeneficialOwnershipAlertBatchWriteItem"
+          },
+          {
+            "$ref": "#/components/schemas/InsiderSaleNoticeAlertBatchWriteItem"
           },
           {
             "$ref": "#/components/schemas/AlertBatchActionItem"
@@ -27856,6 +30858,241 @@
           "condition"
         ]
       },
+      "InsiderTradeAlertBatchWriteItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "create",
+              "upsert"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "insider_trade"
+            ]
+          },
+          "condition": {
+            "$ref": "#/components/schemas/InsiderTradeAlertConditionInput"
+          },
+          "trigger": {
+            "$ref": "#/components/schemas/InsiderTradeAlertTriggerInput"
+          },
+          "destination_ids": {
+            "$ref": "#/components/schemas/AlertDestinationIds"
+          },
+          "client_reference_id": {
+            "$ref": "#/components/schemas/AlertClientReferenceId"
+          },
+          "external_user_id": {
+            "$ref": "#/components/schemas/AlertExternalUserId"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/AlertMetadata"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Apply only to this version (409 conflict otherwise)"
+          }
+        },
+        "required": [
+          "op",
+          "type",
+          "condition"
+        ]
+      },
+      "HolderChangeAlertBatchWriteItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "create",
+              "upsert"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "holder_change"
+            ]
+          },
+          "condition": {
+            "$ref": "#/components/schemas/HolderChangeAlertConditionInput"
+          },
+          "trigger": {
+            "$ref": "#/components/schemas/HolderChangeAlertTriggerInput"
+          },
+          "destination_ids": {
+            "$ref": "#/components/schemas/AlertDestinationIds"
+          },
+          "client_reference_id": {
+            "$ref": "#/components/schemas/AlertClientReferenceId"
+          },
+          "external_user_id": {
+            "$ref": "#/components/schemas/AlertExternalUserId"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/AlertMetadata"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Apply only to this version (409 conflict otherwise)"
+          }
+        },
+        "required": [
+          "op",
+          "type",
+          "condition"
+        ]
+      },
+      "IpoStageAlertBatchWriteItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "create",
+              "upsert"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "ipo_stage"
+            ]
+          },
+          "condition": {
+            "$ref": "#/components/schemas/IpoStageAlertConditionInput"
+          },
+          "trigger": {
+            "$ref": "#/components/schemas/IpoStageAlertTriggerInput"
+          },
+          "destination_ids": {
+            "$ref": "#/components/schemas/AlertDestinationIds"
+          },
+          "client_reference_id": {
+            "$ref": "#/components/schemas/AlertClientReferenceId"
+          },
+          "external_user_id": {
+            "$ref": "#/components/schemas/AlertExternalUserId"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/AlertMetadata"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Apply only to this version (409 conflict otherwise)"
+          }
+        },
+        "required": [
+          "op",
+          "type",
+          "condition"
+        ]
+      },
+      "BeneficialOwnershipAlertBatchWriteItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "create",
+              "upsert"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "beneficial_ownership"
+            ]
+          },
+          "condition": {
+            "$ref": "#/components/schemas/BeneficialOwnershipAlertConditionInput"
+          },
+          "trigger": {
+            "$ref": "#/components/schemas/BeneficialOwnershipAlertTriggerInput"
+          },
+          "destination_ids": {
+            "$ref": "#/components/schemas/AlertDestinationIds"
+          },
+          "client_reference_id": {
+            "$ref": "#/components/schemas/AlertClientReferenceId"
+          },
+          "external_user_id": {
+            "$ref": "#/components/schemas/AlertExternalUserId"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/AlertMetadata"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Apply only to this version (409 conflict otherwise)"
+          }
+        },
+        "required": [
+          "op",
+          "type",
+          "condition"
+        ]
+      },
+      "InsiderSaleNoticeAlertBatchWriteItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "create",
+              "upsert"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "insider_sale_notice"
+            ]
+          },
+          "condition": {
+            "$ref": "#/components/schemas/InsiderSaleNoticeAlertConditionInput"
+          },
+          "trigger": {
+            "$ref": "#/components/schemas/InsiderSaleNoticeAlertTriggerInput"
+          },
+          "destination_ids": {
+            "$ref": "#/components/schemas/AlertDestinationIds"
+          },
+          "client_reference_id": {
+            "$ref": "#/components/schemas/AlertClientReferenceId"
+          },
+          "external_user_id": {
+            "$ref": "#/components/schemas/AlertExternalUserId"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/AlertMetadata"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Apply only to this version (409 conflict otherwise)"
+          }
+        },
+        "required": [
+          "op",
+          "type",
+          "condition"
+        ]
+      },
       "AlertBatchActionItem": {
         "type": "object",
         "additionalProperties": false,
@@ -28010,6 +31247,21 @@
           },
           {
             "$ref": "#/components/schemas/MacroAlertFiredData"
+          },
+          {
+            "$ref": "#/components/schemas/InsiderTradeAlertFiredData"
+          },
+          {
+            "$ref": "#/components/schemas/HolderChangeAlertFiredData"
+          },
+          {
+            "$ref": "#/components/schemas/IpoStageAlertFiredData"
+          },
+          {
+            "$ref": "#/components/schemas/BeneficialOwnershipAlertFiredData"
+          },
+          {
+            "$ref": "#/components/schemas/InsiderSaleNoticeAlertFiredData"
           }
         ],
         "discriminator": {
@@ -28032,7 +31284,12 @@
             "price_reminder": "#/components/schemas/PriceReminderAlertFiredData",
             "indicator": "#/components/schemas/IndicatorAlertFiredData",
             "script": "#/components/schemas/ScriptAlertFiredData",
-            "macro": "#/components/schemas/MacroAlertFiredData"
+            "macro": "#/components/schemas/MacroAlertFiredData",
+            "insider_trade": "#/components/schemas/InsiderTradeAlertFiredData",
+            "holder_change": "#/components/schemas/HolderChangeAlertFiredData",
+            "ipo_stage": "#/components/schemas/IpoStageAlertFiredData",
+            "beneficial_ownership": "#/components/schemas/BeneficialOwnershipAlertFiredData",
+            "insider_sale_notice": "#/components/schemas/InsiderSaleNoticeAlertFiredData"
           }
         }
       },
@@ -28178,7 +31435,12 @@
               "price_reminder",
               "indicator",
               "script",
-              "macro"
+              "macro",
+              "insider_trade",
+              "holder_change",
+              "ipo_stage",
+              "beneficial_ownership",
+              "insider_sale_notice"
             ]
           },
           "client_reference_id": {
@@ -31735,6 +34997,967 @@
         ],
         "additionalProperties": false
       },
+      "InsiderTradeAlertFiredData": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "description": "Account event id; deduplicate on this value."
+          },
+          "alert_type": {
+            "type": "string",
+            "enum": [
+              "insider_trade"
+            ]
+          },
+          "alert": {
+            "$ref": "#/components/schemas/AlertFiredAlertRef"
+          },
+          "fired_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reason": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "summary": {
+                "type": "string"
+              },
+              "details": {
+                "$ref": "#/components/schemas/InsiderTradeFireDetails"
+              }
+            },
+            "required": [
+              "summary",
+              "details"
+            ]
+          },
+          "source": {
+            "$ref": "#/components/schemas/AlertFireSource"
+          },
+          "suppressed_since_last": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Fires suppressed since the prior delivered fire."
+          },
+          "delivery_skipped": {
+            "type": "string",
+            "enum": [
+              "fire_cap",
+              "alert_user_fire_cap"
+            ]
+          },
+          "test": {
+            "type": "boolean",
+            "enum": [
+              true
+            ],
+            "description": "Synthetic test delivery with representative example facts."
+          },
+          "subject": {
+            "$ref": "#/components/schemas/AlertFireSubject"
+          }
+        },
+        "required": [
+          "event_id",
+          "alert_type",
+          "alert",
+          "fired_at",
+          "reason"
+        ],
+        "title": "InsiderTradeAlertFiredData",
+        "description": "A insider_trade fire: its reason details follow InsiderTradeFireDetails. Synthetic tests use representative example facts.",
+        "example": {
+          "alert": {
+            "id": "alt_01JD2Q4X7Y8Z9A0B1C2D3E4F5G",
+            "type": "insider_trade",
+            "metadata": {},
+            "external_user_id": null,
+            "client_reference_id": "example-alert"
+          },
+          "reason": {
+            "summary": "A matching filing event.",
+            "details": {
+              "accession_number": "0000320193-26-000001",
+              "form_type": "4",
+              "transaction": {
+                "id": "trade:1",
+                "ownerCik": "12345",
+                "ownerName": "Example Person",
+                "isDirector": false,
+                "isOfficer": true,
+                "isTenPercentOwner": false,
+                "code": "P",
+                "acquiredDisposed": "A",
+                "shares": "100",
+                "price": "12.5",
+                "value": "1250",
+                "isDerivative": false
+              }
+            }
+          },
+          "source": {
+            "kind": "insider.filed",
+            "key": "insider:0000320193-26-000001:part:1"
+          },
+          "subject": {
+            "cik": "320193",
+            "symbol": null
+          },
+          "event_id": "evt_01JD2Q4X7Y8Z9A0B1C2D3E4F5G",
+          "fired_at": "2026-11-16T09:00:06.067Z",
+          "alert_type": "insider_trade"
+        }
+      },
+      "InsiderTradeFireDetails": {
+        "title": "InsiderTradeFireDetails",
+        "description": "Facts emitted by insider_trade alerts, including historical optional fields.",
+        "type": "object",
+        "properties": {
+          "accession_number": {
+            "type": "string"
+          },
+          "form_type": {
+            "nullable": true,
+            "type": "string"
+          },
+          "transaction": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "ownerCik": {
+                "nullable": true,
+                "type": "string",
+                "pattern": "^\\d{1,10}$"
+              },
+              "ownerName": {
+                "type": "string"
+              },
+              "isDirector": {
+                "type": "boolean"
+              },
+              "isOfficer": {
+                "type": "boolean"
+              },
+              "isTenPercentOwner": {
+                "type": "boolean"
+              },
+              "code": {
+                "type": "string"
+              },
+              "acquiredDisposed": {
+                "type": "string"
+              },
+              "shares": {
+                "nullable": true,
+                "type": "string",
+                "pattern": "^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$"
+              },
+              "price": {
+                "nullable": true,
+                "type": "string",
+                "pattern": "^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$"
+              },
+              "value": {
+                "nullable": true,
+                "type": "string",
+                "pattern": "^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$"
+              },
+              "isDerivative": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id",
+              "ownerCik",
+              "ownerName",
+              "isDirector",
+              "isOfficer",
+              "isTenPercentOwner",
+              "code",
+              "acquiredDisposed",
+              "shares",
+              "price",
+              "isDerivative"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "accession_number",
+          "form_type",
+          "transaction"
+        ],
+        "additionalProperties": false
+      },
+      "HolderChangeAlertFiredData": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "description": "Account event id; deduplicate on this value."
+          },
+          "alert_type": {
+            "type": "string",
+            "enum": [
+              "holder_change"
+            ]
+          },
+          "alert": {
+            "$ref": "#/components/schemas/AlertFiredAlertRef"
+          },
+          "fired_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reason": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "summary": {
+                "type": "string"
+              },
+              "details": {
+                "$ref": "#/components/schemas/HolderChangeFireDetails"
+              }
+            },
+            "required": [
+              "summary",
+              "details"
+            ]
+          },
+          "source": {
+            "$ref": "#/components/schemas/AlertFireSource"
+          },
+          "suppressed_since_last": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Fires suppressed since the prior delivered fire."
+          },
+          "delivery_skipped": {
+            "type": "string",
+            "enum": [
+              "fire_cap",
+              "alert_user_fire_cap"
+            ]
+          },
+          "test": {
+            "type": "boolean",
+            "enum": [
+              true
+            ],
+            "description": "Synthetic test delivery with representative example facts."
+          },
+          "subject": {
+            "$ref": "#/components/schemas/AlertFireSubject"
+          }
+        },
+        "required": [
+          "event_id",
+          "alert_type",
+          "alert",
+          "fired_at",
+          "reason"
+        ],
+        "title": "HolderChangeAlertFiredData",
+        "description": "A holder_change fire: its reason details follow HolderChangeFireDetails. Synthetic tests use representative example facts.",
+        "example": {
+          "alert": {
+            "id": "alt_01JD2Q4X7Y8Z9A0B1C2D3E4F5G",
+            "type": "holder_change",
+            "metadata": {},
+            "external_user_id": null,
+            "client_reference_id": "example-alert"
+          },
+          "reason": {
+            "summary": "A matching filing event.",
+            "details": {
+              "accession_number": "0000001004-26-000010",
+              "manager_cik": "1004",
+              "manager_name": "MANAGER 1004",
+              "period_end": "2026-06-30",
+              "prior_period_end": "2026-03-31",
+              "current_snapshot_id": "11111111-1111-5111-8111-111111111111",
+              "prior_snapshot_id": "22222222-2222-5222-8222-222222222222",
+              "position": {
+                "positionKey": "037833100|position|SH",
+                "cusip": "037833100",
+                "cik": "320193",
+                "symbol": "AAPL",
+                "kind": "increased",
+                "currentShares": "90",
+                "priorShares": "80",
+                "currentValueUsd": "900",
+                "priorValueUsd": "800"
+              }
+            }
+          },
+          "source": {
+            "kind": "holders.changed",
+            "key": "holders:1004:2026-06-30:0000001004-26-000010:1"
+          },
+          "subject": {
+            "cik": "320193",
+            "symbol": "AAPL"
+          },
+          "event_id": "evt_01JD2Q4X7Y8Z9A0B1C2D3E4F5G",
+          "fired_at": "2026-11-16T09:00:06.067Z",
+          "alert_type": "holder_change"
+        }
+      },
+      "HolderChangeFireDetails": {
+        "title": "HolderChangeFireDetails",
+        "description": "Facts emitted by holder_change alerts, including historical optional fields.",
+        "type": "object",
+        "properties": {
+          "accession_number": {
+            "type": "string"
+          },
+          "manager_cik": {
+            "type": "string"
+          },
+          "manager_name": {
+            "nullable": true,
+            "type": "string"
+          },
+          "period_end": {
+            "description": "Current holding period end.",
+            "format": "date",
+            "type": "string"
+          },
+          "prior_period_end": {
+            "description": "Current holding period end.",
+            "format": "date",
+            "type": "string"
+          },
+          "current_snapshot_id": {
+            "type": "string"
+          },
+          "prior_snapshot_id": {
+            "nullable": true,
+            "type": "string"
+          },
+          "position": {
+            "type": "object",
+            "properties": {
+              "positionKey": {
+                "type": "string"
+              },
+              "cusip": {
+                "nullable": true,
+                "type": "string"
+              },
+              "cik": {
+                "nullable": true,
+                "type": "string",
+                "pattern": "^\\d{1,10}$"
+              },
+              "symbol": {
+                "nullable": true,
+                "type": "string"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "new",
+                  "increased",
+                  "decreased",
+                  "sold_out"
+                ]
+              },
+              "currentShares": {
+                "nullable": true,
+                "type": "string",
+                "pattern": "^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$"
+              },
+              "priorShares": {
+                "nullable": true,
+                "type": "string",
+                "pattern": "^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$"
+              },
+              "currentValueUsd": {
+                "nullable": true,
+                "type": "string",
+                "pattern": "^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$"
+              },
+              "priorValueUsd": {
+                "nullable": true,
+                "type": "string",
+                "pattern": "^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$"
+              }
+            },
+            "required": [
+              "positionKey",
+              "cusip",
+              "cik",
+              "symbol",
+              "kind",
+              "currentShares",
+              "priorShares",
+              "currentValueUsd",
+              "priorValueUsd"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "accession_number",
+          "manager_cik",
+          "manager_name",
+          "period_end",
+          "prior_period_end",
+          "current_snapshot_id",
+          "prior_snapshot_id",
+          "position"
+        ],
+        "additionalProperties": false
+      },
+      "IpoStageAlertFiredData": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "description": "Account event id; deduplicate on this value."
+          },
+          "alert_type": {
+            "type": "string",
+            "enum": [
+              "ipo_stage"
+            ]
+          },
+          "alert": {
+            "$ref": "#/components/schemas/AlertFiredAlertRef"
+          },
+          "fired_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reason": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "summary": {
+                "type": "string"
+              },
+              "details": {
+                "$ref": "#/components/schemas/IpoStageFireDetails"
+              }
+            },
+            "required": [
+              "summary",
+              "details"
+            ]
+          },
+          "source": {
+            "$ref": "#/components/schemas/AlertFireSource"
+          },
+          "suppressed_since_last": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Fires suppressed since the prior delivered fire."
+          },
+          "delivery_skipped": {
+            "type": "string",
+            "enum": [
+              "fire_cap",
+              "alert_user_fire_cap"
+            ]
+          },
+          "test": {
+            "type": "boolean",
+            "enum": [
+              true
+            ],
+            "description": "Synthetic test delivery with representative example facts."
+          },
+          "subject": {
+            "$ref": "#/components/schemas/AlertFireSubject"
+          }
+        },
+        "required": [
+          "event_id",
+          "alert_type",
+          "alert",
+          "fired_at",
+          "reason"
+        ],
+        "title": "IpoStageAlertFiredData",
+        "description": "A ipo_stage fire: its reason details follow IpoStageFireDetails. Synthetic tests use representative example facts.",
+        "example": {
+          "alert": {
+            "id": "alt_01JD2Q4X7Y8Z9A0B1C2D3E4F5G",
+            "type": "ipo_stage",
+            "metadata": {},
+            "external_user_id": null,
+            "client_reference_id": "example-alert"
+          },
+          "reason": {
+            "summary": "A matching filing event.",
+            "details": {
+              "track_key": "333-1",
+              "transition_id": "00000000000000000000000000000000",
+              "previous_stage": null,
+              "stage": "registered",
+              "proposed_symbols": [
+                {
+                  "symbol": "NEWIPO",
+                  "exchange": "Nasdaq",
+                  "security_class": "common",
+                  "source": "regex",
+                  "ipo_calendar_match": false
+                }
+              ],
+              "is_spac": null,
+              "issuer_name": "Issuer"
+            }
+          },
+          "source": {
+            "kind": "ipo.stage",
+            "key": "ipo:1:333-1:registered:00000000000000000000000000000000"
+          },
+          "subject": {
+            "cik": "1",
+            "symbol": null
+          },
+          "event_id": "evt_01JD2Q4X7Y8Z9A0B1C2D3E4F5G",
+          "fired_at": "2026-11-16T09:00:06.067Z",
+          "alert_type": "ipo_stage"
+        }
+      },
+      "IpoStageFireDetails": {
+        "title": "IpoStageFireDetails",
+        "description": "Facts emitted by ipo_stage alerts, including historical optional fields.",
+        "type": "object",
+        "properties": {
+          "track_key": {
+            "type": "string"
+          },
+          "transition_id": {
+            "type": "string"
+          },
+          "previous_stage": {
+            "nullable": true,
+            "type": "string"
+          },
+          "stage": {
+            "type": "string"
+          },
+          "proposed_symbols": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "symbol": {
+                  "type": "string"
+                },
+                "exchange": {
+                  "nullable": true,
+                  "type": "string"
+                },
+                "security_class": {
+                  "type": "string"
+                },
+                "source": {
+                  "type": "string"
+                },
+                "ipo_calendar_match": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "symbol",
+                "exchange",
+                "security_class",
+                "source",
+                "ipo_calendar_match"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "is_spac": {
+            "nullable": true,
+            "type": "boolean"
+          },
+          "issuer_name": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "track_key",
+          "transition_id",
+          "previous_stage",
+          "stage",
+          "proposed_symbols",
+          "is_spac",
+          "issuer_name"
+        ],
+        "additionalProperties": false
+      },
+      "BeneficialOwnershipAlertFiredData": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "description": "Account event id; deduplicate on this value."
+          },
+          "alert_type": {
+            "type": "string",
+            "enum": [
+              "beneficial_ownership"
+            ]
+          },
+          "alert": {
+            "$ref": "#/components/schemas/AlertFiredAlertRef"
+          },
+          "fired_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reason": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "summary": {
+                "type": "string"
+              },
+              "details": {
+                "$ref": "#/components/schemas/BeneficialOwnershipFireDetails"
+              }
+            },
+            "required": [
+              "summary",
+              "details"
+            ]
+          },
+          "source": {
+            "$ref": "#/components/schemas/AlertFireSource"
+          },
+          "suppressed_since_last": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Fires suppressed since the prior delivered fire."
+          },
+          "delivery_skipped": {
+            "type": "string",
+            "enum": [
+              "fire_cap",
+              "alert_user_fire_cap"
+            ]
+          },
+          "test": {
+            "type": "boolean",
+            "enum": [
+              true
+            ],
+            "description": "Synthetic test delivery with representative example facts."
+          },
+          "subject": {
+            "$ref": "#/components/schemas/AlertFireSubject"
+          }
+        },
+        "required": [
+          "event_id",
+          "alert_type",
+          "alert",
+          "fired_at",
+          "reason"
+        ],
+        "title": "BeneficialOwnershipAlertFiredData",
+        "description": "A beneficial_ownership fire: its reason details follow BeneficialOwnershipFireDetails. Synthetic tests use representative example facts.",
+        "example": {
+          "alert": {
+            "id": "alt_01JD2Q4X7Y8Z9A0B1C2D3E4F5G",
+            "type": "beneficial_ownership",
+            "metadata": {},
+            "external_user_id": null,
+            "client_reference_id": "example-alert"
+          },
+          "reason": {
+            "summary": "A matching filing event.",
+            "details": {
+              "accession_number": "0000320193-26-000001",
+              "schedule": "13G",
+              "is_amendment": true,
+              "supersedes_accession": null,
+              "holder": {
+                "ordinal": 1,
+                "filerCik": null,
+                "filerName": "Example Fund",
+                "percentOfClass": "5.5",
+                "aggregateAmount": "100000",
+                "previousPercentOfClass": null,
+                "previousAggregateAmount": null
+              }
+            }
+          },
+          "source": {
+            "kind": "ownership.filed",
+            "key": "ownership:0000320193-26-000001:part:1"
+          },
+          "subject": {
+            "cik": "320193",
+            "symbol": null
+          },
+          "event_id": "evt_01JD2Q4X7Y8Z9A0B1C2D3E4F5G",
+          "fired_at": "2026-11-16T09:00:06.067Z",
+          "alert_type": "beneficial_ownership"
+        }
+      },
+      "BeneficialOwnershipFireDetails": {
+        "title": "BeneficialOwnershipFireDetails",
+        "description": "Facts emitted by beneficial_ownership alerts, including historical optional fields.",
+        "type": "object",
+        "properties": {
+          "accession_number": {
+            "type": "string"
+          },
+          "schedule": {
+            "type": "string",
+            "enum": [
+              "13D",
+              "13G"
+            ]
+          },
+          "is_amendment": {
+            "type": "boolean"
+          },
+          "supersedes_accession": {
+            "nullable": true,
+            "type": "string"
+          },
+          "holder": {
+            "type": "object",
+            "properties": {
+              "ordinal": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              "filerCik": {
+                "nullable": true,
+                "type": "string",
+                "pattern": "^\\d{1,10}$"
+              },
+              "filerName": {
+                "type": "string"
+              },
+              "percentOfClass": {
+                "nullable": true,
+                "type": "string",
+                "pattern": "^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$"
+              },
+              "aggregateAmount": {
+                "nullable": true,
+                "type": "string",
+                "pattern": "^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$"
+              },
+              "previousPercentOfClass": {
+                "nullable": true,
+                "type": "string",
+                "pattern": "^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$"
+              },
+              "previousAggregateAmount": {
+                "nullable": true,
+                "type": "string",
+                "pattern": "^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$"
+              }
+            },
+            "required": [
+              "ordinal",
+              "filerCik",
+              "filerName",
+              "percentOfClass",
+              "aggregateAmount",
+              "previousPercentOfClass",
+              "previousAggregateAmount"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "accession_number",
+          "schedule",
+          "is_amendment",
+          "supersedes_accession",
+          "holder"
+        ],
+        "additionalProperties": false
+      },
+      "InsiderSaleNoticeAlertFiredData": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "description": "Account event id; deduplicate on this value."
+          },
+          "alert_type": {
+            "type": "string",
+            "enum": [
+              "insider_sale_notice"
+            ]
+          },
+          "alert": {
+            "$ref": "#/components/schemas/AlertFiredAlertRef"
+          },
+          "fired_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reason": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "summary": {
+                "type": "string"
+              },
+              "details": {
+                "$ref": "#/components/schemas/InsiderSaleNoticeFireDetails"
+              }
+            },
+            "required": [
+              "summary",
+              "details"
+            ]
+          },
+          "source": {
+            "$ref": "#/components/schemas/AlertFireSource"
+          },
+          "suppressed_since_last": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Fires suppressed since the prior delivered fire."
+          },
+          "delivery_skipped": {
+            "type": "string",
+            "enum": [
+              "fire_cap",
+              "alert_user_fire_cap"
+            ]
+          },
+          "test": {
+            "type": "boolean",
+            "enum": [
+              true
+            ],
+            "description": "Synthetic test delivery with representative example facts."
+          },
+          "subject": {
+            "$ref": "#/components/schemas/AlertFireSubject"
+          }
+        },
+        "required": [
+          "event_id",
+          "alert_type",
+          "alert",
+          "fired_at",
+          "reason"
+        ],
+        "title": "InsiderSaleNoticeAlertFiredData",
+        "description": "A insider_sale_notice fire: its reason details follow InsiderSaleNoticeFireDetails. Synthetic tests use representative example facts.",
+        "example": {
+          "alert": {
+            "id": "alt_01JD2Q4X7Y8Z9A0B1C2D3E4F5G",
+            "type": "insider_sale_notice",
+            "metadata": {},
+            "external_user_id": null,
+            "client_reference_id": "example-alert"
+          },
+          "reason": {
+            "summary": "A matching filing event.",
+            "details": {
+              "accession_number": "0000320193-26-000001",
+              "is_amendment": true,
+              "seller_cik": null,
+              "seller_name": "Example Person",
+              "relationships": [
+                "Officer"
+              ],
+              "shares_to_sell": "100",
+              "market_value_usd": "1250",
+              "approximate_sale_date": "2026-12-01",
+              "replaces_accession": "0000320193-26-000000"
+            }
+          },
+          "source": {
+            "kind": "sale_notice.filed",
+            "key": "sale_notice:0000320193-26-000001"
+          },
+          "subject": {
+            "cik": "320193",
+            "symbol": null
+          },
+          "event_id": "evt_01JD2Q4X7Y8Z9A0B1C2D3E4F5G",
+          "fired_at": "2026-11-16T09:00:06.067Z",
+          "alert_type": "insider_sale_notice"
+        }
+      },
+      "InsiderSaleNoticeFireDetails": {
+        "title": "InsiderSaleNoticeFireDetails",
+        "description": "Facts emitted by insider_sale_notice alerts, including historical optional fields.",
+        "type": "object",
+        "properties": {
+          "accession_number": {
+            "type": "string"
+          },
+          "is_amendment": {
+            "type": "boolean"
+          },
+          "seller_cik": {
+            "nullable": true,
+            "type": "string"
+          },
+          "seller_name": {
+            "nullable": true,
+            "type": "string"
+          },
+          "relationships": {
+            "nullable": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "shares_to_sell": {
+            "nullable": true,
+            "type": "string"
+          },
+          "market_value_usd": {
+            "nullable": true,
+            "type": "string"
+          },
+          "approximate_sale_date": {
+            "nullable": true,
+            "description": "Common proposed sale date when the lines agree.",
+            "format": "date",
+            "type": "string"
+          },
+          "replaces_accession": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "accession_number",
+          "is_amendment",
+          "seller_cik",
+          "seller_name",
+          "relationships",
+          "shares_to_sell",
+          "market_value_usd",
+          "approximate_sale_date",
+          "replaces_accession"
+        ],
+        "additionalProperties": false
+      },
       "AlertStatusChangedEvent": {
         "type": "object",
         "title": "AlertEvent",
@@ -31827,7 +36050,12 @@
                   "price_reminder",
                   "indicator",
                   "script",
-                  "macro"
+                  "macro",
+                  "insider_trade",
+                  "holder_change",
+                  "ipo_stage",
+                  "beneficial_ownership",
+                  "insider_sale_notice"
                 ]
               },
               "client_reference_id": {
@@ -37409,6 +41637,21 @@
           },
           {
             "$ref": "#/components/schemas/CreateMacroAlertRequest"
+          },
+          {
+            "$ref": "#/components/schemas/CreateInsiderTradeAlertRequest"
+          },
+          {
+            "$ref": "#/components/schemas/CreateHolderChangeAlertRequest"
+          },
+          {
+            "$ref": "#/components/schemas/CreateIpoStageAlertRequest"
+          },
+          {
+            "$ref": "#/components/schemas/CreateBeneficialOwnershipAlertRequest"
+          },
+          {
+            "$ref": "#/components/schemas/CreateInsiderSaleNoticeAlertRequest"
           }
         ],
         "discriminator": {
@@ -37431,7 +41674,12 @@
             "price_reminder": "#/components/schemas/CreatePriceReminderAlertRequest",
             "indicator": "#/components/schemas/CreateIndicatorAlertRequest",
             "script": "#/components/schemas/CreateScriptAlertRequest",
-            "macro": "#/components/schemas/CreateMacroAlertRequest"
+            "macro": "#/components/schemas/CreateMacroAlertRequest",
+            "insider_trade": "#/components/schemas/CreateInsiderTradeAlertRequest",
+            "holder_change": "#/components/schemas/CreateHolderChangeAlertRequest",
+            "ipo_stage": "#/components/schemas/CreateIpoStageAlertRequest",
+            "beneficial_ownership": "#/components/schemas/CreateBeneficialOwnershipAlertRequest",
+            "insider_sale_notice": "#/components/schemas/CreateInsiderSaleNoticeAlertRequest"
           }
         }
       },
@@ -37490,6 +41738,21 @@
           },
           {
             "$ref": "#/components/schemas/UpdateMacroAlertRequest"
+          },
+          {
+            "$ref": "#/components/schemas/UpdateInsiderTradeAlertRequest"
+          },
+          {
+            "$ref": "#/components/schemas/UpdateHolderChangeAlertRequest"
+          },
+          {
+            "$ref": "#/components/schemas/UpdateIpoStageAlertRequest"
+          },
+          {
+            "$ref": "#/components/schemas/UpdateBeneficialOwnershipAlertRequest"
+          },
+          {
+            "$ref": "#/components/schemas/UpdateInsiderSaleNoticeAlertRequest"
           },
           {
             "$ref": "#/components/schemas/AlertSettingsUpdateRequest"
@@ -70550,7 +74813,12 @@
                 "price_reminder",
                 "indicator",
                 "script",
-                "macro"
+                "macro",
+                "insider_trade",
+                "holder_change",
+                "ipo_stage",
+                "beneficial_ownership",
+                "insider_sale_notice"
               ]
             },
             "in": "query",
@@ -70814,6 +75082,21 @@
                   },
                   {
                     "$ref": "#/components/schemas/CreateMacroAlertRequest"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CreateInsiderTradeAlertRequest"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CreateHolderChangeAlertRequest"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CreateIpoStageAlertRequest"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CreateBeneficialOwnershipAlertRequest"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CreateInsiderSaleNoticeAlertRequest"
                   }
                 ],
                 "discriminator": {
@@ -70836,7 +75119,12 @@
                     "price_reminder": "#/components/schemas/CreatePriceReminderAlertRequest",
                     "indicator": "#/components/schemas/CreateIndicatorAlertRequest",
                     "script": "#/components/schemas/CreateScriptAlertRequest",
-                    "macro": "#/components/schemas/CreateMacroAlertRequest"
+                    "macro": "#/components/schemas/CreateMacroAlertRequest",
+                    "insider_trade": "#/components/schemas/CreateInsiderTradeAlertRequest",
+                    "holder_change": "#/components/schemas/CreateHolderChangeAlertRequest",
+                    "ipo_stage": "#/components/schemas/CreateIpoStageAlertRequest",
+                    "beneficial_ownership": "#/components/schemas/CreateBeneficialOwnershipAlertRequest",
+                    "insider_sale_notice": "#/components/schemas/CreateInsiderSaleNoticeAlertRequest"
                   }
                 },
                 "title": "CreateAlertRequest"
@@ -71250,6 +75538,21 @@
                   },
                   {
                     "$ref": "#/components/schemas/UpdateMacroAlertRequest"
+                  },
+                  {
+                    "$ref": "#/components/schemas/UpdateInsiderTradeAlertRequest"
+                  },
+                  {
+                    "$ref": "#/components/schemas/UpdateHolderChangeAlertRequest"
+                  },
+                  {
+                    "$ref": "#/components/schemas/UpdateIpoStageAlertRequest"
+                  },
+                  {
+                    "$ref": "#/components/schemas/UpdateBeneficialOwnershipAlertRequest"
+                  },
+                  {
+                    "$ref": "#/components/schemas/UpdateInsiderSaleNoticeAlertRequest"
                   },
                   {
                     "$ref": "#/components/schemas/AlertSettingsUpdateRequest"

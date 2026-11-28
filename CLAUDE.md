@@ -90,7 +90,7 @@ skill and `invinite-financial-data` `SKILL.md` / `references/filings.md` follow.
 CLI 13.0.0 / plugin 0.29.0 adopt the exact API `data-sdk-v13.0.0` reference bundle at
 `96c33cb7432fca54c81e838e2545150e5a59006f` (spec sha256 `c1ce8fa33639c84752524dd5c190ce1f7a6b4d8b1c814e5f1b2ef4ac99b861d6`).
 The bundle includes 12.4 news/search behavior. The manifest builder resolves the 18 create branches and PATCH's
-18 typed branches plus settings, stores per-type fields/required paths/examples and computes condition/trigger
+23 typed branches plus settings, stores per-type fields/required paths/examples and computes condition/trigger
 name collisions across all branches. Structured objects and arrays of objects are JSON flags; nested required paths
 include array items. Response union fields are the intersection of branch properties; discriminator values supply
 `alert-events tail`'s six feed filters. The four alert catalogs are generated `x-cli` commands.
@@ -98,7 +98,7 @@ include array items. Response union fields are the intersection of branch proper
 `src/spec-body.ts` owns body construction and typed help. Raw-only JSON reaches server validation unchanged.
 Mixed flags retain all raw fields, override their named paths and validate against the effective type. A condition
 edit without a type first GETs the stored alert; explicit types and settings-only writes need no lookup.
-Dry-run never performs this lookup and asks for explicit `--type`. All 18 spec examples round-trip through actual
+Dry-run never performs this lookup and asks for explicit `--type`. All 23 spec examples round-trip through actual
 registered flags in `tests/unit/spec-alerts.test.ts`; preserve that check when extending alert schemas.
 
 ## Commands come from the Data API's spec, not from this repo
@@ -259,3 +259,10 @@ Adopt API contracts from a versioned `invinite-data-api` reference bundle: copy 
 identity and provenance), run `cli:manifest`, `skill:commands`, `reference:export`, then the
 corresponding `:check` commands and mocked tests. The reference records exact API
 spec identity, CLI version, checkout base revision and source hashes.
+
+
+Events/alerts release candidate: the finalized runtime contract adds insider_trade, holder_change, ipo_stage,
+beneficial_ownership and insider_sale_notice. The manifest supplies the strict fields and examples; workflows
+and body help describe their scope and minimum tiers. The release branch imports the reviewed API skill source
+at ca7102dc45445e40dd4db55265d1fbef7e199d74. Package/plugin versions and exported official API/SDK pins must be
+updated only after coordinated publication; candidate generation is not publication evidence.

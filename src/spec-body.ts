@@ -88,7 +88,7 @@ function missingPath(value: unknown, path: readonly string[]): boolean {
 function checkVariant(operation: ManifestOperation, body: Record<string, unknown>, fields: ManifestBodyField[]): void {
   const variant = selectedVariant(operation, body);
   if (!variant) {
-    if (operation.operationId === 'createAlert') throw new UsageError('Pass --type <type>; see --help for the 18 alert types');
+    if (operation.operationId === 'createAlert') throw new UsageError('Pass --type <type>; see --help for the available alert types');
     return;
   }
   for (const field of fields) {

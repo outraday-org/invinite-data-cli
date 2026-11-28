@@ -42,10 +42,10 @@ beforeEach(() => {
 afterEach(() => { vi.unstubAllGlobals(); vi.unstubAllEnvs(); vi.restoreAllMocks(); });
 
 describe('typed alert manifest and request dispatch', () => {
-  it('contains exactly the released 18 schema examples and strict parser metadata', () => {
+  it('contains exactly the 23 schema examples and strict parser metadata', () => {
     const spec = JSON.parse(readFileSync(new URL('../../openapi.json', import.meta.url), 'utf8'));
     const mapping = spec.components.schemas.AlertCreateRequest.discriminator.mapping;
-    expect(variants).toHaveLength(18);
+    expect(variants).toHaveLength(23);
     for (const variant of variants) expect(variant.example).toEqual(spec.components.schemas[mapping[variant.type].split('/').at(-1)].example);
     const invalid = structuredClone(loadManifest());
     Object.assign(invalid.operations.find(operation => operation.operationId === 'createAlert')!.body!.variants![0]!, { stray: true });
