@@ -1,6 +1,6 @@
 ---
 name: alert-setup
-description: Use when the user wants to be notified about a company, a price, a macro release or a chart signal — create, test, change, pause or delete an Invinite alert, connect a webhook (or a Claude routine) for it, read what fired, or set per-customer alert limits.
+description: Use when the user wants to be notified about a company, insider trades, holder changes, IPO stages, ownership filings, proposed insider sales, a price, a macro release or a chart signal — create, test, change, pause or delete an Invinite alert, connect a webhook (or a Claude routine) for it, read what fired, or set per-customer alert limits.
 ---
 
 # Alert setup
@@ -15,6 +15,11 @@ Pick the alert `type` from the request:
 | The user says | `type` | `condition`, for example |
 |---|---|---|
 | a new filing (8-K, 10-K, Form 4 …) | `filing` | `{symbols: ["AAPL"], form_types: ["8-K"]}` |
+| an insider buys or sells matching shares | `insider_trade` | `{symbols: ["AAPL"], sides: ["buy"], roles: ["officer"], min_value_usd: 10000, include_derivatives: false}` |
+| a manager changes its holdings of a company or ETF | `holder_change` | `{symbols: ["AAPL"], kinds: ["new", "increased"], min_change_pct: 10}` (issuer subjects required) |
+| IPO registrations, pricing or withdrawals | `ipo_stage` | `{stages: ["registered", "priced", "withdrawn"]}` (omit subjects for the whole market) |
+| a Schedule 13D / 13G ownership filing | `beneficial_ownership` | `{symbols: ["AAPL"], schedule: "13G", min_percent_of_class: 5, include_amendments: true}` |
+| a proposed insider sale in Form 144 | `insider_sale_notice` | `{symbols: ["AAPL"], min_market_value_usd: 100000, relationships: ["Officer"]}` |
 | a word in filings / news / call transcripts | `filing_keyword`, `news_keyword`, `earnings_call_keyword` | `{keywords: ["recall"], symbols: ["F"]}` |
 | any news of a company | `news` | `{symbols: ["NVDA"]}` |
 | an earnings call event, results, a dividend, a trading halt | `earnings_call`, `earnings_results`, `dividend`, `halt` | `{symbols: ["TSLA"], statuses: ["halted"]}` (halt) |
@@ -33,6 +38,25 @@ Pick the alert `type` from the request:
   `news_keyword` need Standard, `halt` and `macro` Lite, some earnings-call events Pro. A refusal names the plan: tell the user.
 - Before promising anything, `manage_alerts action=create validate_only=true` with the full rule runs every check and
   writes nothing.
+
+### Filing-event details
+
+- Insider trades, beneficial ownership and proposed-sale notices need STANDARD; holder changes need PRO; IPO
+  stages need LITE. PAYG follows the corresponding data route's eligibility. All types cap combined `ciks` and
+  `symbols` at 100; holder changes require at least one issuer subject. Never put manager CIKs in that subject list:
+  use `managers` instead. An ETF series is matched by its own ticker, not its trust's CIK.
+- Insider side follows acquired A = buy and disposed D = sell. All row filters must match the same transaction.
+  Value is absolute shares × price; unknown price cannot meet a threshold. Derivatives default off. A `filing`
+  alert with `form_categories: ["insider_trade"]` only announces Form 3/4/5 arrival.
+- Ownership amendments default on. For `crossing: "up" | "down"`, supply `min_percent_of_class`; crossing requires
+  a known matched prior for the same reporting person/class. Downward crossing replaces the ordinary minimum.
+  Co-owners are never summed. A Form 144 notice describes an intention, not an executed trade.
+- IPO stages exclude trading, which remains a separate held source message. A SPAC filter needs known SPAC
+  state. For an issuer without a listed symbol, use its CIK or a market-wide rule; an unresolved proposed symbol
+  is not an accepted company filter. Known delisted subjects are refused.
+- Read `reason.details` for the matched row/person/position or proposed-sale totals. `source.key` is the original
+  transport key, including its part. Multipart insider/ownership filings fire once per alert/accession; manager
+  filings may fire once per alert/issuer. Use test-send to check delivery before relying on a live source.
 
 ## 2. Decide where the events go
 

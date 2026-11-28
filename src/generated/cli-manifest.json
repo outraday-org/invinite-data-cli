@@ -1,6 +1,6 @@
 {
   "specVersion": "2026-11-27",
-  "specSha256": "0878cbca1f4c06beb6afdf4189f79185e7a35caf22ec1bb94fb585bee2e4be0c",
+  "specSha256": "399a6e2a41b65303c2a7b2ce496b83afb3c59dab4ffb3e1d602d08516d577055",
   "groups": [
     {
       "name": "alert-events",
@@ -826,7 +826,7 @@
             ],
             "type": "string",
             "enum": [
-              "macro"
+              "insider_sale_notice"
             ],
             "required": true,
             "alias": "t",
@@ -891,7 +891,7 @@
             ],
             "type": "boolean",
             "required": false,
-            "description": "Also amendments (`/A`).",
+            "description": "Include amendments (default true).",
             "flag": "include-amendments"
           },
           {
@@ -1087,13 +1087,13 @@
             ],
             "type": "array",
             "enum": [
-              "declared",
-              "ex_date",
-              "payment"
+              "new",
+              "increased",
+              "decreased",
+              "sold_out"
             ],
             "items": "string",
-            "required": true,
-            "description": "Dividend events: declaration, ex-date or payment.",
+            "required": false,
             "flag": "kinds"
           },
           {
@@ -1876,6 +1876,175 @@
             "required": false,
             "description": "Numeric comparison on one published economic series and period.",
             "flag": "macro-threshold"
+          },
+          {
+            "path": [
+              "condition",
+              "sides"
+            ],
+            "type": "array",
+            "enum": [
+              "buy",
+              "sell"
+            ],
+            "items": "string",
+            "required": false,
+            "flag": "sides"
+          },
+          {
+            "path": [
+              "condition",
+              "codes"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "flag": "codes"
+          },
+          {
+            "path": [
+              "condition",
+              "roles"
+            ],
+            "type": "array",
+            "enum": [
+              "director",
+              "officer",
+              "ten_percent_owner"
+            ],
+            "items": "string",
+            "required": false,
+            "flag": "roles"
+          },
+          {
+            "path": [
+              "condition",
+              "min_value_usd"
+            ],
+            "type": "number",
+            "required": false,
+            "flag": "min-value-usd"
+          },
+          {
+            "path": [
+              "condition",
+              "include_derivatives"
+            ],
+            "type": "boolean",
+            "required": false,
+            "description": "Include derivative transactions (default false).",
+            "flag": "include-derivatives"
+          },
+          {
+            "path": [
+              "condition",
+              "owners"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "flag": "owners"
+          },
+          {
+            "path": [
+              "condition",
+              "managers"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "flag": "managers"
+          },
+          {
+            "path": [
+              "condition",
+              "min_change_pct"
+            ],
+            "type": "number",
+            "required": false,
+            "flag": "min-change-pct"
+          },
+          {
+            "path": [
+              "condition",
+              "stages"
+            ],
+            "type": "array",
+            "enum": [
+              "draft",
+              "registered",
+              "price_range",
+              "exchange_approved",
+              "effective",
+              "priced",
+              "withdrawn"
+            ],
+            "items": "string",
+            "required": false,
+            "flag": "stages"
+          },
+          {
+            "path": [
+              "condition",
+              "is_spac"
+            ],
+            "type": "boolean",
+            "required": false,
+            "flag": "is-spac"
+          },
+          {
+            "path": [
+              "condition",
+              "schedule"
+            ],
+            "type": "string",
+            "enum": [
+              "13D",
+              "13G"
+            ],
+            "required": false,
+            "flag": "schedule"
+          },
+          {
+            "path": [
+              "condition",
+              "min_percent_of_class"
+            ],
+            "type": "number",
+            "required": false,
+            "flag": "min-percent-of-class"
+          },
+          {
+            "path": [
+              "condition",
+              "crossing"
+            ],
+            "type": "string",
+            "enum": [
+              "up",
+              "down"
+            ],
+            "required": false,
+            "flag": "crossing"
+          },
+          {
+            "path": [
+              "condition",
+              "min_market_value_usd"
+            ],
+            "type": "number",
+            "required": false,
+            "flag": "min-market-value-usd"
+          },
+          {
+            "path": [
+              "condition",
+              "relationships"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "flag": "relationships"
           }
         ],
         "variants": [
@@ -6813,6 +6982,1152 @@
                 ]
               }
             }
+          },
+          {
+            "type": "insider_trade",
+            "description": "insider_trade: see InsiderTradeAlertConditionInput for the condition and cross-field rules. US ETF subjects are refused; use a company subject.",
+            "notes": [
+              "The insider_trade alert condition.",
+              "max_fires and cooldown_seconds require mode every_time. delete_on_expiry requires expires_at."
+            ],
+            "fields": [
+              {
+                "path": [
+                  "type"
+                ],
+                "type": "string",
+                "enum": [
+                  "insider_trade"
+                ],
+                "required": true,
+                "alias": "t",
+                "flag": "type"
+              },
+              {
+                "path": [
+                  "condition",
+                  "ciks"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Companies by CIK.",
+                "flag": "ciks"
+              },
+              {
+                "path": [
+                  "condition",
+                  "symbols"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Companies by ticker; a US ETF ticker for the types that take ETFs.",
+                "flag": "symbols"
+              },
+              {
+                "path": [
+                  "condition",
+                  "sides"
+                ],
+                "type": "array",
+                "enum": [
+                  "buy",
+                  "sell"
+                ],
+                "items": "string",
+                "required": false,
+                "flag": "sides"
+              },
+              {
+                "path": [
+                  "condition",
+                  "codes"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "flag": "codes"
+              },
+              {
+                "path": [
+                  "condition",
+                  "roles"
+                ],
+                "type": "array",
+                "enum": [
+                  "director",
+                  "officer",
+                  "ten_percent_owner"
+                ],
+                "items": "string",
+                "required": false,
+                "flag": "roles"
+              },
+              {
+                "path": [
+                  "condition",
+                  "min_value_usd"
+                ],
+                "type": "number",
+                "required": false,
+                "flag": "min-value-usd"
+              },
+              {
+                "path": [
+                  "condition",
+                  "include_derivatives"
+                ],
+                "type": "boolean",
+                "required": false,
+                "description": "Include derivative transactions (default false).",
+                "flag": "include-derivatives"
+              },
+              {
+                "path": [
+                  "condition",
+                  "owners"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "flag": "owners"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "mode"
+                ],
+                "type": "string",
+                "enum": [
+                  "once",
+                  "every_time"
+                ],
+                "required": false,
+                "description": "Repeat mode; once becomes triggered after the first fire (default every_time).",
+                "flag": "trigger-mode"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "cooldown_seconds"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "Minimum seconds between fires (at most 366 days)",
+                "flag": "cooldown-seconds"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "max_fires"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "The alert becomes `triggered` after this many fires",
+                "flag": "max-fires"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "expires_at"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "The alert becomes `expired` then",
+                "flag": "expires-at"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "delete_on_expiry"
+                ],
+                "type": "boolean",
+                "required": false,
+                "description": "Delete instead of `expired` (needs expires_at)",
+                "flag": "delete-on-expiry"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "activate_at"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "The alert is `scheduled` until then",
+                "flag": "activate-at"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "pause_until"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "No fires until then",
+                "flag": "pause-until"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "active_window"
+                ],
+                "type": "json",
+                "required": false,
+                "description": "Fires only inside this window: `weekly` (days + from / to in a time zone) or `every` (an anchor, an interval and an active duration) Weekly windows require timezone, days, from and to. Every windows require anchor_at, interval, unit and active_duration_seconds.",
+                "flag": "active-window"
+              },
+              {
+                "path": [
+                  "destination_ids"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Destination ids (≤ 10)",
+                "flag": "destination-ids"
+              },
+              {
+                "path": [
+                  "client_reference_id"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "Your id; a second create with it returns the live alert",
+                "flag": "client-reference-id"
+              },
+              {
+                "path": [
+                  "external_user_id"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
+                "flag": "external-user-id"
+              },
+              {
+                "path": [
+                  "metadata"
+                ],
+                "type": "json",
+                "required": false,
+                "description": "Your own key / value pairs (≤ 50 keys, ≤ 8 KB), echoed in every event",
+                "flag": "metadata"
+              }
+            ],
+            "required": [
+              [
+                "type"
+              ],
+              [
+                "condition"
+              ],
+              [
+                "trigger",
+                "active_window",
+                "type"
+              ]
+            ],
+            "example": {
+              "type": "insider_trade",
+              "condition": {
+                "ciks": [
+                  "320193"
+                ],
+                "sides": [
+                  "buy"
+                ],
+                "include_derivatives": false,
+                "min_value_usd": 1000
+              }
+            }
+          },
+          {
+            "type": "holder_change",
+            "description": "holder_change: see HolderChangeAlertConditionInput for the condition and cross-field rules. US ETF tickers are accepted, including trust series; series alerts match only their own events.",
+            "notes": [
+              "The holder_change alert condition.",
+              "max_fires and cooldown_seconds require mode every_time. delete_on_expiry requires expires_at."
+            ],
+            "fields": [
+              {
+                "path": [
+                  "type"
+                ],
+                "type": "string",
+                "enum": [
+                  "holder_change"
+                ],
+                "required": true,
+                "alias": "t",
+                "flag": "type"
+              },
+              {
+                "path": [
+                  "condition",
+                  "ciks"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Companies by CIK.",
+                "flag": "ciks"
+              },
+              {
+                "path": [
+                  "condition",
+                  "symbols"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Companies by ticker; a US ETF ticker for the types that take ETFs.",
+                "flag": "symbols"
+              },
+              {
+                "path": [
+                  "condition",
+                  "managers"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "flag": "managers"
+              },
+              {
+                "path": [
+                  "condition",
+                  "kinds"
+                ],
+                "type": "array",
+                "enum": [
+                  "new",
+                  "increased",
+                  "decreased",
+                  "sold_out"
+                ],
+                "items": "string",
+                "required": false,
+                "flag": "kinds"
+              },
+              {
+                "path": [
+                  "condition",
+                  "min_value_usd"
+                ],
+                "type": "number",
+                "required": false,
+                "flag": "min-value-usd"
+              },
+              {
+                "path": [
+                  "condition",
+                  "min_change_pct"
+                ],
+                "type": "number",
+                "required": false,
+                "flag": "min-change-pct"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "mode"
+                ],
+                "type": "string",
+                "enum": [
+                  "once",
+                  "every_time"
+                ],
+                "required": false,
+                "description": "Repeat mode; once becomes triggered after the first fire (default every_time).",
+                "flag": "trigger-mode"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "cooldown_seconds"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "Minimum seconds between fires (at most 366 days)",
+                "flag": "cooldown-seconds"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "max_fires"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "The alert becomes `triggered` after this many fires",
+                "flag": "max-fires"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "expires_at"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "The alert becomes `expired` then",
+                "flag": "expires-at"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "delete_on_expiry"
+                ],
+                "type": "boolean",
+                "required": false,
+                "description": "Delete instead of `expired` (needs expires_at)",
+                "flag": "delete-on-expiry"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "activate_at"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "The alert is `scheduled` until then",
+                "flag": "activate-at"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "pause_until"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "No fires until then",
+                "flag": "pause-until"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "active_window"
+                ],
+                "type": "json",
+                "required": false,
+                "description": "Fires only inside this window: `weekly` (days + from / to in a time zone) or `every` (an anchor, an interval and an active duration) Weekly windows require timezone, days, from and to. Every windows require anchor_at, interval, unit and active_duration_seconds.",
+                "flag": "active-window"
+              },
+              {
+                "path": [
+                  "destination_ids"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Destination ids (≤ 10)",
+                "flag": "destination-ids"
+              },
+              {
+                "path": [
+                  "client_reference_id"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "Your id; a second create with it returns the live alert",
+                "flag": "client-reference-id"
+              },
+              {
+                "path": [
+                  "external_user_id"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
+                "flag": "external-user-id"
+              },
+              {
+                "path": [
+                  "metadata"
+                ],
+                "type": "json",
+                "required": false,
+                "description": "Your own key / value pairs (≤ 50 keys, ≤ 8 KB), echoed in every event",
+                "flag": "metadata"
+              }
+            ],
+            "required": [
+              [
+                "type"
+              ],
+              [
+                "condition"
+              ],
+              [
+                "trigger",
+                "active_window",
+                "type"
+              ]
+            ],
+            "example": {
+              "type": "holder_change",
+              "condition": {
+                "ciks": [
+                  "320193"
+                ],
+                "kinds": [
+                  "increased"
+                ],
+                "min_change_pct": 10
+              }
+            }
+          },
+          {
+            "type": "ipo_stage",
+            "description": "ipo_stage: see IpoStageAlertConditionInput for the condition and cross-field rules. US ETF subjects are refused; use a company subject.",
+            "notes": [
+              "The ipo_stage alert condition.",
+              "max_fires and cooldown_seconds require mode every_time. delete_on_expiry requires expires_at."
+            ],
+            "fields": [
+              {
+                "path": [
+                  "type"
+                ],
+                "type": "string",
+                "enum": [
+                  "ipo_stage"
+                ],
+                "required": true,
+                "alias": "t",
+                "flag": "type"
+              },
+              {
+                "path": [
+                  "condition",
+                  "ciks"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Companies by CIK.",
+                "flag": "ciks"
+              },
+              {
+                "path": [
+                  "condition",
+                  "symbols"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Companies by ticker; a US ETF ticker for the types that take ETFs.",
+                "flag": "symbols"
+              },
+              {
+                "path": [
+                  "condition",
+                  "stages"
+                ],
+                "type": "array",
+                "enum": [
+                  "draft",
+                  "registered",
+                  "price_range",
+                  "exchange_approved",
+                  "effective",
+                  "priced",
+                  "withdrawn"
+                ],
+                "items": "string",
+                "required": false,
+                "flag": "stages"
+              },
+              {
+                "path": [
+                  "condition",
+                  "is_spac"
+                ],
+                "type": "boolean",
+                "required": false,
+                "flag": "is-spac"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "mode"
+                ],
+                "type": "string",
+                "enum": [
+                  "once",
+                  "every_time"
+                ],
+                "required": false,
+                "description": "Repeat mode; once becomes triggered after the first fire (default every_time).",
+                "flag": "trigger-mode"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "cooldown_seconds"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "Minimum seconds between fires (at most 366 days)",
+                "flag": "cooldown-seconds"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "max_fires"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "The alert becomes `triggered` after this many fires",
+                "flag": "max-fires"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "expires_at"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "The alert becomes `expired` then",
+                "flag": "expires-at"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "delete_on_expiry"
+                ],
+                "type": "boolean",
+                "required": false,
+                "description": "Delete instead of `expired` (needs expires_at)",
+                "flag": "delete-on-expiry"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "activate_at"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "The alert is `scheduled` until then",
+                "flag": "activate-at"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "pause_until"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "No fires until then",
+                "flag": "pause-until"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "active_window"
+                ],
+                "type": "json",
+                "required": false,
+                "description": "Fires only inside this window: `weekly` (days + from / to in a time zone) or `every` (an anchor, an interval and an active duration) Weekly windows require timezone, days, from and to. Every windows require anchor_at, interval, unit and active_duration_seconds.",
+                "flag": "active-window"
+              },
+              {
+                "path": [
+                  "destination_ids"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Destination ids (≤ 10)",
+                "flag": "destination-ids"
+              },
+              {
+                "path": [
+                  "client_reference_id"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "Your id; a second create with it returns the live alert",
+                "flag": "client-reference-id"
+              },
+              {
+                "path": [
+                  "external_user_id"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
+                "flag": "external-user-id"
+              },
+              {
+                "path": [
+                  "metadata"
+                ],
+                "type": "json",
+                "required": false,
+                "description": "Your own key / value pairs (≤ 50 keys, ≤ 8 KB), echoed in every event",
+                "flag": "metadata"
+              }
+            ],
+            "required": [
+              [
+                "type"
+              ],
+              [
+                "condition"
+              ],
+              [
+                "trigger",
+                "active_window",
+                "type"
+              ]
+            ],
+            "example": {
+              "type": "ipo_stage",
+              "condition": {
+                "stages": [
+                  "registered"
+                ]
+              }
+            }
+          },
+          {
+            "type": "beneficial_ownership",
+            "description": "beneficial_ownership: see BeneficialOwnershipAlertConditionInput for the condition and cross-field rules. US ETF subjects are refused; use a company subject.",
+            "notes": [
+              "The beneficial_ownership alert condition.",
+              "max_fires and cooldown_seconds require mode every_time. delete_on_expiry requires expires_at."
+            ],
+            "fields": [
+              {
+                "path": [
+                  "type"
+                ],
+                "type": "string",
+                "enum": [
+                  "beneficial_ownership"
+                ],
+                "required": true,
+                "alias": "t",
+                "flag": "type"
+              },
+              {
+                "path": [
+                  "condition",
+                  "ciks"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Companies by CIK.",
+                "flag": "ciks"
+              },
+              {
+                "path": [
+                  "condition",
+                  "symbols"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Companies by ticker; a US ETF ticker for the types that take ETFs.",
+                "flag": "symbols"
+              },
+              {
+                "path": [
+                  "condition",
+                  "schedule"
+                ],
+                "type": "string",
+                "enum": [
+                  "13D",
+                  "13G"
+                ],
+                "required": false,
+                "flag": "schedule"
+              },
+              {
+                "path": [
+                  "condition",
+                  "include_amendments"
+                ],
+                "type": "boolean",
+                "required": false,
+                "description": "Include amendments (default true).",
+                "flag": "include-amendments"
+              },
+              {
+                "path": [
+                  "condition",
+                  "min_percent_of_class"
+                ],
+                "type": "number",
+                "required": false,
+                "flag": "min-percent-of-class"
+              },
+              {
+                "path": [
+                  "condition",
+                  "crossing"
+                ],
+                "type": "string",
+                "enum": [
+                  "up",
+                  "down"
+                ],
+                "required": false,
+                "flag": "crossing"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "mode"
+                ],
+                "type": "string",
+                "enum": [
+                  "once",
+                  "every_time"
+                ],
+                "required": false,
+                "description": "Repeat mode; once becomes triggered after the first fire (default every_time).",
+                "flag": "trigger-mode"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "cooldown_seconds"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "Minimum seconds between fires (at most 366 days)",
+                "flag": "cooldown-seconds"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "max_fires"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "The alert becomes `triggered` after this many fires",
+                "flag": "max-fires"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "expires_at"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "The alert becomes `expired` then",
+                "flag": "expires-at"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "delete_on_expiry"
+                ],
+                "type": "boolean",
+                "required": false,
+                "description": "Delete instead of `expired` (needs expires_at)",
+                "flag": "delete-on-expiry"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "activate_at"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "The alert is `scheduled` until then",
+                "flag": "activate-at"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "pause_until"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "No fires until then",
+                "flag": "pause-until"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "active_window"
+                ],
+                "type": "json",
+                "required": false,
+                "description": "Fires only inside this window: `weekly` (days + from / to in a time zone) or `every` (an anchor, an interval and an active duration) Weekly windows require timezone, days, from and to. Every windows require anchor_at, interval, unit and active_duration_seconds.",
+                "flag": "active-window"
+              },
+              {
+                "path": [
+                  "destination_ids"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Destination ids (≤ 10)",
+                "flag": "destination-ids"
+              },
+              {
+                "path": [
+                  "client_reference_id"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "Your id; a second create with it returns the live alert",
+                "flag": "client-reference-id"
+              },
+              {
+                "path": [
+                  "external_user_id"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
+                "flag": "external-user-id"
+              },
+              {
+                "path": [
+                  "metadata"
+                ],
+                "type": "json",
+                "required": false,
+                "description": "Your own key / value pairs (≤ 50 keys, ≤ 8 KB), echoed in every event",
+                "flag": "metadata"
+              }
+            ],
+            "required": [
+              [
+                "type"
+              ],
+              [
+                "condition"
+              ],
+              [
+                "trigger",
+                "active_window",
+                "type"
+              ]
+            ],
+            "example": {
+              "type": "beneficial_ownership",
+              "condition": {
+                "ciks": [
+                  "320193"
+                ],
+                "include_amendments": true,
+                "min_percent_of_class": 5
+              }
+            }
+          },
+          {
+            "type": "insider_sale_notice",
+            "description": "insider_sale_notice: see InsiderSaleNoticeAlertConditionInput for the condition and cross-field rules. US ETF subjects are refused; use a company subject.",
+            "notes": [
+              "The insider_sale_notice alert condition.",
+              "max_fires and cooldown_seconds require mode every_time. delete_on_expiry requires expires_at."
+            ],
+            "fields": [
+              {
+                "path": [
+                  "type"
+                ],
+                "type": "string",
+                "enum": [
+                  "insider_sale_notice"
+                ],
+                "required": true,
+                "alias": "t",
+                "flag": "type"
+              },
+              {
+                "path": [
+                  "condition",
+                  "ciks"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Companies by CIK.",
+                "flag": "ciks"
+              },
+              {
+                "path": [
+                  "condition",
+                  "symbols"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Companies by ticker; a US ETF ticker for the types that take ETFs.",
+                "flag": "symbols"
+              },
+              {
+                "path": [
+                  "condition",
+                  "min_market_value_usd"
+                ],
+                "type": "number",
+                "required": false,
+                "flag": "min-market-value-usd"
+              },
+              {
+                "path": [
+                  "condition",
+                  "relationships"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "flag": "relationships"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "mode"
+                ],
+                "type": "string",
+                "enum": [
+                  "once",
+                  "every_time"
+                ],
+                "required": false,
+                "description": "Repeat mode; once becomes triggered after the first fire (default every_time).",
+                "flag": "trigger-mode"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "cooldown_seconds"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "Minimum seconds between fires (at most 366 days)",
+                "flag": "cooldown-seconds"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "max_fires"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "The alert becomes `triggered` after this many fires",
+                "flag": "max-fires"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "expires_at"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "The alert becomes `expired` then",
+                "flag": "expires-at"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "delete_on_expiry"
+                ],
+                "type": "boolean",
+                "required": false,
+                "description": "Delete instead of `expired` (needs expires_at)",
+                "flag": "delete-on-expiry"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "activate_at"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "The alert is `scheduled` until then",
+                "flag": "activate-at"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "pause_until"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "No fires until then",
+                "flag": "pause-until"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "active_window"
+                ],
+                "type": "json",
+                "required": false,
+                "description": "Fires only inside this window: `weekly` (days + from / to in a time zone) or `every` (an anchor, an interval and an active duration) Weekly windows require timezone, days, from and to. Every windows require anchor_at, interval, unit and active_duration_seconds.",
+                "flag": "active-window"
+              },
+              {
+                "path": [
+                  "destination_ids"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Destination ids (≤ 10)",
+                "flag": "destination-ids"
+              },
+              {
+                "path": [
+                  "client_reference_id"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "Your id; a second create with it returns the live alert",
+                "flag": "client-reference-id"
+              },
+              {
+                "path": [
+                  "external_user_id"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
+                "flag": "external-user-id"
+              },
+              {
+                "path": [
+                  "metadata"
+                ],
+                "type": "json",
+                "required": false,
+                "description": "Your own key / value pairs (≤ 50 keys, ≤ 8 KB), echoed in every event",
+                "flag": "metadata"
+              }
+            ],
+            "required": [
+              [
+                "type"
+              ],
+              [
+                "condition"
+              ],
+              [
+                "trigger",
+                "active_window",
+                "type"
+              ]
+            ],
+            "example": {
+              "type": "insider_sale_notice",
+              "condition": {
+                "ciks": [
+                  "320193"
+                ],
+                "min_market_value_usd": 1000
+              }
+            }
           }
         ]
       },
@@ -6862,7 +8177,12 @@
         "price_reminder",
         "indicator",
         "script",
-        "macro"
+        "macro",
+        "insider_trade",
+        "holder_change",
+        "ipo_stage",
+        "beneficial_ownership",
+        "insider_sale_notice"
       ]
     },
     {
@@ -7052,7 +8372,12 @@
         "price_reminder",
         "indicator",
         "script",
-        "macro"
+        "macro",
+        "insider_trade",
+        "holder_change",
+        "ipo_stage",
+        "beneficial_ownership",
+        "insider_sale_notice"
       ]
     },
     {
@@ -7126,7 +8451,12 @@
             "price_reminder",
             "indicator",
             "script",
-            "macro"
+            "macro",
+            "insider_trade",
+            "holder_change",
+            "ipo_stage",
+            "beneficial_ownership",
+            "insider_sale_notice"
           ],
           "example": "filing",
           "description": "Only alerts of this type",
@@ -7217,7 +8547,12 @@
         "price_reminder",
         "indicator",
         "script",
-        "macro"
+        "macro",
+        "insider_trade",
+        "holder_change",
+        "ipo_stage",
+        "beneficial_ownership",
+        "insider_sale_notice"
       ]
     },
     {
@@ -7291,7 +8626,12 @@
         "price_reminder",
         "indicator",
         "script",
-        "macro"
+        "macro",
+        "insider_trade",
+        "holder_change",
+        "ipo_stage",
+        "beneficial_ownership",
+        "insider_sale_notice"
       ]
     },
     {
@@ -7365,7 +8705,12 @@
         "price_reminder",
         "indicator",
         "script",
-        "macro"
+        "macro",
+        "insider_trade",
+        "holder_change",
+        "ipo_stage",
+        "beneficial_ownership",
+        "insider_sale_notice"
       ]
     },
     {
@@ -7448,7 +8793,7 @@
             ],
             "type": "string",
             "enum": [
-              "macro"
+              "insider_sale_notice"
             ],
             "required": true,
             "flag": "type"
@@ -7512,7 +8857,7 @@
             ],
             "type": "boolean",
             "required": false,
-            "description": "Also amendments (`/A`).",
+            "description": "Include amendments (default true).",
             "flag": "include-amendments"
           },
           {
@@ -7717,13 +9062,13 @@
             ],
             "type": "array",
             "enum": [
-              "declared",
-              "ex_date",
-              "payment"
+              "new",
+              "increased",
+              "decreased",
+              "sold_out"
             ],
             "items": "string",
-            "required": true,
-            "description": "Dividend events: declaration, ex-date or payment.",
+            "required": false,
             "flag": "kinds"
           },
           {
@@ -8506,6 +9851,175 @@
             "required": false,
             "description": "Numeric comparison on one published economic series and period.",
             "flag": "macro-threshold"
+          },
+          {
+            "path": [
+              "condition",
+              "sides"
+            ],
+            "type": "array",
+            "enum": [
+              "buy",
+              "sell"
+            ],
+            "items": "string",
+            "required": false,
+            "flag": "sides"
+          },
+          {
+            "path": [
+              "condition",
+              "codes"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "flag": "codes"
+          },
+          {
+            "path": [
+              "condition",
+              "roles"
+            ],
+            "type": "array",
+            "enum": [
+              "director",
+              "officer",
+              "ten_percent_owner"
+            ],
+            "items": "string",
+            "required": false,
+            "flag": "roles"
+          },
+          {
+            "path": [
+              "condition",
+              "min_value_usd"
+            ],
+            "type": "number",
+            "required": false,
+            "flag": "min-value-usd"
+          },
+          {
+            "path": [
+              "condition",
+              "include_derivatives"
+            ],
+            "type": "boolean",
+            "required": false,
+            "description": "Include derivative transactions (default false).",
+            "flag": "include-derivatives"
+          },
+          {
+            "path": [
+              "condition",
+              "owners"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "flag": "owners"
+          },
+          {
+            "path": [
+              "condition",
+              "managers"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "flag": "managers"
+          },
+          {
+            "path": [
+              "condition",
+              "min_change_pct"
+            ],
+            "type": "number",
+            "required": false,
+            "flag": "min-change-pct"
+          },
+          {
+            "path": [
+              "condition",
+              "stages"
+            ],
+            "type": "array",
+            "enum": [
+              "draft",
+              "registered",
+              "price_range",
+              "exchange_approved",
+              "effective",
+              "priced",
+              "withdrawn"
+            ],
+            "items": "string",
+            "required": false,
+            "flag": "stages"
+          },
+          {
+            "path": [
+              "condition",
+              "is_spac"
+            ],
+            "type": "boolean",
+            "required": false,
+            "flag": "is-spac"
+          },
+          {
+            "path": [
+              "condition",
+              "schedule"
+            ],
+            "type": "string",
+            "enum": [
+              "13D",
+              "13G"
+            ],
+            "required": false,
+            "flag": "schedule"
+          },
+          {
+            "path": [
+              "condition",
+              "min_percent_of_class"
+            ],
+            "type": "number",
+            "required": false,
+            "flag": "min-percent-of-class"
+          },
+          {
+            "path": [
+              "condition",
+              "crossing"
+            ],
+            "type": "string",
+            "enum": [
+              "up",
+              "down"
+            ],
+            "required": false,
+            "flag": "crossing"
+          },
+          {
+            "path": [
+              "condition",
+              "min_market_value_usd"
+            ],
+            "type": "number",
+            "required": false,
+            "flag": "min-market-value-usd"
+          },
+          {
+            "path": [
+              "condition",
+              "relationships"
+            ],
+            "type": "array",
+            "items": "string",
+            "required": false,
+            "flag": "relationships"
           }
         ],
         "variants": [
@@ -13358,6 +14872,1125 @@
                 "type"
               ]
             ]
+          },
+          {
+            "type": "insider_trade",
+            "description": "insider_trade",
+            "notes": [
+              "The insider_trade alert condition.",
+              "max_fires and cooldown_seconds require mode every_time. delete_on_expiry requires expires_at."
+            ],
+            "fields": [
+              {
+                "path": [
+                  "type"
+                ],
+                "type": "string",
+                "enum": [
+                  "insider_trade"
+                ],
+                "required": true,
+                "flag": "type"
+              },
+              {
+                "path": [
+                  "condition",
+                  "ciks"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Companies by CIK.",
+                "flag": "ciks"
+              },
+              {
+                "path": [
+                  "condition",
+                  "symbols"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Companies by ticker; a US ETF ticker for the types that take ETFs.",
+                "flag": "symbols"
+              },
+              {
+                "path": [
+                  "condition",
+                  "sides"
+                ],
+                "type": "array",
+                "enum": [
+                  "buy",
+                  "sell"
+                ],
+                "items": "string",
+                "required": false,
+                "flag": "sides"
+              },
+              {
+                "path": [
+                  "condition",
+                  "codes"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "flag": "codes"
+              },
+              {
+                "path": [
+                  "condition",
+                  "roles"
+                ],
+                "type": "array",
+                "enum": [
+                  "director",
+                  "officer",
+                  "ten_percent_owner"
+                ],
+                "items": "string",
+                "required": false,
+                "flag": "roles"
+              },
+              {
+                "path": [
+                  "condition",
+                  "min_value_usd"
+                ],
+                "type": "number",
+                "required": false,
+                "flag": "min-value-usd"
+              },
+              {
+                "path": [
+                  "condition",
+                  "include_derivatives"
+                ],
+                "type": "boolean",
+                "required": false,
+                "description": "Include derivative transactions (default false).",
+                "flag": "include-derivatives"
+              },
+              {
+                "path": [
+                  "condition",
+                  "owners"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "flag": "owners"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "mode"
+                ],
+                "type": "string",
+                "enum": [
+                  "once",
+                  "every_time"
+                ],
+                "required": false,
+                "description": "Repeat mode; once becomes triggered after the first fire (default every_time).",
+                "flag": "trigger-mode"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "cooldown_seconds"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "Minimum seconds between fires (at most 366 days)",
+                "flag": "cooldown-seconds"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "max_fires"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "The alert becomes `triggered` after this many fires",
+                "flag": "max-fires"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "expires_at"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "The alert becomes `expired` then",
+                "flag": "expires-at"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "delete_on_expiry"
+                ],
+                "type": "boolean",
+                "required": false,
+                "description": "Delete instead of `expired` (needs expires_at)",
+                "flag": "delete-on-expiry"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "activate_at"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "The alert is `scheduled` until then",
+                "flag": "activate-at"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "pause_until"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "No fires until then",
+                "flag": "pause-until"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "active_window"
+                ],
+                "type": "json",
+                "required": false,
+                "description": "Fires only inside this window: `weekly` (days + from / to in a time zone) or `every` (an anchor, an interval and an active duration) Weekly windows require timezone, days, from and to. Every windows require anchor_at, interval, unit and active_duration_seconds.",
+                "flag": "active-window"
+              },
+              {
+                "path": [
+                  "destination_ids"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Destination ids (≤ 10)",
+                "flag": "destination-ids"
+              },
+              {
+                "path": [
+                  "client_reference_id"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "Your id; a second create with it returns the live alert",
+                "flag": "client-reference-id"
+              },
+              {
+                "path": [
+                  "external_user_id"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
+                "flag": "external-user-id"
+              },
+              {
+                "path": [
+                  "metadata"
+                ],
+                "type": "json",
+                "required": false,
+                "description": "Your own key / value pairs (≤ 50 keys, ≤ 8 KB), echoed in every event",
+                "flag": "metadata"
+              },
+              {
+                "path": [
+                  "version"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "Apply only to this version (409 conflict otherwise)",
+                "flag": "version"
+              }
+            ],
+            "required": [
+              [
+                "type"
+              ],
+              [
+                "trigger",
+                "active_window",
+                "type"
+              ]
+            ]
+          },
+          {
+            "type": "holder_change",
+            "description": "holder_change",
+            "notes": [
+              "The holder_change alert condition.",
+              "max_fires and cooldown_seconds require mode every_time. delete_on_expiry requires expires_at."
+            ],
+            "fields": [
+              {
+                "path": [
+                  "type"
+                ],
+                "type": "string",
+                "enum": [
+                  "holder_change"
+                ],
+                "required": true,
+                "flag": "type"
+              },
+              {
+                "path": [
+                  "condition",
+                  "ciks"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Companies by CIK.",
+                "flag": "ciks"
+              },
+              {
+                "path": [
+                  "condition",
+                  "symbols"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Companies by ticker; a US ETF ticker for the types that take ETFs.",
+                "flag": "symbols"
+              },
+              {
+                "path": [
+                  "condition",
+                  "managers"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "flag": "managers"
+              },
+              {
+                "path": [
+                  "condition",
+                  "kinds"
+                ],
+                "type": "array",
+                "enum": [
+                  "new",
+                  "increased",
+                  "decreased",
+                  "sold_out"
+                ],
+                "items": "string",
+                "required": false,
+                "flag": "kinds"
+              },
+              {
+                "path": [
+                  "condition",
+                  "min_value_usd"
+                ],
+                "type": "number",
+                "required": false,
+                "flag": "min-value-usd"
+              },
+              {
+                "path": [
+                  "condition",
+                  "min_change_pct"
+                ],
+                "type": "number",
+                "required": false,
+                "flag": "min-change-pct"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "mode"
+                ],
+                "type": "string",
+                "enum": [
+                  "once",
+                  "every_time"
+                ],
+                "required": false,
+                "description": "Repeat mode; once becomes triggered after the first fire (default every_time).",
+                "flag": "trigger-mode"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "cooldown_seconds"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "Minimum seconds between fires (at most 366 days)",
+                "flag": "cooldown-seconds"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "max_fires"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "The alert becomes `triggered` after this many fires",
+                "flag": "max-fires"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "expires_at"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "The alert becomes `expired` then",
+                "flag": "expires-at"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "delete_on_expiry"
+                ],
+                "type": "boolean",
+                "required": false,
+                "description": "Delete instead of `expired` (needs expires_at)",
+                "flag": "delete-on-expiry"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "activate_at"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "The alert is `scheduled` until then",
+                "flag": "activate-at"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "pause_until"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "No fires until then",
+                "flag": "pause-until"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "active_window"
+                ],
+                "type": "json",
+                "required": false,
+                "description": "Fires only inside this window: `weekly` (days + from / to in a time zone) or `every` (an anchor, an interval and an active duration) Weekly windows require timezone, days, from and to. Every windows require anchor_at, interval, unit and active_duration_seconds.",
+                "flag": "active-window"
+              },
+              {
+                "path": [
+                  "destination_ids"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Destination ids (≤ 10)",
+                "flag": "destination-ids"
+              },
+              {
+                "path": [
+                  "client_reference_id"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "Your id; a second create with it returns the live alert",
+                "flag": "client-reference-id"
+              },
+              {
+                "path": [
+                  "external_user_id"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
+                "flag": "external-user-id"
+              },
+              {
+                "path": [
+                  "metadata"
+                ],
+                "type": "json",
+                "required": false,
+                "description": "Your own key / value pairs (≤ 50 keys, ≤ 8 KB), echoed in every event",
+                "flag": "metadata"
+              },
+              {
+                "path": [
+                  "version"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "Apply only to this version (409 conflict otherwise)",
+                "flag": "version"
+              }
+            ],
+            "required": [
+              [
+                "type"
+              ],
+              [
+                "trigger",
+                "active_window",
+                "type"
+              ]
+            ]
+          },
+          {
+            "type": "ipo_stage",
+            "description": "ipo_stage",
+            "notes": [
+              "The ipo_stage alert condition.",
+              "max_fires and cooldown_seconds require mode every_time. delete_on_expiry requires expires_at."
+            ],
+            "fields": [
+              {
+                "path": [
+                  "type"
+                ],
+                "type": "string",
+                "enum": [
+                  "ipo_stage"
+                ],
+                "required": true,
+                "flag": "type"
+              },
+              {
+                "path": [
+                  "condition",
+                  "ciks"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Companies by CIK.",
+                "flag": "ciks"
+              },
+              {
+                "path": [
+                  "condition",
+                  "symbols"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Companies by ticker; a US ETF ticker for the types that take ETFs.",
+                "flag": "symbols"
+              },
+              {
+                "path": [
+                  "condition",
+                  "stages"
+                ],
+                "type": "array",
+                "enum": [
+                  "draft",
+                  "registered",
+                  "price_range",
+                  "exchange_approved",
+                  "effective",
+                  "priced",
+                  "withdrawn"
+                ],
+                "items": "string",
+                "required": false,
+                "flag": "stages"
+              },
+              {
+                "path": [
+                  "condition",
+                  "is_spac"
+                ],
+                "type": "boolean",
+                "required": false,
+                "flag": "is-spac"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "mode"
+                ],
+                "type": "string",
+                "enum": [
+                  "once",
+                  "every_time"
+                ],
+                "required": false,
+                "description": "Repeat mode; once becomes triggered after the first fire (default every_time).",
+                "flag": "trigger-mode"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "cooldown_seconds"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "Minimum seconds between fires (at most 366 days)",
+                "flag": "cooldown-seconds"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "max_fires"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "The alert becomes `triggered` after this many fires",
+                "flag": "max-fires"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "expires_at"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "The alert becomes `expired` then",
+                "flag": "expires-at"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "delete_on_expiry"
+                ],
+                "type": "boolean",
+                "required": false,
+                "description": "Delete instead of `expired` (needs expires_at)",
+                "flag": "delete-on-expiry"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "activate_at"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "The alert is `scheduled` until then",
+                "flag": "activate-at"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "pause_until"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "No fires until then",
+                "flag": "pause-until"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "active_window"
+                ],
+                "type": "json",
+                "required": false,
+                "description": "Fires only inside this window: `weekly` (days + from / to in a time zone) or `every` (an anchor, an interval and an active duration) Weekly windows require timezone, days, from and to. Every windows require anchor_at, interval, unit and active_duration_seconds.",
+                "flag": "active-window"
+              },
+              {
+                "path": [
+                  "destination_ids"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Destination ids (≤ 10)",
+                "flag": "destination-ids"
+              },
+              {
+                "path": [
+                  "client_reference_id"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "Your id; a second create with it returns the live alert",
+                "flag": "client-reference-id"
+              },
+              {
+                "path": [
+                  "external_user_id"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
+                "flag": "external-user-id"
+              },
+              {
+                "path": [
+                  "metadata"
+                ],
+                "type": "json",
+                "required": false,
+                "description": "Your own key / value pairs (≤ 50 keys, ≤ 8 KB), echoed in every event",
+                "flag": "metadata"
+              },
+              {
+                "path": [
+                  "version"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "Apply only to this version (409 conflict otherwise)",
+                "flag": "version"
+              }
+            ],
+            "required": [
+              [
+                "type"
+              ],
+              [
+                "trigger",
+                "active_window",
+                "type"
+              ]
+            ]
+          },
+          {
+            "type": "beneficial_ownership",
+            "description": "beneficial_ownership",
+            "notes": [
+              "The beneficial_ownership alert condition.",
+              "max_fires and cooldown_seconds require mode every_time. delete_on_expiry requires expires_at."
+            ],
+            "fields": [
+              {
+                "path": [
+                  "type"
+                ],
+                "type": "string",
+                "enum": [
+                  "beneficial_ownership"
+                ],
+                "required": true,
+                "flag": "type"
+              },
+              {
+                "path": [
+                  "condition",
+                  "ciks"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Companies by CIK.",
+                "flag": "ciks"
+              },
+              {
+                "path": [
+                  "condition",
+                  "symbols"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Companies by ticker; a US ETF ticker for the types that take ETFs.",
+                "flag": "symbols"
+              },
+              {
+                "path": [
+                  "condition",
+                  "schedule"
+                ],
+                "type": "string",
+                "enum": [
+                  "13D",
+                  "13G"
+                ],
+                "required": false,
+                "flag": "schedule"
+              },
+              {
+                "path": [
+                  "condition",
+                  "include_amendments"
+                ],
+                "type": "boolean",
+                "required": false,
+                "description": "Include amendments (default true).",
+                "flag": "include-amendments"
+              },
+              {
+                "path": [
+                  "condition",
+                  "min_percent_of_class"
+                ],
+                "type": "number",
+                "required": false,
+                "flag": "min-percent-of-class"
+              },
+              {
+                "path": [
+                  "condition",
+                  "crossing"
+                ],
+                "type": "string",
+                "enum": [
+                  "up",
+                  "down"
+                ],
+                "required": false,
+                "flag": "crossing"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "mode"
+                ],
+                "type": "string",
+                "enum": [
+                  "once",
+                  "every_time"
+                ],
+                "required": false,
+                "description": "Repeat mode; once becomes triggered after the first fire (default every_time).",
+                "flag": "trigger-mode"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "cooldown_seconds"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "Minimum seconds between fires (at most 366 days)",
+                "flag": "cooldown-seconds"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "max_fires"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "The alert becomes `triggered` after this many fires",
+                "flag": "max-fires"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "expires_at"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "The alert becomes `expired` then",
+                "flag": "expires-at"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "delete_on_expiry"
+                ],
+                "type": "boolean",
+                "required": false,
+                "description": "Delete instead of `expired` (needs expires_at)",
+                "flag": "delete-on-expiry"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "activate_at"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "The alert is `scheduled` until then",
+                "flag": "activate-at"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "pause_until"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "No fires until then",
+                "flag": "pause-until"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "active_window"
+                ],
+                "type": "json",
+                "required": false,
+                "description": "Fires only inside this window: `weekly` (days + from / to in a time zone) or `every` (an anchor, an interval and an active duration) Weekly windows require timezone, days, from and to. Every windows require anchor_at, interval, unit and active_duration_seconds.",
+                "flag": "active-window"
+              },
+              {
+                "path": [
+                  "destination_ids"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Destination ids (≤ 10)",
+                "flag": "destination-ids"
+              },
+              {
+                "path": [
+                  "client_reference_id"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "Your id; a second create with it returns the live alert",
+                "flag": "client-reference-id"
+              },
+              {
+                "path": [
+                  "external_user_id"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
+                "flag": "external-user-id"
+              },
+              {
+                "path": [
+                  "metadata"
+                ],
+                "type": "json",
+                "required": false,
+                "description": "Your own key / value pairs (≤ 50 keys, ≤ 8 KB), echoed in every event",
+                "flag": "metadata"
+              },
+              {
+                "path": [
+                  "version"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "Apply only to this version (409 conflict otherwise)",
+                "flag": "version"
+              }
+            ],
+            "required": [
+              [
+                "type"
+              ],
+              [
+                "trigger",
+                "active_window",
+                "type"
+              ]
+            ]
+          },
+          {
+            "type": "insider_sale_notice",
+            "description": "insider_sale_notice",
+            "notes": [
+              "The insider_sale_notice alert condition.",
+              "max_fires and cooldown_seconds require mode every_time. delete_on_expiry requires expires_at."
+            ],
+            "fields": [
+              {
+                "path": [
+                  "type"
+                ],
+                "type": "string",
+                "enum": [
+                  "insider_sale_notice"
+                ],
+                "required": true,
+                "flag": "type"
+              },
+              {
+                "path": [
+                  "condition",
+                  "ciks"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Companies by CIK.",
+                "flag": "ciks"
+              },
+              {
+                "path": [
+                  "condition",
+                  "symbols"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Companies by ticker; a US ETF ticker for the types that take ETFs.",
+                "flag": "symbols"
+              },
+              {
+                "path": [
+                  "condition",
+                  "min_market_value_usd"
+                ],
+                "type": "number",
+                "required": false,
+                "flag": "min-market-value-usd"
+              },
+              {
+                "path": [
+                  "condition",
+                  "relationships"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "flag": "relationships"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "mode"
+                ],
+                "type": "string",
+                "enum": [
+                  "once",
+                  "every_time"
+                ],
+                "required": false,
+                "description": "Repeat mode; once becomes triggered after the first fire (default every_time).",
+                "flag": "trigger-mode"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "cooldown_seconds"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "Minimum seconds between fires (at most 366 days)",
+                "flag": "cooldown-seconds"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "max_fires"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "The alert becomes `triggered` after this many fires",
+                "flag": "max-fires"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "expires_at"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "The alert becomes `expired` then",
+                "flag": "expires-at"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "delete_on_expiry"
+                ],
+                "type": "boolean",
+                "required": false,
+                "description": "Delete instead of `expired` (needs expires_at)",
+                "flag": "delete-on-expiry"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "activate_at"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "The alert is `scheduled` until then",
+                "flag": "activate-at"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "pause_until"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "No fires until then",
+                "flag": "pause-until"
+              },
+              {
+                "path": [
+                  "trigger",
+                  "active_window"
+                ],
+                "type": "json",
+                "required": false,
+                "description": "Fires only inside this window: `weekly` (days + from / to in a time zone) or `every` (an anchor, an interval and an active duration) Weekly windows require timezone, days, from and to. Every windows require anchor_at, interval, unit and active_duration_seconds.",
+                "flag": "active-window"
+              },
+              {
+                "path": [
+                  "destination_ids"
+                ],
+                "type": "array",
+                "items": "string",
+                "required": false,
+                "description": "Destination ids (≤ 10)",
+                "flag": "destination-ids"
+              },
+              {
+                "path": [
+                  "client_reference_id"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "Your id; a second create with it returns the live alert",
+                "flag": "client-reference-id"
+              },
+              {
+                "path": [
+                  "external_user_id"
+                ],
+                "type": "string",
+                "required": false,
+                "description": "Your end user's id (filters lists and events; 1–200 characters, not . or .., which no URL path can name)",
+                "flag": "external-user-id"
+              },
+              {
+                "path": [
+                  "metadata"
+                ],
+                "type": "json",
+                "required": false,
+                "description": "Your own key / value pairs (≤ 50 keys, ≤ 8 KB), echoed in every event",
+                "flag": "metadata"
+              },
+              {
+                "path": [
+                  "version"
+                ],
+                "type": "integer",
+                "required": false,
+                "description": "Apply only to this version (409 conflict otherwise)",
+                "flag": "version"
+              }
+            ],
+            "required": [
+              [
+                "type"
+              ],
+              [
+                "trigger",
+                "active_window",
+                "type"
+              ]
+            ]
           }
         ]
       },
@@ -13407,7 +16040,12 @@
         "price_reminder",
         "indicator",
         "script",
-        "macro"
+        "macro",
+        "insider_trade",
+        "holder_change",
+        "ipo_stage",
+        "beneficial_ownership",
+        "insider_sale_notice"
       ]
     },
     {

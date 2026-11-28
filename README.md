@@ -50,6 +50,32 @@ outline is prepared. A known document with no available item outline returns an 
 This update also includes Data API 13.1's IPO correction. The `sources.listing.security_type` field may be `null`
 when the listing calendar has no security type.
 
+## Events and ownership alerts (Data API 13.4)
+
+Data API 13.4.0 and both SDKs are published from `e5c69dcfb50c9a1958225faf3f4ad4b0983877a3`
+(`data-sdk-v13.4.0`; API Fly v213, evaluator v34). CLI 13.4.0 / plugin 0.32.0 adopt that released contract. The API bundle is copied byte for byte from that release, with spec SHA-256
+`399a6e2a41b65303c2a7b2ce496b83afb3c59dab4ffb3e1d602d08516d577055`.
+
+The typed catalog has 23 alert types. Five new rules match filed rows rather than merely announcing a filing:
+`insider_trade`, `holder_change`, `ipo_stage`, `beneficial_ownership` and `insider_sale_notice`.
+IPO stages need LITE; insider transactions, beneficial ownership and sale notices need STANDARD; holder changes
+need PRO. A Form 144 is a proposed sale, not an executed insider transaction. A filing rule with
+`form_categories=insider_trade` reports arrival; an insider_trade rule matches a transaction's side, role and value.
+
+```bash
+invd alerts create --type insider_trade --symbols AAPL --sides buy --roles officer --min-value-usd 10000 --dry-run
+invd alerts create --type holder_change --symbols AAPL --kinds increased,sold_out --min-change-pct 10 --dry-run
+invd alerts create --type ipo_stage --stages registered,priced --dry-run
+invd alerts create --type beneficial_ownership --symbols AAPL --schedule 13D --min-percent-of-class 5 --crossing up --dry-run
+invd alerts create --type insider_sale_notice --symbols AAPL --min-market-value-usd 100000 --relationships Officer --dry-run
+```
+
+`--dry-run` previews the request offline. Remove it only after choosing delivery destinations and checking the
+account's plan and coverage. IPO rules may omit subjects for the whole market; holder changes require at least
+one symbol or CIK. Leave `--is-spac` unset for either class. Insider derivatives default off; beneficial-ownership amendments default on.
+Missing prices/percentages do not meet numeric thresholds, and ownership crossing requires a percent threshold
+and a known matched prior person. Test a created rule with `invd alerts test <alert-id>`.
+
 ## Changes in 13.0.0 (Data API 13.0)
 
 CLI 13.0.0 and plugin 0.29.0 adopt typed alerts from the released Data API 13.0 contract.

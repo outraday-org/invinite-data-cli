@@ -1,5 +1,12 @@
 # invinite-data-cli (`invd`)
 
+CLI 13.4.0 / plugin 0.32.0 adopt the published Data API/SDK 13.4.0 release. The exact API release is `e5c69dcfb50c9a1958225faf3f4ad4b0983877a3`
+(`data-sdk-v13.4.0`, API Fly v213, evaluator v34), spec SHA-256
+`399a6e2a41b65303c2a7b2ce496b83afb3c59dab4ffb3e1d602d08516d577055`. Its bundle preserves the measured
+API contract generation base `8cec9fa531978a5544e868e50f726b8602b92ad5`; never replace that provenance field
+with the tag commit by hand. All 149 operations retain their commands. The typed alert catalog now has 23 types;
+new filing-row and IPO filters come from the official per-type metadata. No Major 14/CAGR source is adopted.
+
 13.3.0 adopts Data API 13.3.0 (delisted subjects served by CIK / unambiguous ticker; descriptions + skill only),
 with plugin 0.31.0. Historical reads follow each instrument's measured dataset allowlist: ACA filings are eligible;
 financials and insider history are excluded. The exact bundle is API commit
@@ -89,8 +96,8 @@ skill and `invinite-financial-data` `SKILL.md` / `references/filings.md` follow.
 
 CLI 13.0.0 / plugin 0.29.0 adopt the exact API `data-sdk-v13.0.0` reference bundle at
 `96c33cb7432fca54c81e838e2545150e5a59006f` (spec sha256 `c1ce8fa33639c84752524dd5c190ce1f7a6b4d8b1c814e5f1b2ef4ac99b861d6`).
-The bundle includes 12.4 news/search behavior. The manifest builder resolves the 18 create branches and PATCH's
-18 typed branches plus settings, stores per-type fields/required paths/examples and computes condition/trigger
+The bundle includes 12.4 news/search behavior. The manifest builder resolves the per-type create branches and PATCH's
+typed branches plus settings, stores per-type fields/required paths/examples and computes condition/trigger
 name collisions across all branches. Structured objects and arrays of objects are JSON flags; nested required paths
 include array items. Response union fields are the intersection of branch properties; discriminator values supply
 `alert-events tail`'s six feed filters. The four alert catalogs are generated `x-cli` commands.
@@ -98,7 +105,7 @@ include array items. Response union fields are the intersection of branch proper
 `src/spec-body.ts` owns body construction and typed help. Raw-only JSON reaches server validation unchanged.
 Mixed flags retain all raw fields, override their named paths and validate against the effective type. A condition
 edit without a type first GETs the stored alert; explicit types and settings-only writes need no lookup.
-Dry-run never performs this lookup and asks for explicit `--type`. All 18 spec examples round-trip through actual
+Dry-run never performs this lookup and asks for explicit `--type`. All 23 spec examples round-trip through actual
 registered flags in `tests/unit/spec-alerts.test.ts`; preserve that check when extending alert schemas.
 
 ## Commands come from the Data API's spec, not from this repo
@@ -259,3 +266,11 @@ Adopt API contracts from a versioned `invinite-data-api` reference bundle: copy 
 identity and provenance), run `cli:manifest`, `skill:commands`, `reference:export`, then the
 corresponding `:check` commands and mocked tests. The reference records exact API
 spec identity, CLI version, checkout base revision and source hashes.
+
+
+Events/alerts CLI release: Data API/SDK 13.4.0 is published and the exact released e5 bundle adds
+insider_trade, holder_change, ipo_stage, beneficial_ownership and insider_sale_notice. The manifest supplies the
+strict fields and examples; workflows and body help describe their scope and minimum tiers. The normal skills
+import is pinned to `e5c69dcfb50c9a1958225faf3f4ad4b0983877a3`. CLI 13.4.0 and plugin 0.32.0
+use these immutable reference pins. Commit plugin source before `reference:export`; actual registry publication
+and installed-version verification are recorded separately from generation.

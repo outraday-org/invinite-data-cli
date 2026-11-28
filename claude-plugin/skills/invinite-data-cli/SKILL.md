@@ -269,3 +269,17 @@ Answer with the publisher, date and link of each item.
 - Fiscal periods follow the company's fiscal calendar: a fiscal Q4 can end in the next calendar year.
 - Keep `meta.coverage` in mind: `pending` / `partial` means the answer is incomplete.
 
+
+
+## Filed-row and IPO alerts
+
+Use `invd alerts create --help --type <type>` before constructing a rule. `insider_trade` matches one transaction's
+side, owner, role and value; `holder_change` matches a manager's change for one security; `beneficial_ownership`
+matches one reporting person in a 13D/13G; `insider_sale_notice` describes proposed Form 144 sales. A filing rule's
+insider_trade category instead reports filing arrival. `ipo_stage` follows non-trading registration stages and
+may omit companies for a market-wide rule; holder_change requires subjects. Insider derivatives default off; beneficial-ownership amendments default on. Crossing requires min_percent_of_class and a known predecessor; unknown values cannot pass a numeric filter.
+
+Preview with `invd alerts create --type insider_trade --symbols AAPL --sides buy --min-value-usd 10000 --dry-run`
+or `invd alerts create --type ipo_stage --stages registered,priced --dry-run`. Use STANDARD for insider/ownership/
+sale-notice rules, PRO for holder changes and LITE for IPO stages. Read the API's refusal instead of inferring
+coverage from a ticker. Configure a destination before writing and use `invd alerts test <alert-id>` to test it.
