@@ -34,6 +34,22 @@ API's MCP server serves — the data guide `invinite-financial-data` and nine wo
 `commands/*.md` (`/financial-research`, `/analyze-earnings-call`, …) are gone: the workflows are skills now, and
 `invd plugin install` removes the files earlier versions wrote. See [The plugin](#the-plugin).
 
+## Changes in 13.2.0 (Data API 13.2)
+
+CLI 13.2.0 and plugin 0.30.0 add `--segment-id` and `--follow-links` to both segment commands. The segment
+catalog gains business operating income, D&A, assets, goodwill and capex. Segment rows include their reported
+currency. Detailed rows include member roles, reconciliation and the evidence behind member links.
+
+```bash
+invd segments list AMZN -p annual --segment-id seg_operating_income_business_segment --json
+invd segments list-detailed AMZN -p annual --follow-links --json
+```
+
+Derived 10-K, 10-Q and 8-K documents have item outlines. A newly seen version can report `pending` while the
+outline is prepared. A known document with no available item outline returns an empty list and a coverage note.
+This update also includes Data API 13.1's IPO correction. The `sources.listing.security_type` field may be `null`
+when the listing calendar has no security type.
+
 ## Changes in 13.0.0 (Data API 13.0)
 
 CLI 13.0.0 and plugin 0.29.0 adopt typed alerts from the released Data API 13.0 contract.
@@ -237,7 +253,7 @@ Commands are noun-verb over the API's groups:
 | `filers` | every SEC filer (13F managers, pre-IPO issuers, former registrants), listed or not; a 13F manager's portfolio (`filers holdings`) and its changes (`filers holding-changes`) |
 | `financials` | statements: standardized or as-reported, summary / detailed / presentation, point in time |
 | `metrics` | ratios, growth, CAGR, the explanation of one standardized fact, and every filed value of one fact (`metrics vintages`) |
-| `segments` | segment values (revenue by product, geography …) |
+| `segments` | revenue/cost breakdowns and business operating income, D&A, assets, goodwill and capex |
 | `filings` | SEC filings, their numeric and text facts, review chains, dataset releases |
 | `bulk` | the SEC data sets as files (Enterprise): raw SEC release files, parsed period files (`csv_gz`, `parquet`) and company export jobs, saved with `--out` / `--save` |
 | `documents` | immutable SEC filing document versions: blocks, pages, sections, figures, fact places |
@@ -381,6 +397,44 @@ invd metrics vintages AAPL -c RevenueFromContractWithCustomerExcludingAssessedTa
 invd segments list AAPL -p annual --metric is_total_revenue
 invd segments list-detailed AAPL -p annual
 ```
+
+Use `--segment-id` for a segment category (a comma list selects several); `--metric` still filters the statement metric ID (for example
+`is_operating_income`). Omitted `--segment-id` returns every category, unlike invinite's separate app/agent default.
+The twelve categories are:
+
+| Category | Segment ID |
+|---|---|
+| Product revenue | `seg_revenue_product` |
+| Geographic revenue | `seg_revenue_geographic` |
+| Business revenue | `seg_revenue_business_segment` |
+| Cost of revenue | `seg_cost_of_revenue_business_segment` |
+| Research and development | `seg_research_and_development_expenses_business_segment` |
+| Selling and marketing | `seg_selling_and_marketing_expenses_business_segment` |
+| General and administrative | `seg_general_and_administrative_expenses_business_segment` |
+| Operating income | `seg_operating_income_business_segment` |
+| Depreciation and amortization | `seg_depreciation_and_amortization_business_segment` |
+| Assets | `seg_total_assets_business_segment` |
+| Goodwill | `seg_goodwill_business_segment` |
+| Capital expenditure | `seg_capital_expenditure_business_segment` |
+
+The five new metrics exist only on the business-segment axis. Assets and goodwill are period-end values, without
+TTM/YTD or invented fourth quarters. Segment operating income need not sum to company income. Standard
+`segments list` serves each row's own currency; Pro `segments list-detailed` adds reconciling-member roles,
+reconciliation status and member-link evidence. Use JSON when inspecting those fields.
+
+```bash
+invd segments list AMZN -p annual --segment-id seg_operating_income_business_segment --json
+invd segments list AMZN -p quarterly --segment-id seg_total_assets_business_segment --json
+invd segments list-detailed AMZN -p annual --segment-id seg_revenue_product --follow-links --json
+```
+
+`--follow-links` is opt-in; `--no-follow-links` keeps the default. It adds earlier rename/merge predecessor rows;
+splits are described but never followed. Keep merger components separate, without silently summing them.
+Only in following mode, `via_link` marks copies, `source_member` names their original member, and `source_row_id`
+identifies the original derived segment row. Combine that row ID with the target `dimensions` for a pivot key;
+it is not a raw SEC fact ID or an input to fact-explanation commands.
+`matched_periods` identifies the proved overlaps, not numerical equivalence across every historical period.
+History reaches only as far back as retained filing evidence.
 
 ### SEC filings and documents
 

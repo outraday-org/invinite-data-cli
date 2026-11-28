@@ -18,7 +18,9 @@ Write down the independent data needs before calling anything:
 - **Subjects**: resolve each name or uncertain ticker with `search_instruments`; note which are stocks and which are
   funds (a fund has holdings and weights, no statements).
 - **Fundamentals**: statements (`get_financials`), ratios / growth / CAGR / segments (`get_metrics`); read
-  `invinite://catalog/metrics` before choosing metric ids.
+  `invinite://catalog/metrics` before choosing metric ids. For segments, `segment_id` selects one of 12 catalog
+  categories; `metric` filters its standardized statement metric. For example, `get_metrics company=AMZN
+  kind=segments segment_id=seg_operating_income_business_segment period=annual` selects operating income.
 - **Filings**: the latest 10-K / 10-Q sections that matter (risk factors, MD&A) with `list_filings` + `read_filing`;
   a topic across filings with `search_filings` (100 credits: only when the question needs it).
 - **Earnings calls**: the latest call's results, guidance and Q&A (`get_event company=… include=[…]`).
@@ -43,7 +45,15 @@ Keep only the needs the question asks for. Each one becomes a read.
 3. Point out trends, outliers and divergences, and explain what the numbers mean, not only what they are.
 4. Cite every number's source: period and as-of date, accession for filings, event id and `[m:ss]` for calls,
    publisher and link for news.
-5. Name the gaps: a read that failed, a plan the account lacks, coverage still pending.
+5. For segments, use each row's `currency`; catalog units are nominal. Non-revenue additions (operating income,
+   D&A, assets, goodwill, capex) exist only on the business axis. Assets/goodwill are period-end balances without
+   TTM/YTD; do not invent a missing fiscal-Q4 row. `detailed=true` (Pro) adds reconciling roles and proof of member
+   links. Never treat segment operating income as the consolidated total. `follow_links=true` optionally adds
+   proved rename/merge history (`via_link=true`); retain separate merge components, never sum them implicitly.
+   Splits are not followed, and evidence reaches only stored per-filing values. In follow mode, preserve
+   `source_row_id` (a derived segmented row, not a raw SEC fact) plus target dimensions and `source_member`;
+   these identity fields are absent when following is off.
+6. Name the gaps: a read that failed, a plan the account lacks, coverage still pending.
 
 Suggested shape (adapt it to the question):
 

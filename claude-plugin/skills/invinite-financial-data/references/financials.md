@@ -36,12 +36,58 @@ labelling them.
   ratios), `valuation`.
 - `kind=growth` (Lite): `growth_basis` `yoy` (default) or `qoq`. Growth is a fraction: 0.12 means 12 %.
 - `kind=cagr` (Lite): `horizon` 3, 5 or 10 years.
-- `kind=segments` (Standard): revenue and other metrics by business or geographic segment; `metric` (a metric id),
-  `axis` (an XBRL axis such as `srt:StatementGeographicalAxis`); `detailed=true` (Pro) adds lineage per value.
+- `kind=segments` (Standard): choose a catalog category with `segment_id` (comma list), a standardized statement
+  metric with `metric`, or an XBRL `axis` such as `srt:StatementGeographicalAxis`. The filters intersect; no
+  `segment_id` means all categories. Unknown catalog ids return 400. `detailed=true` (Pro) adds lineage, roles,
+  reconciliation and member-link evidence.
 - `company` takes a comma list here too; `period`, `fiscal_year_from` / `fiscal_year_to` as for statements.
 
 A ratio or growth value is computed by Invinite from the standardized facts; name it as such, and cite the
 underlying statement values when a conclusion rests on one number.
+
+### Segment categories and interpretation
+
+The 12 catalog ids are:
+
+| Category | `segment_id` |
+|---|---|
+| Product revenue | `seg_revenue_product` |
+| Geographic revenue | `seg_revenue_geographic` |
+| Business revenue | `seg_revenue_business_segment` |
+| Business cost of revenue | `seg_cost_of_revenue_business_segment` |
+| Business R&D | `seg_research_and_development_expenses_business_segment` |
+| Business selling/marketing | `seg_selling_and_marketing_expenses_business_segment` |
+| Business G&A | `seg_general_and_administrative_expenses_business_segment` |
+| Business operating income | `seg_operating_income_business_segment` |
+| Business D&A | `seg_depreciation_and_amortization_business_segment` |
+| Business total assets | `seg_total_assets_business_segment` |
+| Business goodwill | `seg_goodwill_business_segment` |
+| Business capex | `seg_capital_expenditure_business_segment` |
+
+Example: `get_metrics company=AMZN kind=segments period=annual
+segment_id=seg_operating_income_business_segment follow_links=true`. The matching REST parameters are
+`/v1/segments?company=AMZN&period=annual&segment_id=seg_operating_income_business_segment&follow_links=true`.
+`metric=is_operating_income` addresses the statement metric, not the `seg_*` category.
+
+Non-revenue metrics exist only on the business axis. Read `currency` from each row (upper-case ISO monetary code,
+otherwise null); the catalog's unit is nominal. Assets and goodwill are period-end values, without TTM/YTD. Filed
+annual and quarterly values remain distinct; fiscal-Q4 exists only where the enriched filing holds it. Do not
+sum balances across quarters or substitute a derived fourth-quarter value.
+
+The basic Standard route does not establish reconciliation. Pro detailed rows expose `member_role` (reconciling
+or null), `reconciles_to_total` (true/false/null), `predecessors` and `successors` with filed matched-period evidence.
+Show reconciling members separately. Segment operating income need not sum to the consolidated figure; false
+forbids treating its sum as the company total, and null is not a proof of reconciliation.
+
+`follow_links` defaults false. True retains originals and adds one-hop rename/merge predecessors strictly before
+the successor's first period; `via_link` marks copies true and originals false. Split links are described but
+never followed. Preserve equal-period merge components separately, without overwrite or implicit summation.
+Links require filed value proof and reach only as far as stored per-filing vintages, not fuzzy member-name matches.
+Only in follow mode, `source_member` names the original local member and `source_row_id` identifies the original
+**derived segmented row**, not a raw SEC fact. Combine that ID with the target dimensions to distinguish a source
+copied to multiple successors. The affected axis/member use canonical local names in this opt-in presentation;
+other qualifiers stay intact. With following off, these identity fields and `via_link` are absent and dimensions
+retain their original qualified names. Page with every filter unchanged.
 
 ## Where a number comes from: `explain_fact`
 

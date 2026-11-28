@@ -146,6 +146,13 @@ An error is at most three stderr lines: `✗ <detail>  (<code>)`, then what to d
 - **Lineage**: `invd metrics explain "<fact_id>"`, `invd documents fact-places --fact <fact_id>` (Pro),
   `invd metrics vintages AAPL -c RevenueFromContractWithCustomerExcludingAssessedTax -e 2024-09-28` (`--period-start`,
   `--member` narrow it).
+- **Segments**: `invd segments list AMZN -p annual --segment-id seg_operating_income_business_segment --json`
+  selects one of twelve catalog categories; `--metric` selects its statement metric instead. Without `--segment-id`,
+  all categories remain eligible. Standard `list` carries currency; Pro `list-detailed` adds roles, reconciliation
+  and link evidence. `--follow-links` opts into proved rename/merge history; splits are not followed and merger
+  components stay separate. New metrics are business-only; assets/goodwill are period-end, never TTM/YTD.
+  Following-only `source_row_id` is a derived segment-row ID, not a raw fact citation; combine it with target
+  dimensions and retain `source_member`/`via_link` when pivoting.
 - **Filings**: `invd filings get <accession> --expand documents` gives each document's `version_id`;
   `invd documents sections <version_id>` lists its sections and blocks; `invd documents get <version_id> --blocks b12-b40`
   reads them.

@@ -1,6 +1,6 @@
 {
   "specVersion": "2026-11-27",
-  "specSha256": "c1ce8fa33639c84752524dd5c190ce1f7a6b4d8b1c814e5f1b2ef4ac99b861d6",
+  "specSha256": "5a0f905f5e69ce076fc90303e71a84bbe51fc745422147958811c64811bd4e24",
   "groups": [
     {
       "name": "alert-events",
@@ -132,7 +132,7 @@
     },
     {
       "name": "segments",
-      "description": "Segment values (revenue by product, geography …); list-detailed adds lineage (PRO)"
+      "description": "Segment revenue, expenses, operating income, assets and capex. Detailed results include lineage (PRO)."
     },
     {
       "name": "splits",
@@ -25933,9 +25933,28 @@
           "required": false,
           "type": "string",
           "example": "is_total_revenue",
-          "description": "Metric id, comma list",
+          "description": "Standardized metric_id comma list (for example is_operating_income). Use segment_id for seg_* catalog ids; both filters intersect.",
           "alias": "m",
           "flag": "metric"
+        },
+        {
+          "name": "segment_id",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "seg_operating_income_business_segment",
+          "description": "Segment catalog ids, comma list; unknown ids return 400. Absent means every segment id.",
+          "flag": "segment-id"
+        },
+        {
+          "name": "follow_links",
+          "in": "query",
+          "required": false,
+          "type": "boolean",
+          "default": false,
+          "example": true,
+          "description": "Include one-hop predecessor copies under successor dimensions before first_period_end. Renames and every merge component are followed; splits are never followed. Preserve source_row_id plus target dimensions when pivoting; do not sum non-additive metrics.",
+          "flag": "follow-links"
         },
         {
           "name": "axis",
@@ -26047,6 +26066,10 @@
         "required": true,
         "variadic": "comma"
       },
+      "exampleParams": [
+        "segment_id",
+        "follow_links"
+      ],
       "list": true,
       "view": "table",
       "columns": [
@@ -26069,7 +26092,11 @@
         "metric_id",
         "segment_id",
         "value",
-        "dimensions"
+        "dimensions",
+        "currency",
+        "via_link",
+        "source_member",
+        "source_row_id"
       ]
     },
     {
@@ -26098,9 +26125,28 @@
           "required": false,
           "type": "string",
           "example": "is_total_revenue",
-          "description": "Metric id, comma list",
+          "description": "Standardized metric_id comma list (for example is_operating_income). Use segment_id for seg_* catalog ids; both filters intersect.",
           "alias": "m",
           "flag": "metric"
+        },
+        {
+          "name": "segment_id",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "example": "seg_operating_income_business_segment",
+          "description": "Segment catalog ids, comma list; unknown ids return 400. Absent means every segment id.",
+          "flag": "segment-id"
+        },
+        {
+          "name": "follow_links",
+          "in": "query",
+          "required": false,
+          "type": "boolean",
+          "default": false,
+          "example": true,
+          "description": "Include one-hop predecessor copies under successor dimensions before first_period_end. Renames and every merge component are followed; splits are never followed. Preserve source_row_id plus target dimensions when pivoting; do not sum non-additive metrics.",
+          "flag": "follow-links"
         },
         {
           "name": "axis",
@@ -26212,6 +26258,10 @@
         "required": true,
         "variadic": "comma"
       },
+      "exampleParams": [
+        "segment_id",
+        "follow_links"
+      ],
       "list": true,
       "view": "table",
       "columns": [
@@ -26240,7 +26290,15 @@
         "accession",
         "html_tag_id",
         "html_label",
-        "unit"
+        "unit",
+        "currency",
+        "via_link",
+        "source_member",
+        "source_row_id",
+        "member_role",
+        "reconciles_to_total",
+        "predecessors",
+        "successors"
       ]
     },
     {

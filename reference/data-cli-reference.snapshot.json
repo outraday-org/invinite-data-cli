@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "13.0.0",
+    "version": "13.2.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -9,11 +9,11 @@
     "engines": {
       "node": ">=20"
     },
-    "verifiedOn": "2026-11-27",
+    "verifiedOn": "2026-11-28",
     "sourceHashes": {
-      "api-contract.json": "73c66e34beb8c7fba00836b5c4350d8c867300a460affd31b426ce0e5e5faa40",
-      "openapi.json": "c1ce8fa33639c84752524dd5c190ce1f7a6b4d8b1c814e5f1b2ef4ac99b861d6",
-      "package.json": "de931b91924e58b2492d0a0c924e29e1a099a613658dc1be6dd4976635263b42",
+      "api-contract.json": "e59e0b49a9b74558a5c9823cec91cae87ef0e167fdf6a720d8ae8066908f5f26",
+      "openapi.json": "5a0f905f5e69ce076fc90303e71a84bbe51fc745422147958811c64811bd4e24",
+      "package.json": "027360778bf5759c615508a7ab032a3e3b3f3587f75a94a06381d728098a2c35",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "ed216f689f39e3dbf72c7d6a1c74ee6cb9c22fbaf9982a9b4ddee2873f2d5536",
@@ -34,7 +34,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "ded319d8aa9610eef335508441e74ff17c102bdc1b9eb788c11c764719e0b85a",
+      "src/generated/cli-manifest.json": "e45e2b184637db54d97e88ed64984f99127e2f71d05c2a89c1ee17b5c0953e48",
       "src/hand-written-commands.ts": "a095d5f00a17a9cd643a8a0e6e5dcadbb7050dfd8b14d846ce81f3536a9920b9",
       "src/job-wait.ts": "296be47b6b13ebf2d2639fc6ae36ca4dc8409709905bb7cb85a04619c7d81821",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
@@ -47,14 +47,14 @@
       "src/shared/signals.ts": "5c5122b38e35700a9304bf77f06b900a80e3bc42da6241f93313181117b2fa6b",
       "src/shared/spinner.ts": "62e25b34f62faaaa298fbe4664cb0b1eb52fd62b4c82f498718bd14e608d0d87",
       "src/spec-body.ts": "b0f97cd4be8cedd2f4a730d363727f95d468d2b422ffe16ea1f85c0e86e230c5",
-      "src/spec-commands.ts": "64b260cf241fd6cf164f53ed6c24fa1f0f4ddedfa3d722d4a654ef314dad158a",
+      "src/spec-commands.ts": "13517f859c3278c9c16711192e7658bbbe9eb4e5cfbff91415bf2d822a9f5c56",
       "src/spec-flags.ts": "0fa10d6d64534de9c10ba418ad8622edd7a4b504f1a7218b96016ebc3366e9cb",
       "src/spec-manifest.ts": "fc3c4193823d7d308875b60765625607eb93bc62baf4a7ab532e70247f0584a6",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "c1ce8fa33639c84752524dd5c190ce1f7a6b4d8b1c814e5f1b2ef4ac99b861d6",
-    "revision": "723f9ccec8b8c4b335a0081fe3b1306a36a69c16",
-    "fingerprint": "00843f89ebb0148da4cc2b302b9336e365f3bff22f51a452db9825eb32101236"
+    "specSha256": "5a0f905f5e69ce076fc90303e71a84bbe51fc745422147958811c64811bd4e24",
+    "revision": "617a2c8803795b86ed868c0897702acb7c834053",
+    "fingerprint": "d371e152c103fb3f7078661c265eb9404c2b4af0733581e97baaebe2f71ffb62"
   },
   "globalOptions": [
     {
@@ -218,7 +218,7 @@
     },
     {
       "id": "segments",
-      "description": "Segment values (revenue by product, geography …); list-detailed adds lineage (PRO)"
+      "description": "Segment revenue, expenses, operating income, assets and capex. Detailed results include lineage (PRO)."
     },
     {
       "id": "splits",
@@ -15499,7 +15499,22 @@
       "options": [
         {
           "flags": "-m, --metric <value>",
-          "description": "Metric id, comma list (e.g. is_total_revenue)",
+          "description": "Standardized metric_id comma list (for example is_operating_income). Use segment_id for seg_* catalog ids; both filters intersect. (e.g. is_total_revenue)",
+          "required": false
+        },
+        {
+          "flags": "--segment-id <value>",
+          "description": "Segment catalog ids, comma list; unknown ids return 400. Absent means every segment id. (e.g. seg_operating_income_business_segment)",
+          "required": false
+        },
+        {
+          "flags": "--follow-links",
+          "description": "Include one-hop predecessor copies under successor dimensions before first_period_end. Renames and every merge component are followed; splits are never followed. Preserve source_row_id plus target dimensions when pivoting; do not sum non-additive metrics. (default: false; e.g. true) (sends true)",
+          "required": false
+        },
+        {
+          "flags": "--no-follow-links",
+          "description": "Sends follow_links=false",
           "required": false
         },
         {
@@ -15638,7 +15653,22 @@
       "options": [
         {
           "flags": "-m, --metric <value>",
-          "description": "Metric id, comma list (e.g. is_total_revenue)",
+          "description": "Standardized metric_id comma list (for example is_operating_income). Use segment_id for seg_* catalog ids; both filters intersect. (e.g. is_total_revenue)",
+          "required": false
+        },
+        {
+          "flags": "--segment-id <value>",
+          "description": "Segment catalog ids, comma list; unknown ids return 400. Absent means every segment id. (e.g. seg_operating_income_business_segment)",
+          "required": false
+        },
+        {
+          "flags": "--follow-links",
+          "description": "Include one-hop predecessor copies under successor dimensions before first_period_end. Renames and every merge component are followed; splits are never followed. Preserve source_row_id plus target dimensions when pivoting; do not sum non-additive metrics. (default: false; e.g. true) (sends true)",
+          "required": false
+        },
+        {
+          "flags": "--no-follow-links",
+          "description": "Sends follow_links=false",
           "required": false
         },
         {
