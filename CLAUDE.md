@@ -1,7 +1,6 @@
 # invinite-data-cli (`invd`)
 
-CLI 13.4.0 / plugin 0.32.0 are prepared against the published Data API/SDK 13.4.0 release, not yet published
-as CLI/plugin packages. The exact API release is `e5c69dcfb50c9a1958225faf3f4ad4b0983877a3`
+CLI 13.4.0 / plugin 0.32.0 adopt the published Data API/SDK 13.4.0 release. The exact API release is `e5c69dcfb50c9a1958225faf3f4ad4b0983877a3`
 (`data-sdk-v13.4.0`, API Fly v213, evaluator v34), spec SHA-256
 `399a6e2a41b65303c2a7b2ce496b83afb3c59dab4ffb3e1d602d08516d577055`. Its bundle preserves the measured
 API contract generation base `8cec9fa531978a5544e868e50f726b8602b92ad5`; never replace that provenance field
@@ -269,9 +268,9 @@ corresponding `:check` commands and mocked tests. The reference records exact AP
 spec identity, CLI version, checkout base revision and source hashes.
 
 
-Events/alerts CLI release preparation: Data API/SDK 13.4.0 is published and the exact released e5 bundle adds
+Events/alerts CLI release: Data API/SDK 13.4.0 is published and the exact released e5 bundle adds
 insider_trade, holder_change, ipo_stage, beneficial_ownership and insider_sale_notice. The manifest supplies the
 strict fields and examples; workflows and body help describe their scope and minimum tiers. The normal skills
-import is pinned to `e5c69dcfb50c9a1958225faf3f4ad4b0983877a3`. CLI 13.4.0 and plugin 0.32.0 are reversible
-source version updates until their coordinated publication. Commit plugin source before `reference:export`;
-candidate generation alone is not CLI/plugin publication evidence.
+import is pinned to `e5c69dcfb50c9a1958225faf3f4ad4b0983877a3`. CLI 13.4.0 and plugin 0.32.0
+use these immutable reference pins. Commit plugin source before `reference:export`; actual registry publication
+and installed-version verification are recorded separately from generation.

@@ -53,8 +53,7 @@ when the listing calendar has no security type.
 ## Events and ownership alerts (Data API 13.4)
 
 Data API 13.4.0 and both SDKs are published from `e5c69dcfb50c9a1958225faf3f4ad4b0983877a3`
-(`data-sdk-v13.4.0`; API Fly v213, evaluator v34). This CLI 13.4.0 / plugin 0.32.0 release is prepared;
-CLI/plugin publication is still pending. The API bundle is copied byte for byte from that release, with spec SHA-256
+(`data-sdk-v13.4.0`; API Fly v213, evaluator v34). CLI 13.4.0 / plugin 0.32.0 adopt that released contract. The API bundle is copied byte for byte from that release, with spec SHA-256
 `399a6e2a41b65303c2a7b2ce496b83afb3c59dab4ffb3e1d602d08516d577055`.
 
 The typed catalog has 23 alert types. Five new rules match filed rows rather than merely announcing a filing:
