@@ -1,5 +1,12 @@
 # invinite-data-cli (`invd`)
 
+13.3.0 adopts Data API 13.3.0 (delisted subjects served by CIK / unambiguous ticker; descriptions + skill only),
+with plugin 0.31.0. Historical reads follow each instrument's measured dataset allowlist: ACA filings are eligible;
+financials and insider history are excluded. The exact bundle is API commit
+`044c7d6e02eed88f3b3587b826dc382d58bc0180` (`data-sdk-v13.3.0`), spec sha256
+`0878cbca1f4c06beb6afdf4189f79185e7a35caf22ec1bb94fb585bee2e4be0c`. Command and flag shapes remain unchanged from 13.2.0. The CLI preserves the API’s specific `not_covered` remedy
+(including ambiguous CIK choices), falling back to company search only when the API supplies none.
+
 `invd` 6.x is the CLI of the Data API at `/v1/*` — the contract designed as "v2" (backend `tasks/data-api-v2`), moved
 from `/v2` to `/v1` on 2026-11-11 when the old v1 API was deleted. 5.0 = the 4.x commands at the new paths; 6.0 = the
 5.0 commands on the conventions shared with the Web CLI `inv` (backend `tasks/cli-api-alignment` C1–C4: exit codes,
@@ -153,7 +160,7 @@ that differs from the v2 groups + the roster. There is no WebSocket command in 4
   reads the enums from `openapi.json`: a new value fails until it has a label).
 - Errors are RFC 9457 problems: `ApiError` keeps `title`, `detail`, `code` and the whole body. `printError` prints at
   most three lines (C2): `✗ <detail>  (<code>)` (one per `errors[]` item, max 5), the remedy (`apiErrorHint`'s `invd`
-  command for `unauthorized` / 401, `plan_required`, `insufficient_credits`, `not_covered`, else the body's `remedy`),
+  command for `unauthorized` / 401, `plan_required`, `insufficient_credits`, else the body's `remedy`; `not_covered` uses the API remedy with a company-search fallback),
   then `request_id  ·  docs_url`; never the HTTP status; `Error:` for `✗` under `NO_COLOR` / `TERM=dumb`. `--json`
   adds the body as one JSON line on stderr. Exit codes (`EXIT` in `src/shared/errors.ts`, shared with `inv`): 0 ok, 1
   refused / failed, 2 usage (commander errors via `bin/invd.ts`, `UsageError`, problem codes `invalid_parameter` /

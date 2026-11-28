@@ -542,6 +542,17 @@ describe('exit codes from problem codes', () => {
     expect(err.join('\n')).not.toContain(String(status));
   });
 
+  it('prints an ambiguous ticker detail and its CIK remedy on the generated filings command', async () => {
+    const detail = 'ABC was the ticker of several delisted registrants: CIK 0000012345 (Old Co), CIK 0000067890 (Other Co).';
+    const remedy = 'Send the CIK of the one you mean (company=0000012345).';
+    vi.mocked(fetch).mockResolvedValueOnce(json({
+      title: 'Not covered', status: 404, code: 'not_covered', detail, remedy,
+    }, 404));
+    expect(await exitOf('filings', 'ABC')).toBe(3);
+    expect(err).toEqual([`✗ ${detail}  (not_covered)`, `  ${remedy}`]);
+    expect(out).toEqual([]);
+  });
+
   it('a bare 404 (no problem code) is not found: exit 3', async () => {
     vi.mocked(fetch).mockResolvedValueOnce(new Response('gone', { status: 404 }));
     expect(await exitOf('companies', 'get', 'NOSUCHCO')).toBe(3);
@@ -563,7 +574,7 @@ describe('exit codes from problem codes', () => {
     ]);
   });
 
-  it('several errors[] print one line each, capped at five; the invd hint beats the API remedy', async () => {
+  it('several errors[] print one line each, capped at five; uncovered subjects retain API remedies', async () => {
     const errors = Array.from({ length: 7 }, (_, index) => ({ param: `p${index}`, code: 'invalid_parameter', detail: `p${index}: is invalid` }));
     vi.mocked(fetch).mockResolvedValueOnce(json({ title: 'Invalid parameter', status: 400, detail: 'x', code: 'invalid_parameter', errors, remedy: 'Fix p0.' }, 400));
     expect(await exitOf('filings', 'AAPL')).toBe(2);
@@ -574,6 +585,10 @@ describe('exit codes from problem codes', () => {
     expect(err[6]).toBe('  Fix p0.');
     err = [];
     vi.mocked(fetch).mockResolvedValueOnce(problem(404, 'not_covered'));
+    await exitOf('companies', 'get', 'ZZZZ');
+    expect(err[1]).toBe('  API remedy.');
+    err = [];
+    vi.mocked(fetch).mockResolvedValueOnce(json({ title: 'Not covered', status: 404, code: 'not_covered', detail: 'Unknown subject.' }, 404));
     await exitOf('companies', 'get', 'ZZZZ');
     expect(err[1]).toBe('  Find the company: invd companies list --q <name>');
   });

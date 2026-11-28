@@ -158,7 +158,7 @@ export function apiErrorHint(error: ApiError): string | undefined {
   if (error.code === 'unauthorized' || error.statusCode === 401) return 'Run: invd auth login';
   if (error.code === 'plan_required') return 'This operation needs a higher plan: invd me show';
   if (error.code === 'insufficient_credits') return 'Credits exhausted for this period: invd me show';
-  if (error.code === 'not_covered') return 'Find the company: invd companies list --q <name>';
+  if (error.code === 'not_covered') return field(error.body, 'remedy') ?? 'Find the company: invd companies list --q <name>';
   return undefined;
 }
 
