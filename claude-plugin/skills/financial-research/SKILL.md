@@ -16,7 +16,7 @@ If the question is really one of these, follow that skill instead: `compare-comp
 Write down the independent data needs before calling anything:
 
 - **Subjects**: resolve each name or uncertain ticker with `search_instruments`; note which are stocks and which are
-  funds (a fund has holdings and weights, no statements).
+  funds (a fund has holdings and weights, no statements). For a delisted subject, read only its advertised datasets by CIK or an unambiguous ticker.
 - **Fundamentals**: statements (`get_financials`), ratios / growth / CAGR / segments (`get_metrics`); read
   `invinite://catalog/metrics` before choosing metric ids. For segments, `segment_id` selects one of 12 catalog
   categories; `metric` filters its standardized statement metric. For example, `get_metrics company=AMZN

@@ -542,6 +542,17 @@ describe('exit codes from problem codes', () => {
     expect(err.join('\n')).not.toContain(String(status));
   });
 
+  it('prints an ambiguous ticker detail and its CIK remedy on the generated filings command', async () => {
+    const detail = 'ABC was the ticker of several delisted registrants: CIK 0000012345 (Old Co), CIK 0000067890 (Other Co).';
+    const remedy = 'Send the CIK of the one you mean (company=0000012345).';
+    vi.mocked(fetch).mockResolvedValueOnce(json({
+      title: 'Not covered', status: 404, code: 'not_covered', detail, remedy,
+    }, 404));
+    expect(await exitOf('filings', 'ABC')).toBe(3);
+    expect(err).toEqual([`✗ ${detail}  (not_covered)`, `  ${remedy}`]);
+    expect(out).toEqual([]);
+  });
+
   it('a bare 404 (no problem code) is not found: exit 3', async () => {
     vi.mocked(fetch).mockResolvedValueOnce(new Response('gone', { status: 404 }));
     expect(await exitOf('companies', 'get', 'NOSUCHCO')).toBe(3);

@@ -14,8 +14,11 @@ routing guide; read a file under `references/` when the question goes deep into 
 - A ticker or name you are not certain of: `search_instruments` with `symbol=` (one exact ticker, active or delisted)
   or `q=` (ticker prefix or name). Use the symbol it returns. Lists (`q=`) show symbols listed today;
   `is_active=all` adds delisted ones. A delisted stock has no company profile.
+- A delisted company’s eligible history is named by `search_instruments symbol=`; read only those datasets using its CIK or
+  an unambiguous ticker no listed instrument holds today. Families absent from its datasets are refused. A ticker
+  several delisted companies held answers with their CIKs: use one.
 - Each hit has a `type`: `stock`, `etf`, `closed_end_fund` or `etn`, and the data families served for it
-  (`datasets`). A stock goes to `get_company`, `get_financials`, `get_metrics`, `list_events`, `get_insider_trades`.
+  (`datasets`). A listed stock goes to `get_company`, `get_financials`, `get_metrics`, `list_events`, `get_insider_trades`.
   An ETF or closed-end fund goes to `get_fund`: a fund has no financial statements or insider trades. An ETN has a
   profile, dividends, splits and holders only. Trust `datasets` over a guess about what a ticker serves.
 - An ETF of `structure` `exchange_traded_trust` (GLD, IBIT) files no holdings report: its holdings are refused by

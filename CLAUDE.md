@@ -1,5 +1,11 @@
 # invinite-data-cli (`invd`)
 
+13.3.0 adopts Data API 13.3.0 (delisted subjects served by CIK / unambiguous ticker; descriptions + skill only),
+with plugin 0.31.0. Historical reads follow each instrument's measured dataset allowlist: ACA filings are eligible;
+financials and insider history are excluded. The exact bundle is API commit
+`044c7d6e02eed88f3b3587b826dc382d58bc0180` (`data-sdk-v13.3.0`), spec sha256
+`0878cbca1f4c06beb6afdf4189f79185e7a35caf22ec1bb94fb585bee2e4be0c`. Command and flag shapes remain unchanged from 13.2.0.
+
 `invd` 6.x is the CLI of the Data API at `/v1/*` — the contract designed as "v2" (backend `tasks/data-api-v2`), moved
 from `/v2` to `/v1` on 2026-11-11 when the old v1 API was deleted. 5.0 = the 4.x commands at the new paths; 6.0 = the
 5.0 commands on the conventions shared with the Web CLI `inv` (backend `tasks/cli-api-alignment` C1–C4: exit codes,
