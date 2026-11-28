@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "13.3.0",
+    "version": "13.4.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -11,9 +11,9 @@
     },
     "verifiedOn": "2026-11-28",
     "sourceHashes": {
-      "api-contract.json": "ca9ba6a9d0b3ebea82f152286f82fbf36c771ba80bfb56f3cbed5a7219ba27d8",
-      "openapi.json": "ba74ea93d4be2c604ed7958efada1b5627d9538d1261d3aee2ef630dc76ab59d",
-      "package.json": "f681946a0210266cff4623243b4025a2503e17f19ce0535a45f45bf13f44c0d0",
+      "api-contract.json": "95d93e4ee29331f8908d6f495754bd3a563e3bd8ca36d173a84c12d3c982f7e5",
+      "openapi.json": "399a6e2a41b65303c2a7b2ce496b83afb3c59dab4ffb3e1d602d08516d577055",
+      "package.json": "0dc423ca8b96c6ed45e5b5bb47f6bafe998ff3a500822c46c73424b09828146f",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "ed216f689f39e3dbf72c7d6a1c74ee6cb9c22fbaf9982a9b4ddee2873f2d5536",
@@ -34,7 +34,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "58eba43605d9e02fa9477b90ed703a45564042acf9f5c513a3ecaeb55b605cdd",
+      "src/generated/cli-manifest.json": "e00cc57f7d69c84e26f3d9158a9d5bec5668cfdc033a43c4f2619874501676c2",
       "src/hand-written-commands.ts": "a095d5f00a17a9cd643a8a0e6e5dcadbb7050dfd8b14d846ce81f3536a9920b9",
       "src/job-wait.ts": "296be47b6b13ebf2d2639fc6ae36ca4dc8409709905bb7cb85a04619c7d81821",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
@@ -52,9 +52,9 @@
       "src/spec-manifest.ts": "fc3c4193823d7d308875b60765625607eb93bc62baf4a7ab532e70247f0584a6",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "ba74ea93d4be2c604ed7958efada1b5627d9538d1261d3aee2ef630dc76ab59d",
-    "revision": "3ce2d13225408f1e82a06c7d0422818470ea70c9",
-    "fingerprint": "ef3578a5130ab9ae61e624deeb1c16d30942b1a73f0b06c0fec501c35d902bbf"
+    "specSha256": "399a6e2a41b65303c2a7b2ce496b83afb3c59dab4ffb3e1d602d08516d577055",
+    "revision": "878ad01b855490f8c50dac50be364ecf0e1dbe77",
+    "fingerprint": "94cff6f2f4d174a5ff200eb756719efae72317ee3dcd0ae7c4f63733298b5afd"
   },
   "globalOptions": [
     {

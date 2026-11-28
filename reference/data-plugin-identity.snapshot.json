@@ -3,11 +3,11 @@
   "download": {
     "owner": "outraday-org",
     "repository": "invinite-data-cli",
-    "revision": "3ce2d13225408f1e82a06c7d0422818470ea70c9"
+    "revision": "878ad01b855490f8c50dac50be364ecf0e1dbe77"
   },
   "manifest": {
     "name": "invinite-financial-data",
-    "version": "0.31.0"
+    "version": "0.32.0"
   },
   "connector": {
     "key": "invinite-financial-data",
@@ -37,7 +37,7 @@
     "skills/what-changed-since-last-report/SKILL.md"
   ],
   "sourceHashes": {
-    "claude-plugin/.claude-plugin/plugin.json": "849345f0f5ae097ccc94789b90dbce41b43efa3a3faf78e664382dc716a10924",
+    "claude-plugin/.claude-plugin/plugin.json": "b1fd7b466a5152c9f1a5a40f1e30f805fcb82db4f350c6ef4a0e81f5fa9294fd",
     "claude-plugin/.mcp.json": "a473ef1b56c55c29434aa2864d3bc0b250b4954890af437308ff9d66bc85d0d5",
     "claude-plugin/agents/invinite-data.md": "c13837f60cbb6fe4a3802a2421f3f3ff2ac74a6b7b2a90b55f67f75415d61272",
     "claude-plugin/skills/alert-setup/SKILL.md": "7eb9915d2694a8181e2017794c5557c1e41f142d10e45a422cacb9c31c185b4f",
@@ -62,10 +62,10 @@
   },
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "13.3.0",
-    "specSha256": "ba74ea93d4be2c604ed7958efada1b5627d9538d1261d3aee2ef630dc76ab59d",
+    "version": "13.4.0",
+    "specSha256": "399a6e2a41b65303c2a7b2ce496b83afb3c59dab4ffb3e1d602d08516d577055",
     "sourceHashes": {
-      "claude-plugin/.claude-plugin/plugin.json": "849345f0f5ae097ccc94789b90dbce41b43efa3a3faf78e664382dc716a10924",
+      "claude-plugin/.claude-plugin/plugin.json": "b1fd7b466a5152c9f1a5a40f1e30f805fcb82db4f350c6ef4a0e81f5fa9294fd",
       "claude-plugin/.mcp.json": "a473ef1b56c55c29434aa2864d3bc0b250b4954890af437308ff9d66bc85d0d5",
       "claude-plugin/agents/invinite-data.md": "c13837f60cbb6fe4a3802a2421f3f3ff2ac74a6b7b2a90b55f67f75415d61272",
       "claude-plugin/skills/alert-setup/SKILL.md": "7eb9915d2694a8181e2017794c5557c1e41f142d10e45a422cacb9c31c185b4f",
@@ -86,13 +86,13 @@
       "claude-plugin/skills/ownership-review/SKILL.md": "a461d9539bf5c5b74f0c71a096a2adc1cd29c1512ca9c9467876ab9f71f5464b",
       "claude-plugin/skills/restatement-history/SKILL.md": "42687d9dfac83d3cd3adf5c5554bb45a757ca03f52becf8687eff8afb01b7032",
       "claude-plugin/skills/what-changed-since-last-report/SKILL.md": "5496bd47ad4b470f2b20af3e9beee1b22b2185bbe04e1fd85856e74400e98362",
-      "package.json": "f681946a0210266cff4623243b4025a2503e17f19ce0535a45f45bf13f44c0d0",
-      "reference/data-skills.pin.json": "b94dfeb5bf10dc7d98fd36fee1c362dde665c85d80fd65e3189ba6db44cb8f4e",
+      "package.json": "0dc423ca8b96c6ed45e5b5bb47f6bafe998ff3a500822c46c73424b09828146f",
+      "reference/data-skills.pin.json": "d30b459ebfd8c503c6ee5e0877ad2ed212fb7335a82abbf83127e33c9102a7c0",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-plugin-packaging.ts": "cbaf84c1ce55050652105f485a5915e92e16ece42870ad6d55d10a7d76bc0cf6",
       "src/commands/plugin.ts": "b007ebc20b353034cd287273391aa6d83f6c11867090f73231f3f995bce62f11"
     },
-    "revision": "3ce2d13225408f1e82a06c7d0422818470ea70c9",
-    "fingerprint": "d45acc08a8b99c788ce8dd30e975bfd671f0c273bd506ae52358f09e72c3c3b4"
+    "revision": "878ad01b855490f8c50dac50be364ecf0e1dbe77",
+    "fingerprint": "1549306153a38719c2141c5171b227656302b79c2e0a36c8b7d5297be78aef7c"
   }
 }
