@@ -1,6 +1,6 @@
 {
   "specVersion": "2026-11-27",
-  "specSha256": "ba74ea93d4be2c604ed7958efada1b5627d9538d1261d3aee2ef630dc76ab59d",
+  "specSha256": "399a6e2a41b65303c2a7b2ce496b83afb3c59dab4ffb3e1d602d08516d577055",
   "groups": [
     {
       "name": "alert-events",
@@ -7244,7 +7244,7 @@
           },
           {
             "type": "holder_change",
-            "description": "holder_change: see HolderChangeAlertConditionInput for the condition and cross-field rules. US ETF subjects are refused; use a company subject.",
+            "description": "holder_change: see HolderChangeAlertConditionInput for the condition and cross-field rules. US ETF tickers are accepted, including trust series; series alerts match only their own events.",
             "notes": [
               "The holder_change alert condition.",
               "max_fires and cooldown_seconds require mode every_time. delete_on_expiry requires expires_at."

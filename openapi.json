@@ -27604,7 +27604,7 @@
           "type",
           "condition"
         ],
-        "description": "holder_change: see HolderChangeAlertConditionInput for the condition and cross-field rules. US ETF subjects are refused; use a company subject.",
+        "description": "holder_change: see HolderChangeAlertConditionInput for the condition and cross-field rules. US ETF tickers are accepted, including trust series; series alerts match only their own events.",
         "example": {
           "type": "holder_change",
           "condition": {

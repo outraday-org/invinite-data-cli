@@ -1,5 +1,13 @@
 # invinite-data-cli (`invd`)
 
+CLI 13.4.0 / plugin 0.32.0 are prepared against the published Data API/SDK 13.4.0 release, not yet published
+as CLI/plugin packages. The exact API release is `e5c69dcfb50c9a1958225faf3f4ad4b0983877a3`
+(`data-sdk-v13.4.0`, API Fly v213, evaluator v34), spec SHA-256
+`399a6e2a41b65303c2a7b2ce496b83afb3c59dab4ffb3e1d602d08516d577055`. Its bundle preserves the measured
+API contract generation base `8cec9fa531978a5544e868e50f726b8602b92ad5`; never replace that provenance field
+with the tag commit by hand. All 149 operations retain their commands. The typed alert catalog now has 23 types;
+new filing-row and IPO filters come from the official per-type metadata. No Major 14/CAGR source is adopted.
+
 13.3.0 adopts Data API 13.3.0 (delisted subjects served by CIK / unambiguous ticker; descriptions + skill only),
 with plugin 0.31.0. Historical reads follow each instrument's measured dataset allowlist: ACA filings are eligible;
 financials and insider history are excluded. The exact bundle is API commit
@@ -89,8 +97,8 @@ skill and `invinite-financial-data` `SKILL.md` / `references/filings.md` follow.
 
 CLI 13.0.0 / plugin 0.29.0 adopt the exact API `data-sdk-v13.0.0` reference bundle at
 `96c33cb7432fca54c81e838e2545150e5a59006f` (spec sha256 `c1ce8fa33639c84752524dd5c190ce1f7a6b4d8b1c814e5f1b2ef4ac99b861d6`).
-The bundle includes 12.4 news/search behavior. The manifest builder resolves the 18 create branches and PATCH's
-23 typed branches plus settings, stores per-type fields/required paths/examples and computes condition/trigger
+The bundle includes 12.4 news/search behavior. The manifest builder resolves the per-type create branches and PATCH's
+typed branches plus settings, stores per-type fields/required paths/examples and computes condition/trigger
 name collisions across all branches. Structured objects and arrays of objects are JSON flags; nested required paths
 include array items. Response union fields are the intersection of branch properties; discriminator values supply
 `alert-events tail`'s six feed filters. The four alert catalogs are generated `x-cli` commands.
@@ -261,8 +269,9 @@ corresponding `:check` commands and mocked tests. The reference records exact AP
 spec identity, CLI version, checkout base revision and source hashes.
 
 
-Events/alerts release candidate: the finalized runtime contract adds insider_trade, holder_change, ipo_stage,
-beneficial_ownership and insider_sale_notice. The manifest supplies the strict fields and examples; workflows
-and body help describe their scope and minimum tiers. The release branch imports the reviewed API skill source
-at ca7102dc45445e40dd4db55265d1fbef7e199d74. Package/plugin versions and exported official API/SDK pins must be
-updated only after coordinated publication; candidate generation is not publication evidence.
+Events/alerts CLI release preparation: Data API/SDK 13.4.0 is published and the exact released e5 bundle adds
+insider_trade, holder_change, ipo_stage, beneficial_ownership and insider_sale_notice. The manifest supplies the
+strict fields and examples; workflows and body help describe their scope and minimum tiers. The normal skills
+import is pinned to `e5c69dcfb50c9a1958225faf3f4ad4b0983877a3`. CLI 13.4.0 and plugin 0.32.0 are reversible
+source version updates until their coordinated publication. Commit plugin source before `reference:export`;
+candidate generation alone is not CLI/plugin publication evidence.

@@ -1,6 +1,6 @@
 {
   "repository": "https://github.com/outraday-org/invinite-data-api",
-  "revision": "ca7102dc45445e40dd4db55265d1fbef7e199d74",
+  "revision": "e5c69dcfb50c9a1958225faf3f4ad4b0983877a3",
   "path": "src/skills",
   "footer": "Without a connected Invinite Data MCP server, load the `invinite-data-cli` skill: it maps every tool named here to an `invd` command.",
   "skills": [
