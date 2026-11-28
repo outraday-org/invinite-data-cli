@@ -706,14 +706,14 @@ invd search transcripts "gross margin" -c AAPL --json
 
 ### segments
 
-Segment values (revenue by product, geography …); list-detailed adds lineage (PRO)
+Segment revenue, expenses, operating income, assets and capex. Detailed results include lineage (PRO).
 
 ```bash
-# List segment values (optional: --metric, --axis, --fiscal-year-gte, --fiscal-year-gt, --fiscal-year-lte, --fiscal-year-lt, --sort, --fields, --limit, --cursor, --all)
-invd segments list AAPL -p annual --json
+# List segment values (optional: --metric, --segment-id, --follow-links, --axis, --fiscal-year-gte, --fiscal-year-gt, --fiscal-year-lte, --fiscal-year-lt, --sort, --fields, --limit, --cursor, --all)
+invd segments list AAPL -p annual --segment-id seg_operating_income_business_segment --follow-links --json
 
-# List segment values with lineage (optional: --metric, --axis, --fiscal-year-gte, --fiscal-year-gt, --fiscal-year-lte, --fiscal-year-lt, --sort, --fields, --limit, --cursor, --all)
-invd segments list-detailed AAPL -p annual --json
+# List segment values with lineage (optional: --metric, --segment-id, --follow-links, --axis, --fiscal-year-gte, --fiscal-year-gt, --fiscal-year-lte, --fiscal-year-lt, --sort, --fields, --limit, --cursor, --all)
+invd segments list-detailed AAPL -p annual --segment-id seg_operating_income_business_segment --follow-links --json
 ```
 
 ### splits

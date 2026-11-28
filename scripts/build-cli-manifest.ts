@@ -71,7 +71,7 @@ export const GROUP_DESCRIPTIONS: Readonly<Record<string, string>> = {
   'script-versions': 'The versions of one hosted chartlang script: compile status, diagnostics and alert ids',
   scripts: 'Hosted chartlang scripts for `script` alerts: upload (`upload` reads a .chart file), list, get, delete',
   search: 'Full-text search over SEC filings, transcripts, investor documents and news',
-  segments: 'Segment values (revenue by product, geography …); list-detailed adds lineage (PRO)',
+  segments: 'Segment revenue, expenses, operating income, assets and capex. Detailed results include lineage (PRO).',
   splits: 'Stock splits of any instrument (a stock, an ETF, a closed-end fund, an ETN)',
 };
 

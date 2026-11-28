@@ -29,7 +29,7 @@ routing guide; read a file under `references/` when the question goes deep into 
 | The user wants | Call |
 |---|---|
 | Statements (income, balance sheet, cash flow), several companies in one snapshot | `get_financials` |
-| Ratios, growth, CAGR, segments | `get_metrics` |
+| Ratios, growth, CAGR, segments | `get_metrics` (`kind=segments`, `segment_id` for catalog categories; `metric` for statement metric ids) |
 | Where one number comes from | `explain_fact` |
 | A company's, fund's or any filer's SEC filings, or every filer's newest ones / one filing's text | `list_filings` (no `symbol` = every filer, last 7 days), then `read_filing` |
 | Which filings mention a topic | `search_filings` (100 credits: narrow it) |
@@ -66,6 +66,14 @@ reference date, source and unit; a null tenor on the yield curve is no quote, no
   or naming what an id means.
 - Point in time: `as_of=YYYY-MM-DD` returns what was known that day; `filing=<accession>` exactly one filing's
   rendering.
+
+For segments, the catalog has 12 categories. Business-only additions are operating income, D&A, assets, goodwill
+and capex; product/geography remain revenue-only. Assets and goodwill have annual/filed quarterly period-end
+values, no TTM/YTD; a fiscal-Q4 row is available only where the enriched filing holds one. `currency` comes from
+that row, not the catalog's nominal unit. `detailed=true` (Pro) adds roles, reconciliation and member-link proof.
+`follow_links=true` optionally adds one-hop rename/merge history marked `via_link`; never follow a split or sum
+merge components implicitly. In follow mode only, `source_member` and `source_row_id` retain the original member
+and derived segmented-row identity (not a raw SEC fact); combine the ID with target dimensions. See [references/financials.md](references/financials.md) before comparing these rows.
 
 ## 4. Read the answer
 

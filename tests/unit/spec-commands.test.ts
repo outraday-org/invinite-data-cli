@@ -94,6 +94,26 @@ describe('requests', () => {
     expect(err.join('\n')).toContain('--period quarterly assumed');
   });
 
+  it.each([
+    ['list', '/v1/segments'],
+    ['list-detailed', '/v1/segments/detailed'],
+  ])('invd segments %s sends category, statement metric and link filters independently', async (action, path) => {
+    const categoryIds = 'seg_operating_income_business_segment,seg_total_assets_business_segment';
+    const args = ['segments', action, 'AMZN', '-p', 'annual'];
+    vi.mocked(fetch).mockImplementation(async () => page([]));
+    await run(...args, '--segment-id', categoryIds, '--metric', 'is_operating_income', '--follow-links', '--json');
+    await run(...args, '--no-follow-links', '--json');
+    await run(...args, '--json');
+
+    const urls = calls().map(call => new URL(call.url));
+    expect(urls.map(url => url.pathname)).toEqual([path, path, path]);
+    expect(urls.map(url => Object.fromEntries(url.searchParams))).toEqual([
+      { company: 'AMZN', period: 'annual', segment_id: categoryIds, metric: 'is_operating_income', follow_links: 'true' },
+      { company: 'AMZN', period: 'annual', follow_links: 'false' },
+      { company: 'AMZN', period: 'annual' },
+    ]);
+  });
+
   it('--basis as-reported picks the as-reported operation; an as-reported flag elsewhere is refused (exit 2)', async () => {
     vi.mocked(fetch).mockResolvedValueOnce(page([]));
     await run('financials', 'AAPL', '--basis', 'as-reported', '--reported-only', '--period', 'annual', '--json');

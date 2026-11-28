@@ -34,6 +34,22 @@ API's MCP server serves — the data guide `invinite-financial-data` and nine wo
 `commands/*.md` (`/financial-research`, `/analyze-earnings-call`, …) are gone: the workflows are skills now, and
 `invd plugin install` removes the files earlier versions wrote. See [The plugin](#the-plugin).
 
+## Changes in 13.2.0 (Data API 13.2)
+
+CLI 13.2.0 and plugin 0.30.0 add `--segment-id` and `--follow-links` to both segment commands. The segment
+catalog gains business operating income, D&A, assets, goodwill and capex. Segment rows include their reported
+currency. Detailed rows include member roles, reconciliation and the evidence behind member links.
+
+```bash
+invd segments list AMZN -p annual --segment-id seg_operating_income_business_segment --json
+invd segments list-detailed AMZN -p annual --follow-links --json
+```
+
+Derived 10-K, 10-Q and 8-K documents have item outlines. A newly seen version can report `pending` while the
+outline is prepared. A known document with no available item outline returns an empty list and a coverage note.
+This update also includes Data API 13.1's IPO correction. The `sources.listing.security_type` field may be `null`
+when the listing calendar has no security type.
+
 ## Changes in 13.0.0 (Data API 13.0)
 
 CLI 13.0.0 and plugin 0.29.0 adopt typed alerts from the released Data API 13.0 contract.
