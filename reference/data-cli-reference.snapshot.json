@@ -11,8 +11,8 @@
     },
     "verifiedOn": "2026-11-28",
     "sourceHashes": {
-      "api-contract.json": "66d7eeeab3420aceee57bd03786641864f1983ad5eab17ab5112a6944412b2de",
-      "openapi.json": "0878cbca1f4c06beb6afdf4189f79185e7a35caf22ec1bb94fb585bee2e4be0c",
+      "api-contract.json": "ca9ba6a9d0b3ebea82f152286f82fbf36c771ba80bfb56f3cbed5a7219ba27d8",
+      "openapi.json": "ba74ea93d4be2c604ed7958efada1b5627d9538d1261d3aee2ef630dc76ab59d",
       "package.json": "f681946a0210266cff4623243b4025a2503e17f19ce0535a45f45bf13f44c0d0",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
@@ -34,7 +34,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "6d71c94006fd0bcbf029b7d638fc781ded2f65d853f4d9f45a81c277cefae0b1",
+      "src/generated/cli-manifest.json": "58eba43605d9e02fa9477b90ed703a45564042acf9f5c513a3ecaeb55b605cdd",
       "src/hand-written-commands.ts": "a095d5f00a17a9cd643a8a0e6e5dcadbb7050dfd8b14d846ce81f3536a9920b9",
       "src/job-wait.ts": "296be47b6b13ebf2d2639fc6ae36ca4dc8409709905bb7cb85a04619c7d81821",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
@@ -46,15 +46,15 @@
       "src/shared/prompt.ts": "7736cb146f84382ff17badbabcdf69add6673c4a3695c38759486601f3c87d99",
       "src/shared/signals.ts": "5c5122b38e35700a9304bf77f06b900a80e3bc42da6241f93313181117b2fa6b",
       "src/shared/spinner.ts": "62e25b34f62faaaa298fbe4664cb0b1eb52fd62b4c82f498718bd14e608d0d87",
-      "src/spec-body.ts": "b0f97cd4be8cedd2f4a730d363727f95d468d2b422ffe16ea1f85c0e86e230c5",
+      "src/spec-body.ts": "6f65a53fc6fba48d213222060ce1b1a9e3ac41e1deb00367d39ad154b15dd164",
       "src/spec-commands.ts": "13517f859c3278c9c16711192e7658bbbe9eb4e5cfbff91415bf2d822a9f5c56",
       "src/spec-flags.ts": "0fa10d6d64534de9c10ba418ad8622edd7a4b504f1a7218b96016ebc3366e9cb",
       "src/spec-manifest.ts": "fc3c4193823d7d308875b60765625607eb93bc62baf4a7ab532e70247f0584a6",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "0878cbca1f4c06beb6afdf4189f79185e7a35caf22ec1bb94fb585bee2e4be0c",
-    "revision": "0652015b492cc7479640f79faaaea92e49b9112e",
-    "fingerprint": "83fcbbda820e887ea9500398622d5e8b11fdbcfd94967885532545ef4cdab9c7"
+    "specSha256": "ba74ea93d4be2c604ed7958efada1b5627d9538d1261d3aee2ef630dc76ab59d",
+    "revision": "3ce2d13225408f1e82a06c7d0422818470ea70c9",
+    "fingerprint": "ef3578a5130ab9ae61e624deeb1c16d30942b1a73f0b06c0fec501c35d902bbf"
   },
   "globalOptions": [
     {
@@ -1296,12 +1296,12 @@
         },
         {
           "flags": "--include-amendments",
-          "description": "Also amendments (`/A`). (body condition.include_amendments): true",
+          "description": "Include amendments (default true). (body condition.include_amendments): true",
           "required": false
         },
         {
           "flags": "--no-include-amendments",
-          "description": "Also amendments (`/A`). (body condition.include_amendments): false",
+          "description": "Include amendments (default true). (body condition.include_amendments): false",
           "required": false
         },
         {
@@ -1396,7 +1396,7 @@
         },
         {
           "flags": "--kinds <list>",
-          "description": "Dividend events: declaration, ex-date or payment. (body condition.kinds)",
+          "description": "(body condition.kinds)",
           "required": false
         },
         {
@@ -1687,6 +1687,91 @@
         {
           "flags": "--macro-threshold <json>",
           "description": "Numeric comparison on one published economic series and period. (body condition.macro_threshold)",
+          "required": false
+        },
+        {
+          "flags": "--sides <list>",
+          "description": "(body condition.sides)",
+          "required": false
+        },
+        {
+          "flags": "--codes <list>",
+          "description": "(body condition.codes)",
+          "required": false
+        },
+        {
+          "flags": "--roles <list>",
+          "description": "(body condition.roles)",
+          "required": false
+        },
+        {
+          "flags": "--min-value-usd <value>",
+          "description": "(body condition.min_value_usd)",
+          "required": false
+        },
+        {
+          "flags": "--include-derivatives",
+          "description": "Include derivative transactions (default false). (body condition.include_derivatives): true",
+          "required": false
+        },
+        {
+          "flags": "--no-include-derivatives",
+          "description": "Include derivative transactions (default false). (body condition.include_derivatives): false",
+          "required": false
+        },
+        {
+          "flags": "--owners <list>",
+          "description": "(body condition.owners)",
+          "required": false
+        },
+        {
+          "flags": "--managers <list>",
+          "description": "(body condition.managers)",
+          "required": false
+        },
+        {
+          "flags": "--min-change-pct <value>",
+          "description": "(body condition.min_change_pct)",
+          "required": false
+        },
+        {
+          "flags": "--stages <list>",
+          "description": "(body condition.stages)",
+          "required": false
+        },
+        {
+          "flags": "--is-spac",
+          "description": "(body condition.is_spac): true",
+          "required": false
+        },
+        {
+          "flags": "--no-is-spac",
+          "description": "(body condition.is_spac): false",
+          "required": false
+        },
+        {
+          "flags": "--schedule <value>",
+          "description": "(body condition.schedule)",
+          "required": false
+        },
+        {
+          "flags": "--min-percent-of-class <value>",
+          "description": "(body condition.min_percent_of_class)",
+          "required": false
+        },
+        {
+          "flags": "--crossing <value>",
+          "description": "(body condition.crossing)",
+          "required": false
+        },
+        {
+          "flags": "--min-market-value-usd <value>",
+          "description": "(body condition.min_market_value_usd)",
+          "required": false
+        },
+        {
+          "flags": "--relationships <list>",
+          "description": "(body condition.relationships)",
           "required": false
         },
         {
@@ -2062,7 +2147,12 @@
             "price_reminder",
             "indicator",
             "script",
-            "macro"
+            "macro",
+            "insider_trade",
+            "holder_change",
+            "ipo_stage",
+            "beneficial_ownership",
+            "insider_sale_notice"
           ]
         },
         {
@@ -2413,12 +2503,12 @@
         },
         {
           "flags": "--include-amendments",
-          "description": "Also amendments (`/A`). (body condition.include_amendments): true",
+          "description": "Include amendments (default true). (body condition.include_amendments): true",
           "required": false
         },
         {
           "flags": "--no-include-amendments",
-          "description": "Also amendments (`/A`). (body condition.include_amendments): false",
+          "description": "Include amendments (default true). (body condition.include_amendments): false",
           "required": false
         },
         {
@@ -2518,7 +2608,7 @@
         },
         {
           "flags": "--kinds <list>",
-          "description": "Dividend events: declaration, ex-date or payment. (body condition.kinds)",
+          "description": "(body condition.kinds)",
           "required": false
         },
         {
@@ -2809,6 +2899,91 @@
         {
           "flags": "--macro-threshold <json>",
           "description": "Numeric comparison on one published economic series and period. (body condition.macro_threshold)",
+          "required": false
+        },
+        {
+          "flags": "--sides <list>",
+          "description": "(body condition.sides)",
+          "required": false
+        },
+        {
+          "flags": "--codes <list>",
+          "description": "(body condition.codes)",
+          "required": false
+        },
+        {
+          "flags": "--roles <list>",
+          "description": "(body condition.roles)",
+          "required": false
+        },
+        {
+          "flags": "--min-value-usd <value>",
+          "description": "(body condition.min_value_usd)",
+          "required": false
+        },
+        {
+          "flags": "--include-derivatives",
+          "description": "Include derivative transactions (default false). (body condition.include_derivatives): true",
+          "required": false
+        },
+        {
+          "flags": "--no-include-derivatives",
+          "description": "Include derivative transactions (default false). (body condition.include_derivatives): false",
+          "required": false
+        },
+        {
+          "flags": "--owners <list>",
+          "description": "(body condition.owners)",
+          "required": false
+        },
+        {
+          "flags": "--managers <list>",
+          "description": "(body condition.managers)",
+          "required": false
+        },
+        {
+          "flags": "--min-change-pct <value>",
+          "description": "(body condition.min_change_pct)",
+          "required": false
+        },
+        {
+          "flags": "--stages <list>",
+          "description": "(body condition.stages)",
+          "required": false
+        },
+        {
+          "flags": "--is-spac",
+          "description": "(body condition.is_spac): true",
+          "required": false
+        },
+        {
+          "flags": "--no-is-spac",
+          "description": "(body condition.is_spac): false",
+          "required": false
+        },
+        {
+          "flags": "--schedule <value>",
+          "description": "(body condition.schedule)",
+          "required": false
+        },
+        {
+          "flags": "--min-percent-of-class <value>",
+          "description": "(body condition.min_percent_of_class)",
+          "required": false
+        },
+        {
+          "flags": "--crossing <value>",
+          "description": "(body condition.crossing)",
+          "required": false
+        },
+        {
+          "flags": "--min-market-value-usd <value>",
+          "description": "(body condition.min_market_value_usd)",
+          "required": false
+        },
+        {
+          "flags": "--relationships <list>",
+          "description": "(body condition.relationships)",
           "required": false
         },
         {
