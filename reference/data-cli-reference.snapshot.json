@@ -1,7 +1,7 @@
 {
   "provenance": {
     "repository": "https://github.com/outraday-org/invinite-data-cli",
-    "version": "13.2.0",
+    "version": "13.3.0",
     "package": "@invinite-org/invinite-data-cli",
     "bin": {
       "invd": "./dist/bin/invd.js"
@@ -11,9 +11,9 @@
     },
     "verifiedOn": "2026-11-28",
     "sourceHashes": {
-      "api-contract.json": "e59e0b49a9b74558a5c9823cec91cae87ef0e167fdf6a720d8ae8066908f5f26",
-      "openapi.json": "5a0f905f5e69ce076fc90303e71a84bbe51fc745422147958811c64811bd4e24",
-      "package.json": "027360778bf5759c615508a7ab032a3e3b3f3587f75a94a06381d728098a2c35",
+      "api-contract.json": "66d7eeeab3420aceee57bd03786641864f1983ad5eab17ab5112a6944412b2de",
+      "openapi.json": "0878cbca1f4c06beb6afdf4189f79185e7a35caf22ec1bb94fb585bee2e4be0c",
+      "package.json": "f681946a0210266cff4623243b4025a2503e17f19ce0535a45f45bf13f44c0d0",
       "scripts/check-api-contract.mjs": "0cb1b2fc5af42bb286131e555624852fd169bd4291d6cdc76368db2b6a340b7f",
       "scripts/reference-artifacts.ts": "3e45da62add83fc91d5ac52e877a8945608005c49d46887ce85855dc0eabfffe",
       "scripts/snapshot-data-cli-reference.ts": "ed216f689f39e3dbf72c7d6a1c74ee6cb9c22fbaf9982a9b4ddee2873f2d5536",
@@ -34,7 +34,7 @@
       "src/config/toml.ts": "c70c023a19c57a2de88cf53c9dce524686d930c70c3ef08c54f1997e8e268ff1",
       "src/examples.ts": "52e7dd8afce125ec49f3e2d1319a2d2545542b97ac00fb73b3526ad59442fc7b",
       "src/formatters/flatten.ts": "915fa5344429038d48d62a8c62b64d71e471f5f680ec531da0bf6716956779fb",
-      "src/generated/cli-manifest.json": "e45e2b184637db54d97e88ed64984f99127e2f71d05c2a89c1ee17b5c0953e48",
+      "src/generated/cli-manifest.json": "6d71c94006fd0bcbf029b7d638fc781ded2f65d853f4d9f45a81c277cefae0b1",
       "src/hand-written-commands.ts": "a095d5f00a17a9cd643a8a0e6e5dcadbb7050dfd8b14d846ce81f3536a9920b9",
       "src/job-wait.ts": "296be47b6b13ebf2d2639fc6ae36ca4dc8409709905bb7cb85a04619c7d81821",
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
@@ -52,9 +52,9 @@
       "src/spec-manifest.ts": "fc3c4193823d7d308875b60765625607eb93bc62baf4a7ab532e70247f0584a6",
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
-    "specSha256": "5a0f905f5e69ce076fc90303e71a84bbe51fc745422147958811c64811bd4e24",
-    "revision": "617a2c8803795b86ed868c0897702acb7c834053",
-    "fingerprint": "d371e152c103fb3f7078661c265eb9404c2b4af0733581e97baaebe2f71ffb62"
+    "specSha256": "0878cbca1f4c06beb6afdf4189f79185e7a35caf22ec1bb94fb585bee2e4be0c",
+    "revision": "71c7fa008280dfc3f4a7f416526994ba1e719af1",
+    "fingerprint": "4989f1761052d4ff9fec2ea57d5ae94243ec595a56f0712f9a5163d86ecf6cf0"
   },
   "globalOptions": [
     {
@@ -4762,7 +4762,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a listed closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required. A delisted company’s eligible history is named in its instrument’s `datasets`; use its CIK, or its unambiguous ticker when no listed instrument holds it today. A ticker held by several historical registrants answers 404 `not_covered` naming the identities to use; a former ticker of a listed registrant names its current ticker. (one or more; sent as a comma list)",
           "required": true
         }
       ],
@@ -4860,7 +4860,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker of any listed class, or CIK, of an operating company. A fund answers 404 `not_covered` naming its GET /v1/funds/{fund}, an ETN its GET /v1/instruments/{symbol}",
+          "description": "Ticker of any listed class, or CIK, of an operating company listed today. A delisted company answers 404 `not_covered` naming its current instrument and filer records, or its filer record for a retired listing. A fund answers 404 naming GET /v1/funds/{fund}, an ETN GET /v1/instruments/{symbol}",
           "required": true
         }
       ],
@@ -5865,7 +5865,7 @@
       "arguments": [
         {
           "name": "symbol",
-          "description": "Ticker of any instrument (a stock, a fund, an ETN), a fund key (`S000024908`, `cik:884394`) or a company CIK (its primary listing); a comma list of 1–50. A bare ticker is a US listing (`TICKER.<MIC>` is refused with a 400). Required. (one or more; sent as a comma list)",
+          "description": "Ticker of any instrument (a stock, a fund, an ETN), a fund key (`S000024908`, `cik:884394`) or a company CIK (its primary listing); a comma list of 1–50. A bare ticker is a US listing (`TICKER.<MIC>` is refused with a 400). Required. A delisted instrument’s eligible history is named in its instrument’s `datasets`; use its CIK, or its unambiguous ticker when no listed instrument holds it today. A ticker held by several historical registrants answers 404 `not_covered` naming the identities to use; a former ticker of a listed registrant names its current ticker. (one or more; sent as a comma list)",
           "required": true
         }
       ],
@@ -8522,7 +8522,7 @@
       "arguments": [
         {
           "name": "symbol",
-          "description": "Ticker of any instrument (a stock, a fund, an ETN), a fund key (`S000024908`, `cik:884394`), the CIK of any SEC filer or the proposed ticker of an open IPO registration; a comma list of 1–50. A bare ticker is a US listing (`TICKER.<MIC>` is refused with a 400). Omit it to list every filer's filings of a short filed window (default the last 7 days; `filed_at.gte` / `filed_at.lte` move it, at most 7 days). (one or more; sent as a comma list)",
+          "description": "Ticker of any instrument (a stock, a fund, an ETN), a fund key (`S000024908`, `cik:884394`), the CIK of any SEC filer or the proposed ticker of an open IPO registration; a comma list of 1–50. A bare ticker is a US listing (`TICKER.<MIC>` is refused with a 400). Omit it to list every filer's filings of a short filed window (default the last 7 days; `filed_at.gte` / `filed_at.lte` move it, at most 7 days). A delisted instrument is served only where its `datasets` include filings: use its CIK, or an unambiguous ticker that no listed instrument holds today. An ambiguous historical ticker names the identities to use; a former ticker names its listed replacement. Any known SEC filer CIK and an open registration’s proposed ticker retain the filer lookup described above. (one or more; sent as a comma list)",
           "required": false
         }
       ],
@@ -8843,7 +8843,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a listed closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required. A delisted company’s eligible history is named in its instrument’s `datasets`; use its CIK, or its unambiguous ticker when no listed instrument holds it today. A ticker held by several historical registrants answers 404 `not_covered` naming the identities to use; a former ticker of a listed registrant names its current ticker. (one or more; sent as a comma list)",
           "required": true
         }
       ],
@@ -9042,7 +9042,7 @@
       "arguments": [
         {
           "name": "fund",
-          "description": "Ticker of any listed class, or the fund key (`S000024908`; `cik:884394` for a fund without a series)",
+          "description": "Ticker of any current class, or the fund key (`S000024908`; `cik:884394` for a fund without a series). A current delisted fund with a verified identity is served by fund key or by an unambiguous ticker no listed instrument holds today. A retired fund has no current profile",
           "required": true
         }
       ],
@@ -9446,7 +9446,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a listed closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required. A delisted company’s eligible history is named in its instrument’s `datasets`; use its CIK, or its unambiguous ticker when no listed instrument holds it today. A ticker held by several historical registrants answers 404 `not_covered` naming the identities to use; a former ticker of a listed registrant names its current ticker. (one or more; sent as a comma list)",
           "required": true
         }
       ],
@@ -12503,7 +12503,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a listed closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required. A delisted company’s eligible history is named in its instrument’s `datasets`; use its CIK, or its unambiguous ticker when no listed instrument holds it today. A ticker held by several historical registrants answers 404 `not_covered` naming the identities to use; a former ticker of a listed registrant names its current ticker. (one or more; sent as a comma list)",
           "required": true
         }
       ],
@@ -12726,7 +12726,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a listed closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required. A delisted company’s eligible history is named in its instrument’s `datasets`; use its CIK, or its unambiguous ticker when no listed instrument holds it today. A ticker held by several historical registrants answers 404 `not_covered` naming the identities to use; a former ticker of a listed registrant names its current ticker. (one or more; sent as a comma list)",
           "required": true
         }
       ],
@@ -12864,7 +12864,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a listed closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required. A delisted company’s eligible history is named in its instrument’s `datasets`; use its CIK, or its unambiguous ticker when no listed instrument holds it today. A ticker held by several historical registrants answers 404 `not_covered` naming the identities to use; a former ticker of a listed registrant names its current ticker. (one or more; sent as a comma list)",
           "required": true
         }
       ],
@@ -13620,7 +13620,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Issuer: a CIK (all digits, any padding; any Form D issuer, listed or not) or the ticker of a listed company — ONE value; matches the primary issuer and co-issuers. Without it: every offering. A US ETF answers one 404 `not_covered` naming it, whatever identifier names it — a ticker of either identity (SPY, TQQQ) or the CIK of an ETF that is its own registrant (SPY's): no Form D data exists for a fund. A CIK of no listed company (a private issuer) still reads the Form D data (one or more; sent as a comma list)",
+          "description": "Issuer: a CIK (all digits, any padding; any Form D issuer, listed or not) or the ticker of a listed company — ONE value; matches the primary issuer and co-issuers. Without it: every offering. A listed US ETF answers one 404 `not_covered` naming it, whatever identifier names it — a ticker of either identity (SPY, TQQQ) or the CIK of an ETF that is its own registrant (SPY's): no Form D data exists for a fund. A CIK of no listed company (a private issuer) still reads the Form D data (one or more; sent as a comma list)",
           "required": false
         }
       ],
@@ -15492,7 +15492,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a listed closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required. A delisted company’s eligible history is named in its instrument’s `datasets`; use its CIK, or its unambiguous ticker when no listed instrument holds it today. A ticker held by several historical registrants answers 404 `not_covered` naming the identities to use; a former ticker of a listed registrant names its current ticker. (one or more; sent as a comma list)",
           "required": true
         }
       ],
@@ -15646,7 +15646,7 @@
       "arguments": [
         {
           "name": "company",
-          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required. (one or more; sent as a comma list)",
+          "description": "Ticker (`AAPL`) or CIK of a company (all digits, any padding); a comma list of 1–50 reads several companies in one request (R2). A fund is not a company (GET /v1/funds): an ETF, closed-end fund or ETN answers one 404 `not_covered` naming what is served for it (`datasets` of GET /v1/instruments/{symbol}); a listed closed-end fund is served where its type has the family (earnings events, IPOs, Form D offerings, beneficial ownership filings). In a mixed list the served subjects answer. Required. A delisted company’s eligible history is named in its instrument’s `datasets`; use its CIK, or its unambiguous ticker when no listed instrument holds it today. A ticker held by several historical registrants answers 404 `not_covered` naming the identities to use; a former ticker of a listed registrant names its current ticker. (one or more; sent as a comma list)",
           "required": true
         }
       ],
@@ -15800,7 +15800,7 @@
       "arguments": [
         {
           "name": "symbol",
-          "description": "Ticker of any instrument (a stock, a fund, an ETN), a fund key (`S000024908`, `cik:884394`) or a company CIK (its primary listing); a comma list of 1–50. A bare ticker is a US listing (`TICKER.<MIC>` is refused with a 400). Required. (one or more; sent as a comma list)",
+          "description": "Ticker of any instrument (a stock, a fund, an ETN), a fund key (`S000024908`, `cik:884394`) or a company CIK (its primary listing); a comma list of 1–50. A bare ticker is a US listing (`TICKER.<MIC>` is refused with a 400). Required. A delisted instrument’s eligible history is named in its instrument’s `datasets`; use its CIK, or its unambiguous ticker when no listed instrument holds it today. A ticker held by several historical registrants answers 404 `not_covered` naming the identities to use; a former ticker of a listed registrant names its current ticker. (one or more; sent as a comma list)",
           "required": true
         }
       ],
