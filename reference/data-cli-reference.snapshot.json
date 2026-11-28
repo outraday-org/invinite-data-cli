@@ -40,7 +40,7 @@
       "src/output/jq.ts": "632f1daef36cd74ab35938bf7d816fcd53062f8cf622c4240e8520152d02665b",
       "src/output/options.ts": "39a3e9d874ce6215fcb402853ac54bf72ef945aae620a4a6f3dd7f60c0e1ea38",
       "src/output/render.ts": "320d0a99ebf23c3d81cef46b4e6ed1360579ac980285b0c626b50b844fbd950b",
-      "src/shared/errors.ts": "e50070980c9d666c61a29390132ec0605db0d1ecdf00f1a862bdc517e92edadd",
+      "src/shared/errors.ts": "4b836fdf765f758f0192874f6930f6251347a56d4b79a6580b69836d3cf1f2a1",
       "src/shared/json-mode.ts": "24d4b4a71475ba6301d0c8fe79d70d9304b058d9bb145203bdc545a51e84a85a",
       "src/shared/options.ts": "6783cfa83b301857903bbde46edc238cd7adf80f05f0f33a7a883136de8a27b8",
       "src/shared/prompt.ts": "7736cb146f84382ff17badbabcdf69add6673c4a3695c38759486601f3c87d99",
@@ -53,8 +53,8 @@
       "src/update-notifier.ts": "e5af6fed959a31d1c49cc7264a1159caeacfe91d1b782781a9bfe68dead6318a"
     },
     "specSha256": "0878cbca1f4c06beb6afdf4189f79185e7a35caf22ec1bb94fb585bee2e4be0c",
-    "revision": "71c7fa008280dfc3f4a7f416526994ba1e719af1",
-    "fingerprint": "4989f1761052d4ff9fec2ea57d5ae94243ec595a56f0712f9a5163d86ecf6cf0"
+    "revision": "0652015b492cc7479640f79faaaea92e49b9112e",
+    "fingerprint": "83fcbbda820e887ea9500398622d5e8b11fdbcfd94967885532545ef4cdab9c7"
   },
   "globalOptions": [
     {
